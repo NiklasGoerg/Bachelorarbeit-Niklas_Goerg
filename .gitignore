@@ -3,3 +3,4 @@
 .settings/
 target/
 .idea/
+.attach_pid*
