@@ -24,15 +24,16 @@ public class GuiApplication extends Application {
         public void start(Stage stage) {
 
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(WMScrape.class.getResource("gui/login/controller/existingUserLoginMenu.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(WMScrape.class.getResource("gui/login/controller/existingUserLogin.fxml"));
                 Parent parent = fxmlLoader.load();
                 stage.setScene(new Scene(parent));
+                stage.getScene().getStylesheets().add("style.css");
+                stage.setTitle("Login");
                 stage.show();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-
 
         @Override
         public void stop() {

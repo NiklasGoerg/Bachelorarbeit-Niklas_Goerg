@@ -13,7 +13,7 @@ public class DataSourceConfig {
     public DataSource getDataSource() {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
         //dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
-        dataSourceBuilder.url(SpringIndependentData.getPath());
+        dataSourceBuilder.url(SpringIndependentData.getSpringConnectionPath());
         dataSourceBuilder.username(SpringIndependentData.getUsername());
         dataSourceBuilder.password(SpringIndependentData.getPassword());
         return dataSourceBuilder.build();

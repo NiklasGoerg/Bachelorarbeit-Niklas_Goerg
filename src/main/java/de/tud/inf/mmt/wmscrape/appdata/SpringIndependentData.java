@@ -2,9 +2,10 @@ package de.tud.inf.mmt.wmscrape.appdata;
 
 public class SpringIndependentData {
 
-    private static String username = "root";
-    private static String password = "123456";
-    private static String path = "jdbc:mysql://localhost/test_USER_DB";
+    private static String username; // e.g. test
+    private static String password;
+    private static String propertyConnectionPath; // e.g. "mysql://localhost/"
+    private static String springConnectionPath; // e.g. "jdbc:mysql://localhost/test_USER_DB"
 
     public SpringIndependentData() {}
 
@@ -16,12 +17,12 @@ public class SpringIndependentData {
         SpringIndependentData.password = password;
     }
 
-    public static String getPath() {
-        return path;
+    public static String getPropertyConnectionPath() {
+        return propertyConnectionPath;
     }
 
-    public static void setPath(String path) {
-        SpringIndependentData.path = path;
+    public static void setPropertyConnectionPath(String propertyConnectionPath) {
+        SpringIndependentData.propertyConnectionPath = propertyConnectionPath;
     }
 
     public static String getUsername() {
@@ -32,4 +33,9 @@ public class SpringIndependentData {
         SpringIndependentData.username = username;
     }
 
+    public static String getSpringConnectionPath() { return springConnectionPath; }
+
+    public static void setSpringConnectionPath(String springConnectionPath) {
+        SpringIndependentData.springConnectionPath = springConnectionPath;
+    }
 }
