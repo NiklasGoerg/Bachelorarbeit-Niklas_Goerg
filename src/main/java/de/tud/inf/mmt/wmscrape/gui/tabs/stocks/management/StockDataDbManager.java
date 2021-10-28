@@ -2,14 +2,12 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockColumnRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataTableColumn;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -23,12 +21,34 @@ public class StockDataDbManager {
     @Autowired
     DataSource dataSource;
 
+    @PostConstruct
+    private void init() {
+       System.out.println("test");
+
+        if (!tableExists()) {
+            initializeTable();
+        }
+
+        ArrayList<String> columnNames = new ArrayList<>();
+        for(StockDataTableColumn column : stockColumnRepository.findAll()) {
+            columnNames.add(column.getName());
+        }
+
+        for(String colName : getColumns()) {
+            if(!columnNames.contains(colName)) {
+                ColumnDatatype datatype = getColumnDataType(colName);
+                StockDataTableColumn col = new StockDataTableColumn(colName, datatype);
+                stockColumnRepository.save(col);
+            }
+        }
+    }
+
     private ArrayList<String> getColumns() {
         ArrayList<String> columns = new ArrayList<>();
 
         try {
             Statement statement = dataSource.getConnection().createStatement();
-            ResultSet results = statement.executeQuery("SELECT column_name FROM information_schema.columns WHERE table_name = 'Stammdaten';");
+            ResultSet results = statement.executeQuery("SELECT column_name FROM information_schema.columns WHERE table_name = 'stammdaten';");
 
             while (results.next()) {
                 columns.add(results.getString(1));
@@ -49,13 +69,15 @@ public class StockDataDbManager {
             }
 
             Statement statement = dataSource.getConnection().createStatement();
-            statement.execute("ALTER TABLE Stammdaten ADD " + columnName + " " + columnDatatype.name()+ ";");
+            statement.execute("ALTER TABLE stammdaten ADD " + columnName + " " + columnDatatype.name()+ ";");
             statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
 
+        StockDataTableColumn column = new StockDataTableColumn(columnName,columnDatatype);
+        stockColumnRepository.save(column);
         return true;
     }
 
@@ -66,8 +88,10 @@ public class StockDataDbManager {
             }
 
             Statement statement = dataSource.getConnection().createStatement();
-            statement.execute("ALTER TABLE Stammdaten DROP COLUMN " + columnName + ";");
+            statement.execute("ALTER TABLE stammdaten DROP COLUMN " + columnName + ";");
             statement.close();
+
+            stockColumnRepository.deleteAll(stockColumnRepository.findAllByName(columnName));
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -77,10 +101,10 @@ public class StockDataDbManager {
 
     private boolean columnExists(String columnName) throws SQLException {
         Statement statement = dataSource.getConnection().createStatement();
-        ResultSet results = statement.executeQuery("SELECT * FROM information_schema.columns WHERE table_name = 'Stammdaten';");
+        ResultSet results = statement.executeQuery("SELECT column_name FROM information_schema.columns WHERE table_name = 'stammdaten';");
 
         while (results.next()) {
-            if (results.getString(1).contentEquals(columnName)) {
+            if (results.getString(1).equals(columnName)) {
                 return true;
             }
         }
@@ -88,27 +112,39 @@ public class StockDataDbManager {
         return false;
     }
 
-    private int getColumnDataType(String columnName){
+    private ColumnDatatype getColumnDataType(String columnName){
         //https://www.tutorialspoint.com/java-resultsetmetadata-getcolumntype-method-with-example
 
         try {
-            if (!columnExists(columnName)) {
-                return -1;
-            }
+//            if (!columnExists(columnName)) {
+//                return null;
+//            }
             Statement statement = dataSource.getConnection().createStatement();
-            ResultSet results = statement.executeQuery("SELECT " + columnName + " FROM Stammdaten");
+            ResultSet results = statement.executeQuery("SELECT " + columnName + " FROM stammdaten");
             int type = results.getMetaData().getColumnType(1);
 
 //            ResultSet results = statement.executeQuery(
-//                    "SELECT data_type FROM information_schema.columns WHERE table_name = 'Stammdaten' " +
+//                    "SELECT data_type FROM information_schema.columns WHERE table_name = 'stammdaten' " +
 //                            "AND column_name = '" + columnName + "';");
-
             statement.close();
-            return type;
+
+            switch (type) {
+                case 91:
+                    return ColumnDatatype.DATE;
+                case 4:
+                    return ColumnDatatype.INT;
+                case 93:
+                case 2014:
+                    return ColumnDatatype.DATETIME;
+                case 8:
+                    return ColumnDatatype.DOUBLE;
+                default:
+                    return ColumnDatatype.TEXT;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return -2;
+        return null;
     }
 
     private boolean tableExists() {
@@ -117,7 +153,8 @@ public class StockDataDbManager {
             ResultSet results = statement.executeQuery("SHOW TABLES;");
 
             while (results.next()) {
-                if (results.getString(1).contentEquals("Stammdaten")) {
+                String name = results.getString(1);
+                if (name.equals("stammdaten")) {
                     return true;
                 }
             }
@@ -133,7 +170,7 @@ public class StockDataDbManager {
     private boolean initializeTable() {
         try {
             Statement statement = dataSource.getConnection().createStatement();
-            statement.execute("CREATE TABLE IF NOT EXISTS Stammdaten ( isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+            statement.execute("CREATE TABLE IF NOT EXISTS stammdaten ( isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

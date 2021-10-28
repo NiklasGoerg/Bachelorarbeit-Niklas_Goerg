@@ -16,6 +16,7 @@ module de.tud.inf.mmt.wmscrape {
     requires spring.tx;
     requires spring.aop;
     requires org.controlsfx.controls;
+    requires java.annotation;
 
     opens de.tud.inf.mmt.wmscrape;
     exports de.tud.inf.mmt.wmscrape;
