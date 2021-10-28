@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @IdClass(AccountTransactionKey.class)
+@Table(name = "Kontotransaktion")
 public class AccountTransaction {
 
     @Id

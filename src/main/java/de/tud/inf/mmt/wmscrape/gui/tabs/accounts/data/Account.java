@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@Table(name = "Konto")
 public class Account {
 
     @Id

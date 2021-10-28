@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @IdClass(DepotTransactionKey.class)
+@Table(name = "Depottransaktion")
 public class DepotTransaction {
     @Id
     @GeneratedValue
@@ -20,7 +21,7 @@ public class DepotTransaction {
     private Depot depot;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="stockIsin", referencedColumnName="isin")
+    @JoinColumn(name="wertpapierIsin", referencedColumnName="isin")
     private Stock stock;
 
     @Column(name = "Zeitpunkt")

@@ -23,6 +23,6 @@
             <Insets left="5.0" />
          </padding>
       </VBox>
-      <TabPane fx:id="primaryTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="34.0" />
+      <TabPane fx:id="primaryTabPane" prefHeight="655.0" prefWidth="1337.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="34.0" />
    </children>
 </AnchorPane>
