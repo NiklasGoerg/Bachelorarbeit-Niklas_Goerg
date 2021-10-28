@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Normal" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="de.tud.inf.mmt.wmscrape.WMScrape" />
+    <module name="WMScrape" />
+    <option name="VM_PARAMETERS" value="--add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

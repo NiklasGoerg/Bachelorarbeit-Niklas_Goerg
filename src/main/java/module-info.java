@@ -27,4 +27,7 @@ module de.tud.inf.mmt.wmscrape {
     opens de.tud.inf.mmt.wmscrape.gui;
     exports de.tud.inf.mmt.wmscrape.gui.login.controller;
     opens de.tud.inf.mmt.wmscrape.gui.login.controller;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.accounts.data;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.depots.data to org.hibernate.orm.core, spring.core;
 }
