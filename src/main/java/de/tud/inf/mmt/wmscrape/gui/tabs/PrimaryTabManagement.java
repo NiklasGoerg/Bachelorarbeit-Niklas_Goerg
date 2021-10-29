@@ -38,6 +38,7 @@ public class PrimaryTabManagement {
             Scene scene = new Scene(parent);
             stage.setScene(scene);
             stage.initModality(Modality.WINDOW_MODAL);
+            stage.getScene().getStylesheets().add("style.css");
             stage.initOwner(control.getScene().getWindow());
             stage.show();
         } else {

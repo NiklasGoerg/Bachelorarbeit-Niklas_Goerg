@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheetRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,5 +40,14 @@ public class ImportTabManagement {
 
     public void saveExcel(ExcelSheet excelSheet) {
         excelSheetRepository.save(excelSheet);
+    }
+
+    public Tooltip createTooltip(String text) {
+        Tooltip tooltip = new Tooltip();
+        tooltip.setText(text);
+        tooltip.setOpacity(.9);
+        tooltip.setAutoFix(true);
+        tooltip.setStyle("-fx-background-color: FF4A4A;");
+        return tooltip;
     }
 }

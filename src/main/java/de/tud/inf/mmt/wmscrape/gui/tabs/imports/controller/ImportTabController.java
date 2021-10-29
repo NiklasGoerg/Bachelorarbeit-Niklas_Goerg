@@ -40,11 +40,10 @@ public class ImportTabController {
                     loadSpecificExcel(newSheet);
                 });
 
-        pathField.textProperty().addListener((o,ov,nv) -> validPath());
-        passwordField.textProperty().addListener((o,ov,nv) -> validPassword());
-        titleRowNrField.textProperty().addListener((o,ov,nv)-> validTitleColNr());
-        selectionColTitleField.textProperty().addListener((o,ov,nv) -> validSelectionColTitle());
-
+        pathField.textProperty().addListener((o,ov,nv) -> { if (nv != null) { validPath(); }});
+//        passwordField.textProperty().addListener((o,ov,nv) -> { if (nv != null) { validPassword();}});
+        titleRowNrField.textProperty().addListener((o,ov,nv)-> { if (nv != null) { validTitleColNr();}});
+        selectionColTitleField.textProperty().addListener((o,ov,nv) -> { if (nv != null) { validSelectionColTitle();}});
     }
 
     @FXML
@@ -89,6 +88,13 @@ public class ImportTabController {
         excelSheet.setSelectionColTitle(selectionColTitleField.getText());
 
         importTabManagement.saveExcel(excelSheet);
+
+        Alert alert = new Alert(
+                Alert.AlertType.INFORMATION,
+                "Die Exceltabelle wurde gespeichert.",
+                ButtonType.OK);
+        alert.setHeaderText("Daten gespeichert!");
+        alert.showAndWait();
     }
 
     @FXML
@@ -126,6 +132,7 @@ public class ImportTabController {
         if (excelSheet == null) {
             return;
         }
+
         pathField.setText(excelSheet.getPath());
         passwordField.setText(excelSheet.getPassword());
         titleRowNrField.setText(String.valueOf(excelSheet.getTitleRow()));
@@ -138,42 +145,43 @@ public class ImportTabController {
 
     private boolean validPath() {
         pathField.getStyleClass().remove("bad-input");
-        pathField.setTooltip(new Tooltip(""));
+        pathField.setTooltip(null);
 
-        if(pathField.getText().isBlank()) {
-            pathField.setTooltip(createTooltip("Dieses Feld darf nicht leer sein!"));
+        if(pathField.getText() == null || pathField.getText().isBlank()) {
+            pathField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
             pathField.getStyleClass().add("bad-input");
             return false;
         } else if (!pathField.getText().matches("^.*\\.xlsx$")) {
-            pathField.setTooltip(createTooltip("Dieses Feld darf nur auf xlsx Dateien verweisen!"));
+            pathField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nur auf xlsx Dateien verweisen!"));
             pathField.getStyleClass().add("bad-input");
             return false;
         }
         return true;
     }
 
-    private boolean validPassword() {
-        passwordField.getStyleClass().remove("bad-input");
-        passwordField.setTooltip(new Tooltip(""));
-
-        if(passwordField.getText().isBlank()) {
-            passwordField.setTooltip(createTooltip("Dieses Feld darf nicht leer sein!"));
-            passwordField.getStyleClass().add("bad-input");
-            return false;
-        }
-        return true;
-    }
+//    private boolean validPassword() {
+//        passwordField.getStyleClass().remove("bad-input");
+//        passwordField.setTooltip(null);
+//
+//        if(passwordField.getText() == null || passwordField.getText().isBlank()) {
+//            passwordField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
+//            passwordField.getStyleClass().add("bad-input");
+//            return false;
+//        }
+//        return true;
+//    }
 
     private boolean validTitleColNr() {
         titleRowNrField.getStyleClass().remove("bad-input");
-        titleRowNrField.setTooltip(new Tooltip(""));
+        titleRowNrField.setTooltip(null);
 
-        if(titleRowNrField.getText().isBlank()) {
-            titleRowNrField.setTooltip(createTooltip("Dieses Feld darf nicht leer sein!"));
+        if(titleRowNrField.getText() == null || titleRowNrField.getText().isBlank()) {
+            titleRowNrField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
             titleRowNrField.getStyleClass().add("bad-input");
             return false;
         } else if (!titleRowNrField.getText().matches("^[0-9]+$")) {
-            titleRowNrField.setTooltip(createTooltip("Dieses Feld darf nur eine kombination der Zahlen 0-9 enthalten!"));
+            titleRowNrField.setTooltip(importTabManagement.createTooltip(
+                    "Dieses Feld darf nur eine Kombination der Zahlen 0-9 enthalten!"));
             titleRowNrField.getStyleClass().add("bad-input");
             return false;
         }
@@ -182,10 +190,10 @@ public class ImportTabController {
 
     private boolean validSelectionColTitle() {
         selectionColTitleField.getStyleClass().remove("bad-input");
-        selectionColTitleField.setTooltip(new Tooltip(""));
+        selectionColTitleField.setTooltip(null);
 
-        if(selectionColTitleField.getText().isBlank()) {
-            selectionColTitleField.setTooltip(createTooltip("Dieses Feld darf nicht leer sein!"));
+        if(selectionColTitleField.getText() == null || selectionColTitleField.getText().isBlank()) {
+            selectionColTitleField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
             selectionColTitleField.getStyleClass().add("bad-input");
             return false;
         }
@@ -194,15 +202,13 @@ public class ImportTabController {
     }
 
     private boolean isValidInput() {
-        return validPath() && validPassword() && validTitleColNr() && validSelectionColTitle();
+        // need all methods executed to highlight errors
+        boolean valid = validPath();
+//        valid &= validPassword();
+        valid &= validTitleColNr();
+        valid &= validSelectionColTitle();
+        return valid;
     }
 
-    private Tooltip createTooltip(String text) {
-        Tooltip tooltip = new Tooltip();
-        tooltip.setText(text);
-        tooltip.setOpacity(.9);
-        tooltip.setAutoFix(true);
-        tooltip.setStyle("-fx-background-color: FF4A4A;");
-        return tooltip;
-    }
+
 }
