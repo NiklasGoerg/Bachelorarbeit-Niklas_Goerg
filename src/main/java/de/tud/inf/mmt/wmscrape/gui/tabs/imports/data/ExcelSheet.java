@@ -18,9 +18,11 @@ public class ExcelSheet {
     @OneToMany(fetch= FetchType.LAZY, mappedBy ="excelSheet",  orphanRemoval = true)
     private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
-    public int getId() {
-        return id;
-    }
+    public ExcelSheet() {}
+
+    public ExcelSheet(String description) { this.description = description; }
+
+    public int getId() { return id; }
 
     public String getDescription() {
         return description;
@@ -68,5 +70,10 @@ public class ExcelSheet {
 
     public void addExcelCorrelation(ExcelCorrelation excelCorrelation) {
         this.excelCorrelations.add(excelCorrelation);
+    }
+
+    @Override
+    public String toString() {
+        return this.description;
     }
 }

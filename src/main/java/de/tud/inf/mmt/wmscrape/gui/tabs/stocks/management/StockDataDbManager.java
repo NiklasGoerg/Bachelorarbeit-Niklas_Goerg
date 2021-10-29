@@ -22,8 +22,9 @@ public class StockDataDbManager {
     DataSource dataSource;
 
     @PostConstruct
-    private void init() {
-       System.out.println("test");
+    private void initStockData() {
+        // the stock data table is not managed by spring
+        // and has to be initialized by myself
 
         if (!tableExists()) {
             initializeTable();
