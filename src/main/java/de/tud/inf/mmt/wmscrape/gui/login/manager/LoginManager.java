@@ -29,7 +29,7 @@ public class LoginManager {
         try {
             parent = fxmlLoader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return;
         }
 
@@ -67,7 +67,7 @@ public class LoginManager {
             lastDbPath = prop.getProperty("last.dbPath", "mysql://localhost/");
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
 
         SpringIndependentData.setUsername(lastUsername);
@@ -82,7 +82,7 @@ public class LoginManager {
             properties.setProperty("last.username",username);
             properties.store( new FileOutputStream("src/main/resources/user.properties"), null);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
@@ -119,7 +119,7 @@ public class LoginManager {
         try {
             parent = fxmlLoader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
 
@@ -158,7 +158,7 @@ public class LoginManager {
         try {
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
 
         return 1;
@@ -179,7 +179,7 @@ public class LoginManager {
 
             statement.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
 
@@ -200,7 +200,7 @@ public class LoginManager {
 
             statement.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return true;
         }
 
@@ -219,7 +219,7 @@ public class LoginManager {
             }
             statement.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return true;
         }
 
@@ -237,7 +237,7 @@ public class LoginManager {
             statement.close();
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }
@@ -248,7 +248,7 @@ public class LoginManager {
             Connection connection = DriverManager.getConnection(path, username, password);
             return !connection.isClosed();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
     }
@@ -257,7 +257,7 @@ public class LoginManager {
         try {
             return DriverManager.getConnection(path, username, password);
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return null;
         }
     }

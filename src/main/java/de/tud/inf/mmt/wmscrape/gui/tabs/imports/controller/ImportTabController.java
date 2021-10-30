@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
+import java.util.ArrayList;
 
 @Controller
 public class ImportTabController {
@@ -19,7 +20,7 @@ public class ImportTabController {
     @FXML private PasswordField passwordField;
     @FXML private TextField titleRowNrField;
     @FXML private TextField selectionColTitleField;
-    @FXML private TableView sheetPreviewTable;
+    @FXML private TableView<ObservableList<String>> sheetPreviewTable;
     @FXML private TableView stockDataCorrelationTable;
     @FXML private TableView transactionCorrelationTable;
 
@@ -76,7 +77,7 @@ public class ImportTabController {
 
     @FXML
     private void saveSpecificExcel() {
-        if(!isValidInput()) {
+        if(!excelIsSelected() || !isValidInput()) {
             return;
         }
 
@@ -107,6 +108,75 @@ public class ImportTabController {
         if(selectedFile != null) {
             pathField.setText(selectedFile.getPath());
         }
+    }
+
+    @FXML
+    private void previewExcel() {
+        if(!excelIsSelected() || !isValidInput()) {
+            return;
+        }
+
+        ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
+        if(!importTabManagement.sheetExists(excelSheet)) {
+            Alert alert = new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unter dem angegebenen Pfad wurde keine gültige Datei gefunden. Speichern Sie bevor Sie die Vorschau laden.",
+                    ButtonType.OK);
+            alert.setHeaderText("Datei nicht gefunden!");
+            alert.showAndWait();
+            return;
+        }
+
+        int result = importTabManagement.fillExcelPreview(sheetPreviewTable, excelSheet);
+        Alert alert;
+
+        switch (result) {
+            case -1:
+                // wrong password
+                alert = new Alert(
+                        Alert.AlertType.ERROR,
+                        "Das angegebene Passwort ist falsch. Speichern Sie bevor Sie die Vorschau laden.",
+                        ButtonType.OK);
+                alert.setHeaderText("Falsches Passwort!");
+                alert.showAndWait();
+                return;
+            case -2:
+                // TitleRowError
+                alert = new Alert(
+                        Alert.AlertType.ERROR,
+                        "Die Titelzeile liegt außerhalb der Begrenzung.",
+                        ButtonType.OK);
+                alert.setHeaderText("Fehlerhafte Titelzeile!");
+                alert.showAndWait();
+                return;
+            case -3:
+                // Selection Column not found
+                alert = new Alert(
+                        Alert.AlertType.ERROR,
+                        "In der Zeile "+excelSheet.getTitleRow()+" " +
+                                "existiert keine Spalte mit dem Namen '" +
+                                excelSheet.getSelectionColTitle() + "'.",
+                        ButtonType.OK);
+                alert.setHeaderText("Übernahmespalte nicht gefunden!");
+                alert.showAndWait();
+                return;
+        }
+
+    }
+
+    private boolean excelIsSelected() {
+        ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
+
+        if(excelSheet == null) {
+            Alert alert = new Alert(
+                    Alert.AlertType.ERROR,
+                    "Wählen Sie eine Exceldatei aus der Liste aus.",
+                    ButtonType.OK);
+            alert.setHeaderText("Keine Excel ausgewählt!");
+            alert.showAndWait();
+            return false;
+        }
+        return true;
     }
 
     public void selectLastExcel() {
@@ -179,7 +249,7 @@ public class ImportTabController {
             titleRowNrField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
             titleRowNrField.getStyleClass().add("bad-input");
             return false;
-        } else if (!titleRowNrField.getText().matches("^[0-9]+$")) {
+        } else if (!titleRowNrField.getText().matches("^[1-9][0-9]*$")) {
             titleRowNrField.setTooltip(importTabManagement.createTooltip(
                     "Dieses Feld darf nur eine Kombination der Zahlen 0-9 enthalten!"));
             titleRowNrField.getStyleClass().add("bad-input");
@@ -209,6 +279,5 @@ public class ImportTabController {
         valid &= validSelectionColTitle();
         return valid;
     }
-
 
 }

@@ -57,7 +57,7 @@ public class StockDataDbManager {
 
             statement.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
 
         return columns;
@@ -73,7 +73,7 @@ public class StockDataDbManager {
             statement.execute("ALTER TABLE stammdaten ADD " + columnName + " " + columnDatatype.name()+ ";");
             statement.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
 
@@ -94,7 +94,7 @@ public class StockDataDbManager {
 
             stockColumnRepository.deleteAll(stockColumnRepository.findAllByName(columnName));
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
         return true;
@@ -143,7 +143,7 @@ public class StockDataDbManager {
                     return ColumnDatatype.TEXT;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
         return null;
     }
@@ -162,7 +162,7 @@ public class StockDataDbManager {
             statement.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
         return false;
@@ -173,7 +173,7 @@ public class StockDataDbManager {
             Statement statement = dataSource.getConnection().createStatement();
             statement.execute("CREATE TABLE IF NOT EXISTS stammdaten ( isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return false;
         }
         return true;

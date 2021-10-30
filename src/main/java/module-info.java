@@ -18,6 +18,10 @@ module de.tud.inf.mmt.wmscrape {
     requires org.controlsfx.controls;
     requires java.annotation;
 
+    requires org.apache.poi.poi;
+    requires org.apache.poi.ooxml;
+    requires org.apache.commons.compress;
+
     opens de.tud.inf.mmt.wmscrape;
     exports de.tud.inf.mmt.wmscrape;
     exports de.tud.inf.mmt.wmscrape.appdata;

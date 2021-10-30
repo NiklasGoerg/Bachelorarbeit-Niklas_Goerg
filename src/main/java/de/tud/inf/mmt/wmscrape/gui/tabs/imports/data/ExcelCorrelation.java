@@ -11,7 +11,8 @@ public class ExcelCorrelation {
     @GeneratedValue
     private int id;
 
-    private String dbColTitle;
+    private String excelColTitle;
+    private int excelColNumber;
     private CorrelationType correlationType;
 
     @ManyToOne(fetch=FetchType.LAZY)
@@ -26,12 +27,20 @@ public class ExcelCorrelation {
         return id;
     }
 
-    public String getDbColTitle() {
-        return dbColTitle;
+    public String getExcelColTitle() {
+        return excelColTitle;
     }
 
-    public void setDbColTitle(String dbColTitle) {
-        this.dbColTitle = dbColTitle;
+    public void setExcelColTitle(String excelColTitle) {
+        this.excelColTitle = excelColTitle;
+    }
+
+    public int getExcelColNumber() {
+        return excelColNumber;
+    }
+
+    public void setExcelColNumber(int excelColNumber) {
+        this.excelColNumber = excelColNumber;
     }
 
     public CorrelationType getCorrelationType() {

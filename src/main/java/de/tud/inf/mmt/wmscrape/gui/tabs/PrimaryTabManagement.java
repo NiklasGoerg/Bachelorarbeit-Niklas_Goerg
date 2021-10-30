@@ -27,7 +27,7 @@ public class PrimaryTabManagement {
         try {
             parent = loadTabFxml(path, controllerClass);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e);
             return;
         }
 

@@ -12,7 +12,7 @@ public class ExcelSheet {
     private String description;
     private String path;
     private String password;
-    private int titleRow;
+    private int titleRow = 1;
     private String selectionColTitle;
 
     @OneToMany(fetch= FetchType.LAZY, mappedBy ="excelSheet",  orphanRemoval = true)
