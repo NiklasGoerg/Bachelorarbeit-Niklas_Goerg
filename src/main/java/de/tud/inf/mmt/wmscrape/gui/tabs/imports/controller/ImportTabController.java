@@ -6,12 +6,12 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManagement;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
-import java.util.ArrayList;
 
 @Controller
 public class ImportTabController {
@@ -150,7 +150,16 @@ public class ImportTabController {
                 alert.showAndWait();
                 return;
             case -3:
-                // Selection Column not found
+                // no data in sheet
+                alert = new Alert(
+                        Alert.AlertType.ERROR,
+                        "Die angegebene Datei enhält keine Daten.",
+                        ButtonType.OK);
+                alert.setHeaderText("Keine Daten gefunden!");
+                alert.showAndWait();
+                return;
+            case -4:
+                // Selection column not found
                 alert = new Alert(
                         Alert.AlertType.ERROR,
                         "In der Zeile "+excelSheet.getTitleRow()+" " +
@@ -160,6 +169,26 @@ public class ImportTabController {
                 alert.setHeaderText("Übernahmespalte nicht gefunden!");
                 alert.showAndWait();
                 return;
+            case -5:
+                // Selection column not found
+                alert = new Alert(
+                        Alert.AlertType.WARNING,
+                        "Einige Zellen konnten nicht evaluiert werden. Diese wurden mit 'ERROR' gefüllt. ",
+                        ButtonType.OK);
+                alert.setHeaderText("Evaluierungs Fehler!");
+
+                TextArea textArea = new TextArea(
+                        "Einige Zellen konnten nicht evaluiert werden. Diese wurden mit ERROR gefüllt.\n" +
+                        "Die von POI unterstützten Funktionen können hier nachgeschlagen werden: \n\n" +
+                        "https://poi.apache.org/components/spreadsheet/eval-devguide.html");
+                textArea.setEditable(false);
+                textArea.setWrapText(true);
+                GridPane gridPane = new GridPane();
+                gridPane.setMaxWidth(Double.MAX_VALUE);
+                gridPane.add(textArea, 0, 0);
+                alert.getDialogPane().setContent(gridPane);
+                alert.show();
+                break;
         }
 
     }

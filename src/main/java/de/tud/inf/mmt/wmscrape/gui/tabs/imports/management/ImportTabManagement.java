@@ -27,11 +27,12 @@ public class ImportTabManagement {
     @Autowired
     private ExcelSheetRepository excelSheetRepository;
 
-    private static Map<Integer, Boolean> selectedStockDataRows;
+    private static ObservableList<ObservableList<String>> sheetPreviewTableData = FXCollections.observableArrayList();
+
     // at first they are equal
+    private static Map<Integer, Boolean> selectedStockDataRows;
     private static Map<Integer, Boolean> selectedTransactionRows;
 
-    private static ObservableList<ObservableList<String>> sheetPreviewTableData = FXCollections.observableArrayList();
 
     public void createNewExcel(String description) {
         excelSheetRepository.save(new ExcelSheet(description));
@@ -77,10 +78,9 @@ public class ImportTabManagement {
         }
     }
 
-    public Sheet decryptAndGetSheet(ExcelSheet excelSheet) throws EncryptedDocumentException {
+    public Workbook decryptAndGetWorkbook(ExcelSheet excelSheet) throws EncryptedDocumentException {
         try {
-            Workbook wb = WorkbookFactory.create(new File(excelSheet.getPath()), excelSheet.getPassword());
-            return wb.getSheetAt(0);
+            return WorkbookFactory.create(new File(excelSheet.getPath()), excelSheet.getPassword());
         } catch (IOException e) {
             System.out.println(e);
             return null;
@@ -91,27 +91,42 @@ public class ImportTabManagement {
         sheetPreviewTable.getColumns().clear();
         sheetPreviewTable.getItems().clear();
 
-        Sheet sheet;
+        Workbook workbook;
         try {
-            sheet = decryptAndGetSheet(excelSheet);
+             workbook = decryptAndGetWorkbook(excelSheet);
         } catch (EncryptedDocumentException e) {
             System.out.println(e);
+            // cant decrypt
             return -1;
         }
 
-        if (excelSheet.getTitleRow() > sheet.getLastRowNum() || excelSheet.getTitleRow() <= 0) {
+        if (excelSheet.getTitleRow() > workbook.getSheetAt(0).getLastRowNum() || excelSheet.getTitleRow() <= 0) {
+            // column out of bounds
             return -2;
         }
 
         ObservableMap<Integer, ArrayList<String>> excelData = FXCollections.observableMap(new TreeMap<>());
-        getExcelSheetData(sheet, excelSheet.getTitleRow(), excelData);
+        boolean evalFaults = getExcelSheetData(workbook, excelSheet.getTitleRow(), excelData);
+
+        try {
+            workbook.close();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+
+        if(excelData.size() == 0) {
+            return -3;
+        }
+
         removeEmptyRows(excelData);
         unifyRows(excelData);
+        removeEmptyCols(excelData, excelSheet);
         Map<Integer, String> titles = extractColTitles(excelSheet.getTitleRow()-1, excelData);
 
         int selectionColNumber = getSelectionColNumber(titles, excelSheet);
         if(selectionColNumber == -1) {
-            return -3;
+            // selection col not found
+            return -4;
         }
 
         selectedStockDataRows = getSelectedInitially(excelData, selectionColNumber);
@@ -128,13 +143,25 @@ public class ImportTabManagement {
 
         // add rows themselves
         sheetPreviewTable.setItems(sheetPreviewTableData);
+        if(evalFaults) {
+            return -5;
+        }
         return 0;
     }
 
-    private void getExcelSheetData(Sheet sheet, int startRow, ObservableMap<Integer, ArrayList<String>> excelData ) {
+    private boolean getExcelSheetData(Workbook workbook, int startRow, ObservableMap<Integer, ArrayList<String>> excelData ) {
+
+        Sheet sheet = workbook.getSheetAt(0);
+        FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+        evaluator.setIgnoreMissingWorkbooks(true);
+        DataFormatter formatter = new DataFormatter();
+        String value;
+        boolean evalFault = false;
+
         // for each table row
         // excel starts with index 1 "poi" with 0
         for (int rowNumber = startRow-1; rowNumber < sheet.getLastRowNum(); rowNumber++) {
+
             Row row = sheet.getRow(rowNumber);
 
             // skip if null
@@ -155,37 +182,56 @@ public class ImportTabManagement {
                 if (cell == null) {
                     excelData.get(rowNumber).add("");
                 } else {
-                    switch (cell.getCellType()) {
-                        case NUMERIC:
-                            if (DateUtil.isCellDateFormatted(cell)) {
-                                excelData.get(rowNumber).add(String.valueOf(cell.getDateCellValue()));
-                            } else {
-                                excelData.get(rowNumber).add(String.valueOf(cell.getNumericCellValue()));
-                            }
-                            break;
-                        case BLANK:
-                        case _NONE:
-
-                            excelData.get(rowNumber).add("");
-                            break;
-                        default:
-                            excelData.get(rowNumber).add(cell.getStringCellValue());
-                            break;
+                    try {
+                        switch (evaluator.evaluateInCell(cell).getCellType()) {
+                            case STRING:
+                                value = cell.getStringCellValue();
+                                break;
+                            case NUMERIC:
+                                String raw = formatter.formatCellValue(cell);
+                                if(!raw.matches("^[0-9]+((\\.|,)[0-9]*)?$")) {
+                                    value = raw;
+                                } else if (DateUtil.isCellDateFormatted(cell)) {
+                                    value = String.valueOf(cell.getDateCellValue());
+                                } else {
+                                    value = String.valueOf(cell.getNumericCellValue());
+                                }
+                                break;
+                            case BOOLEAN:
+                                value = String.valueOf(cell.getBooleanCellValue());
+                                break;
+                            case ERROR:
+                                value = String.valueOf(cell.getErrorCellValue());
+                                break;
+                            default:
+                                value = "";
+                                break;
+                        }
+                    } catch (Exception e) {
+                        // TODO: http://poi.apache.org/components/spreadsheet/user-defined-functions.html
+                        //      https://poi.apache.org/components/spreadsheet/eval-devguide.html (bottom)
+                        // example org.apache.poi.ss.formula.eval.NotImplementedException: Error evaluating cell 'WP Depot'!AX75
+                        System.out.println(e);
+                        String[] cellError = e.toString().split("'");
+                        value = "ERROR: Evaluationsfehler: " + cellError[cellError.length-1];
+                        evalFault = true;
                     }
+                    excelData.get(rowNumber).add(value);
                 }
             }
         }
+        return evalFault;
     }
 
-    private void removeEmptyRows(Map<Integer, ArrayList<String>> rowMap) {
-        // Remove rows which are empty or marked as blank
+    private void removeEmptyRows(Map<Integer, ArrayList<String>> excelData) {
+        // Remove rows which are empty
         List<Integer> rowsToRemove = new ArrayList<>();
 
         boolean hasContent;
 
-        for(int key : rowMap.keySet()) {
+        for(int key : excelData.keySet()) {
             hasContent = false;
-            ArrayList<String> row = rowMap.get(key);
+            ArrayList<String> row = excelData.get(key);
 
             // skip the first col as it is the row index
             for(int col=1; col < row.size(); col++) {
@@ -202,7 +248,39 @@ public class ImportTabManagement {
             }
         }
 
-        rowsToRemove.forEach(rowMap::remove);
+        rowsToRemove.forEach(excelData::remove);
+    }
+
+    private void removeEmptyCols(Map<Integer, ArrayList<String>> rowMap, ExcelSheet excelSheet) {
+        // Lists have to be unified beforehand
+        List<Integer> colsToRemove = new ArrayList<>();
+
+        boolean hasContent;
+
+        for(int col=1; col < rowMap.get(excelSheet.getTitleRow()-1).size(); col++) {
+            hasContent = false;
+
+            for(ArrayList<String> row: rowMap.values()) {
+                if(!row.get(col).isBlank()) {
+                    hasContent = true;
+                    break;
+                }
+            }
+            if (!hasContent) {
+                colsToRemove.add(col);
+            }
+        }
+
+        int counterShrinkage;
+        for(int row : rowMap.keySet()) {
+            counterShrinkage = 0;
+            for(int col : colsToRemove) {
+                ArrayList<String> rowData = rowMap.get(row);
+                rowData.remove(col-counterShrinkage);
+                rowMap.put(row, rowData);
+                counterShrinkage++;
+            }
+        }
     }
 
     private void unifyRows(Map<Integer,ArrayList<String>> rowMap) {
@@ -245,8 +323,13 @@ public class ImportTabManagement {
     }
 
     private HashMap<Integer, String> extractColTitles(int rowNumber, Map<Integer,ArrayList<String>> rowMap) {
-        ArrayList<String> titleList = rowMap.remove(rowNumber);
         HashMap<Integer, String> titleMap = new HashMap<>();
+
+        if(titleMap == null || !rowMap.containsKey(rowNumber)) {
+            return titleMap;
+        }
+
+        ArrayList<String> titleList = rowMap.remove(rowNumber);
         for(int i=0; i<titleList.size(); i++) {
             titleMap.put(i, titleList.get(i));
         }
@@ -278,7 +361,7 @@ public class ImportTabManagement {
             if(titles.get(col).equals(excelSheet.getSelectionColTitle())) {
 
                 // add the checkbox column for stockdata
-                TableColumn<ObservableList<String>, Boolean> tableCol = new TableColumn<>(titles.get(col));
+                TableColumn<ObservableList<String>, Boolean> tableCol = new TableColumn<>("Stammdaten");
 
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
@@ -295,7 +378,7 @@ public class ImportTabManagement {
 
                 // add the checkbox column for transactions
                 // same concept different listener
-                tableCol = new TableColumn<>("Übernahme Transaktion");
+                tableCol = new TableColumn<>("Transaktionen");
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
                 tableCol.setCellValueFactory(param -> {
@@ -313,6 +396,8 @@ public class ImportTabManagement {
             // normal columns with string content
             TableColumn<ObservableList<String>, String> tableCol = new TableColumn<>(titles.get(col));
             tableCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().get(col)));
+            tableCol.prefWidthProperty().bind(sheetPreviewTable.widthProperty().multiply(0.12));
+            tableCol.setSortable(false);
             sheetPreviewTable.getColumns().add(tableCol);
         }
     }

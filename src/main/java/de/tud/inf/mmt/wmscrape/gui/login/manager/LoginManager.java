@@ -12,6 +12,7 @@ import org.controlsfx.validation.ValidationSupport;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
@@ -62,7 +63,7 @@ public class LoginManager {
         String lastDbPath = "mysql://localhost/";
 
         try {
-            prop.load(WMScrape.class.getClassLoader().getResourceAsStream("user.properties"));
+            prop.load(new FileInputStream("src/main/resources/user.properties"));
             lastUsername = prop.getProperty("last.username","");
             lastDbPath = prop.getProperty("last.dbPath", "mysql://localhost/");
 
