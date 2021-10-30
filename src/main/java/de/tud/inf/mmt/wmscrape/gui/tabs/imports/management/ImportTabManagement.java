@@ -2,26 +2,23 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheetRepository;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.event.EventHandler;
-import javafx.scene.control.*;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.util.Callback;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.*;
-
-import org.apache.poi.ss.usermodel.Cell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -29,6 +26,10 @@ public class ImportTabManagement {
 
     @Autowired
     private ExcelSheetRepository excelSheetRepository;
+
+    private static Map<Integer, Boolean> selectedStockDataRows;
+    // at first they are equal
+    private static Map<Integer, Boolean> selectedTransactionRows;
 
     private static ObservableList<ObservableList<String>> sheetPreviewTableData = FXCollections.observableArrayList();
 
@@ -108,9 +109,13 @@ public class ImportTabManagement {
         unifyRows(excelData);
         Map<Integer, String> titles = extractColTitles(excelSheet.getTitleRow()-1, excelData);
 
-        if(!selectionColExists(titles, excelSheet)) {
+        int selectionColNumber = getSelectionColNumber(titles, excelSheet);
+        if(selectionColNumber == -1) {
             return -3;
         }
+
+        selectedStockDataRows = getSelectedInitially(excelData, selectionColNumber);
+        selectedTransactionRows = new HashMap<>(selectedStockDataRows);
 
         addColumnsToView(sheetPreviewTable, titles, excelSheet);
 
@@ -142,6 +147,8 @@ public class ImportTabManagement {
                 // add new array if new row
                 if (!excelData.containsKey(rowNumber)) {
                     excelData.put(rowNumber, new ArrayList<String>());
+                    // add row index
+                    excelData.get(rowNumber).add(String.valueOf(rowNumber));
                 }
 
                 // cell value processing
@@ -158,6 +165,7 @@ public class ImportTabManagement {
                             break;
                         case BLANK:
                         case _NONE:
+
                             excelData.get(rowNumber).add("");
                             break;
                         default:
@@ -177,8 +185,12 @@ public class ImportTabManagement {
 
         for(int key : rowMap.keySet()) {
             hasContent = false;
+            ArrayList<String> row = rowMap.get(key);
 
-            for(String cellValue : rowMap.get(key)) {
+            // skip the first col as it is the row index
+            for(int col=1; col < row.size(); col++) {
+                String cellValue =  row.get(col);
+
                 if (cellValue != null && !cellValue.isBlank()) {
                     hasContent = true;
                     break;
@@ -223,13 +235,13 @@ public class ImportTabManagement {
         return datatypes;
     }
 
-    private boolean selectionColExists(Map<Integer, String> titles, ExcelSheet excelSheet) {
-        for(String title : titles.values()) {
-            if (title.equals(excelSheet.getSelectionColTitle())) {
-                return true;
+    private int getSelectionColNumber(Map<Integer, String> titles, ExcelSheet excelSheet) {
+        for (int col : titles.keySet()) {
+            if(titles.get(col).equals(excelSheet.getSelectionColTitle())) {
+                return col;
             }
         }
-        return false;
+        return -1;
     }
 
     private HashMap<Integer, String> extractColTitles(int rowNumber, Map<Integer,ArrayList<String>> rowMap) {
@@ -241,8 +253,27 @@ public class ImportTabManagement {
         return titleMap;
     }
 
+    private Map<Integer, Boolean> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData, int selectionColNr) {
+        HashMap<Integer, Boolean> selectedRows = new HashMap<>();
+        for(int rowNr : excelData.keySet()) {
+            ArrayList<String> row = excelData.get(rowNr);
+            // same as for the checkbox -> not blank == checked
+            if(!row.get(selectionColNr).isBlank()) {
+                selectedRows.put(rowNr, true);
+            } else {
+                selectedRows.put(rowNr, false);
+            }
+        }
+        return selectedRows;
+    }
+
     private void addColumnsToView(TableView<ObservableList<String>> sheetPreviewTable, Map<Integer, String> titles, ExcelSheet excelSheet) {
         for(Integer col: titles.keySet()) {
+
+            if(col == 0) {
+                // ignore row index
+                continue;
+            }
 
             if(titles.get(col).equals(excelSheet.getSelectionColTitle())) {
 
@@ -252,12 +283,10 @@ public class ImportTabManagement {
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
                 tableCol.setCellValueFactory(param -> {
-                    SimpleBooleanProperty simpleBooleanProperty =  new SimpleBooleanProperty(param.getValue().get(col).isBlank());
+                    SimpleBooleanProperty simpleBooleanProperty =  new SimpleBooleanProperty(!param.getValue().get(col).isBlank());
                     simpleBooleanProperty.addListener( (o, ov, nv) -> {
-                        // TODO
-                        System.out.println(ov +", "+ nv+ ", ");
+                        selectedStockDataRows.put(Integer.valueOf(param.getValue().get(0)), nv);
                     });
-
                     return simpleBooleanProperty;
                 });
 
@@ -270,10 +299,9 @@ public class ImportTabManagement {
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
                 tableCol.setCellValueFactory(param -> {
-                    SimpleBooleanProperty simpleBooleanProperty =  new SimpleBooleanProperty(param.getValue().get(col).isBlank());
+                    SimpleBooleanProperty simpleBooleanProperty =  new SimpleBooleanProperty(!param.getValue().get(col).isBlank());
                     simpleBooleanProperty.addListener( (o, ov, nv) -> {
-                        // TODO
-                        System.out.println(ov +", "+ nv);
+                        selectedTransactionRows.put(Integer.valueOf(param.getValue().get(0)), nv);
                     });
                     return simpleBooleanProperty;
                 });

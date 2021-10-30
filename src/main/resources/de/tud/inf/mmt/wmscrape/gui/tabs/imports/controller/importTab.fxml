@@ -200,7 +200,7 @@
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
-                  <TableView fx:id="sheetPreviewTable">
+                  <TableView fx:id="sheetPreviewTable" editable="true">
                      <VBox.margin>
                         <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
                      </VBox.margin>
