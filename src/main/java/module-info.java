@@ -37,7 +37,7 @@ module de.tud.inf.mmt.wmscrape {
     opens de.tud.inf.mmt.wmscrape.gui.tabs.depots.data to org.hibernate.orm.core, spring.core;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller to spring.beans;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.imports.management to spring.beans;
-    opens de.tud.inf.mmt.wmscrape.gui.tabs.imports.data to org.hibernate.orm.core, spring.core;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.imports.data to org.hibernate.orm.core, spring.core, javafx.base;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller to javafx.fxml, spring.core;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management to spring.beans;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management to spring.core;

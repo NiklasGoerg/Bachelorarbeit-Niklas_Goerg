@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockColumnRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataTableColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class StockDataDbManager {
 
     @Autowired
-    StockColumnRepository stockColumnRepository;
+    StockDataColumnRepository stockDataColumnRepository;
     @Autowired
     DataSource dataSource;
 
@@ -31,7 +31,7 @@ public class StockDataDbManager {
         }
 
         ArrayList<String> columnNames = new ArrayList<>();
-        for(StockDataTableColumn column : stockColumnRepository.findAll()) {
+        for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
             columnNames.add(column.getName());
         }
 
@@ -39,7 +39,7 @@ public class StockDataDbManager {
             if(!columnNames.contains(colName)) {
                 ColumnDatatype datatype = getColumnDataType(colName);
                 StockDataTableColumn col = new StockDataTableColumn(colName, datatype);
-                stockColumnRepository.save(col);
+                stockDataColumnRepository.save(col);
             }
         }
     }
@@ -57,7 +57,7 @@ public class StockDataDbManager {
 
             statement.close();
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
 
         return columns;
@@ -73,12 +73,12 @@ public class StockDataDbManager {
             statement.execute("ALTER TABLE stammdaten ADD " + columnName + " " + columnDatatype.name()+ ";");
             statement.close();
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
             return false;
         }
 
         StockDataTableColumn column = new StockDataTableColumn(columnName,columnDatatype);
-        stockColumnRepository.save(column);
+        stockDataColumnRepository.save(column);
         return true;
     }
 
@@ -92,9 +92,9 @@ public class StockDataDbManager {
             statement.execute("ALTER TABLE stammdaten DROP COLUMN " + columnName + ";");
             statement.close();
 
-            stockColumnRepository.deleteAll(stockColumnRepository.findAllByName(columnName));
+            stockDataColumnRepository.deleteAll(stockDataColumnRepository.findAllByName(columnName));
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
             return false;
         }
         return true;
@@ -143,7 +143,7 @@ public class StockDataDbManager {
                     return ColumnDatatype.TEXT;
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
         return null;
     }
@@ -162,7 +162,7 @@ public class StockDataDbManager {
             statement.close();
 
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
             return false;
         }
         return false;
@@ -173,7 +173,7 @@ public class StockDataDbManager {
             Statement statement = dataSource.getConnection().createStatement();
             statement.execute("CREATE TABLE IF NOT EXISTS stammdaten ( isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
             return false;
         }
         return true;

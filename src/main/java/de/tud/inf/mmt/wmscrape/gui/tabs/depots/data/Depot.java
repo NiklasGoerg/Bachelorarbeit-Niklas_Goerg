@@ -8,14 +8,11 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@IdClass(DepotKey.class)
 public class Depot {
 
     @Id
     @GeneratedValue
     private int id;
-    @Id
-    private int accountId;
 
     private String name;
     @Column(name = "Öffnungsdatum")
@@ -24,7 +21,7 @@ public class Depot {
     private Date closed;
     @ManyToOne(fetch=FetchType.LAZY)
 
-    @JoinColumn(name = "accountId", referencedColumnName = "id", updatable = false, insertable = false)
+    @JoinColumn(name = "accountId", referencedColumnName = "id")
     private Account account;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="depot",  orphanRemoval = true)
@@ -35,14 +32,6 @@ public class Depot {
 
     public int getId() {
         return id;
-    }
-
-    public int getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
     }
 
     public String getName() {

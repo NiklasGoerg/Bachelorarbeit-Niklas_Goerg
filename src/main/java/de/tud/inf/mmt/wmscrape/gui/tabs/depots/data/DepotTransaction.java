@@ -17,44 +17,43 @@ public class DepotTransaction {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="depotId", referencedColumnName="id", updatable=false, insertable=false)
-    @JoinColumn(name = "depotAccountId", referencedColumnName="accountId", updatable=false, insertable=false)
     private Depot depot;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="wertpapierIsin", referencedColumnName="isin")
     private Stock stock;
 
-    @Column(name = "Zeitpunkt")
+    @Column(name = "zeitpunkt")
     private LocalDateTime timestamp;
     @Enumerated(EnumType.STRING)
-    @Column(name = "Transaktionstyp")
+    @Column(name = "tansaktionstyp")
     private TransactionType transactionType;
-    @Column(name = "Anzahl")
+    @Column(name = "anzahl")
     private int amount;
     @Enumerated(EnumType.STRING)
-    @Column(name = "Währung")
+    @Column(name = "währung")
     private Currency currency;
-    @Column(name = "Preis")
+    @Column(name = "preis")
     private double price;
-    @Column(name = "WertInEur")
+    @Column(name = "wertInEur")
     private double amountInEur;
-    @Column(name = "Bankprovision")
+    @Column(name = "bankprovision")
     private double bankProvision;
-    @Column(name = "Maklercourtage")
+    @Column(name = "maklercourtage")
     private double commission;
-    @Column(name = "Börsenplatzgebühr")
+    @Column(name = "börsenplatzgebühr")
     private double brokerFees;
-    @Column(name = "Spesen")
+    @Column(name = "spesen")
     private double fees;
-    @Column(name = "Kapitalertragssteuer")
+    @Column(name = "kapitalertragssteuer")
     private double capitalYieldsTax;
-    @Column(name = "Solidaritätssteuer")
+    @Column(name = "solidaritätssteuer")
     private double soliditarySurcharge;
-    @Column(name = "Quellensteuer")
+    @Column(name = "quellensteuer")
     private double witholdingTax;
-    @Column(name = "Abgeltungssteuer")
+    @Column(name = "abgeltungssteuer")
     private double flatTax;
-    @Column(name = "Kirchensteuer")
+    @Column(name = "kirchensteuer")
     private double churchTax;
 
 

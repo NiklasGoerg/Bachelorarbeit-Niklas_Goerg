@@ -1,8 +1,11 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataColumnRepository;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
+import java.util.Optional;
 
 @Controller
 public class ImportTabController {
@@ -21,8 +25,8 @@ public class ImportTabController {
     @FXML private TextField titleRowNrField;
     @FXML private TextField selectionColTitleField;
     @FXML private TableView<ObservableList<String>> sheetPreviewTable;
-    @FXML private TableView stockDataCorrelationTable;
-    @FXML private TableView transactionCorrelationTable;
+    @FXML private TableView<ExcelCorrelation> stockDataCorrelationTable;
+    @FXML private TableView<ExcelCorrelation> transactionCorrelationTable;
 
     @Autowired
     private PrimaryTabManagement primaryTabManagement;
@@ -32,6 +36,10 @@ public class ImportTabController {
     private ImportTabManagement importTabManagement;
 
     private ObservableList<ExcelSheet> excelSheetObservableList;
+
+    @Autowired
+    StockDataColumnRepository stockDataColumnRepository;
+    static ObservableList<ExcelCorrelation> stockDataTableColumns = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
@@ -68,6 +76,14 @@ public class ImportTabController {
                     ButtonType.OK);
             alert.setHeaderText("Keine Excel zum löschen ausgewählt!");
             alert.showAndWait();
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText("Einstellungen löschen?");
+        alert.setContentText("Bitte bestätigen Sie, dass sie diese Exceleinstellungen löschen möchten.");
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.isEmpty() || result.get() != ButtonType.OK) {
             return;
         }
 
@@ -159,6 +175,15 @@ public class ImportTabController {
                 alert.showAndWait();
                 return;
             case -4:
+                // titles not unique
+                alert = new Alert(
+                        Alert.AlertType.ERROR,
+                        "Die Titelzeile enthält Elemente mit gleichen Namen.",
+                        ButtonType.OK);
+                alert.setHeaderText("Titel nicht einzigartig!");
+                alert.showAndWait();
+                return;
+            case -5:
                 // Selection column not found
                 alert = new Alert(
                         Alert.AlertType.ERROR,
@@ -169,8 +194,8 @@ public class ImportTabController {
                 alert.setHeaderText("Übernahmespalte nicht gefunden!");
                 alert.showAndWait();
                 return;
-            case -5:
-                // Selection column not found
+            case -6:
+                // Cell evaluation error
                 alert = new Alert(
                         Alert.AlertType.WARNING,
                         "Einige Zellen konnten nicht evaluiert werden. Diese wurden mit 'ERROR' gefüllt. ",
@@ -191,6 +216,12 @@ public class ImportTabController {
                 break;
         }
 
+        stockDataCorrelationTable.getColumns().clear();
+        stockDataCorrelationTable.getItems().clear();
+        transactionCorrelationTable.getColumns().clear();
+        transactionCorrelationTable.getItems().clear();
+        importTabManagement.fillStockDataCorrelationTable(stockDataCorrelationTable, excelSheet);
+        importTabManagement.fillTransactionCorrelationTable(transactionCorrelationTable, excelSheet);
     }
 
     private boolean excelIsSelected() {
@@ -237,8 +268,11 @@ public class ImportTabController {
         titleRowNrField.setText(String.valueOf(excelSheet.getTitleRow()));
         selectionColTitleField.setText(excelSheet.getSelectionColTitle());
 
+        sheetPreviewTable.getColumns().clear();
         sheetPreviewTable.getItems().clear();
+        stockDataCorrelationTable.getColumns().clear();
         stockDataCorrelationTable.getItems().clear();
+        transactionCorrelationTable.getColumns().clear();
         transactionCorrelationTable.getItems().clear();
     }
 

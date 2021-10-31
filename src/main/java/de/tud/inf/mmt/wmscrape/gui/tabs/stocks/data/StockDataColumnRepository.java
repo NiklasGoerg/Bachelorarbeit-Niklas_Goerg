@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface StockColumnRepository extends JpaRepository<StockDataTableColumn, Integer> {
+public interface StockDataColumnRepository extends JpaRepository<StockDataTableColumn, Integer> {
 //    Integer deleteByName(String name);
 //    List<StockDataTableColumn> findAllByName(String name);
 //    Optional<StockDataTableColumn> findByName(String name);

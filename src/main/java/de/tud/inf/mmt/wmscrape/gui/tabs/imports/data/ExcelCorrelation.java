@@ -10,21 +10,38 @@ public class ExcelCorrelation {
     @Id
     @GeneratedValue
     private int id;
-
+    private String dbColTitle;
     private String excelColTitle;
     private int excelColNumber;
+    @Enumerated(EnumType.STRING)
     private CorrelationType correlationType;
 
+    public ExcelCorrelation() {
+    }
+
+    public ExcelCorrelation(String excelColTitle, String dbColTitle) {
+        this.excelColTitle = excelColTitle;
+        this.dbColTitle = dbColTitle;
+    }
+
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="excelSheetId", referencedColumnName="id", insertable=false, updatable = false)
+    @JoinColumn(name="excelSheetId", referencedColumnName="id")
     private ExcelSheet excelSheet;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="stockDataTableColumnId", referencedColumnName="id", insertable=false, updatable = false)
+    @JoinColumn(name="stockDataTableColumnId", referencedColumnName="id")
     private StockDataTableColumn stockDataTableColumn;
 
     public int getId() {
         return id;
+    }
+
+    public String getDbColTitle() {
+        return dbColTitle;
+    }
+
+    public void setDbColTitle(String dbColTitle) {
+        this.dbColTitle = dbColTitle;
     }
 
     public String getExcelColTitle() {
