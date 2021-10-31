@@ -12,7 +12,7 @@ public class ExcelCorrelation {
     private int id;
     private String dbColTitle;
     private String excelColTitle;
-    private int excelColNumber;
+    private int excelColNumber = -1;
     @Enumerated(EnumType.STRING)
     private CorrelationType correlationType;
 

@@ -9,4 +9,5 @@ public interface StockDataColumnRepository extends JpaRepository<StockDataTableC
 //    List<StockDataTableColumn> findAllByName(String name);
 //    Optional<StockDataTableColumn> findByName(String name);
     List<StockDataTableColumn> findAllByName(String name);
+    StockDataTableColumn findByName(String name);
 }

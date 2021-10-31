@@ -21,7 +21,7 @@ public class Stock {
     @Column(name = "gruppenId")
     private int groupId;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock",  orphanRemoval = false)
+    @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock")
     private List<DepotTransaction> depotTransactions = new ArrayList<>();
 
     public Stock() {

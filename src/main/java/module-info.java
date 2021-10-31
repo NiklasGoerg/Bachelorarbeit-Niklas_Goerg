@@ -43,4 +43,5 @@ module de.tud.inf.mmt.wmscrape {
     opens de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management to spring.core;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.imports.management to spring.core;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.imports.data to spring.beans;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data;
 }

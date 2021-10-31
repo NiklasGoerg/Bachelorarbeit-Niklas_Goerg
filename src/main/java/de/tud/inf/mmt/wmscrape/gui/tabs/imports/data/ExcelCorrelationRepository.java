@@ -1,6 +1,9 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.data;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ExcelCorrelationRepository extends CrudRepository<ExcelCorrelation, Integer> {
+import java.util.List;
+
+public interface ExcelCorrelationRepository extends JpaRepository<ExcelCorrelation, Integer> {
+    List<ExcelCorrelation> findAllByExcelSheetId(Integer id);
 }

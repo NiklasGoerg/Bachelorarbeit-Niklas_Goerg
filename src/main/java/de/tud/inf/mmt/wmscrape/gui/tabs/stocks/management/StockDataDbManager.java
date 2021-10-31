@@ -5,12 +5,12 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataTableColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 @Service
@@ -42,6 +42,14 @@ public class StockDataDbManager {
                 stockDataColumnRepository.save(col);
             }
         }
+
+        try {
+            if(!columnExists("wkn")) {
+                addColumn("wkn", ColumnDatatype.TEXT);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private ArrayList<String> getColumns() {
@@ -57,7 +65,7 @@ public class StockDataDbManager {
 
             statement.close();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
         return columns;
@@ -73,7 +81,7 @@ public class StockDataDbManager {
             statement.execute("ALTER TABLE stammdaten ADD " + columnName + " " + columnDatatype.name()+ ";");
             statement.close();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return false;
         }
 
@@ -92,9 +100,12 @@ public class StockDataDbManager {
             statement.execute("ALTER TABLE stammdaten DROP COLUMN " + columnName + ";");
             statement.close();
 
-            stockDataColumnRepository.deleteAll(stockDataColumnRepository.findAllByName(columnName));
+            StockDataTableColumn column = stockDataColumnRepository.findByName(columnName);
+            // fix for not working orphan removal
+            column.setExcelCorrelations(new ArrayList<>());
+            stockDataColumnRepository.delete(column);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -135,15 +146,15 @@ public class StockDataDbManager {
                 case 4:
                     return ColumnDatatype.INT;
                 case 93:
-                case 2014:
-                    return ColumnDatatype.DATETIME;
+//                case 2014:
+//                    return ColumnDatatype.DATETIME;
                 case 8:
                     return ColumnDatatype.DOUBLE;
                 default:
                     return ColumnDatatype.TEXT;
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -162,7 +173,7 @@ public class StockDataDbManager {
             statement.close();
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return false;
         }
         return false;
@@ -173,9 +184,65 @@ public class StockDataDbManager {
             Statement statement = dataSource.getConnection().createStatement();
             statement.execute("CREATE TABLE IF NOT EXISTS stammdaten ( isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return false;
         }
         return true;
+    }
+
+    @Transactional
+    public boolean insertToStockTable(String isin, Date date, PreparedStatement statement, String data, ColumnDatatype datatype) {
+
+//        if(!date.matches("^[1-9][0-9]{3}\\-[0-9]{2}\\-[0-9]{2}$")) {
+//            return false;
+//        }
+        if (isin.length() >= 50) {
+            return false;
+        }
+
+        try {
+            statement.setString(1,isin);
+            statement.setDate(2,date);
+
+            switch (datatype) {
+                case DATE:
+                    LocalDate dataToDate = LocalDate.parse(data);
+                    statement.setDate(3, Date.valueOf(dataToDate));
+                    break;
+                case TEXT:
+                    statement.setString(3,data);
+                    break;
+                case INT:
+                    statement.setInt(3, Integer.parseInt(data));
+                    break;
+                case DOUBLE:
+                    statement.setDouble(3, Double.parseDouble(data));
+                    break;
+                default:
+                    break;
+                }
+
+            statement.addBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
+        String sql = "INSERT INTO stammdaten (isin, datum, "+dbColName+") VALUES(?,?,?) ON DUPLICATE KEY UPDATE "+dbColName+"=VALUES("+dbColName+");";
+        PreparedStatement pst = connection.prepareCall(sql);
+        return pst;
+    }
+
+    public Connection getConnection() {
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

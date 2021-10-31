@@ -1,8 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.*;
+import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management.StockDataDbManager;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -22,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
 @Service
@@ -33,17 +38,28 @@ public class ImportTabManagement {
     private ExcelCorrelationRepository excelCorrelationRepository;
     @Autowired
     private StockDataColumnRepository stockDataColumnRepository;
+    @Autowired
+    private StockDataDbManager stockDataDbManager;
 
     private static ObservableList<ObservableList<String>> sheetPreviewTableData = FXCollections.observableArrayList();
 
-    private static Map<Integer, String> titlesOfLoadedExcel;
+    private static ObservableMap<Integer, ArrayList<String>> excelSheetRows;
 
-    // at first they are equal
+    private static Map<Integer, String> indexToExcelTitle;
+    private static Map<String, Integer> titleToExcelIndex;
+
+    // at first, they are equal
     private static Map<Integer, Boolean> selectedStockDataRows;
     private static Map<Integer, Boolean> selectedTransactionRows;
 
-    ObservableList<ExcelCorrelation> stockColumnRelations;
-    ObservableList<ExcelCorrelation> transactionColumnRelations;
+    private static ObservableList<ExcelCorrelation> stockColumnRelations = FXCollections.observableArrayList();
+    private static ObservableList<ExcelCorrelation> transactionColumnRelations = FXCollections.observableArrayList();
+
+    private SimpleStringProperty logText;
+
+//    #########################
+//    Controller logic section
+//    #########################
 
     public Tooltip createTooltip(String text) {
         Tooltip tooltip = new Tooltip();
@@ -59,6 +75,8 @@ public class ImportTabManagement {
     }
 
     public void deleteSpecificExcel(ExcelSheet excelSheet) {
+        // fix for not working orphan removal
+        excelSheet.setExcelCorrelations(new ArrayList<>());
         excelSheetRepository.delete(excelSheet);
     }
 
@@ -75,6 +93,7 @@ public class ImportTabManagement {
         return excelSheetRepository.findAll();
     }
 
+    @Transactional
     public void saveExcel(ExcelSheet excelSheet) {
         excelSheetRepository.save(excelSheet);
 
@@ -92,16 +111,21 @@ public class ImportTabManagement {
             File file = new File(excelSheet.getPath());
             return file.exists() && file.isFile();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
 
+    public void passLogText(SimpleStringProperty logText) {
+        this.logText = logText;
+    }
+
+    public void addToLog(String line) {
+        logText.set(this.logText.getValue() +"\n" + line);
+    }
 
 //    #########################
-//
 //    Excel parsing section
-//
 //    #########################
 
 
@@ -109,7 +133,7 @@ public class ImportTabManagement {
         try {
             return WorkbookFactory.create(new File(excelSheet.getPath()), excelSheet.getPassword());
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
@@ -122,7 +146,7 @@ public class ImportTabManagement {
         try {
              workbook = decryptAndGetWorkbook(excelSheet);
         } catch (EncryptedDocumentException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             // cant decrypt
             return -1;
         }
@@ -132,42 +156,44 @@ public class ImportTabManagement {
             return -2;
         }
 
-        ObservableMap<Integer, ArrayList<String>> excelData = FXCollections.observableMap(new TreeMap<>());
-        boolean evalFaults = getExcelSheetData(workbook, excelSheet.getTitleRow(), excelData);
+        excelSheetRows = FXCollections.observableMap(new TreeMap<>());
+        boolean evalFaults = getExcelSheetData(workbook, excelSheet.getTitleRow(), excelSheetRows);
 
         try {
             workbook.close();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
-        if(excelData.size() == 0) {
+        if(excelSheetRows.size() == 0) {
             return -3;
         }
 
-        removeEmptyRows(excelData);
-        unifyRows(excelData);
-        removeEmptyCols(excelData, excelSheet);
-        titlesOfLoadedExcel = extractColTitles(excelSheet.getTitleRow()-1, excelData);
-        createNormalizedTitles(titlesOfLoadedExcel);
+        removeEmptyRows(excelSheetRows);
+        unifyRows(excelSheetRows);
+        removeEmptyCols(excelSheetRows, excelSheet);
+        indexToExcelTitle = extractColTitles(excelSheet.getTitleRow()-1, excelSheetRows);
 
-        if(!titlesAreUnique(titlesOfLoadedExcel)) {
+        createNormalizedTitles(indexToExcelTitle);
+        if(!titlesAreUnique(indexToExcelTitle)) {
             return -4;
         }
 
-        int selectionColNumber = getSelectionColNumber(titlesOfLoadedExcel, excelSheet);
+        titleToExcelIndex = reverseMap(indexToExcelTitle);
+
+        int selectionColNumber = getSelectionColNumber(indexToExcelTitle, excelSheet);
         if(selectionColNumber == -1) {
             // selection col not found
             return -5;
         }
 
-        selectedStockDataRows = getSelectedInitially(excelData, selectionColNumber);
+        selectedStockDataRows = getSelectedInitially(excelSheetRows, selectionColNumber);
         selectedTransactionRows = new HashMap<>(selectedStockDataRows);
 
-        addColumnsToView(sheetPreviewTable, titlesOfLoadedExcel, excelSheet);
+        addColumnsToView(sheetPreviewTable, indexToExcelTitle, excelSheet);
 
         // add rows to data observer
-        excelData.forEach((row, rowContent) -> {
+        excelSheetRows.forEach((row, rowContent) -> {
             ObservableList<String> tableRow = FXCollections.observableArrayList();
             tableRow.addAll(rowContent);
             sheetPreviewTableData.add(tableRow);
@@ -182,6 +208,8 @@ public class ImportTabManagement {
     }
 
     private boolean getExcelSheetData(Workbook workbook, int startRow, ObservableMap<Integer, ArrayList<String>> excelData ) {
+
+        addToLog("##### Start Extraktion #####\n");
 
         Sheet sheet = workbook.getSheetAt(0);
         FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
@@ -224,7 +252,7 @@ public class ImportTabManagement {
                                 if(!raw.matches("^[0-9]+((\\.|,)[0-9]*)?$")) {
                                     value = raw;
                                 } else if (DateUtil.isCellDateFormatted(cell)) {
-                                    value = String.valueOf(cell.getDateCellValue());
+                                    value = cell.getDateCellValue().toString();
                                 } else {
                                     value = String.valueOf(cell.getNumericCellValue());
                                 }
@@ -245,6 +273,7 @@ public class ImportTabManagement {
                         // example org.apache.poi.ss.formula.eval.NotImplementedException: Error evaluating cell 'WP Depot'!AX75
                         System.out.println(e.getMessage());
                         String[] cellError = e.toString().split("'");
+                        addToLog(e.getMessage() + " _CAUSE:_ " + e.getCause());
                         value = "ERROR: Evaluationsfehler: " + cellError[cellError.length-1];
                         evalFault = true;
                     }
@@ -252,6 +281,8 @@ public class ImportTabManagement {
                 }
             }
         }
+
+        addToLog("##### Ende Extraktion #####\n");
         return evalFault;
     }
 
@@ -334,16 +365,16 @@ public class ImportTabManagement {
         }
     }
 
-    private ArrayList<CellType> getColumnDatatypesFromRow(Sheet sheet, int rowNumber) {
-        ArrayList<CellType> datatypes = new ArrayList<>();
-        Row row = sheet.getRow(rowNumber);
-
-        for (int colNumber = 0; colNumber < row.getLastCellNum(); colNumber++) {
-            Cell cell = row.getCell(colNumber, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-            datatypes.add(cell.getCellType());
-        }
-        return datatypes;
-    }
+//    private ArrayList<CellType> getColumnDatatypesFromRow(Sheet sheet, int rowNumber) {
+//        ArrayList<CellType> datatypes = new ArrayList<>();
+//        Row row = sheet.getRow(rowNumber);
+//
+//        for (int colNumber = 0; colNumber < row.getLastCellNum(); colNumber++) {
+//            Cell cell = row.getCell(colNumber, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+//            datatypes.add(cell.getCellType());
+//        }
+//        return datatypes;
+//    }
 
     private int getSelectionColNumber(Map<Integer, String> titles, ExcelSheet excelSheet) {
         String formattedTitle = formatConform(excelSheet.getSelectionColTitle());
@@ -368,6 +399,15 @@ public class ImportTabManagement {
             titleMap.put(i, titleList.get(i));
         }
         return titleMap;
+    }
+
+    private HashMap<String, Integer> reverseMap(Map<Integer, String> map) {
+        // must be unique titles
+        HashMap<String, Integer> newMap = new HashMap<>();
+        for(Map.Entry<Integer, String> entry : map.entrySet()){
+            newMap.put(entry.getValue(), entry.getKey());
+        }
+        return newMap;
     }
 
     private void createNormalizedTitles(Map<Integer, String> titles) {
@@ -418,6 +458,9 @@ public class ImportTabManagement {
     }
 
     private void addColumnsToView(TableView<ObservableList<String>> sheetPreviewTable, Map<Integer, String> titles, ExcelSheet excelSheet) {
+
+
+
         for(Integer col: titles.keySet()) {
 
             if(col == 0) {
@@ -448,10 +491,10 @@ public class ImportTabManagement {
                 tableCol = new TableColumn<>("Transaktionen");
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
-                tableCol.setCellValueFactory(param -> {
-                    SimpleBooleanProperty simpleBooleanProperty =  new SimpleBooleanProperty(!param.getValue().get(col).isBlank());
+                tableCol.setCellValueFactory(row -> {
+                    SimpleBooleanProperty simpleBooleanProperty =  new SimpleBooleanProperty(!row.getValue().get(col).isBlank());
                     simpleBooleanProperty.addListener( (o, ov, nv) -> {
-                        selectedTransactionRows.put(Integer.valueOf(param.getValue().get(0)), nv);
+                        selectedTransactionRows.put(Integer.valueOf(row.getValue().get(0)), nv);
                     });
                     return simpleBooleanProperty;
                 });
@@ -470,12 +513,9 @@ public class ImportTabManagement {
     }
 
 //    #########################
-//
 //    Correlation section
-//
 //    #########################
 
-    @Transactional
     public void fillStockDataCorrelationTable(TableView<ExcelCorrelation> stockDataCorrelationTable, ExcelSheet excelSheet) {
 
         // add comboboxes...
@@ -484,8 +524,10 @@ public class ImportTabManagement {
         stockColumnRelations = FXCollections.observableArrayList();
         ArrayList<String> addedStockDbCols = new ArrayList<>();
 
-        // split types between the two tables
-        for (ExcelCorrelation excelCorrelation : excelSheet.getExcelCorrelations()) {
+        // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
+        // therefore the values persist until a new db transaction is done
+        // therefore i have to fetch them manually
+        for (ExcelCorrelation excelCorrelation : excelCorrelationRepository.findAllByExcelSheetId(excelSheet.getId())) {
             if(excelCorrelation.getCorrelationType() == CorrelationType.STOCKDATA) {
                 stockColumnRelations.add(excelCorrelation);
                 addedStockDbCols.add(excelCorrelation.getDbColTitle());
@@ -515,16 +557,15 @@ public class ImportTabManagement {
         stockDataCorrelationTable.getItems().addAll(stockColumnRelations);
     }
 
-    private void constructComboBox(TableColumn<ExcelCorrelation, String> excelColumn, ObservableList<String> excelColTitles) {
+    private void constructComboBox(TableColumn<ExcelCorrelation, String> excelColumn, ObservableList<String> comboBoxOptions) {
         excelColumn.setCellFactory(col -> {
             TableCell<ExcelCorrelation, String> cell = new TableCell<>();
-            ComboBox<String> comboBox = new ComboBox<>(excelColTitles);
+            ComboBox<String> comboBox = new ComboBox<>(comboBoxOptions);
 
             // update value inside the object
             comboBox.valueProperty().addListener((o, ov, nv) -> {
                 if (cell.getTableRow().getItem() != null) {
-                    System.out.println("A " + ov + " , " + nv);
-                    cell.getTableRow().getItem().setExcelColTitle(nv);
+                    updateCorrelationByComboBox(cell,comboBox,nv);
                 }
             });
 
@@ -533,7 +574,6 @@ public class ImportTabManagement {
             // cell.tableRowProperty().addListener((o, ov, nv) -> {
             cell.graphicProperty().addListener((o, ov, nv) -> {
                 if (cell.getTableRow().getItem() != null && cell.getTableRow().getItem().getExcelColTitle() != null) {
-                    System.out.println("B " + ov + " , " + nv);
                     comboBox.setValue(cell.getTableRow().getItem().getExcelColTitle());
                 }
             });
@@ -541,6 +581,14 @@ public class ImportTabManagement {
             cell.graphicProperty().bind(Bindings.when(cell.emptyProperty()).then((Node) null).otherwise(comboBox));
             return cell;
         });
+    }
+
+    private void updateCorrelationByComboBox(TableCell<ExcelCorrelation, String>  cell, ComboBox comboBox, String newValue) {
+        if (cell.getTableRow().getItem() != null) {
+            ExcelCorrelation correlation = cell.getTableRow().getItem();
+            correlation.setExcelColTitle(newValue);
+                correlation.setExcelColNumber(titleToExcelIndex.getOrDefault(newValue, -1));
+        }
     }
 
     public ObservableList<String> mapToObservableList(Map<Integer, String> map) {
@@ -552,7 +600,11 @@ public class ImportTabManagement {
     private void prepareCorrelationTable(TableView<ExcelCorrelation> table) {
         // could be done better
         // normal program structure guarantees that this is accessed after table load
-        ObservableList<String> excelColTitles = mapToObservableList(titlesOfLoadedExcel);
+        ObservableList<String> comboBoxOptions = mapToObservableList(indexToExcelTitle);
+
+        // to undo selection
+        comboBoxOptions.add(0, null);
+
 
         TableColumn<ExcelCorrelation, String> stockDbColumn = new TableColumn<>("Datenbank Spalten");
         TableColumn<ExcelCorrelation, String> excelColumn = new TableColumn<>("Excel Spalten");
@@ -563,7 +615,7 @@ public class ImportTabManagement {
         // populate with name from ExcelCorrelation property
         stockDbColumn.setCellValueFactory(new PropertyValueFactory<>("dbColTitle"));
 
-        constructComboBox(excelColumn, excelColTitles);
+        constructComboBox(excelColumn, comboBoxOptions);
 
         //excelColumn.setCellValueFactory(new PropertyValueFactory<>("excelColTitle"));
 
@@ -571,43 +623,154 @@ public class ImportTabManagement {
         table.getColumns().add(excelColumn);
     }
 
-     public void fillTransactionCorrelationTable(TableView<ExcelCorrelation> transactionCorrelationTable, ExcelSheet excelSheet) {
-
+    public void fillTransactionCorrelationTable(TableView<ExcelCorrelation> transactionCorrelationTable, ExcelSheet excelSheet) {
         prepareCorrelationTable(transactionCorrelationTable);
 
-         transactionColumnRelations = FXCollections.observableArrayList();
-         ArrayList<String> addedTransDbCols = new ArrayList<>();
 
-         // split types between the two tables
-         for (ExcelCorrelation excelCorrelation : excelSheet.getExcelCorrelations()) {
+        transactionColumnRelations = FXCollections.observableArrayList();
+        ArrayList<String> addedTransDbCols = new ArrayList<>();
+
+        // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
+         // therefore the values persist until a new db transaction is done
+         // therefore i have to fetch them manually
+        for (ExcelCorrelation excelCorrelation : excelCorrelationRepository.findAllByExcelSheetId(excelSheet.getId())) {
              if(excelCorrelation.getCorrelationType() == CorrelationType.TRANSACTION) {
                  transactionColumnRelations.add(excelCorrelation);
                  addedTransDbCols.add(excelCorrelation.getDbColTitle());
              }
          }
 
-         final String[] transactionColumnNames = {
-                 "depot_id", "wertpapier_isin", "zeitpunkt", "tansaktionstyp",
-                 "anzahl", "währung", "preis", "wert_in_eur", "bankprovision",
-                 "maklercourtage", "börsenplatzgebühr", "spesen", "kapitalertragssteuer",
-                 "solidaritätssteuer", "quellensteuer", "abgeltungssteuer", "kirchensteuer"};
+        final String[] transactionColumnNames = {
+                "depot_id", "wertpapier_isin", "zeitpunkt", "tansaktionstyp",
+                "anzahl", "währung", "preis", "wert_in_eur", "bankprovision",
+                "maklercourtage", "börsenplatzgebühr", "spesen", "kapitalertragssteuer",
+                "solidaritätssteuer", "quellensteuer", "abgeltungssteuer", "kirchensteuer"};
 
-         transactionCorrelationTable.setMinHeight(transactionColumnNames.length*32.5);
+        transactionCorrelationTable.setMinHeight(transactionColumnNames.length*32.5);
 
 
-         for(String colName : transactionColumnNames) {
+        for(String colName : transactionColumnNames) {
              if(!addedTransDbCols.contains(colName)) {
                  ExcelCorrelation excelCorrelation = new ExcelCorrelation();
                  excelCorrelation.setCorrelationType(CorrelationType.TRANSACTION);
                  excelCorrelation.setExcelSheet(excelSheet);
                  excelCorrelation.setDbColTitle(colName);
-
                  addedTransDbCols.add(colName);
                  transactionColumnRelations.add(excelCorrelation);
              }
          }
 
-         transactionCorrelationTable.getItems().addAll(transactionColumnRelations);
+        transactionCorrelationTable.getItems().addAll(transactionColumnRelations);
     }
 
+//    #########################
+//    Import section
+//    #########################
+
+    public int extractCorrelationData() {
+
+        addToLog("##### Start Import #####\n");
+
+        if(excelSheetRows == null || selectedTransactionRows == null || selectedStockDataRows == null ||
+                stockColumnRelations.size() == 0 || transactionColumnRelations.size() == 0) {
+            // preview not loaded
+            return -1;
+        }
+
+        int isinCol = getIsinColNrFromCorrelations(stockColumnRelations);
+
+        if(isinCol == -1) {
+            return -2;
+        }
+
+        java.sql.Date dateToday = new java.sql.Date(System.currentTimeMillis());
+//        Date dateToday = new Date();
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//        String todayDateString = dateFormat.format(dateToday);
+
+        HashMap<String, PreparedStatement> statements = new HashMap<>();
+        HashMap<String, ColumnDatatype> columnDatatypes = new HashMap<>();
+
+        Connection connection = stockDataDbManager.getConnection();
+
+        // prepare a statement for each column
+        for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
+            try {
+                statements.put(column.getName(), stockDataDbManager.getPreparedStatement(column.getName(), connection));
+                columnDatatypes.put(column.getName(), column.getColumnDatatype());
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return -3;
+            }
+        }
+        // go through all rows
+        for(int row : excelSheetRows.keySet()) {
+
+            // skip rows if not selected
+            if(!selectedStockDataRows.getOrDefault(row, false)) {
+                continue;
+            }
+
+            ArrayList<String> rowData = excelSheetRows.get(row);
+
+            String isin = rowData.get(isinCol);
+            if(isin == null || isin.isBlank() || isin.length() >= 50) {
+                return -4;
+            }
+
+
+            for(ExcelCorrelation correlation : stockColumnRelations) {
+                String dbColName = correlation.getDbColTitle();
+                if(dbColName.equals("isin")) {
+                    continue;
+                }
+
+                int extractColNumber = correlation.getExcelColNumber();
+                // -1 is default and cant be set another way
+                // meaning -> not set
+                if(extractColNumber == -1) {
+                    return -5;
+                }
+
+                String colData = rowData.get(extractColNumber);
+
+                ColumnDatatype datatype = columnDatatypes.getOrDefault(dbColName, null);
+                if(datatype == null) {
+                    return -6;
+                }
+
+                PreparedStatement statement = statements.getOrDefault(dbColName, null);
+                if(statement == null) {
+                    return -7;
+                }
+                stockDataDbManager.insertToStockTable(isin, dateToday, statement, colData, datatype);
+            }
+        }
+
+        for(PreparedStatement statement : statements.values()) {
+            try {
+                statement.executeBatch();
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        addToLog("##### Ende Import #####\n");
+        return 0;
+    }
+
+
+    private int getIsinColNrFromCorrelations(ObservableList<ExcelCorrelation> stockColumnRelations) {
+        for(ExcelCorrelation correlation : stockColumnRelations) {
+            if(correlation.getDbColTitle().equals("isin")) {
+                return correlation.getExcelColNumber();
+            }
+        }
+        return -1;
+    }
 }

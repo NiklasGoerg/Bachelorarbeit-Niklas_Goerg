@@ -15,7 +15,7 @@ public class ExcelSheet {
     private int titleRow = 1;
     private String selectionColTitle;
 
-    @OneToMany(fetch= FetchType.EAGER, mappedBy ="excelSheet",  orphanRemoval = true)
+    @OneToMany(fetch= FetchType.EAGER, mappedBy ="excelSheet",  orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
     public ExcelSheet() {}
@@ -70,6 +70,10 @@ public class ExcelSheet {
 
     public void addExcelCorrelation(ExcelCorrelation excelCorrelation) {
         this.excelCorrelations.add(excelCorrelation);
+    }
+
+    public void setExcelCorrelations(List<ExcelCorrelation> excelCorrelations) {
+        this.excelCorrelations = excelCorrelations;
     }
 
     @Override
