@@ -5,12 +5,16 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataColumnRepository;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -41,6 +45,9 @@ public class ImportTabController {
     StockDataColumnRepository stockDataColumnRepository;
     static ObservableList<ExcelCorrelation> stockDataTableColumns = FXCollections.observableArrayList();
 
+    private TextArea logTextArea;
+    private SimpleStringProperty logText;
+
     @FXML
     private void initialize() {
         excelSheetObservableList = importTabManagement.initExcelSheetList(excelSheetList);
@@ -53,6 +60,12 @@ public class ImportTabController {
 //        passwordField.textProperty().addListener((o,ov,nv) -> { if (nv != null) { validPassword();}});
         titleRowNrField.textProperty().addListener((o,ov,nv)-> { if (nv != null) { validTitleColNr();}});
         selectionColTitleField.textProperty().addListener((o,ov,nv) -> { if (nv != null) { validSelectionColTitle();}});
+
+        logText = new SimpleStringProperty("");
+        logTextArea =  new TextArea();
+        logTextArea.setPrefSize(350,400);
+        logTextArea.textProperty().bind(logText);
+        importTabManagement.passLogText(logText);
     }
 
     @FXML
@@ -203,7 +216,8 @@ public class ImportTabController {
                 alert.setHeaderText("Evaluierungs Fehler!");
 
                 TextArea textArea = new TextArea(
-                        "Einige Zellen konnten nicht evaluiert werden. Diese wurden mit ERROR gefüllt.\n" +
+                        "Einige Zellen konnten nicht evaluiert werden. Diese wurden mit ERROR gefüllt. " +
+                        "Genauere Informationen befinden sich im Log.\n" +
                         "Die von POI unterstützten Funktionen können hier nachgeschlagen werden: \n\n" +
                         "https://poi.apache.org/components/spreadsheet/eval-devguide.html");
                 textArea.setEditable(false);
@@ -225,6 +239,28 @@ public class ImportTabController {
         // refresh because otherwise the comboboxes are unreliable set
         stockDataCorrelationTable.refresh();
         transactionCorrelationTable.refresh();
+    }
+
+    @FXML
+    private void importExcel() {
+        importTabManagement.extractCorrelationData();
+    }
+
+    @FXML
+    private void openLog() {
+
+        Stage stage = new Stage();
+
+        Scene scene = new Scene(this.logTextArea);
+        scene.getStylesheets().add("style.css");
+        stage.setScene(scene);
+
+        stage.initOwner(pathField.getScene().getWindow());
+        stage.initModality(Modality.NONE);
+        stage.show();
+
+
+        stage.setTitle("Log");
     }
 
     private boolean excelIsSelected() {
@@ -275,8 +311,10 @@ public class ImportTabController {
         sheetPreviewTable.getItems().clear();
         stockDataCorrelationTable.getColumns().clear();
         stockDataCorrelationTable.getItems().clear();
+        stockDataCorrelationTable.setMinHeight(-1);
         transactionCorrelationTable.getColumns().clear();
         transactionCorrelationTable.getItems().clear();
+        transactionCorrelationTable.setMinHeight(-1);
     }
 
     private boolean validPath() {
@@ -345,5 +383,4 @@ public class ImportTabController {
         valid &= validSelectionColTitle();
         return valid;
     }
-
 }

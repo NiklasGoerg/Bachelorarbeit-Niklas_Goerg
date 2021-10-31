@@ -175,7 +175,12 @@
                                  <VBox.margin>
                                     <Insets top="5.0" />
                                  </VBox.margin></Button>
-                              <Button mnemonicParsing="false" prefWidth="150.0" text="Import">
+                              <Button mnemonicParsing="false" onAction="#importExcel" prefWidth="150.0" text="Import">
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </Button>
+                              <Button layoutX="129.0" layoutY="102.0" mnemonicParsing="false" onAction="#openLog" prefWidth="150.0" text="Log öffnen">
                                  <VBox.margin>
                                     <Insets top="5.0" />
                                  </VBox.margin>
