@@ -35,14 +35,15 @@ public class ImportTabManagement {
     private StockDataColumnRepository stockDataColumnRepository;
 
     private static ObservableList<ObservableList<String>> sheetPreviewTableData = FXCollections.observableArrayList();
-    ObservableList<ExcelCorrelation> stockColumnRelations;
-    ObservableList<ExcelCorrelation> transactionColumnRelations;
+
+    private static Map<Integer, String> titlesOfLoadedExcel;
 
     // at first they are equal
     private static Map<Integer, Boolean> selectedStockDataRows;
     private static Map<Integer, Boolean> selectedTransactionRows;
 
-    private static Map<Integer, String> titlesOfLoadedExcel;
+    ObservableList<ExcelCorrelation> stockColumnRelations;
+    ObservableList<ExcelCorrelation> transactionColumnRelations;
 
     public Tooltip createTooltip(String text) {
         Tooltip tooltip = new Tooltip();
@@ -78,6 +79,10 @@ public class ImportTabManagement {
         excelSheetRepository.save(excelSheet);
 
         for(ExcelCorrelation excelCorrelation : stockColumnRelations) {
+            excelCorrelationRepository.save(excelCorrelation);
+        }
+
+        for(ExcelCorrelation excelCorrelation : transactionColumnRelations) {
             excelCorrelationRepository.save(excelCorrelation);
         }
     }
@@ -505,9 +510,9 @@ public class ImportTabManagement {
             }
         }
 
+        stockDataCorrelationTable.setMinHeight(stockColumnRelations.size()*32.5);
+
         stockDataCorrelationTable.getItems().addAll(stockColumnRelations);
-        // refresh because otherwise the checkboxes are unreliable set
-        stockDataCorrelationTable.refresh();
     }
 
     private void constructComboBox(TableColumn<ExcelCorrelation, String> excelColumn, ObservableList<String> excelColTitles) {
@@ -587,6 +592,9 @@ public class ImportTabManagement {
                  "maklercourtage", "börsenplatzgebühr", "spesen", "kapitalertragssteuer",
                  "solidaritätssteuer", "quellensteuer", "abgeltungssteuer", "kirchensteuer"};
 
+         transactionCorrelationTable.setMinHeight(transactionColumnNames.length*32.5);
+
+
          for(String colName : transactionColumnNames) {
              if(!addedTransDbCols.contains(colName)) {
                  ExcelCorrelation excelCorrelation = new ExcelCorrelation();
@@ -600,8 +608,6 @@ public class ImportTabManagement {
          }
 
          transactionCorrelationTable.getItems().addAll(transactionColumnRelations);
-         // refresh because otherwise the checkboxes are unreliable set
-         transactionCorrelationTable.refresh();
     }
 
 }

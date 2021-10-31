@@ -222,6 +222,9 @@ public class ImportTabController {
         transactionCorrelationTable.getItems().clear();
         importTabManagement.fillStockDataCorrelationTable(stockDataCorrelationTable, excelSheet);
         importTabManagement.fillTransactionCorrelationTable(transactionCorrelationTable, excelSheet);
+        // refresh because otherwise the comboboxes are unreliable set
+        stockDataCorrelationTable.refresh();
+        transactionCorrelationTable.refresh();
     }
 
     private boolean excelIsSelected() {

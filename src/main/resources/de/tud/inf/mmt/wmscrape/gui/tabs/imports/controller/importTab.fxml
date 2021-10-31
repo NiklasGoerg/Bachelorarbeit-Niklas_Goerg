@@ -231,14 +231,24 @@
                       <RowConstraints vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <TableView fx:id="stockDataCorrelationTable" editable="true">
-                           <columnResizePolicy>
-                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                           </columnResizePolicy></TableView>
-                        <TableView fx:id="transactionCorrelationTable" editable="true" GridPane.columnIndex="1">
-                           <columnResizePolicy>
-                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                           </columnResizePolicy></TableView>
+                        <ScrollPane fitToWidth="true">
+                           <content>
+                              <TableView fx:id="stockDataCorrelationTable" editable="true">
+                                 <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                 </columnResizePolicy>
+                              </TableView>
+                           </content>
+                        </ScrollPane>
+                        <ScrollPane fitToWidth="true" GridPane.columnIndex="1">
+                           <content>
+                              <TableView fx:id="transactionCorrelationTable" editable="true">
+                                 <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                 </columnResizePolicy>
+                              </TableView>
+                           </content>
+                        </ScrollPane>
                      </children>
                      <VBox.margin>
                         <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
