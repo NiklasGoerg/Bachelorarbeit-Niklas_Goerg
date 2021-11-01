@@ -229,16 +229,24 @@ public class LoginManager {
 
     private static boolean createUserAndDb(Connection connection,  String newUsername, String newPassword) {
         try {
+
+            String newDbName = newUsername+"_USER_DB";
             Statement statement = connection.createStatement();
-            statement.executeUpdate("CREATE DATABASE IF NOT EXISTS " + newUsername + "_USER_DB;");
-            statement.executeUpdate(
-                    "GRANT ALL PRIVILEGES ON " + newUsername + "_USER_DB.* TO '" +
-                    newUsername + "'@'%' IDENTIFIED BY '" +  newPassword + "';");
+
+            statement.execute("CREATE DATABASE IF NOT EXISTS "+newDbName+";");
+
+            PreparedStatement pst = connection.prepareCall( "GRANT ALL PRIVILEGES ON "+newDbName+" TO ?@'%' IDENTIFIED BY ?;");
+            pst.setString(1, newUsername);
+            pst.setString(2, newPassword);
+            pst.execute();
+            pst.close();
+
             statement.executeUpdate("FLUSH PRIVILEGES;");
             statement.close();
+
             return true;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
