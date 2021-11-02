@@ -1,16 +1,15 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.*;
+import javafx.beans.property.SimpleStringProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 @Service
@@ -18,6 +17,8 @@ public class StockDataDbManager {
 
     @Autowired
     StockDataColumnRepository stockDataColumnRepository;
+    @Autowired
+    StockRepository stockRepository;
     @Autowired
     DataSource dataSource;
 
@@ -43,12 +44,17 @@ public class StockDataDbManager {
             }
         }
 
-        try {
-            if(!columnExists("wkn")) {
-                addColumn("wkn", ColumnDatatype.TEXT);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if(!columnExists("wkn")) {
+            addColumn("wkn", ColumnDatatype.TEXT);
+        }
+        if(!columnExists("name")) {
+            addColumn("name", ColumnDatatype.TEXT);
+        }
+        if(!columnExists("typ")) {
+            addColumn("typ", ColumnDatatype.TEXT);
+        }
+        if(!columnExists("gruppen_id")) {
+            addColumn("gruppen_id", ColumnDatatype.INT);
         }
     }
 
@@ -56,7 +62,8 @@ public class StockDataDbManager {
         ArrayList<String> columns = new ArrayList<>();
 
         try {
-            Statement statement = dataSource.getConnection().createStatement();
+            Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery("SELECT column_name FROM information_schema.columns WHERE table_name = 'stammdaten';");
 
             while (results.next()) {
@@ -64,6 +71,7 @@ public class StockDataDbManager {
             }
 
             statement.close();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -77,9 +85,11 @@ public class StockDataDbManager {
                 return false;
             }
 
-            Statement statement = dataSource.getConnection().createStatement();
+            Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
             statement.execute("ALTER TABLE stammdaten ADD " + columnName + " " + columnDatatype.name()+ ";");
             statement.close();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -96,9 +106,11 @@ public class StockDataDbManager {
                 return false;
             }
 
-            Statement statement = dataSource.getConnection().createStatement();
+            Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
             statement.execute("ALTER TABLE stammdaten DROP COLUMN " + columnName + ";");
             statement.close();
+            connection.close();
 
             StockDataTableColumn column = stockDataColumnRepository.findByName(columnName);
             // fix for not working orphan removal
@@ -111,16 +123,22 @@ public class StockDataDbManager {
         return true;
     }
 
-    private boolean columnExists(String columnName) throws SQLException {
-        Statement statement = dataSource.getConnection().createStatement();
-        ResultSet results = statement.executeQuery("SELECT column_name FROM information_schema.columns WHERE table_name = 'stammdaten';");
-
-        while (results.next()) {
-            if (results.getString(1).equals(columnName)) {
-                return true;
+    private boolean columnExists(String columnName){
+        try {
+            Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery("SELECT column_name FROM information_schema.columns WHERE table_name = 'stammdaten';");
+            while (results.next()) {
+                if (results.getString(1).equals(columnName)) {
+                    return true;
+                }
             }
+            statement.close();
+            connection.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return true;
         }
-        statement.close();
         return false;
     }
 
@@ -128,10 +146,9 @@ public class StockDataDbManager {
         //https://www.tutorialspoint.com/java-resultsetmetadata-getcolumntype-method-with-example
 
         try {
-//            if (!columnExists(columnName)) {
-//                return null;
-//            }
-            Statement statement = dataSource.getConnection().createStatement();
+
+            Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery("SELECT " + columnName + " FROM stammdaten");
             int type = results.getMetaData().getColumnType(1);
 
@@ -139,6 +156,7 @@ public class StockDataDbManager {
 //                    "SELECT data_type FROM information_schema.columns WHERE table_name = 'stammdaten' " +
 //                            "AND column_name = '" + columnName + "';");
             statement.close();
+            connection.close();
 
             switch (type) {
                 case 91:
@@ -161,7 +179,8 @@ public class StockDataDbManager {
 
     private boolean tableExists() {
         try {
-            Statement statement = dataSource.getConnection().createStatement();
+            Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery("SHOW TABLES;");
 
             while (results.next()) {
@@ -171,6 +190,7 @@ public class StockDataDbManager {
                 }
             }
             statement.close();
+            connection.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -181,8 +201,11 @@ public class StockDataDbManager {
 
     private boolean initializeTable() {
         try {
-            Statement statement = dataSource.getConnection().createStatement();
+            Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
             statement.execute("CREATE TABLE IF NOT EXISTS stammdaten ( isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+            statement.close();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -190,15 +213,8 @@ public class StockDataDbManager {
         return true;
     }
 
-    @Transactional
-    public boolean insertToStockTable(String isin, Date date, PreparedStatement statement, String data, ColumnDatatype datatype) {
-
-//        if(!date.matches("^[1-9][0-9]{3}\\-[0-9]{2}\\-[0-9]{2}$")) {
-//            return false;
-//        }
-        if (isin.length() >= 50) {
-            return false;
-        }
+    public boolean fillStatementAddToBatch(String isin, Date date, PreparedStatement statement,
+                                           String data, ColumnDatatype datatype, SimpleStringProperty logger) {
 
         try {
             statement.setString(1,isin);
@@ -213,7 +229,9 @@ public class StockDataDbManager {
                     statement.setString(3,data);
                     break;
                 case INT:
-                    statement.setInt(3, Integer.parseInt(data));
+                    // casting double to int to remove trailing zeros because of
+                    // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
+                    statement.setInt(3, (int) Double.parseDouble(data));
                     break;
                 case DOUBLE:
                     statement.setDouble(3, Double.parseDouble(data));
@@ -225,9 +243,15 @@ public class StockDataDbManager {
             statement.addBatch();
         } catch (SQLException e) {
             e.printStackTrace();
+            logger.set(logger.getValue() + "\nFEHLER: Bei dem Setzen der Statementwerte sind Fehler aufgetreten: "
+                    + e.getMessage() + " _ CAUSE_ " + e.getCause());
+            return false;
+        } catch (NumberFormatException | DateTimeParseException e) {
+            e.printStackTrace();
+            logger.set(logger.getValue() + "\nFEHLER: Bei dem Parsen des Wertes '"+data+"' in das Format "
+                    +datatype.name()+" ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
             return false;
         }
-
         return true;
     }
 
@@ -243,6 +267,36 @@ public class StockDataDbManager {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+
+    public void createMissingStocks() {
+
+        Statement statement = null;
+        try {
+            Connection connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            // isin, wkn, name columns are created at start if not existing
+            ResultSet resultSet = statement.executeQuery("SELECT isin, wkn, name, gruppen_id, typ FROM stammdaten;");
+
+            while (resultSet.next()) {
+                String isin = resultSet.getString("isin");
+
+                if(stockRepository.findByIsin(isin).isEmpty()) {
+                    Stock stock = new Stock(isin,
+                            resultSet.getString("wkn"),
+                            resultSet.getString("name"),
+                            resultSet.getInt("gruppen_id"),
+                            resultSet.getString("typ"));
+                    stockRepository.save(stock);
+                }
+            }
+
+            statement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

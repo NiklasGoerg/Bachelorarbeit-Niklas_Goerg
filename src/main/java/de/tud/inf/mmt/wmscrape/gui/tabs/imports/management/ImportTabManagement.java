@@ -1,9 +1,14 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
+import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotTransaction;
+import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotTransactionRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management.StockDataDbManager;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -22,14 +27,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@Transactional
 public class ImportTabManagement {
 
     @Autowired
@@ -40,6 +50,13 @@ public class ImportTabManagement {
     private StockDataColumnRepository stockDataColumnRepository;
     @Autowired
     private StockDataDbManager stockDataDbManager;
+    @Autowired
+    private DepotTransactionRepository depotTransactionRepository;
+    @Autowired
+    private StockRepository stockRepository;
+    @Autowired
+    private DepotRepository depotRepository;
+
 
     private static ObservableList<ObservableList<String>> sheetPreviewTableData = FXCollections.observableArrayList();
 
@@ -49,13 +66,39 @@ public class ImportTabManagement {
     private static Map<String, Integer> titleToExcelIndex;
 
     // at first, they are equal
-    private static Map<Integer, Boolean> selectedStockDataRows;
-    private static Map<Integer, Boolean> selectedTransactionRows;
+    private static Map<Integer, SimpleBooleanProperty> selectedStockDataRows;
+    private static Map<Integer, SimpleBooleanProperty> selectedTransactionRows;
 
     private static ObservableList<ExcelCorrelation> stockColumnRelations = FXCollections.observableArrayList();
     private static ObservableList<ExcelCorrelation> transactionColumnRelations = FXCollections.observableArrayList();
 
     private SimpleStringProperty logText;
+
+    private static HashMap<String, ColumnDatatype> transactionColumnsWithType;
+
+    @PostConstruct
+    private void init() {
+        // Integer represents datatype
+        // 1-Integer, 2-String, 3-Date, 4-Double
+        transactionColumnsWithType =  new HashMap<>();
+        transactionColumnsWithType.put("depot_name", ColumnDatatype.TEXT);
+        transactionColumnsWithType.put("wertpapier_isin", ColumnDatatype.TEXT);
+        transactionColumnsWithType.put("transaktions_datum", ColumnDatatype.DATE);
+        transactionColumnsWithType.put("tansaktionstyp", ColumnDatatype.TEXT);
+        transactionColumnsWithType.put("anzahl", ColumnDatatype.INT);
+        transactionColumnsWithType.put("währung", ColumnDatatype.TEXT);
+        transactionColumnsWithType.put("preis", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("wert_in_eur", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("bankprovision", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("maklercourtage", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("börsenplatzgebühr", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("spesen", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("kapitalertragssteuer", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("solidaritätssteuer", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("quellensteuer", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("abgeltungssteuer", ColumnDatatype.DOUBLE);
+        transactionColumnsWithType.put("kirchensteuer", ColumnDatatype.DOUBLE);
+    }
 
 //    #########################
 //    Controller logic section
@@ -93,7 +136,6 @@ public class ImportTabManagement {
         return excelSheetRepository.findAll();
     }
 
-    @Transactional
     public void saveExcel(ExcelSheet excelSheet) {
         excelSheetRepository.save(excelSheet);
 
@@ -188,7 +230,8 @@ public class ImportTabManagement {
         }
 
         selectedStockDataRows = getSelectedInitially(excelSheetRows, selectionColNumber);
-        selectedTransactionRows = new HashMap<>(selectedStockDataRows);
+        // have to initialize twice because otherwise the same booleanproperties are used
+        selectedTransactionRows = getSelectedInitially(excelSheetRows, selectionColNumber);
 
         addColumnsToView(sheetPreviewTable, indexToExcelTitle, excelSheet);
 
@@ -209,12 +252,12 @@ public class ImportTabManagement {
 
     private boolean getExcelSheetData(Workbook workbook, int startRow, ObservableMap<Integer, ArrayList<String>> excelData ) {
 
-        addToLog("##### Start Extraktion #####\n");
+        addToLog("##### Start Excel Parsing #####\n");
 
         Sheet sheet = workbook.getSheetAt(0);
         FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
         evaluator.setIgnoreMissingWorkbooks(true);
-        DataFormatter formatter = new DataFormatter();
+        //DataFormatter formatter = new DataFormatter();
         String value;
         boolean evalFault = false;
 
@@ -248,13 +291,15 @@ public class ImportTabManagement {
                                 value = cell.getStringCellValue();
                                 break;
                             case NUMERIC:
-                                String raw = formatter.formatCellValue(cell);
-                                if(!raw.matches("^[0-9]+((\\.|,)[0-9]*)?$")) {
-                                    value = raw;
-                                } else if (DateUtil.isCellDateFormatted(cell)) {
-                                    value = cell.getDateCellValue().toString();
+                                //String raw = formatter.formatCellValue(cell);
+                                //if(!raw.matches("^[0-9]+((\\.|,)[0-9]*)?$")) {
+                                //    value = raw;
+                                if (DateUtil.isCellDateFormatted(cell)) {
+                                    java.util.Date date =  new java.util.Date(cell.getDateCellValue().getTime());
+                                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                    value = dateFormat.format(date);
                                 } else {
-                                    value = String.valueOf(cell.getNumericCellValue());
+                                    value = String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
                                 }
                                 break;
                             case BOOLEAN:
@@ -282,7 +327,7 @@ public class ImportTabManagement {
             }
         }
 
-        addToLog("##### Ende Extraktion #####\n");
+        addToLog("##### Ende  Excel Parsing #####\n");
         return evalFault;
     }
 
@@ -443,15 +488,15 @@ public class ImportTabManagement {
         return true;
     }
 
-    private Map<Integer, Boolean> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData, int selectionColNr) {
-        HashMap<Integer, Boolean> selectedRows = new HashMap<>();
+    private Map<Integer, SimpleBooleanProperty> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData, int selectionColNr) {
+        HashMap<Integer, SimpleBooleanProperty> selectedRows = new HashMap<>();
         for(int rowNr : excelData.keySet()) {
             ArrayList<String> row = excelData.get(rowNr);
             // same as for the checkbox -> not blank == checked
             if(!row.get(selectionColNr).isBlank()) {
-                selectedRows.put(rowNr, true);
+                selectedRows.put(rowNr, new SimpleBooleanProperty(true));
             } else {
-                selectedRows.put(rowNr, false);
+                selectedRows.put(rowNr, new SimpleBooleanProperty(false));
             }
         }
         return selectedRows;
@@ -463,10 +508,8 @@ public class ImportTabManagement {
 
         for(Integer col: titles.keySet()) {
 
-            if(col == 0) {
-                // ignore row index
-                continue;
-            }
+            // ignore row index
+            if(col == 0) continue;
 
             if(titles.get(col).equals(excelSheet.getSelectionColTitle())) {
 
@@ -475,12 +518,12 @@ public class ImportTabManagement {
 
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
-                tableCol.setCellValueFactory(param -> {
-                    SimpleBooleanProperty simpleBooleanProperty =  new SimpleBooleanProperty(!param.getValue().get(col).isBlank());
-                    simpleBooleanProperty.addListener( (o, ov, nv) -> {
-                        selectedStockDataRows.put(Integer.valueOf(param.getValue().get(0)), nv);
+                tableCol.setCellValueFactory(row -> {
+                    SimpleBooleanProperty sbp = selectedStockDataRows.get(Integer.valueOf(row.getValue().get(0)));
+                    sbp.addListener( (o, ov, nv) -> {
+                        sbp.set(nv);
                     });
-                    return simpleBooleanProperty;
+                    return sbp;
                 });
 
                 sheetPreviewTable.getColumns().add(tableCol);
@@ -492,11 +535,11 @@ public class ImportTabManagement {
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
                 tableCol.setCellValueFactory(row -> {
-                    SimpleBooleanProperty simpleBooleanProperty =  new SimpleBooleanProperty(!row.getValue().get(col).isBlank());
-                    simpleBooleanProperty.addListener( (o, ov, nv) -> {
-                        selectedTransactionRows.put(Integer.valueOf(row.getValue().get(0)), nv);
+                    SimpleBooleanProperty sbp = selectedTransactionRows.get(Integer.valueOf(row.getValue().get(0)));
+                    sbp.addListener( (o, ov, nv) -> {
+                        sbp.set(nv);
                     });
-                    return simpleBooleanProperty;
+                    return sbp;
                 });
 
                 sheetPreviewTable.getColumns().add(tableCol);
@@ -640,16 +683,12 @@ public class ImportTabManagement {
              }
          }
 
-        final String[] transactionColumnNames = {
-                "depot_id", "wertpapier_isin", "zeitpunkt", "tansaktionstyp",
-                "anzahl", "währung", "preis", "wert_in_eur", "bankprovision",
-                "maklercourtage", "börsenplatzgebühr", "spesen", "kapitalertragssteuer",
-                "solidaritätssteuer", "quellensteuer", "abgeltungssteuer", "kirchensteuer"};
-
-        transactionCorrelationTable.setMinHeight(transactionColumnNames.length*32.5);
 
 
-        for(String colName : transactionColumnNames) {
+        transactionCorrelationTable.setMinHeight(transactionColumnsWithType.size()*32.5);
+
+
+        for(String colName : transactionColumnsWithType.keySet()) {
              if(!addedTransDbCols.contains(colName)) {
                  ExcelCorrelation excelCorrelation = new ExcelCorrelation();
                  excelCorrelation.setCorrelationType(CorrelationType.TRANSACTION);
@@ -667,110 +706,371 @@ public class ImportTabManagement {
 //    Import section
 //    #########################
 
-    public int extractCorrelationData() {
+    public int startDataExtraction() {
 
-        addToLog("##### Start Import #####\n");
 
-        if(excelSheetRows == null || selectedTransactionRows == null || selectedStockDataRows == null ||
-                stockColumnRelations.size() == 0 || transactionColumnRelations.size() == 0) {
-            // preview not loaded
-            return -1;
+        if(!isInExtractableState()) return -2;
+        if(!correlationsHaveValidState()) return -3;
+
+
+        int stockExtractionResult = extractStockData();
+
+        // 0-OK, -1-SilentError -> below other error
+        // don't break execution if silent
+        // only silent and ok can pass
+        if(stockExtractionResult < -1) {
+            return stockExtractionResult;
         }
 
-        int isinCol = getIsinColNrFromCorrelations(stockColumnRelations);
+        // create stocks if not existing based on prior imported stock data
+        stockDataDbManager.createMissingStocks();
 
-        if(isinCol == -1) {
-            return -2;
+        int transactionExtractionResult = extractTransactionData();
+
+        // 0-OK, -1-SilentError -> below other error
+        // only ok can pass
+        if(transactionExtractionResult != 0) {
+            return transactionExtractionResult;
         }
 
-        java.sql.Date dateToday = new java.sql.Date(System.currentTimeMillis());
-//        Date dateToday = new Date();
-//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//        String todayDateString = dateFormat.format(dateToday);
+        // transaction ok but stock had a silent error
+        if(stockExtractionResult == -1) return -1;
+        return 0;
+    }
 
-        HashMap<String, PreparedStatement> statements = new HashMap<>();
-        HashMap<String, ColumnDatatype> columnDatatypes = new HashMap<>();
+    public int extractStockData() {
+
+        addToLog("##### Start Stammdaten-Import #####\n");
+
+        // execution is not stopped at a silent error but a log message is added
+        boolean silentError = false;
 
         Connection connection = stockDataDbManager.getConnection();
 
-        // prepare a statement for each column
-        for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
-            try {
-                statements.put(column.getName(), stockDataDbManager.getPreparedStatement(column.getName(), connection));
-                columnDatatypes.put(column.getName(), column.getColumnDatatype());
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return -3;
-            }
-        }
+        HashMap<String, PreparedStatement> statements = createStockDataStatements(connection);
+        HashMap<String, ColumnDatatype> columnDatatypes = getStockColDbDatatypes();
+
+        if (statements == null) return -4;
+        java.sql.Date dateToday = new java.sql.Date(System.currentTimeMillis());
+
         // go through all rows
         for(int row : excelSheetRows.keySet()) {
 
             // skip rows if not selected
-            if(!selectedStockDataRows.getOrDefault(row, false)) {
+            if(!(selectedStockDataRows.get(row).get())) {
+                //addToLog("INFO: Stammdaten von Zeile: " + row + " ist nicht markiert.");
                 continue;
             }
 
+            // the columns for one row
             ArrayList<String> rowData = excelSheetRows.get(row);
 
+            int isinCol = getColNrByName("isin", stockColumnRelations);
+
+            // check if isin valid
             String isin = rowData.get(isinCol);
             if(isin == null || isin.isBlank() || isin.length() >= 50) {
-                return -4;
+                silentError = true;
+                addToLog("FEHLER: Isin der Zeile "+ row +" fehlerhaft oder länger als 50 Zeichen. ->'"+ isin+"'");
+                continue;
             }
 
-
+            // pick one column per relation from row
             for(ExcelCorrelation correlation : stockColumnRelations) {
                 String dbColName = correlation.getDbColTitle();
-                if(dbColName.equals("isin")) {
+
+                // continue bcs the key value is not inserted with a prepared statement
+                if(dbColName.equals("isin")) continue;
+
+                int correlationColNumber = correlation.getExcelColNumber();
+                // -1 is default and can't be set another way meaning it's not set
+                if(correlationColNumber == -1) {
+                    //addToLog("INFO: Die Spalte '" + dbColName +"' hat keine Zuordnung.");
                     continue;
-                }
+                };
 
-                int extractColNumber = correlation.getExcelColNumber();
-                // -1 is default and cant be set another way
-                // meaning -> not set
-                if(extractColNumber == -1) {
-                    return -5;
-                }
-
-                String colData = rowData.get(extractColNumber);
+                String colData = rowData.get(correlationColNumber);
+                if(colData.isBlank()) continue;
 
                 ColumnDatatype datatype = columnDatatypes.getOrDefault(dbColName, null);
                 if(datatype == null) {
-                    return -6;
+                    silentError = true;
+                    addToLog("Fehler: Der Datenbankspalte " + dbColName
+                            +" ist kein Datentyp zugeordnet.");
+                    continue;
                 }
 
-                PreparedStatement statement = statements.getOrDefault(dbColName, null);
-                if(statement == null) {
-                    return -7;
+                if(!matchingDataType(datatype, colData)) {
+                    silentError = true;
+                    addToLog("Fehler: Der Datentyp der Zeile "+row+" in der Spalte '"+correlation.getExcelColTitle()+
+                            "', stimmt nicht mit dem der Datenbankspalte "+dbColName+" vom Typ "+datatype.name()+
+                            " überein. Zellendaten: '"+colData+"'");
+                    continue;
                 }
-                stockDataDbManager.insertToStockTable(isin, dateToday, statement, colData, datatype);
+
+                // statement exists bcs if there is an error at statement creation
+                // the program does not reach this line
+                PreparedStatement statement = statements.get(dbColName);
+
+                silentError &= stockDataDbManager.fillStatementAddToBatch(isin, dateToday, statement, colData, datatype, logText);
             }
+
         }
 
-        for(PreparedStatement statement : statements.values()) {
-            try {
-                statement.executeBatch();
-                statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        addToLog("##### Ende Import #####\n");
+        executeStatements(connection, statements);
+        addToLog("\n##### Ende Stammdaten-Import #####\n");
+
+        if(silentError) return -1;
         return 0;
     }
 
+    private int extractTransactionData() {
+        addToLog("##### Start Transaktions Import #####\n");
 
-    private int getIsinColNrFromCorrelations(ObservableList<ExcelCorrelation> stockColumnRelations) {
-        for(ExcelCorrelation correlation : stockColumnRelations) {
-            if(correlation.getDbColTitle().equals("isin")) {
+        // execution is not stopped at a silent error but a log message is added
+        boolean silentError = false;
+
+        // transactionColumnNames
+        int isinCol = getColNrByName("wertpapier_isin", transactionColumnRelations);
+        int dateCol = getColNrByName("transaktions_datum", transactionColumnRelations);
+        int depotNameCol = getColNrByName("depot_name", transactionColumnRelations);
+
+        // go through all rows
+        for(int row : excelSheetRows.keySet()) {
+            // skip rows if not selected
+            if(!selectedTransactionRows.get(row).get()) continue;
+
+            // the columns for one row
+            ArrayList<String> rowData = excelSheetRows.get(row);
+
+            String depotName = rowData.get(depotNameCol);
+            if(depotName == null || depotName.isBlank() || depotName.length() >= 50) {
+                addToLog("FEHLER: Depotname der Zeile "+ row +" fehlerhaft, leer oder länger als 50 Zeichen.Wert: '"
+                        +depotName+ "' ");
+                silentError = true;
+                continue;
+            }
+
+            String isin = rowData.get(isinCol);
+            if(isin == null || isin.isBlank() || isin.length() >= 50) {
+                addToLog("FEHLER: Isin der Zeile "+ row +" fehlerhaft, leer oder länger als 50 Zeichen. Wert: '"+isin+"'");
+                silentError = true;
+                continue;
+            }
+
+            String date = rowData.get(dateCol);
+            if(!matchingDataType(ColumnDatatype.DATE, date)) {
+                addToLog("FEHLER: Transaktionsdatum '"+date+"' der Zeile "+ row +" ist fehlerhaft.");
+                silentError = true;
+                continue;
+            }
+
+            Date parsedDate = Date.valueOf(date);
+
+            // check if already imported
+//            var depotTransaction = depotTransactionRepository.findByDepotNameAndDateAndStockIsin(depotName,parsedDate,isin);
+//            if(depotTransaction.isPresent()) {
+//                addToLog("INFO: Transaktion der Zeile "+row+" bereits importiert.");
+//                silentError = true;
+//                continue;
+//            }
+
+            // stocks are created beforehand
+            var stock = stockRepository.findByIsin(isin);
+            if(stock.isEmpty()) {
+                addToLog("FEHLER: Das passende Wertpapier zur Transaktion aus Zeile "+row+
+                        " konnte nicht gefunden werden. Angegebene Isin: '"+isin+"'");
+                silentError = true;
+                continue;
+            }
+
+            // search if the depot already exists or creates a new one
+            Depot depot = depotRepository.findByName(depotName).orElse(new Depot(depotName));
+            depotRepository.save(depot);
+
+            // create new transaction
+            DepotTransaction newDepotTransaction = new DepotTransaction(depotName, parsedDate, stock.get(), depot);
+            depot.addDepotTransaction(newDepotTransaction);
+
+            for(ExcelCorrelation correlation : transactionColumnRelations) {
+                String dbColName = correlation.getDbColTitle();
+
+                // already set before don't do it again
+                if (dbColName.equals("depot_name") || dbColName.equals("transaktions_datum") || dbColName.equals("wertpapier_isin")) {
+                    continue;
+                }
+
+                int correlationColNumber = correlation.getExcelColNumber();
+                // -1 is default and can't be set another way meaning it's not set
+                if(correlationColNumber == -1) {
+                    //addToLog("INFO: Die Spalte '" + dbColName +"' hat keine Zuordnung.");
+                    continue;
+                }
+
+                String colData = rowData.get(correlationColNumber);
+
+                if(colData.isBlank()) continue;
+
+
+                ColumnDatatype colDatatype = transactionColumnsWithType.getOrDefault(dbColName, ColumnDatatype.INVALID);
+
+                if(!matchingDataType(colDatatype, colData)) {
+                    addToLog("FEHLER: Der Wert der Zelle in der Zeile: "+row+" Spalte: '"
+                            +correlation.getExcelColTitle()+"' hat nicht den passenden Datentyp für '"
+                            +dbColName+"' vom Typ '"+colDatatype+"'. Wert: '"+colData+"'");
+                    silentError = true;
+                    continue;
+                }
+
+                try {
+                    setTransactionPropertyByColName(newDepotTransaction, dbColName, colData);
+                } catch (NumberFormatException e) {
+                    addToLog("FEHLER: Der Datentyp der Zelle stimmt nicht mit dem Datentyp der Spalte '"+dbColName+
+                            "' überein.");
+                    silentError = true;
+                    continue;
+                }
+            }
+
+            depotTransactionRepository.save(newDepotTransaction);
+            depotRepository.save(depot);
+        }
+
+        addToLog("\n##### Ende Transaktions Import #####\n");
+        if(silentError) return -1;
+        return 0;
+    }
+
+    private boolean matchingDataType(ColumnDatatype colDatatype, String colData) {
+        if(colData == null || colDatatype == null) {
+            return false;
+        } else if(colDatatype == ColumnDatatype.INT && colData.matches("^-?[0-9]+(\\.0{5})?$")) {
+            // normal format would be "^-?[0-9]+$" but because of
+            // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
+            // 5 zeros are added to int
+            return true;
+        } else if (colDatatype == ColumnDatatype.DOUBLE && colData.matches("^-?[0-9]+((\\.|,)?[0-9]+)?$")) {
+            return true;
+        } else if (colDatatype == ColumnDatatype.DATE && colData.matches("^[1-9][0-9]{3}\\-[0-9]{2}\\-[0-9]{2}$")) {
+            return true;
+        } else return colDatatype == ColumnDatatype.TEXT;
+    }
+
+    private void setTransactionPropertyByColName(DepotTransaction transaction, String dbColName, String colData) {
+
+        switch (dbColName) {
+            case "tansaktionstyp":
+                transaction.setTransactionType(colData);
+                break;
+            case "anzahl":
+                // parsed to double to remove tailing zeros
+                transaction.setAmount((int) Double.parseDouble(colData));
+                break;
+            case "währung":
+                transaction.setCurrency(colData);
+                break;
+            case "preis":
+                transaction.setPrice(Double.parseDouble(colData));
+                break;
+            case "wert_in_eur":
+                transaction.setPriceInEur(Double.parseDouble(colData));
+                break;
+            case "bankprovision":
+                transaction.setBankProvision(Double.parseDouble(colData));
+                break;
+            case "maklercourtage":
+                transaction.setCommission(Double.parseDouble(colData));
+                break;
+            case "börsenplatzgebühr":
+                transaction.setBrokerFees(Double.parseDouble(colData));
+                break;
+            case "spesen":
+                transaction.setFees(Double.parseDouble(colData));
+                break;
+            case "kapitalertragssteuer":
+                transaction.setCapitalYieldsTax(Double.parseDouble(colData));
+                break;
+            case "solidaritätssteuer":
+                transaction.setSoliditarySurcharge(Double.parseDouble(colData));
+                break;
+            case "quellensteuer":
+                transaction.setWitholdingTax(Double.parseDouble(colData));
+                break;
+            case "abgeltungssteuer":
+                transaction.setFlatTax(Double.parseDouble(colData));
+                break;
+            case "kirchensteuer":
+                transaction.setChurchTax(Double.parseDouble(colData));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private int getColNrByName(String name, ObservableList<ExcelCorrelation> correlations) {
+        for(ExcelCorrelation correlation : correlations) {
+            if(correlation.getDbColTitle().equals(name)) {
                 return correlation.getExcelColNumber();
             }
         }
         return -1;
+    }
+
+    private boolean isInExtractableState() {
+        if(excelSheetRows == null || selectedTransactionRows == null || selectedStockDataRows == null ||
+                stockColumnRelations.size() == 0 || transactionColumnRelations.size() == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean correlationsHaveValidState() {
+        if(getColNrByName("isin", stockColumnRelations) == -1) return false;
+        if(getColNrByName("wertpapier_isin", transactionColumnRelations) == -1) return false;
+        if(getColNrByName("transaktions_datum", transactionColumnRelations) == -1) return false;
+        if(getColNrByName("depot_name", transactionColumnRelations) == -1) return false;
+
+        return true;
+    }
+
+    private HashMap<String, ColumnDatatype> getStockColDbDatatypes() {
+        HashMap<String, ColumnDatatype> columnDatatypes = new HashMap<>();
+        for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
+            columnDatatypes.put(column.getName(), column.getColumnDatatype());
+        }
+        return columnDatatypes;
+    }
+
+    private HashMap<String, PreparedStatement> createStockDataStatements(Connection connection) {
+        HashMap<String, PreparedStatement> statements = new HashMap<>();
+
+        // prepare a statement for each column
+
+        for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
+            try {
+                statements.put(column.getName(), stockDataDbManager.getPreparedStatement(column.getName(), connection));
+            } catch (SQLException e) {
+                e.printStackTrace();
+                addToLog("FEHLER: Erstellung des Statements fehlgeschlagen. Spalte: '"
+                        + column.getName() +"' Datentyp '" + column.getColumnDatatype()+"' _CAUSE_ " + e.getCause());
+                return null;
+            }
+        }
+        return statements;
+    }
+
+    private boolean executeStatements(Connection connection, HashMap<String, PreparedStatement> statements) {
+        boolean silentError = false;
+        try {
+            for(PreparedStatement statement : statements.values()) {
+                statement.executeBatch();
+                statement.close();
+            }
+            connection.close();
+        } catch (SQLException e) {
+            silentError = true;
+            addToLog("FEHLER: " + e.getMessage() + " _CAUSE_ " + e.getCause());
+        }
+        return silentError;
     }
 }

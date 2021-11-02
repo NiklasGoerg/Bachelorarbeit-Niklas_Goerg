@@ -1,23 +1,24 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.depots.data;
 
-import javax.persistence.Column;
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.Objects;
 
 public class DepotTransactionKey implements Serializable {
-    private int id;
-    private int depotId;
+    private String depotName;
+    private Date date;
+    private String stockIsin;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DepotTransactionKey that = (DepotTransactionKey) o;
-        return id == that.id && depotId == that.depotId;
+        return Objects.equals(depotName, that.depotName) && Objects.equals(date, that.date) && Objects.equals(stockIsin, that.stockIsin);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, depotId);
+        return Objects.hash(depotName, date, stockIsin);
     }
 }

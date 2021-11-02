@@ -11,9 +11,7 @@ import java.util.List;
 public class Depot {
 
     @Id
-    @GeneratedValue
-    private int id;
-
+    @Column(length = 50)
     private String name;
     @Column(name = "Öffnungsdatum")
     private Date opened;
@@ -30,8 +28,8 @@ public class Depot {
     public Depot() {
     }
 
-    public int getId() {
-        return id;
+    public Depot(String name) {
+        this.name = name;
     }
 
     public String getName() {
@@ -68,6 +66,10 @@ public class Depot {
 
     public List<DepotTransaction> getDepotTransactions() {
         return depotTransactions;
+    }
+
+    public void setDepotTransactions(List<DepotTransaction> depotTransactions) {
+        this.depotTransactions = depotTransactions;
     }
 
     public void addDepotTransaction(DepotTransaction depotTransaction) {

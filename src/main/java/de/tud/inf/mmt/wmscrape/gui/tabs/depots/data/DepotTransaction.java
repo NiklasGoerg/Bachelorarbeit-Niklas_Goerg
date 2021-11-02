@@ -3,40 +3,42 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.depots.data;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.Stock;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.sql.Date;
 
 @Entity
 @IdClass(DepotTransactionKey.class)
 @Table(name = "Depottransaktion")
 public class DepotTransaction {
     @Id
-    @GeneratedValue
-    private int id;
+    @Column(length = 50)
+    private String depotName;
+
     @Id
-    private int depotId;
-
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="depotId", referencedColumnName="id", updatable=false, insertable=false)
-    private Depot depot;
-
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="wertpapierIsin", referencedColumnName="isin")
-    private Stock stock;
-
     @Column(name = "zeitpunkt")
-    private LocalDateTime timestamp;
-    @Enumerated(EnumType.STRING)
+    private Date date;
+
+    @Id
+    @Column(name = "wertpapierIsin", length = 50)
+    private String stockIsin;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="depotName", referencedColumnName="name", updatable=false, insertable=false)
+    private Depot depot;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="wertpapierIsin", referencedColumnName="isin", updatable=false, insertable=false)
+    private Stock stock;
+    //@Enumerated(EnumType.STRING)
     @Column(name = "tansaktionstyp")
-    private TransactionType transactionType;
+    private String transactionType;
     @Column(name = "anzahl")
     private int amount;
-    @Enumerated(EnumType.STRING)
+    //@Enumerated(EnumType.STRING)
     @Column(name = "währung")
-    private Currency currency;
+    private String currency;
     @Column(name = "preis")
     private double price;
     @Column(name = "wertInEur")
-    private double amountInEur;
+    private double priceInEur;
     @Column(name = "bankprovision")
     private double bankProvision;
     @Column(name = "maklercourtage")
@@ -57,8 +59,15 @@ public class DepotTransaction {
     private double churchTax;
 
 
-    public int getId() {
-        return id;
+    public DepotTransaction() {
+    }
+
+    public DepotTransaction(String depotName, Date date, Stock stock, Depot depot) {
+        this.depotName = depotName;
+        this.date = date;
+        this.stock = stock;
+        this.depot = depot;
+        this.stockIsin = stock.getIsin();
     }
 
     public Depot getDepot() {
@@ -69,14 +78,21 @@ public class DepotTransaction {
         this.depot = depot;
     }
 
-    public int getDepotId() {
-        return depotId;
+    public String getDepotName() {
+        return depotName;
     }
 
-    public void setDepotId(int depotId) {
-        this.depotId = depotId;
+    public void setDepotName(String depotName) {
+        this.depotName = depotName;
     }
 
+    public String getStockIsin() {
+        return stockIsin;
+    }
+
+    public void setStockIsin(String stockIsin) {
+        this.stockIsin = stockIsin;
+    }
 
     public Stock getStock() {
         return stock;
@@ -86,19 +102,19 @@ public class DepotTransaction {
         this.stock = stock;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
+    public Date getDate() {
+        return date;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    public TransactionType getTransactionType() {
+    public String getTransactionType() {
         return transactionType;
     }
 
-    public void setTransactionType(TransactionType transactionType) {
+    public void setTransactionType(String transactionType) {
         this.transactionType = transactionType;
     }
 
@@ -110,11 +126,11 @@ public class DepotTransaction {
         this.amount = amount;
     }
 
-    public Currency getCurrency() {
+    public String getCurrency() {
         return currency;
     }
 
-    public void setCurrency(Currency currency) {
+    public void setCurrency(String currency) {
         this.currency = currency;
     }
 
@@ -126,12 +142,12 @@ public class DepotTransaction {
         this.price = price;
     }
 
-    public double getAmountInEur() {
-        return amountInEur;
+    public double getPriceInEur() {
+        return priceInEur;
     }
 
-    public void setAmountInEur(double amountInEur) {
-        this.amountInEur = amountInEur;
+    public void setPriceInEur(double priceInEur) {
+        this.priceInEur = priceInEur;
     }
 
     public double getBankProvision() {

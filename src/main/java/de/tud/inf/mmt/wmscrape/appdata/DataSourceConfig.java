@@ -11,7 +11,7 @@ public class DataSourceConfig {
 
     @Bean
     public DataSource getDataSource() {
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+        DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         //dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
         dataSourceBuilder.url(SpringIndependentData.getSpringConnectionPath());
         dataSourceBuilder.username(SpringIndependentData.getUsername());

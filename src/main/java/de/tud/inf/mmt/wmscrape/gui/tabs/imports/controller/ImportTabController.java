@@ -45,7 +45,7 @@ public class ImportTabController {
     StockDataColumnRepository stockDataColumnRepository;
     static ObservableList<ExcelCorrelation> stockDataTableColumns = FXCollections.observableArrayList();
 
-    private TextArea logTextArea;
+    private TextArea logTextArea = new TextArea();
     private SimpleStringProperty logText;
 
     @FXML
@@ -62,7 +62,7 @@ public class ImportTabController {
         selectionColTitleField.textProperty().addListener((o,ov,nv) -> { if (nv != null) { validSelectionColTitle();}});
 
         logText = new SimpleStringProperty("");
-        logTextArea =  new TextArea();
+        logTextArea = new TextArea();
         logTextArea.setPrefSize(350,400);
         logTextArea.textProperty().bind(logText);
         importTabManagement.passLogText(logText);
@@ -83,12 +83,9 @@ public class ImportTabController {
         ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
 
         if(excelSheet == null) {
-            Alert alert = new Alert(
-                    Alert.AlertType.ERROR,
+            createAlert("Keine Excel zum löschen ausgewählt!",
                     "Wählen Sie eine Exceldatei aus der Liste aus, um diese zu löschen.",
-                    ButtonType.OK);
-            alert.setHeaderText("Keine Excel zum löschen ausgewählt!");
-            alert.showAndWait();
+                    Alert.AlertType.ERROR, ButtonType.OK, true);
             return;
         }
 
@@ -145,14 +142,14 @@ public class ImportTabController {
             return;
         }
 
+        logText.set("");
+
         ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
         if(!importTabManagement.sheetExists(excelSheet)) {
-            Alert alert = new Alert(
-                    Alert.AlertType.ERROR,
-                    "Unter dem angegebenen Pfad wurde keine gültige Datei gefunden. Speichern Sie bevor Sie die Vorschau laden.",
-                    ButtonType.OK);
-            alert.setHeaderText("Datei nicht gefunden!");
-            alert.showAndWait();
+            createAlert("Datei nicht gefunden!",
+                    "Unter dem angegebenen Pfad wurde keine gültige Datei gefunden. " +
+                            "Speichern Sie bevor Sie die Vorschau laden.",
+                    Alert.AlertType.ERROR, ButtonType.OK, true);
             return;
         }
 
@@ -162,50 +159,35 @@ public class ImportTabController {
         switch (result) {
             case -1:
                 // wrong password
-                alert = new Alert(
-                        Alert.AlertType.ERROR,
+                createAlert("Falsches Passwort!",
                         "Das angegebene Passwort ist falsch. Speichern Sie bevor Sie die Vorschau laden.",
-                        ButtonType.OK);
-                alert.setHeaderText("Falsches Passwort!");
-                alert.showAndWait();
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -2:
                 // TitleRowError
-                alert = new Alert(
-                        Alert.AlertType.ERROR,
+                createAlert("Fehlerhafte Titelzeile!",
                         "Die Titelzeile liegt außerhalb der Begrenzung.",
-                        ButtonType.OK);
-                alert.setHeaderText("Fehlerhafte Titelzeile!");
-                alert.showAndWait();
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -3:
                 // no data in sheet
-                alert = new Alert(
-                        Alert.AlertType.ERROR,
+                createAlert("Keine Daten gefunden!",
                         "Die angegebene Datei enhält keine Daten.",
-                        ButtonType.OK);
-                alert.setHeaderText("Keine Daten gefunden!");
-                alert.showAndWait();
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -4:
                 // titles not unique
-                alert = new Alert(
-                        Alert.AlertType.ERROR,
+                createAlert("Titel nicht einzigartig!",
                         "Die Titelzeile enthält Elemente mit gleichen Namen.",
-                        ButtonType.OK);
-                alert.setHeaderText("Titel nicht einzigartig!");
-                alert.showAndWait();
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -5:
                 // Selection column not found
-                alert = new Alert(
-                        Alert.AlertType.ERROR,
+                createAlert("Übernahmespalte nicht gefunden!",
                         "In der Zeile "+excelSheet.getTitleRow()+" " +
-                                "existiert keine Spalte mit dem Namen '" +
-                                excelSheet.getSelectionColTitle() + "'.",
-                        ButtonType.OK);
-                alert.setHeaderText("Übernahmespalte nicht gefunden!");
-                alert.showAndWait();
+                        "existiert keine Spalte mit dem Namen '" +
+                        excelSheet.getSelectionColTitle() + "'.",
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -6:
                 // Cell evaluation error
@@ -243,16 +225,60 @@ public class ImportTabController {
 
     @FXML
     private void importExcel() {
-        importTabManagement.extractCorrelationData();
+        if (transactionCorrelationTable.getItems().size() == 0 || stockDataCorrelationTable.getItems().size() == 0) {
+            createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
+                    Alert.AlertType.INFORMATION, ButtonType.OK, true);
+            return;
+        }
+        int result = importTabManagement.startDataExtraction();
+
+        switch (result) {
+            case 0:
+                createAlert("Import abgeschlossen!",
+                        "Alle Excel Sheet Stammmdaten und Transaktionen wurden importiert.",
+                        Alert.AlertType.INFORMATION, ButtonType.OK, true);
+                return;
+            case -1:
+                createAlert("Import unvollständig!", "Nicht alle Zellen wurden " +
+                                "importiert. Der Log enthält mehr Informationen.",
+                        Alert.AlertType.WARNING, ButtonType.OK, true);
+                return;
+            case -2:
+                createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
+                        Alert.AlertType.INFORMATION, ButtonType.OK, true);
+                return;
+            case -3:
+                createAlert("Zuordnung unvollständig!",
+                        "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für " +
+                                "Stammdaten: isin und für Transaktionen: wertpapier_isin, datum, depot_name",
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                return;
+            case -4:
+                createAlert("Fehler bei Sql-Statement erstellung.!",
+                        "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                return;
+            default:
+                createAlert("Fehler mit unbekannter Id!",
+                        "Eine Fehlerbeschreibung zur Id: '" +result + "' existiert nicht",
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                break;
+        }
     }
 
     @FXML
     private void openLog() {
 
         Stage stage = new Stage();
+        Scene scene = logTextArea.getScene();
 
-        Scene scene = new Scene(this.logTextArea);
-        scene.getStylesheets().add("style.css");
+        if (scene == null) {
+            scene = new Scene(this.logTextArea);
+            scene.getStylesheets().add("style.css");
+        } else {
+            logTextArea.getScene().getWindow().hide();
+        }
+
         stage.setScene(scene);
 
         stage.initOwner(pathField.getScene().getWindow());
@@ -267,12 +293,9 @@ public class ImportTabController {
         ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
 
         if(excelSheet == null) {
-            Alert alert = new Alert(
-                    Alert.AlertType.ERROR,
+            createAlert("Keine Excel ausgewählt!",
                     "Wählen Sie eine Exceldatei aus der Liste aus.",
-                    ButtonType.OK);
-            alert.setHeaderText("Keine Excel ausgewählt!");
-            alert.showAndWait();
+                    Alert.AlertType.ERROR, ButtonType.OK, true);
             return false;
         }
         return true;
@@ -301,6 +324,8 @@ public class ImportTabController {
         if (excelSheet == null) {
             return;
         }
+
+        logText.set("");
 
         pathField.setText(excelSheet.getPath());
         passwordField.setText(excelSheet.getPassword());
@@ -382,5 +407,12 @@ public class ImportTabController {
         valid &= validTitleColNr();
         valid &= validSelectionColTitle();
         return valid;
+    }
+
+
+    private void createAlert(String title, String content, Alert.AlertType type, ButtonType buttonType, boolean wait) {
+        Alert alert = new Alert(type, content, buttonType);
+        alert.setHeaderText(title);
+        if(wait) alert.showAndWait();
     }
 }

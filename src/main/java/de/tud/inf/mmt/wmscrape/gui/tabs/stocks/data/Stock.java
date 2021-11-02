@@ -15,9 +15,8 @@ public class Stock {
     private String isin;
     private String wkn;
     private String name;
-    @Enumerated(EnumType.STRING)
     @Column(name = "typ")
-    private StockType stockType;
+    private String stockType;
     @Column(name = "gruppenId")
     private int groupId;
 
@@ -25,6 +24,14 @@ public class Stock {
     private List<DepotTransaction> depotTransactions = new ArrayList<>();
 
     public Stock() {
+    }
+
+    public Stock(String isin, String wkn, String name, int groupId, String stockType) {
+        this.isin = isin;
+        this.wkn = wkn;
+        this.name = name;
+        this.groupId = groupId;
+        this.stockType = stockType;
     }
 
     public Stock(String isin) {
@@ -55,11 +62,11 @@ public class Stock {
         this.name = name;
     }
 
-    public StockType getStockType() {
+    public String getStockType() {
         return stockType;
     }
 
-    public void setStockType(StockType stockType) {
+    public void setStockType(String stockType) {
         this.stockType = stockType;
     }
 
