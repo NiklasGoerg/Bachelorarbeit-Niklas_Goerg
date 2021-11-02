@@ -1,15 +1,15 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.*;
-import javafx.beans.property.SimpleStringProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 @Service
@@ -211,54 +211,6 @@ public class StockDataDbManager {
             return false;
         }
         return true;
-    }
-
-    public boolean fillStatementAddToBatch(String isin, Date date, PreparedStatement statement,
-                                           String data, ColumnDatatype datatype, SimpleStringProperty logger) {
-
-        try {
-            statement.setString(1,isin);
-            statement.setDate(2,date);
-
-            switch (datatype) {
-                case DATE:
-                    LocalDate dataToDate = LocalDate.parse(data);
-                    statement.setDate(3, Date.valueOf(dataToDate));
-                    break;
-                case TEXT:
-                    statement.setString(3,data);
-                    break;
-                case INT:
-                    // casting double to int to remove trailing zeros because of
-                    // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
-                    statement.setInt(3, (int) Double.parseDouble(data));
-                    break;
-                case DOUBLE:
-                    statement.setDouble(3, Double.parseDouble(data));
-                    break;
-                default:
-                    break;
-                }
-
-            statement.addBatch();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            logger.set(logger.getValue() + "\nFEHLER: Bei dem Setzen der Statementwerte sind Fehler aufgetreten: "
-                    + e.getMessage() + " _ CAUSE_ " + e.getCause());
-            return false;
-        } catch (NumberFormatException | DateTimeParseException e) {
-            e.printStackTrace();
-            logger.set(logger.getValue() + "\nFEHLER: Bei dem Parsen des Wertes '"+data+"' in das Format "
-                    +datatype.name()+" ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
-            return false;
-        }
-        return true;
-    }
-
-    public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO stammdaten (isin, datum, "+dbColName+") VALUES(?,?,?) ON DUPLICATE KEY UPDATE "+dbColName+"=VALUES("+dbColName+");";
-        PreparedStatement pst = connection.prepareCall(sql);
-        return pst;
     }
 
     public Connection getConnection() {

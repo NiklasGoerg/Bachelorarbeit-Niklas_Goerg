@@ -2,7 +2,6 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotTransaction;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotTransactionRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.ColumnDatatype;
@@ -36,6 +35,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Service
@@ -810,9 +811,16 @@ public class ImportTabManagement {
 
                 // statement exists bcs if there is an error at statement creation
                 // the program does not reach this line
-                PreparedStatement statement = statements.get(dbColName);
+                PreparedStatement statement = statements.getOrDefault(dbColName, null);
 
-                silentError &= stockDataDbManager.fillStatementAddToBatch(isin, dateToday, statement, colData, datatype, logText);
+                if(statement == null) {
+                    silentError = true;
+                    addToLog("Fehler: Sql-Statment für die Spalte '"+correlation.getExcelColTitle()+
+                            "' nicht gefunden");
+                    continue;
+                }
+
+                silentError &= fillStockStatementAddToBatch(isin, dateToday, statement, colData, datatype);
             }
 
         }
@@ -829,6 +837,12 @@ public class ImportTabManagement {
 
         // execution is not stopped at a silent error but a log message is added
         boolean silentError = false;
+
+        Connection connection = stockDataDbManager.getConnection();
+
+        HashMap<String, PreparedStatement> statements = createTransactionDataStatements(connection);
+
+        if (statements == null) return -4;
 
         // transactionColumnNames
         int isinCol = getColNrByName("wertpapier_isin", transactionColumnRelations);
@@ -888,9 +902,6 @@ public class ImportTabManagement {
             Depot depot = depotRepository.findByName(depotName).orElse(new Depot(depotName));
             depotRepository.save(depot);
 
-            // create new transaction
-            DepotTransaction newDepotTransaction = new DepotTransaction(depotName, parsedDate, stock.get(), depot);
-            depot.addDepotTransaction(newDepotTransaction);
 
             for(ExcelCorrelation correlation : transactionColumnRelations) {
                 String dbColName = correlation.getDbColTitle();
@@ -911,7 +922,6 @@ public class ImportTabManagement {
 
                 if(colData.isBlank()) continue;
 
-
                 ColumnDatatype colDatatype = transactionColumnsWithType.getOrDefault(dbColName, ColumnDatatype.INVALID);
 
                 if(!matchingDataType(colDatatype, colData)) {
@@ -922,19 +932,20 @@ public class ImportTabManagement {
                     continue;
                 }
 
-                try {
-                    setTransactionPropertyByColName(newDepotTransaction, dbColName, colData);
-                } catch (NumberFormatException e) {
-                    addToLog("FEHLER: Der Datentyp der Zelle stimmt nicht mit dem Datentyp der Spalte '"+dbColName+
-                            "' überein.");
+                PreparedStatement statement = statements.getOrDefault(dbColName, null);
+
+                if(statement == null) {
                     silentError = true;
+                    addToLog("Fehler: Sql-Statment für die Spalte '"+correlation.getExcelColTitle()+
+                            "' nicht gefunden");
                     continue;
                 }
-            }
 
-            depotTransactionRepository.save(newDepotTransaction);
-            depotRepository.save(depot);
+                silentError &= fillTransactionStatementAddToBatch(depotName, parsedDate, isin, statement, colData, colDatatype);
+            }
         }
+
+        executeStatements(connection, statements);
 
         addToLog("\n##### Ende Transaktions Import #####\n");
         if(silentError) return -1;
@@ -954,57 +965,6 @@ public class ImportTabManagement {
         } else if (colDatatype == ColumnDatatype.DATE && colData.matches("^[1-9][0-9]{3}\\-[0-9]{2}\\-[0-9]{2}$")) {
             return true;
         } else return colDatatype == ColumnDatatype.TEXT;
-    }
-
-    private void setTransactionPropertyByColName(DepotTransaction transaction, String dbColName, String colData) {
-
-        switch (dbColName) {
-            case "tansaktionstyp":
-                transaction.setTransactionType(colData);
-                break;
-            case "anzahl":
-                // parsed to double to remove tailing zeros
-                transaction.setAmount((int) Double.parseDouble(colData));
-                break;
-            case "währung":
-                transaction.setCurrency(colData);
-                break;
-            case "preis":
-                transaction.setPrice(Double.parseDouble(colData));
-                break;
-            case "wert_in_eur":
-                transaction.setPriceInEur(Double.parseDouble(colData));
-                break;
-            case "bankprovision":
-                transaction.setBankProvision(Double.parseDouble(colData));
-                break;
-            case "maklercourtage":
-                transaction.setCommission(Double.parseDouble(colData));
-                break;
-            case "börsenplatzgebühr":
-                transaction.setBrokerFees(Double.parseDouble(colData));
-                break;
-            case "spesen":
-                transaction.setFees(Double.parseDouble(colData));
-                break;
-            case "kapitalertragssteuer":
-                transaction.setCapitalYieldsTax(Double.parseDouble(colData));
-                break;
-            case "solidaritätssteuer":
-                transaction.setSoliditarySurcharge(Double.parseDouble(colData));
-                break;
-            case "quellensteuer":
-                transaction.setWitholdingTax(Double.parseDouble(colData));
-                break;
-            case "abgeltungssteuer":
-                transaction.setFlatTax(Double.parseDouble(colData));
-                break;
-            case "kirchensteuer":
-                transaction.setChurchTax(Double.parseDouble(colData));
-                break;
-            default:
-                break;
-        }
     }
 
     private int getColNrByName(String name, ObservableList<ExcelCorrelation> correlations) {
@@ -1048,7 +1008,7 @@ public class ImportTabManagement {
 
         for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
             try {
-                statements.put(column.getName(), stockDataDbManager.getPreparedStatement(column.getName(), connection));
+                statements.put(column.getName(), getPreparedStockStatement(column.getName(), connection));
             } catch (SQLException e) {
                 e.printStackTrace();
                 addToLog("FEHLER: Erstellung des Statements fehlgeschlagen. Spalte: '"
@@ -1057,6 +1017,37 @@ public class ImportTabManagement {
             }
         }
         return statements;
+    }
+
+    private HashMap<String, PreparedStatement> createTransactionDataStatements(Connection connection) {
+        HashMap<String, PreparedStatement> statements = new HashMap<>();
+
+        // prepare a statement for each column
+
+        for(String colName: transactionColumnsWithType.keySet()) {
+            ColumnDatatype type = transactionColumnsWithType.get(colName);
+            try {
+                statements.put(colName, getPreparedTransactionStatement(colName, connection));
+            } catch (SQLException e) {
+                e.printStackTrace();
+                addToLog("FEHLER: Erstellung des Statements fehlgeschlagen. Spalte: '"
+                        + colName +"' Datentyp '" + type +"' _CAUSE_ " + e.getCause());
+                return null;
+            }
+        }
+        return statements;
+    }
+
+    public PreparedStatement getPreparedTransactionStatement(String dbColName, Connection connection) throws SQLException {
+        String sql = "INSERT INTO depottransaktion (depot_name, zeitpunkt, wertpapier_isin, "+dbColName+") VALUES(?,?,?,?) "+
+                "ON DUPLICATE KEY UPDATE "+dbColName+"=VALUES("+dbColName+");";
+        return connection.prepareCall(sql);
+    }
+
+    public PreparedStatement getPreparedStockStatement(String dbColName, Connection connection) throws SQLException {
+        String sql = "INSERT INTO stammdaten (isin, datum, "+dbColName+") VALUES(?,?,?) ON DUPLICATE KEY UPDATE "+
+                dbColName+"=VALUES("+dbColName+");";
+        return connection.prepareCall(sql);
     }
 
     private boolean executeStatements(Connection connection, HashMap<String, PreparedStatement> statements) {
@@ -1072,5 +1063,76 @@ public class ImportTabManagement {
             addToLog("FEHLER: " + e.getMessage() + " _CAUSE_ " + e.getCause());
         }
         return silentError;
+    }
+
+    public boolean fillStockStatementAddToBatch(String isin, Date date, PreparedStatement statement,
+                                                String data, ColumnDatatype datatype) {
+
+        try {
+            statement.setString(1,isin);
+            statement.setDate(2,date);
+
+            fillByDataType( datatype, statement, 3, data);
+
+            statement.addBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            addToLog("FEHLER: Bei dem Setzen der Statementwerte sind Fehler aufgetreten: "
+                    + e.getMessage() + " _ CAUSE_ " + e.getCause());
+            return false;
+        } catch (NumberFormatException | DateTimeParseException e) {
+            e.printStackTrace();
+            addToLog("FEHLER: Bei dem Parsen des Wertes '"+data+"' in das Format "
+                    +datatype.name()+" ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
+            return false;
+        }
+        return true;
+    }
+
+    public boolean fillTransactionStatementAddToBatch(String depotName, Date date, String isin,
+                                                      PreparedStatement statement, String data,
+                                                      ColumnDatatype datatype) {
+
+     try {
+            statement.setString(1,depotName);
+            statement.setDate(2,date);
+            statement.setString(3,isin);
+            fillByDataType( datatype, statement, 4, data);
+
+            statement.addBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            addToLog("FEHLER: Bei dem Setzen der Statementwerte sind Fehler aufgetreten: "
+                    + e.getMessage() + " _ CAUSE_ " + e.getCause());
+            return false;
+        } catch (NumberFormatException | DateTimeParseException e) {
+            e.printStackTrace();
+            addToLog("FEHLER: Bei dem Parsen des Wertes '"+data+"' in das Format "
+                    +datatype.name()+" ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
+            return false;
+        }
+        return true;
+    }
+
+    public void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data) throws SQLException {
+        switch (datatype) {
+            case DATE:
+                LocalDate dataToDate = LocalDate.parse(data);
+                statement.setDate(number, Date.valueOf(dataToDate));
+                break;
+            case TEXT:
+                statement.setString(number,data);
+                break;
+            case INT:
+                // casting double to int to remove trailing zeros because of
+                // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
+                statement.setInt(number, (int) Double.parseDouble(data));
+                break;
+            case DOUBLE:
+                statement.setDouble(number, Double.parseDouble(data));
+                break;
+            default:
+                break;
+        }
     }
 }
