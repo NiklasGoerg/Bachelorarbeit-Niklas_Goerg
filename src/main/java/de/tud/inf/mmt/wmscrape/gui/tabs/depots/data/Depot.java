@@ -11,6 +11,9 @@ import java.util.List;
 public class Depot {
 
     @Id
+    @GeneratedValue
+    private int id;
+
     @Column(length = 50)
     private String name;
     @Column(name = "Öffnungsdatum")
@@ -26,6 +29,10 @@ public class Depot {
     private List<DepotTransaction> depotTransactions = new ArrayList<>();
 
     public Depot() {
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Depot(String name) {

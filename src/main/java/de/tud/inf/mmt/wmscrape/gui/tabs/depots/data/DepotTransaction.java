@@ -10,8 +10,7 @@ import java.sql.Date;
 @Table(name = "Depottransaktion")
 public class DepotTransaction {
     @Id
-    @Column(length = 50)
-    private String depotName;
+    private int depotId;
 
     @Id
     @Column(name = "zeitpunkt")
@@ -22,7 +21,7 @@ public class DepotTransaction {
     private String stockIsin;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="depotName", referencedColumnName="name", updatable=false, insertable=false)
+    @JoinColumn(name="depotId", referencedColumnName="id", updatable=false, insertable=false)
     private Depot depot;
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="wertpapierIsin", referencedColumnName="isin", updatable=false, insertable=false)
@@ -62,8 +61,8 @@ public class DepotTransaction {
     public DepotTransaction() {
     }
 
-    public DepotTransaction(String depotName, Date date, Stock stock, Depot depot) {
-        this.depotName = depotName;
+    public DepotTransaction(int depotId, Date date, Stock stock, Depot depot) {
+        this.depotId = depotId;
         this.date = date;
         this.stock = stock;
         this.depot = depot;
@@ -78,12 +77,12 @@ public class DepotTransaction {
         this.depot = depot;
     }
 
-    public String getDepotName() {
-        return depotName;
+    public int getDepotId() {
+        return depotId;
     }
 
-    public void setDepotName(String depotName) {
-        this.depotName = depotName;
+    public void setDepotId(int depotId) {
+        this.depotId = depotId;
     }
 
     public String getStockIsin() {

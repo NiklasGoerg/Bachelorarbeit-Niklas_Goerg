@@ -5,7 +5,7 @@ import java.sql.Date;
 import java.util.Objects;
 
 public class DepotTransactionKey implements Serializable {
-    private String depotName;
+    private int depotId;
     private Date date;
     private String stockIsin;
 
@@ -14,11 +14,11 @@ public class DepotTransactionKey implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DepotTransactionKey that = (DepotTransactionKey) o;
-        return Objects.equals(depotName, that.depotName) && Objects.equals(date, that.date) && Objects.equals(stockIsin, that.stockIsin);
+        return depotId == that.depotId && Objects.equals(date, that.date) && Objects.equals(stockIsin, that.stockIsin);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(depotName, date, stockIsin);
+        return Objects.hash(depotId, date, stockIsin);
     }
 }
