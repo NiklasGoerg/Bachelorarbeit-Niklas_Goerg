@@ -328,7 +328,7 @@ public class ImportTabManagement {
             }
         }
 
-        addToLog("##### Ende  Excel Parsing #####\n");
+        addToLog("##### Ende Excel Parsing #####\n");
         return evalFault;
     }
 
@@ -784,14 +784,17 @@ public class ImportTabManagement {
                 if(dbColName.equals("isin")) continue;
 
                 int correlationColNumber = correlation.getExcelColNumber();
+                String colData;
+
                 // -1 is default and can't be set another way meaning it's not set
                 if(correlationColNumber == -1) {
                     //addToLog("INFO: Die Spalte '" + dbColName +"' hat keine Zuordnung.");
-                    continue;
-                };
+                    colData = null;
+                } else {
+                    colData = rowData.get(correlationColNumber);
+                    if(colData.isBlank()) colData = null;
+                }
 
-                String colData = rowData.get(correlationColNumber);
-                if(colData.isBlank()) continue;
 
                 ColumnDatatype datatype = columnDatatypes.getOrDefault(dbColName, null);
                 if(datatype == null) {
@@ -912,15 +915,17 @@ public class ImportTabManagement {
                 }
 
                 int correlationColNumber = correlation.getExcelColNumber();
+                String colData;
+
                 // -1 is default and can't be set another way meaning it's not set
                 if(correlationColNumber == -1) {
                     //addToLog("INFO: Die Spalte '" + dbColName +"' hat keine Zuordnung.");
-                    continue;
+                    colData = null;
+                } else {
+                    colData = rowData.get(correlationColNumber);
+                    // change to null to override possible existing values
+                    if(colData.isBlank()) colData = null;
                 }
-
-                String colData = rowData.get(correlationColNumber);
-
-                if(colData.isBlank()) continue;
 
                 ColumnDatatype colDatatype = transactionColumnsWithType.getOrDefault(dbColName, ColumnDatatype.INVALID);
 
@@ -953,8 +958,11 @@ public class ImportTabManagement {
     }
 
     private boolean matchingDataType(ColumnDatatype colDatatype, String colData) {
-        if(colData == null || colDatatype == null) {
+        if(colDatatype == null) {
             return false;
+        } else if (colData == null) {
+            // null is valid in order to override values that may be set in the wrong column
+            return true;
         } else if(colDatatype == ColumnDatatype.INT && colData.matches("^-?[0-9]+(\\.0{5})?$")) {
             // normal format would be "^-?[0-9]+$" but because of
             // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
@@ -1072,7 +1080,11 @@ public class ImportTabManagement {
             statement.setString(1,isin);
             statement.setDate(2,date);
 
-            fillByDataType( datatype, statement, 3, data);
+            if(data == null) {
+                fillNullByDataType(datatype, statement, 3);
+            } else {
+                fillByDataType(datatype, statement, 3, data);
+            }
 
             statement.addBatch();
         } catch (SQLException e) {
@@ -1097,7 +1109,12 @@ public class ImportTabManagement {
             statement.setInt(1,depotId);
             statement.setDate(2,date);
             statement.setString(3,isin);
-            fillByDataType( datatype, statement, 4, data);
+
+            if(data == null) {
+                fillNullByDataType(datatype, statement, 4);
+            } else {
+                fillByDataType(datatype, statement, 4, data);
+            }
 
             statement.addBatch();
         } catch (SQLException e) {
@@ -1130,6 +1147,25 @@ public class ImportTabManagement {
                 break;
             case DOUBLE:
                 statement.setDouble(number, Double.parseDouble(data));
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int number) throws SQLException {
+        switch (datatype) {
+            case DATE:
+                statement.setDate(number, null);
+                break;
+            case TEXT:
+                statement.setString(number,null);
+                break;
+            case INT:
+                statement.setInt(number, 0);
+                break;
+            case DOUBLE:
+                statement.setDouble(number, 0);
                 break;
             default:
                 break;
