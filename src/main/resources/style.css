@@ -4,6 +4,18 @@
 	-fx-background-color: red,linear-gradient(to bottom, derive(red,60%) 5%,derive(red,90%) 40%);
 }
 
-.tab {
-    -fx-pref-height: 25;
+tooltip.bad-input {
+    -fx-background-color: FF4A4A;
+}
+
+.button, .text-field, .combo-box, .choice-box {
+    -fx-background-radius: 0;
+}
+
+#verticalTabPane {
+    -fx-padding: -3 0 -3 -5px;
+}
+
+#verticalTabPane *.tab-label {
+    -fx-rotate: 90;
 }
