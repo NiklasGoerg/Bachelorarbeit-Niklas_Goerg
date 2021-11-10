@@ -41,7 +41,7 @@ import java.util.*;
 
 @Service
 @Transactional
-public class ImportTabManagement {
+public class ImportTabManager {
 
     @Autowired
     private ExcelSheetRepository excelSheetRepository;
@@ -79,8 +79,7 @@ public class ImportTabManagement {
 
     @PostConstruct
     private void init() {
-        // Integer represents datatype
-        // 1-Integer, 2-String, 3-Date, 4-Double
+        // this is fixed because the fields of the transaction object are too
         transactionColumnsWithType =  new HashMap<>();
         transactionColumnsWithType.put("depot_name", ColumnDatatype.TEXT);
         transactionColumnsWithType.put("wertpapier_isin", ColumnDatatype.TEXT);
@@ -110,7 +109,7 @@ public class ImportTabManagement {
         tooltip.setText(text);
         tooltip.setOpacity(.9);
         tooltip.setAutoFix(true);
-        tooltip.setStyle("-fx-background-color: FF4A4A;");
+        tooltip.setStyle(".bad-input");
         return tooltip;
     }
 
@@ -125,9 +124,6 @@ public class ImportTabManagement {
     }
 
     public ObservableList<ExcelSheet> initExcelSheetList(ListView<ExcelSheet> excelSheetList) {
-        // https://docs.oracle.com/javafx/2/ui_controls/list-view.htm
-        // https://www.baeldung.com/javafx-listview-display-custom-items
-
         ObservableList<ExcelSheet> excelSheetObservableList = FXCollections.observableList(excelSheetRepository.findAll());
         excelSheetList.setItems(excelSheetObservableList);
         return excelSheetObservableList;
@@ -479,7 +475,7 @@ public class ImportTabManagement {
     }
 
     private boolean titlesAreUnique(Map<Integer, String> titlesLoadedExcel) {
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         for (String each: titlesLoadedExcel.values()) {
             if (!set.add(each)) {
                 System.out.println(each);
@@ -521,9 +517,7 @@ public class ImportTabManagement {
                 // my assumption -> no content == not selected
                 tableCol.setCellValueFactory(row -> {
                     SimpleBooleanProperty sbp = selectedStockDataRows.get(Integer.valueOf(row.getValue().get(0)));
-                    sbp.addListener( (o, ov, nv) -> {
-                        sbp.set(nv);
-                    });
+                    sbp.addListener( (o, ov, nv) -> sbp.set(nv));
                     return sbp;
                 });
 
@@ -537,9 +531,7 @@ public class ImportTabManagement {
                 // my assumption -> no content == not selected
                 tableCol.setCellValueFactory(row -> {
                     SimpleBooleanProperty sbp = selectedTransactionRows.get(Integer.valueOf(row.getValue().get(0)));
-                    sbp.addListener( (o, ov, nv) -> {
-                        sbp.set(nv);
-                    });
+                    sbp.addListener( (o, ov, nv) -> sbp.set(nv));
                     return sbp;
                 });
 
@@ -609,7 +601,7 @@ public class ImportTabManagement {
             // update value inside the object
             comboBox.valueProperty().addListener((o, ov, nv) -> {
                 if (cell.getTableRow().getItem() != null) {
-                    updateCorrelationByComboBox(cell,comboBox,nv);
+                    updateCorrelationByComboBox(cell,nv);
                 }
             });
 
@@ -627,7 +619,7 @@ public class ImportTabManagement {
         });
     }
 
-    private void updateCorrelationByComboBox(TableCell<ExcelCorrelation, String>  cell, ComboBox comboBox, String newValue) {
+    private void updateCorrelationByComboBox(TableCell<ExcelCorrelation, String>  cell, String newValue) {
         if (cell.getTableRow().getItem() != null) {
             ExcelCorrelation correlation = cell.getTableRow().getItem();
             correlation.setExcelColTitle(newValue);
@@ -985,11 +977,8 @@ public class ImportTabManagement {
     }
 
     private boolean isInExtractableState() {
-        if(excelSheetRows == null || selectedTransactionRows == null || selectedStockDataRows == null ||
-                stockColumnRelations.size() == 0 || transactionColumnRelations.size() == 0) {
-            return false;
-        }
-        return true;
+        return excelSheetRows != null && selectedTransactionRows != null && selectedStockDataRows != null &&
+                stockColumnRelations.size() != 0 && transactionColumnRelations.size() != 0;
     }
 
     private boolean correlationsHaveValidState() {

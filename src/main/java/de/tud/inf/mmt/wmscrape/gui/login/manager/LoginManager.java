@@ -120,7 +120,8 @@ public class LoginManager {
         try {
             parent = fxmlLoader.load();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
+            //System.out.println(e.getMessage());
             return false;
         }
 

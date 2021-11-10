@@ -1,11 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import org.controlsfx.validation.ValidationSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,7 +15,7 @@ public class NewExcelPopupController {
     private TextField descriptionField;
 
     @Autowired
-    private ImportTabManagement importTabManagement;
+    private ImportTabManager importTabManager;
     @Autowired
     private ImportTabController importTabController;
 
@@ -38,7 +37,7 @@ public class NewExcelPopupController {
             return;
         }
 
-        importTabManagement.createNewExcel(descriptionField.getText());
+        importTabManager.createNewExcel(descriptionField.getText());
         importTabController.reloadExcelList();
         importTabController.selectLastExcel();
 
@@ -54,7 +53,7 @@ public class NewExcelPopupController {
         descriptionField.setTooltip(null);
 
         if(descriptionField.getText() == null || descriptionField.getText().isBlank()) {
-            descriptionField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
+            descriptionField.setTooltip(importTabManager.createTooltip("Dieses Feld darf nicht leer sein!"));
             descriptionField.getStyleClass().add("bad-input");
             return false;
         }

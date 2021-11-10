@@ -22,6 +22,10 @@ module de.tud.inf.mmt.wmscrape {
     requires org.apache.poi.ooxml;
     requires org.apache.commons.compress;
 
+    requires org.seleniumhq.selenium.firefox_driver;
+    requires org.seleniumhq.selenium.support;
+    requires org.seleniumhq.selenium.remote_driver;
+
     opens de.tud.inf.mmt.wmscrape;
     exports de.tud.inf.mmt.wmscrape;
     exports de.tud.inf.mmt.wmscrape.appdata;
@@ -45,4 +49,11 @@ module de.tud.inf.mmt.wmscrape {
     exports de.tud.inf.mmt.wmscrape.gui.tabs.imports.data to spring.beans;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.depots.data to spring.beans;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller to spring.beans;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management to spring.beans;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller to spring.core, javafx.fxml;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data to org.hibernate.orm.core, spring.core;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data to spring.beans;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management to org.hibernate.orm.core, spring.core;
+
 }

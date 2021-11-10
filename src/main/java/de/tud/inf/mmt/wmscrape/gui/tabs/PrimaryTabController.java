@@ -3,6 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs;
 import de.tud.inf.mmt.wmscrape.appdata.SpringIndependentData;
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -28,6 +29,8 @@ public class PrimaryTabController {
     @Autowired
     private ImportTabController importTabController;
     @Autowired
+    private ScrapingTabController scrapingTabController;
+    @Autowired
     private PrimaryTabManagement primaryTabManagement;
 
     @FXML
@@ -35,8 +38,12 @@ public class PrimaryTabController {
         currentUserLabel.setText("Aktueller Nutzer: " + SpringIndependentData.getUsername());
 
         Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/imports/controller/importTab.fxml", importTabController);
-        Tab importTab = new Tab("Import" , parent);
-        primaryTabPane.getTabs().add(importTab);
+        Tab tab = new Tab("Import" , parent);
+        primaryTabPane.getTabs().add(tab);
+
+        parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);
+        tab = new Tab("Scraping" , parent);
+        primaryTabPane.getTabs().add(tab);
     }
 
     @FXML
