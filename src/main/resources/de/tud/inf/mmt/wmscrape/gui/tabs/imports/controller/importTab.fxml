@@ -24,7 +24,7 @@
   <items>
     <AnchorPane maxWidth="300.0" prefHeight="653.0" prefWidth="170.0">
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="TOP_CENTER" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
                   <Label text="Excel Dateien">
                      <VBox.margin>
@@ -38,14 +38,7 @@
                   <Separator minHeight="-Infinity" minWidth="-Infinity" />
                </children>
             </VBox>
-            <ScrollPane fitToHeight="true" fitToWidth="true" layoutY="22.0" minWidth="100.0" prefHeight="607.0" prefWidth="171.0" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0">
-               <content>
-                  <ListView fx:id="excelSheetList" minHeight="-Infinity" minWidth="-Infinity" prefHeight="606.0" prefWidth="165.0" />
-               </content>
-               <padding>
-                  <Insets top="1.0" />
-               </padding>
-            </ScrollPane>
+            <ListView fx:id="excelSheetList" minHeight="-Infinity" minWidth="-Infinity" prefHeight="606.0" prefWidth="165.0" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
             <Button mnemonicParsing="false" onAction="#handleNewExcelSheetButton" text="Neues Dokument" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
          </children></AnchorPane>
       <VBox>

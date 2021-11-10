@@ -3,7 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
-import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataColumnRepository;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -37,9 +37,10 @@ public class ImportTabController {
     @Autowired
     private NewExcelPopupController newExcelPopupController;
     @Autowired
-    private ImportTabManagement importTabManagement;
+    private ImportTabManager importTabManager;
 
     private ObservableList<ExcelSheet> excelSheetObservableList;
+    private boolean inlineValidation = false;
 
     @Autowired
     StockDataColumnRepository stockDataColumnRepository;
@@ -50,22 +51,21 @@ public class ImportTabController {
 
     @FXML
     private void initialize() {
-        excelSheetObservableList = importTabManagement.initExcelSheetList(excelSheetList);
+        excelSheetObservableList = importTabManager.initExcelSheetList(excelSheetList);
         excelSheetList.getSelectionModel().selectedItemProperty().addListener(
-                (ov, oldSheet, newSheet) -> {
-                    loadSpecificExcel(newSheet);
-                });
+                (ov, oldSheet, newSheet) -> loadSpecificExcel(newSheet));
 
-        pathField.textProperty().addListener((o,ov,nv) -> { if (nv != null) { validPath(); }});
-//        passwordField.textProperty().addListener((o,ov,nv) -> { if (nv != null) { validPassword();}});
-        titleRowNrField.textProperty().addListener((o,ov,nv)-> { if (nv != null) { validTitleColNr();}});
-        selectionColTitleField.textProperty().addListener((o,ov,nv) -> { if (nv != null) { validSelectionColTitle();}});
+        pathField.textProperty().addListener((o,ov,nv) -> validPath());
+        titleRowNrField.textProperty().addListener((o,ov,nv) -> validTitleColNr());
+        selectionColTitleField.textProperty().addListener((o,ov,nv) -> emptyValidator(selectionColTitleField));
 
         logText = new SimpleStringProperty("");
         logTextArea = new TextArea();
         logTextArea.setPrefSize(350,400);
         logTextArea.textProperty().bind(logText);
-        importTabManagement.passLogText(logText);
+        importTabManager.passLogText(logText);
+
+        excelSheetList.getSelectionModel().selectFirst();
     }
 
     @FXML
@@ -84,7 +84,7 @@ public class ImportTabController {
 
         if(excelSheet == null) {
             createAlert("Keine Excel zum löschen ausgewählt!",
-                    "Wählen Sie eine Exceldatei aus der Liste aus, um diese zu löschen.",
+                    "Wählen Sie eine Exceldatei aus der Liste aus um diese zu löschen.",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
             return;
         }
@@ -97,15 +97,16 @@ public class ImportTabController {
             return;
         }
 
-        importTabManagement.deleteSpecificExcel(excelSheet);
+        importTabManager.deleteSpecificExcel(excelSheet);
         reloadExcelList();
+        excelSheetList.getSelectionModel().selectFirst();
     }
 
     @FXML
     private void saveSpecificExcel() {
-        if(!excelIsSelected() || !isValidInput()) {
-            return;
-        }
+        if(!excelIsSelected()) return;
+        inlineValidation = true;
+        if(!isValidInput()) return;
 
         ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
 
@@ -114,7 +115,7 @@ public class ImportTabController {
         excelSheet.setTitleRow(Integer.parseInt(titleRowNrField.getText()));
         excelSheet.setSelectionColTitle(selectionColTitleField.getText());
 
-        importTabManagement.saveExcel(excelSheet);
+        importTabManager.saveExcel(excelSheet);
 
         Alert alert = new Alert(
                 Alert.AlertType.INFORMATION,
@@ -138,22 +139,24 @@ public class ImportTabController {
 
     @FXML
     private void previewExcel() {
-        if(!excelIsSelected() || !isValidInput()) {
-            return;
-        }
+        // remove changes if not saved
+        loadSpecificExcel(excelSheetList.getSelectionModel().getSelectedItem());
+
+        if(!excelIsSelected()) return;
+        inlineValidation = true;
+        if(!isValidInput()) return;
 
         logText.set("");
 
         ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
-        if(!importTabManagement.sheetExists(excelSheet)) {
+        if(!importTabManager.sheetExists(excelSheet)) {
             createAlert("Datei nicht gefunden!",
-                    "Unter dem angegebenen Pfad wurde keine gültige Datei gefunden. " +
-                            "Speichern Sie bevor Sie die Vorschau laden.",
+                    "Unter dem angegebenen Pfad wurde keine gültige Datei gefunden.",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
             return;
         }
 
-        int result = importTabManagement.fillExcelPreview(sheetPreviewTable, excelSheet);
+        int result = importTabManager.fillExcelPreview(sheetPreviewTable, excelSheet);
         Alert alert;
 
         switch (result) {
@@ -198,7 +201,7 @@ public class ImportTabController {
                 alert.setHeaderText("Evaluierungs Fehler!");
 
                 TextArea textArea = new TextArea(
-                        "Einige Zellen konnten nicht evaluiert werden. Diese wurden mit ERROR gefüllt. " +
+                        "Einige Zellen konnten nicht evaluiert werden. Diese werde mit ERROR angezeigt. " +
                         "Genauere Informationen befinden sich im Log.\n" +
                         "Die von POI unterstützten Funktionen können hier nachgeschlagen werden: \n\n" +
                         "https://poi.apache.org/components/spreadsheet/eval-devguide.html");
@@ -216,8 +219,8 @@ public class ImportTabController {
         stockDataCorrelationTable.getItems().clear();
         transactionCorrelationTable.getColumns().clear();
         transactionCorrelationTable.getItems().clear();
-        importTabManagement.fillStockDataCorrelationTable(stockDataCorrelationTable, excelSheet);
-        importTabManagement.fillTransactionCorrelationTable(transactionCorrelationTable, excelSheet);
+        importTabManager.fillStockDataCorrelationTable(stockDataCorrelationTable, excelSheet);
+        importTabManager.fillTransactionCorrelationTable(transactionCorrelationTable, excelSheet);
         // refresh because otherwise the comboboxes are unreliable set
         stockDataCorrelationTable.refresh();
         transactionCorrelationTable.refresh();
@@ -230,7 +233,7 @@ public class ImportTabController {
                     Alert.AlertType.INFORMATION, ButtonType.OK, true);
             return;
         }
-        int result = importTabManagement.startDataExtraction();
+        int result = importTabManager.startDataExtraction();
 
         switch (result) {
             case 0:
@@ -285,7 +288,6 @@ public class ImportTabController {
         stage.initModality(Modality.NONE);
         stage.show();
 
-
         stage.setTitle("Log");
     }
 
@@ -294,7 +296,7 @@ public class ImportTabController {
 
         if(excelSheet == null) {
             createAlert("Keine Excel ausgewählt!",
-                    "Wählen Sie eine Exceldatei aus der Liste aus.",
+                    "Wählen Sie eine Exceldatei aus der Liste aus oder erstellen Sie eine neue bevor sie Speichern.",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
             return false;
         }
@@ -307,7 +309,7 @@ public class ImportTabController {
 
     public void reloadExcelList() {
         excelSheetObservableList.clear();
-        excelSheetObservableList.addAll(importTabManagement.getExcelSheets());
+        excelSheetObservableList.addAll(importTabManager.getExcelSheets());
     }
 
     private void clearFields() {
@@ -325,6 +327,7 @@ public class ImportTabController {
             return;
         }
 
+        inlineValidation = false;
         logText.set("");
 
         pathField.setText(excelSheet.getPath());
@@ -340,75 +343,56 @@ public class ImportTabController {
         transactionCorrelationTable.getColumns().clear();
         transactionCorrelationTable.getItems().clear();
         transactionCorrelationTable.setMinHeight(-1);
+
+        // here to remove eventually existing error styling
+        isValidInput();
     }
 
     private boolean validPath() {
-        pathField.getStyleClass().remove("bad-input");
-        pathField.setTooltip(null);
-
-        if(pathField.getText() == null || pathField.getText().isBlank()) {
-            pathField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
-            pathField.getStyleClass().add("bad-input");
-            return false;
-        } else if (!pathField.getText().matches("^.*\\.xlsx$")) {
-            pathField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nur auf xlsx Dateien verweisen!"));
-            pathField.getStyleClass().add("bad-input");
-            return false;
-        }
-        return true;
+        return emptyValidator(pathField) && pathValidator(pathField);
     }
-
-//    private boolean validPassword() {
-//        passwordField.getStyleClass().remove("bad-input");
-//        passwordField.setTooltip(null);
-//
-//        if(passwordField.getText() == null || passwordField.getText().isBlank()) {
-//            passwordField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
-//            passwordField.getStyleClass().add("bad-input");
-//            return false;
-//        }
-//        return true;
-//    }
 
     private boolean validTitleColNr() {
-        titleRowNrField.getStyleClass().remove("bad-input");
-        titleRowNrField.setTooltip(null);
-
-        if(titleRowNrField.getText() == null || titleRowNrField.getText().isBlank()) {
-            titleRowNrField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
-            titleRowNrField.getStyleClass().add("bad-input");
-            return false;
-        } else if (!titleRowNrField.getText().matches("^[1-9][0-9]*$")) {
-            titleRowNrField.setTooltip(importTabManagement.createTooltip(
-                    "Dieses Feld darf nur eine Kombination der Zahlen 0-9 enthalten!"));
-            titleRowNrField.getStyleClass().add("bad-input");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validSelectionColTitle() {
-        selectionColTitleField.getStyleClass().remove("bad-input");
-        selectionColTitleField.setTooltip(null);
-
-        if(selectionColTitleField.getText() == null || selectionColTitleField.getText().isBlank()) {
-            selectionColTitleField.setTooltip(importTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
-            selectionColTitleField.getStyleClass().add("bad-input");
-            return false;
-        }
-
-        return true;
+        return emptyValidator(titleRowNrField) && numberValidator(titleRowNrField);
     }
 
     private boolean isValidInput() {
         // need all methods executed to highlight errors
         boolean valid = validPath();
-//        valid &= validPassword();
         valid &= validTitleColNr();
-        valid &= validSelectionColTitle();
+        valid &= numberValidator(selectionColTitleField);
         return valid;
     }
 
+    private boolean emptyValidator(TextInputControl input) {
+        boolean isValid = input.getText() != null && !input.getText().isBlank();
+        decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
+        return isValid;
+    }
+
+    private boolean numberValidator(TextInputControl input) {
+        boolean isValid = input.getText() != null && input.getText().matches("^[1-9][0-9]*$");
+        decorateField(input, "Dieses Feld darf nur eine Kombination der Zahlen 0-9 enthalten!", isValid);
+        return isValid;
+    }
+
+    private boolean pathValidator(TextInputControl input) {
+        boolean isValid = input.getText() != null && input.getText().matches("^.*\\.xlsx$");
+        decorateField(input, "Dieses Feld darf nur auf xlsx Dateien verweisen!", isValid);
+        return isValid;
+    }
+
+    private void decorateField(TextInputControl input, String tooltip, boolean isValid) {
+        input.getStyleClass().remove("bad-input");
+        input.setTooltip(null);
+
+        if(!isValid) {
+            if(inlineValidation) {
+                input.setTooltip(importTabManager.createTooltip(tooltip));
+                input.getStyleClass().add("bad-input");
+            }
+        }
+    }
 
     private void createAlert(String title, String content, Alert.AlertType type, ButtonType buttonType, boolean wait) {
         Alert alert = new Alert(type, content, buttonType);
