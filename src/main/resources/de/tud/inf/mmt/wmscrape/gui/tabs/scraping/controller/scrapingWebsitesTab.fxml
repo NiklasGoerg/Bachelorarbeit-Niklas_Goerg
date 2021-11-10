@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<SplitPane dividerPositions="0.14" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingWebsiteTabController">
+  <items>
+    <AnchorPane maxWidth="300.0" prefHeight="653.0" prefWidth="170.0">
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <Label text="Webseiten">
+                     <VBox.margin>
+                        <Insets top="6.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Label>
+                  <Region prefHeight="200.0" prefWidth="200.0" />
+                  <Separator minHeight="-Infinity" minWidth="-Infinity" />
+               </children>
+            </VBox>
+            <ListView fx:id="websiteList" minHeight="-Infinity" minWidth="-Infinity" prefHeight="606.0" prefWidth="165.0" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
+            <Button mnemonicParsing="false" onAction="#handleNewWebsiteButton" text="Neue Webseite" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+         </children></AnchorPane>
+      <VBox>
+         <children>
+            <VBox alignment="BOTTOM_CENTER" prefHeight="25.0">
+               <children>
+                  <Label text="Webseitenkonfiguration">
+                     <VBox.margin>
+                        <Insets bottom="1.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Label>
+                  <Separator minHeight="-Infinity" minWidth="-Infinity" />
+               </children>
+            </VBox>
+            <VBox>
+               <children>
+                  <BorderPane>
+                     <right>
+                        <Button mnemonicParsing="false" onAction="#handleDeleteWebsiteButton" text="Webseite entfernen" BorderPane.alignment="CENTER">
+                           <BorderPane.margin>
+                              <Insets right="-1.0" top="-3.0" />
+                           </BorderPane.margin>
+                        </Button>
+                     </right>
+                     <left>
+                        <Label text="Benutzerinformationen" BorderPane.alignment="CENTER">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                           <BorderPane.margin>
+                              <Insets left="5.0" />
+                           </BorderPane.margin>
+                        </Label>
+                     </left>
+                  </BorderPane>
+                  <HBox>
+                     <children>
+                        <VBox minWidth="-Infinity" prefWidth="563.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" minHeight="-Infinity" prefWidth="130.0">
+                                       <children>
+                                          <Label text="Login-URL" />
+                                       </children>
+                                    </HBox>
+                                    <TextField fx:id="urlField" prefWidth="410.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="15.0" top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                       <children>
+                                          <Label text="Nutzername" />
+                                       </children>
+                                    </HBox>
+                                    <TextField fx:id="usernameField" prefWidth="410.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="15.0" top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                       <children>
+                                          <Label text="Passwort" />
+                                       </children>
+                                    </HBox>
+                                    <PasswordField fx:id="passwordField" prefWidth="410.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </PasswordField>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="15.0" top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <Separator prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin></Separator>
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </VBox>
+            <VBox layoutX="10.0" layoutY="40.0">
+               <children>
+                  <BorderPane>
+                     <left>
+                        <Label text="Login-Automatisierung" BorderPane.alignment="CENTER">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                           <BorderPane.margin>
+                              <Insets left="5.0" />
+                           </BorderPane.margin>
+                        </Label>
+                     </left>
+                  </BorderPane>
+                  <HBox>
+                     <children>
+                        <VBox minWidth="-Infinity" prefWidth="563.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                       <children>
+                                          <Label text="Nutzernamen Feld" />
+                                       </children>
+                                    </HBox>
+                                    <ChoiceBox fx:id="usernameIdentChoiceBox" prefWidth="150.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </ChoiceBox>
+                                    <TextField fx:id="usernameIdentField" prefWidth="300.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="15.0" top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                       <children>
+                                          <Label text="Password Feld" />
+                                       </children>
+                                    </HBox>
+                                    <ChoiceBox fx:id="passwordIdentChoiceBox" prefWidth="150.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </ChoiceBox>
+                                    <TextField fx:id="passwordIdentField" prefWidth="300.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="15.0" top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                       <children>
+                                          <Label text="Login Button" />
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin>
+                                    </HBox>
+                                    <ChoiceBox fx:id="loginIdentChoiceBox" prefWidth="150.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </ChoiceBox>
+                                    <TextField fx:id="loginIdentField" prefWidth="300.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="15.0" top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <Separator prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </Separator>
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </VBox>
+            <VBox layoutX="10.0" layoutY="169.0">
+               <children>
+                  <BorderPane>
+                     <left>
+                        <Label text="Logout-Automatisierung" BorderPane.alignment="CENTER">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                           <BorderPane.margin>
+                              <Insets left="5.0" />
+                           </BorderPane.margin>
+                        </Label>
+                     </left>
+                  </BorderPane>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <VBox minWidth="-Infinity" prefWidth="563.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                       <children>
+                                          <Label text="Logout Button" />
+                                       </children>
+                                    </HBox>
+                                    <ChoiceBox fx:id="logoutIdentChoiceBox" prefWidth="150.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </ChoiceBox>
+                                    <TextField fx:id="logoutIdentField" prefWidth="300.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="15.0" top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <Separator prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </Separator>
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </VBox>
+            <VBox layoutX="10.0" layoutY="293.0">
+               <children>
+                  <BorderPane>
+                     <left>
+                        <Label text="Cookie-Automatisierung" BorderPane.alignment="CENTER">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                           <BorderPane.margin>
+                              <Insets left="5.0" />
+                           </BorderPane.margin>
+                        </Label>
+                     </left>
+                  </BorderPane>
+                  <HBox prefWidth="200.0">
+                     <children>
+                        <VBox minWidth="-Infinity" prefWidth="563.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                       <children>
+                                          <Label text="akzeptieren Button" />
+                                       </children>
+                                    </HBox>
+                                    <ChoiceBox fx:id="cookieAcceptIdentChoiceBox" prefWidth="150.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </ChoiceBox>
+                                    <TextField fx:id="cookieAcceptIdentField" prefWidth="300.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="15.0" top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                       <children>
+                                          <Label text="ausblenden" />
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets bottom="5.0" />
+                                       </HBox.margin>
+                                    </HBox>
+                                    <ChoiceBox fx:id="cookieHideChoiceBox" prefWidth="150.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </ChoiceBox>
+                                    <TextField fx:id="cookieHideIdentField" prefWidth="300.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="15.0" top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <Separator prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </Separator>
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </VBox>
+            <ButtonBar nodeOrientation="RIGHT_TO_LEFT">
+              <buttons>
+                  <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
+                <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern" />
+                  <Button mnemonicParsing="false" onAction="#handleTestButton" text="Testen" />
+              </buttons>
+               <padding>
+                  <Insets right="10.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
+            </ButtonBar>
+         </children>
+      </VBox>
+  </items>
+   <padding>
+      <Insets bottom="3.0" top="3.0" />
+   </padding>
+</SplitPane>
