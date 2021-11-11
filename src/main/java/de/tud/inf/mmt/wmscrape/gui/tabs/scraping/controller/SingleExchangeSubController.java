@@ -37,7 +37,7 @@ public class SingleExchangeSubController {
         exchangeIdentTypeChoiceBox.setValue(IdentType.XPATH);
 
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
-        scrapingTabManager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable);
+        //scrapingTabManager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable);
     }
 
     public ObservableList<ElementSelection> getExchangeSelectionTable() {

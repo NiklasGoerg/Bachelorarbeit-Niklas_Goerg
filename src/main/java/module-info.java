@@ -37,17 +37,17 @@ module de.tud.inf.mmt.wmscrape {
     exports de.tud.inf.mmt.wmscrape.gui.login.controller;
     opens de.tud.inf.mmt.wmscrape.gui.login.controller;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.accounts.data;
-    opens de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.data.data;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.depots.data to org.hibernate.orm.core, spring.core;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller to spring.beans;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.imports.management to spring.beans;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.imports.data to org.hibernate.orm.core, spring.core, javafx.base;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller to javafx.fxml, spring.core;
-    exports de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management to spring.beans;
-    opens de.tud.inf.mmt.wmscrape.gui.tabs.stocks.management to spring.core;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.data.management to spring.beans;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.data.management to spring.core;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.imports.management to spring.core;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.imports.data to spring.beans;
-    exports de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.data.data;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.depots.data to spring.beans;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller to spring.beans;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management to spring.beans;
@@ -55,5 +55,7 @@ module de.tud.inf.mmt.wmscrape {
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data to spring.beans;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management to javafx.fxml, org.hibernate.orm.core, spring.core;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data to javafx.base, javafx.fxml, org.hibernate.orm.core, spring.core;
+    exports de.tud.inf.mmt.wmscrape.dynamicdb;
+    opens de.tud.inf.mmt.wmscrape.dynamicdb;
 
 }

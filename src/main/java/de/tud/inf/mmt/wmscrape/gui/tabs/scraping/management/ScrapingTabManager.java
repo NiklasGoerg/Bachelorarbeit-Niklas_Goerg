@@ -3,10 +3,10 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.SingleStockSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.*;
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.StockDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.StockDataTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.StockRepository;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -210,13 +210,13 @@ public class ScrapingTabManager {
 
     private void prepareStockCorrelationTable(TableView<ElementCorrelation> table) {
 
-        TableColumn<ElementCorrelation, String> dbColNameColumn = new TableColumn<>("Datenbank");
+        TableColumn<ElementCorrelation, String> dataElementColumn = new TableColumn<>("Datenelement");
         TableColumn<ElementCorrelation, String> identTypeColumn = new TableColumn<>("Selektionstyp");
         TableColumn<ElementCorrelation, String> representationColumn = new TableColumn<>("Webseitenrepräsentation");
         representationColumn.setMinWidth(210);
 
         // DbColName
-        dbColNameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockDataTableColumn().getName()));
+        dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockDataTableColumn().getName()));
 
         // choiceBox
         identTypeColumn.setCellFactory(col -> {
@@ -251,7 +251,7 @@ public class ScrapingTabManager {
         representationColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
 
-        table.getColumns().add(dbColNameColumn);
+        table.getColumns().add(dataElementColumn);
         table.getColumns().add(identTypeColumn);
         table.getColumns().add(representationColumn);
     }
@@ -293,56 +293,56 @@ public class ScrapingTabManager {
         websiteElementRepository.save(websiteElement);
     }
 
-    @Transactional
-    public void initExchangeSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
-
-        WebsiteElement websiteElement = getFreshWebsiteElement(staleElement.getId());
-        prepareExchangeSelectionTable(table);
-        fillExchangeSelectionTable(websiteElement, table);
-    }
-
-    private void prepareExchangeSelectionTable(TableView<ElementSelection> table) {
-        TableColumn<ElementSelection, Boolean> selectedColumn = new TableColumn<>("Selektion");
-        TableColumn<ElementSelection, String> stockNameColumn = new TableColumn<>("Bezeichnung");
-
-        selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
-        selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
-        selectedColumn.setCellValueFactory(row -> {
-            SimpleBooleanProperty sbp = row.getValue().selectedProperty();
-            sbp.addListener( (o, ov, nv) -> {
-                sbp.set(nv);
-                if(nv) deselectOther(row);
-            });
-            return sbp;
-        });
-
-        stockNameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-
-        table.getColumns().add(selectedColumn);
-        table.getColumns().add(stockNameColumn);
-    }
-
-    private void fillExchangeSelectionTable(WebsiteElement websiteElement, TableView<ElementSelection> table) {
-        ObservableList<ElementSelection> stockSelections = FXCollections.observableArrayList();
-        ArrayList<Stock> addedStockSelection = new ArrayList<>();
-
-        for(ElementSelection elementSelection : websiteElement.getElementSelections()) {
-            stockSelections.add(elementSelection);
-            addedStockSelection.add(elementSelection.getStock());
-        }
-
-        for(Stock stock : stockRepository.findAll()) {
-            if(!addedStockSelection.contains(stock)) {
-                ElementSelection elementSelection = new ElementSelection(
-                        stock.getName(),
-                        websiteElement,
-                        stock);
-
-                addedStockSelection.add(stock);
-                stockSelections.add(elementSelection);
-            }
-        }
-
-        table.getItems().addAll(stockSelections);
-    }
+//    @Transactional
+//    public void initExchangeSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
+//
+//        WebsiteElement websiteElement = getFreshWebsiteElement(staleElement.getId());
+//        prepareExchangeSelectionTable(table);
+//        fillExchangeSelectionTable(websiteElement, table);
+//    }
+//
+//    private void prepareExchangeSelectionTable(TableView<ElementSelection> table) {
+//        TableColumn<ElementSelection, Boolean> selectedColumn = new TableColumn<>("Selektion");
+//        TableColumn<ElementSelection, String> stockNameColumn = new TableColumn<>("Bezeichnung");
+//
+//        selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
+//        selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
+//        selectedColumn.setCellValueFactory(row -> {
+//            SimpleBooleanProperty sbp = row.getValue().selectedProperty();
+//            sbp.addListener( (o, ov, nv) -> {
+//                sbp.set(nv);
+//                if(nv) deselectOther(row);
+//            });
+//            return sbp;
+//        });
+//
+//        stockNameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+//
+//        table.getColumns().add(selectedColumn);
+//        table.getColumns().add(stockNameColumn);
+//    }
+//
+//    private void fillExchangeSelectionTable(WebsiteElement websiteElement, TableView<ElementSelection> table) {
+//        ObservableList<ElementSelection> stockSelections = FXCollections.observableArrayList();
+//        ArrayList<Stock> addedStockSelection = new ArrayList<>();
+//
+//        for(ElementSelection elementSelection : websiteElement.getElementSelections()) {
+//            stockSelections.add(elementSelection);
+//            addedStockSelection.add(elementSelection.getStock());
+//        }
+//
+//        for(Stock stock : stockRepository.findAll()) {
+//            if(!addedStockSelection.contains(stock)) {
+//                ElementSelection elementSelection = new ElementSelection(
+//                        stock.getName(),
+//                        websiteElement,
+//                        stock);
+//
+//                addedStockSelection.add(stock);
+//                stockSelections.add(elementSelection);
+//            }
+//        }
+//
+//        table.getItems().addAll(stockSelections);
+//    }
 }

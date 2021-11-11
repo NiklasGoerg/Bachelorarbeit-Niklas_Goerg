@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.depots.data;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.Stock;
 
 import javax.persistence.*;
 import java.sql.Date;

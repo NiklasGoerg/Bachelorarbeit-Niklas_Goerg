@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data.StockDataTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.StockDataTableColumn;
 import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
