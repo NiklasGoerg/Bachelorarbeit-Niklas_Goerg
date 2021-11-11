@@ -1,5 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;

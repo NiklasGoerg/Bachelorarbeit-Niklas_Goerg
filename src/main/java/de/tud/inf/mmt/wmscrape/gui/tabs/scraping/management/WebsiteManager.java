@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.IdentTypeDeactivated;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.IdentTypeDeactivatedUrl;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import javafx.beans.property.SimpleStringProperty;
 import org.openqa.selenium.*;

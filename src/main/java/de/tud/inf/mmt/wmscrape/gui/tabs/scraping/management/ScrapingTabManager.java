@@ -1,12 +1,23 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 
 import de.tud.inf.mmt.wmscrape.WMScrape;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.SingleStockSubController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.course.CourseDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.course.CourseDataTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourseOrStockSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.*;
-import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.StockDataTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.data.data.StockRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementCorrelationRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElementRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelectionRepository;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -42,9 +53,11 @@ public class ScrapingTabManager {
     @Autowired
     private StockDataColumnRepository stockDataColumnRepository;
     @Autowired
-    private SingleStockSubController singleStockSubController;
+    private SingleCourseOrStockSubController singleCourseOrStockSubController;
     @Autowired
     private ElementCorrelationRepository elementCorrelationRepository;
+    @Autowired
+    private CourseDataColumnRepository courseDataColumnRepository;
 
     public Website createNewWebsite(String description) {
         Website website = new Website(description);
@@ -133,6 +146,7 @@ public class ScrapingTabManager {
         choiceBox.setValue(getFreshWebsiteElement(id).getWebsite());
     }
 
+    // used by Stock and Course
     @Transactional
     public void initStockSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
 
@@ -199,16 +213,24 @@ public class ScrapingTabManager {
         }
     }
 
+    // used by Stock and Course
     @Transactional
-    public void initStockCorrelationTable(WebsiteElement staleElement,TableView<ElementCorrelation> table ) {
+    public void initCourseOrStockCorrelationTable(WebsiteElement staleElement, TableView<ElementCorrelation> table ) {
         // load anew because the element from the table has no session attached anymore and therefore can't resolve
         // lazy evaluation
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement.getId());
-        prepareStockCorrelationTable(table);
-        fillStockCorrelationTable(websiteElement, table);
+
+        prepareCourseOrStockCorrelationTable(table, websiteElement.getContentType());
+
+        if(websiteElement.getContentType() == ContentType.AKTIENKURS) {
+            fillCourseCorrelationTable(websiteElement,table);
+        } else {
+            fillStockCorrelationTable(websiteElement,table);
+        }
+
     }
 
-    private void prepareStockCorrelationTable(TableView<ElementCorrelation> table) {
+    private void prepareCourseOrStockCorrelationTable(TableView<ElementCorrelation> table, ContentType contentType) {
 
         TableColumn<ElementCorrelation, String> dataElementColumn = new TableColumn<>("Datenelement");
         TableColumn<ElementCorrelation, String> identTypeColumn = new TableColumn<>("Selektionstyp");
@@ -216,7 +238,12 @@ public class ScrapingTabManager {
         representationColumn.setMinWidth(210);
 
         // DbColName
-        dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockDataTableColumn().getName()));
+        if(contentType == ContentType.AKTIENKURS) {
+            dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getCourseDataTableColumn().getName()));
+        } else {
+            dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockDataTableColumn().getName()));
+        }
+
 
         // choiceBox
         identTypeColumn.setCellFactory(col -> {
@@ -275,16 +302,35 @@ public class ScrapingTabManager {
         table.getItems().addAll(stockSelections);
     }
 
+    private void fillCourseCorrelationTable(WebsiteElement websiteElement, TableView<ElementCorrelation> table) {
+        ObservableList<ElementCorrelation> stockSelections = FXCollections.observableArrayList();
+        ArrayList<CourseDataTableColumn> addedStockColumns = new ArrayList<>();
+
+        for (ElementCorrelation elementCorrelation : websiteElement.getElementCorrelations()) {
+            stockSelections.add(elementCorrelation);
+            addedStockColumns.add(elementCorrelation.getCourseDataTableColumn());
+        }
+
+        for(CourseDataTableColumn column : courseDataColumnRepository.findAll()) {
+            if(!addedStockColumns.contains(column)) {
+                addedStockColumns.add(column);
+                stockSelections.add(new ElementCorrelation(websiteElement, column));
+            }
+        }
+
+        table.getItems().addAll(stockSelections);
+    }
+
+    // used by Stock and Course
     public void saveWebsiteElementSettings(WebsiteElement websiteElement) {
 
-
-        for (ElementSelection selection : singleStockSubController.getStockSelections()) {
+        for (ElementSelection selection : singleCourseOrStockSubController.getSelections()) {
             if(selection.isChanged()) {
                 elementSelectionRepository.save(selection);
             }
         }
 
-        for (ElementCorrelation correlation : singleStockSubController.getStockDbCorrelations()) {
+        for (ElementCorrelation correlation : singleCourseOrStockSubController.getDbCorrelations()) {
             if(correlation.isChanged()) {
                 elementCorrelationRepository.save(correlation);
             }
@@ -293,56 +339,4 @@ public class ScrapingTabManager {
         websiteElementRepository.save(websiteElement);
     }
 
-//    @Transactional
-//    public void initExchangeSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
-//
-//        WebsiteElement websiteElement = getFreshWebsiteElement(staleElement.getId());
-//        prepareExchangeSelectionTable(table);
-//        fillExchangeSelectionTable(websiteElement, table);
-//    }
-//
-//    private void prepareExchangeSelectionTable(TableView<ElementSelection> table) {
-//        TableColumn<ElementSelection, Boolean> selectedColumn = new TableColumn<>("Selektion");
-//        TableColumn<ElementSelection, String> stockNameColumn = new TableColumn<>("Bezeichnung");
-//
-//        selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
-//        selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
-//        selectedColumn.setCellValueFactory(row -> {
-//            SimpleBooleanProperty sbp = row.getValue().selectedProperty();
-//            sbp.addListener( (o, ov, nv) -> {
-//                sbp.set(nv);
-//                if(nv) deselectOther(row);
-//            });
-//            return sbp;
-//        });
-//
-//        stockNameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-//
-//        table.getColumns().add(selectedColumn);
-//        table.getColumns().add(stockNameColumn);
-//    }
-//
-//    private void fillExchangeSelectionTable(WebsiteElement websiteElement, TableView<ElementSelection> table) {
-//        ObservableList<ElementSelection> stockSelections = FXCollections.observableArrayList();
-//        ArrayList<Stock> addedStockSelection = new ArrayList<>();
-//
-//        for(ElementSelection elementSelection : websiteElement.getElementSelections()) {
-//            stockSelections.add(elementSelection);
-//            addedStockSelection.add(elementSelection.getStock());
-//        }
-//
-//        for(Stock stock : stockRepository.findAll()) {
-//            if(!addedStockSelection.contains(stock)) {
-//                ElementSelection elementSelection = new ElementSelection(
-//                        stock.getName(),
-//                        websiteElement,
-//                        stock);
-//
-//                addedStockSelection.add(stock);
-//                stockSelections.add(elementSelection);
-//            }
-//        }
-//
-//        table.getItems().addAll(stockSelections);
-//    }
 }

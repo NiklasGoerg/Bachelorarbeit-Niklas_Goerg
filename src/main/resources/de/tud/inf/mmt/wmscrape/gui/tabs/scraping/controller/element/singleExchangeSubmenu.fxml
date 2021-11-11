@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<SplitPane dividerPositions="0.21" prefHeight="499.0" prefWidth="1145.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchangeSubController">
+   <items>
+      <AnchorPane maxWidth="550.0">
+         <children>
+            <HBox alignment="CENTER" prefHeight="28.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <Label text="Kursauswahl">
+                     <padding>
+                        <Insets bottom="2.0" />
+                     </padding>
+                  </Label>
+               </children>
+            </HBox>
+            <TableView fx:id="exchangeSelectionTable" editable="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="28.0" />
+         </children>
+      </AnchorPane>
+      <AnchorPane>
+         <children>
+            <VBox layoutX="400.0" prefHeight="31.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Zuordnung">
+                           <padding>
+                              <Insets bottom="2.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <Separator prefWidth="200.0" />
+               </children>
+            </VBox>
+            <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="28.0">
+               <children>
+                  <HBox>
+                     <children>
+                        <HBox alignment="CENTER_RIGHT" prefWidth="90.0">
+                           <children>
+                              <Label text="Datum" />
+                           </children>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
+                        </HBox>
+                        <ChoiceBox fx:id="dateIdentTypeChoiceBox" prefWidth="150.0" />
+                        <TextField fx:id="dateIdentField" prefWidth="250.0" promptText="deaktiviert=heute">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </TextField>
+                     </children>
+                     <padding>
+                        <Insets left="15.0" />
+                     </padding>
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox layoutX="10.0" layoutY="10.0">
+                     <children>
+                        <HBox alignment="CENTER_RIGHT" prefWidth="90.0">
+                           <children>
+                              <Label text="Kurs" />
+                           </children>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
+                        </HBox>
+                        <ChoiceBox fx:id="exchangeIdentTypeChoiceBox" prefWidth="150.0" />
+                        <TextField fx:id="exchangeIdentField" prefWidth="250.0">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </TextField>
+                     </children>
+                     <padding>
+                        <Insets left="15.0" />
+                     </padding>
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+   </items>
+</SplitPane>

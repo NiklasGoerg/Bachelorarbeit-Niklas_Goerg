@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<SplitPane dividerPositions="0.14" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.ScrapingElementsTabController">
+  <items>
+    <AnchorPane maxWidth="300.0" prefHeight="653.0" prefWidth="170.0">
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <Label text="Elemente">
+                     <VBox.margin>
+                        <Insets top="6.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Label>
+                  <Region prefHeight="200.0" prefWidth="200.0" />
+                  <Separator minHeight="-Infinity" minWidth="-Infinity" />
+               </children>
+            </VBox>
+            <ListView fx:id="elementList" minHeight="-Infinity" minWidth="-Infinity" prefWidth="165.0" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
+            <Button mnemonicParsing="false" onAction="#handleNewElementButton" text="Neues Element" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+         </children></AnchorPane>
+      <BorderPane>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <VBox alignment="BOTTOM_CENTER" prefHeight="25.0">
+                     <children>
+                        <Label text="Webseiten Elemente">
+                           <VBox.margin>
+                              <Insets bottom="1.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Label>
+                        <Separator minHeight="-Infinity" minWidth="-Infinity" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <BorderPane>
+                           <right>
+                              <Button mnemonicParsing="false" onAction="#handleDeleteElementButton" text="Element entfernen" BorderPane.alignment="CENTER">
+                                 <BorderPane.margin>
+                                    <Insets right="-1.0" top="-3.0" />
+                                 </BorderPane.margin>
+                              </Button>
+                           </right>
+                           <left>
+                              <Label text="Webseiten-Verknüpfung" BorderPane.alignment="CENTER">
+                                 <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font>
+                                 <BorderPane.margin>
+                                    <Insets left="5.0" />
+                                 </BorderPane.margin>
+                              </Label>
+                           </left>
+                        </BorderPane>
+                        <HBox>
+                           <children>
+                              <VBox minWidth="-Infinity" prefWidth="563.0">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <HBox alignment="CENTER_RIGHT" minHeight="-Infinity" prefWidth="130.0">
+                                             <children>
+                                                <Label text="Webseite" />
+                                             </children>
+                                          </HBox>
+                                          <ChoiceBox fx:id="websiteChoiceBox" prefWidth="409.0">
+                                             <HBox.margin>
+                                                <Insets left="10.0" />
+                                             </HBox.margin>
+                                          </ChoiceBox>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets left="15.0" top="5.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                             <children>
+                                                <Label text="Informations-URL" />
+                                             </children>
+                                          </HBox>
+                                          <TextField fx:id="urlField" prefWidth="410.0">
+                                             <HBox.margin>
+                                                <Insets left="10.0" />
+                                             </HBox.margin>
+                                          </TextField>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets left="15.0" top="5.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <Separator prefWidth="200.0">
+                           <VBox.margin>
+                              <Insets top="5.0" />
+                           </VBox.margin>
+                        </Separator>
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </VBox>
+               </children>
+            </VBox>
+         </top>
+         <bottom>
+            <ButtonBar nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
+              <buttons>
+                <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern" />
+                  <Button mnemonicParsing="false" onAction="#handleCancelButton" text="Zurücksetzen" />
+              </buttons>
+               <padding>
+                  <Insets right="6.0" top="1.0" />
+               </padding>
+               <BorderPane.margin>
+                  <Insets />
+               </BorderPane.margin>
+            </ButtonBar>
+         </bottom>
+         <center>
+            <BorderPane fx:id="subPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+         </center>
+      </BorderPane>
+  </items>
+   <padding>
+      <Insets bottom="3.0" top="3.0" />
+   </padding>
+</SplitPane>
