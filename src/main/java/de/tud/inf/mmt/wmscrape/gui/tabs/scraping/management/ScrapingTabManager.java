@@ -65,6 +65,8 @@ public class ScrapingTabManager {
     }
 
     public void deleteSpecificElement(WebsiteElement element) {
+        element.setElementSelections(new ArrayList<>());
+        element.setElementCorrelations(new ArrayList<>());
         websiteElementRepository.delete(element);
     }
 

@@ -37,7 +37,7 @@
             <ListView fx:id="elementList" minHeight="-Infinity" minWidth="-Infinity" prefWidth="165.0" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
             <Button mnemonicParsing="false" onAction="#handleNewElementButton" text="Neues Element" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
          </children></AnchorPane>
-      <BorderPane fx:id="subPane">
+      <BorderPane>
          <top>
             <VBox BorderPane.alignment="CENTER">
                <children>
@@ -133,9 +133,8 @@
          <bottom>
             <ButtonBar nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
               <buttons>
-                  <Button mnemonicParsing="false" onAction="#handleCancelButton" text="Zurücksetzen" />
                 <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern" />
-                  <Button mnemonicParsing="false" text="Testen" />
+                  <Button mnemonicParsing="false" onAction="#handleCancelButton" text="Zurücksetzen" />
               </buttons>
                <padding>
                   <Insets right="10.0" top="1.0" />
@@ -145,6 +144,9 @@
                </BorderPane.margin>
             </ButtonBar>
          </bottom>
+         <center>
+            <BorderPane fx:id="subPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+         </center>
       </BorderPane>
   </items>
    <padding>

@@ -63,7 +63,6 @@ public class ScrapingElementsTabController {
 
     @FXML
     private void handleDeleteElementButton() {
-        clearFields();
         WebsiteElement element = elementList.getSelectionModel().getSelectedItem();
 
         if(element == null) {
@@ -82,6 +81,7 @@ public class ScrapingElementsTabController {
         }
 
         scrapingTabManager.deleteSpecificElement(element);
+        clearFields();
         reloadElementList();
         elementList.getSelectionModel().selectFirst();
     }
@@ -99,7 +99,7 @@ public class ScrapingElementsTabController {
 
     @FXML
     private void handleCancelButton() {
-
+        loadSpecificWebsite(getSelectedElement());
     }
 
     private void loadSpecificWebsite(WebsiteElement staleElement) {
