@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class StockDataDbManager {
@@ -95,8 +96,11 @@ public class StockDataDbManager {
             return false;
         }
 
-        StockDataTableColumn column = new StockDataTableColumn(columnName,columnDatatype);
-        stockDataColumnRepository.save(column);
+        if(stockDataColumnRepository.findByName(columnName).isEmpty()) {
+            StockDataTableColumn column = new StockDataTableColumn(columnName,columnDatatype);
+            stockDataColumnRepository.save(column);
+        }
+
         return true;
     }
 
@@ -112,10 +116,12 @@ public class StockDataDbManager {
             statement.close();
             connection.close();
 
-            StockDataTableColumn column = stockDataColumnRepository.findByName(columnName);
-            // fix for not working orphan removal
-            column.setExcelCorrelations(new ArrayList<>());
-            stockDataColumnRepository.delete(column);
+            Optional<StockDataTableColumn> column = stockDataColumnRepository.findByName(columnName);
+            if(column.isPresent()) {
+                // fix for not working orphan removal
+                column.get().setExcelCorrelations(new ArrayList<>());
+                stockDataColumnRepository.delete(column.get());
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -158,19 +164,13 @@ public class StockDataDbManager {
             statement.close();
             connection.close();
 
-            switch (type) {
-                case 91:
-                    return ColumnDatatype.DATE;
-                case 4:
-                    return ColumnDatatype.INT;
-                case 93:
-//                case 2014:
-//                    return ColumnDatatype.DATETIME;
-                case 8:
-                    return ColumnDatatype.DOUBLE;
-                default:
-                    return ColumnDatatype.TEXT;
-            }
+            return switch (type) {
+                case 91 -> ColumnDatatype.DATE;
+                case 4 -> ColumnDatatype.INT;
+//                case 2014 -> ColumnDatatype.DATETIME;
+                case 93, 8 -> ColumnDatatype.DOUBLE;
+                default -> ColumnDatatype.TEXT;
+            };
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -225,7 +225,7 @@ public class StockDataDbManager {
 
     public void createMissingStocks() {
 
-        Statement statement = null;
+        Statement statement;
         try {
             Connection connection = dataSource.getConnection();
             statement = connection.createStatement();

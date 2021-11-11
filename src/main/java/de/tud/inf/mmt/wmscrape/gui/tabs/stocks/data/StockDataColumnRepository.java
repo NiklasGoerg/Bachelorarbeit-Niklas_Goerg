@@ -3,11 +3,12 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StockDataColumnRepository extends JpaRepository<StockDataTableColumn, Integer> {
 //    Integer deleteByName(String name);
 //    List<StockDataTableColumn> findAllByName(String name);
 //    Optional<StockDataTableColumn> findByName(String name);
     List<StockDataTableColumn> findAllByName(String name);
-    StockDataTableColumn findByName(String name);
+    Optional<StockDataTableColumn> findByName(String name);
 }
