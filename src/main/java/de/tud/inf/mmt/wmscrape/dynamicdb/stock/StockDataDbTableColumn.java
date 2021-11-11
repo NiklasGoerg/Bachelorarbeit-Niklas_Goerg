@@ -1,7 +1,7 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock;
+package de.tud.inf.mmt.wmscrape.dynamicdb.stock;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.TableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 
 import javax.persistence.*;
@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class StockDataTableColumn extends TableColumn {
+public class StockDataDbTableColumn extends DbTableColumn {
 
-    public StockDataTableColumn() {}
+    public StockDataDbTableColumn() {}
 
-    public StockDataTableColumn(String name, ColumnDatatype columnDatatype) {
+    public StockDataDbTableColumn(String name, ColumnDatatype columnDatatype) {
         super(name, columnDatatype);
     }
 

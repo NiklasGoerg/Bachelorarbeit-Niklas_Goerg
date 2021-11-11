@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.data;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
 
 import javax.persistence.*;
 
@@ -30,7 +30,7 @@ public class ExcelCorrelation {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="stockDataTableColumnId", referencedColumnName="id")
-    private StockDataTableColumn stockDataTableColumn;
+    private StockDataDbTableColumn stockDataTableColumn;
 
     public int getId() {
         return id;
@@ -76,11 +76,11 @@ public class ExcelCorrelation {
         this.excelSheet = excelSheet;
     }
 
-    public StockDataTableColumn getStockDataTableColumn() {
+    public StockDataDbTableColumn getStockDataTableColumn() {
         return stockDataTableColumn;
     }
 
-    public void setStockDataTableColumn(StockDataTableColumn stockDataTableColumn) {
+    public void setStockDataTableColumn(StockDataDbTableColumn stockDataTableColumn) {
         this.stockDataTableColumn = stockDataTableColumn;
     }
 }

@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import javafx.beans.property.SimpleBooleanProperty;
 

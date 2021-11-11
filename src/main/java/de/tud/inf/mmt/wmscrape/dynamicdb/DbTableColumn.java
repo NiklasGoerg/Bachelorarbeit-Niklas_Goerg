@@ -3,7 +3,7 @@ package de.tud.inf.mmt.wmscrape.dynamicdb;
 import javax.persistence.*;
 
 @MappedSuperclass
-public abstract class TableColumn {
+public abstract class DbTableColumn {
 
     @Id
     @GeneratedValue
@@ -12,9 +12,9 @@ public abstract class TableColumn {
     @Enumerated(EnumType.STRING)
     private ColumnDatatype columnDatatype;
 
-    public TableColumn() {}
+    public DbTableColumn() {}
 
-    public TableColumn(String name, ColumnDatatype columnDatatype) {
+    public DbTableColumn(String name, ColumnDatatype columnDatatype) {
         this.name = name;
         this.columnDatatype = columnDatatype;
     }

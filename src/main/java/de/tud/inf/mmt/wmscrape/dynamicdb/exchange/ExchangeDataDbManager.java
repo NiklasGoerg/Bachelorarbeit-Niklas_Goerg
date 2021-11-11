@@ -1,10 +1,8 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.datatab.management;
+package de.tud.inf.mmt.wmscrape.dynamicdb.exchange;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbManger;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.course.CourseDataTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.exchange.ExchangeDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.exchange.ExchangeDataTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,23 +28,23 @@ public class ExchangeDataDbManager {
         }
 
         ArrayList<String> columnNames = new ArrayList<>();
-        for(ExchangeDataTableColumn column : exchangeDataColumnRepository.findAll()) {
+        for(ExchangeDataDbTableColumn column : exchangeDataColumnRepository.findAll()) {
             columnNames.add(column.getName());
         }
 
         for(String colName : dynamicDbManger.getColumns("wechselkurse")) {
             if(!columnNames.contains(colName)) {
                 ColumnDatatype datatype = dynamicDbManger.getColumnDataType(colName, "wechselkurse");
-                exchangeDataColumnRepository.save(new ExchangeDataTableColumn(colName, datatype));
+                exchangeDataColumnRepository.save(new ExchangeDataDbTableColumn(colName, datatype));
             }
         }
 
-        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataTableColumn("eur", ColumnDatatype.DOUBLE));
-        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataTableColumn("usd", ColumnDatatype.DOUBLE));
-        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataTableColumn("gbp", ColumnDatatype.DOUBLE));
-        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataTableColumn("jpy", ColumnDatatype.DOUBLE));
-        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataTableColumn("cad", ColumnDatatype.DOUBLE));
-        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataTableColumn("cny", ColumnDatatype.DOUBLE));
+        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("eur", ColumnDatatype.DOUBLE));
+        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("usd", ColumnDatatype.DOUBLE));
+        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("gbp", ColumnDatatype.DOUBLE));
+        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("jpy", ColumnDatatype.DOUBLE));
+        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("cad", ColumnDatatype.DOUBLE));
+        dynamicDbManger.addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("cny", ColumnDatatype.DOUBLE));
     }
 
 

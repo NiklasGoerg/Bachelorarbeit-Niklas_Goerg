@@ -1,11 +1,11 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.datatab.management;
+package de.tud.inf.mmt.wmscrape.dynamicdb.stock;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbManger;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,26 +38,26 @@ public class StockDataDbManager {
         }
 
         ArrayList<String> columnNames = new ArrayList<>();
-        for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
+        for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
             columnNames.add(column.getName());
         }
 
         for(String colName : dynamicDbManger.getColumns("stammdaten")) {
             if(!columnNames.contains(colName)) {
                 ColumnDatatype datatype = dynamicDbManger.getColumnDataType(colName, "stammdaten");
-                stockDataColumnRepository.save(new StockDataTableColumn(colName, datatype));
+                stockDataColumnRepository.save(new StockDataDbTableColumn(colName, datatype));
             }
         }
 
-        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataTableColumn("wkn", ColumnDatatype.TEXT));
-        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataTableColumn("name", ColumnDatatype.TEXT));
-        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataTableColumn("typ", ColumnDatatype.TEXT));
-        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataTableColumn("gruppen_id", ColumnDatatype.INT));
+        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("wkn", ColumnDatatype.TEXT));
+        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("name", ColumnDatatype.TEXT));
+        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("typ", ColumnDatatype.TEXT));
+        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("gruppen_id", ColumnDatatype.INT));
     }
 
 
     public void removeColumn(String columnName) {
-        Optional<StockDataTableColumn> column = stockDataColumnRepository.findByName(columnName);
+        Optional<StockDataDbTableColumn> column = stockDataColumnRepository.findByName(columnName);
         if(column.isPresent()) {
             column.get().setExcelCorrelations(new ArrayList<>());
             dynamicDbManger.removeColumn(column.get().getName(),"stammdaten", stockDataColumnRepository);

@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.course.CourseDataTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,12 +31,12 @@ public class ElementCorrelation {
     // optional for stock correlations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stockDataTableColumnId")
-    private StockDataTableColumn stockDataTableColumn;
+    private StockDataDbTableColumn stockDataTableColumn;
 
     // optional for course correlations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courseDataTableColumnId")
-    private CourseDataTableColumn courseDataTableColumn;
+    private CourseDataDbTableColumn courseDataTableColumn;
 
 
     @Transient
@@ -51,13 +51,13 @@ public class ElementCorrelation {
 
     public ElementCorrelation() {}
 
-    public ElementCorrelation(WebsiteElement websiteElement, StockDataTableColumn stockDataTableColumn) {
+    public ElementCorrelation(WebsiteElement websiteElement, StockDataDbTableColumn stockDataTableColumn) {
         this.websiteElement = websiteElement;
         this.stockDataTableColumn = stockDataTableColumn;
         initListener();
     }
 
-    public ElementCorrelation(WebsiteElement websiteElement, CourseDataTableColumn courseDataTableColumn) {
+    public ElementCorrelation(WebsiteElement websiteElement, CourseDataDbTableColumn courseDataTableColumn) {
         this.websiteElement = websiteElement;
         this.courseDataTableColumn = courseDataTableColumn;
         initListener();
@@ -90,11 +90,11 @@ public class ElementCorrelation {
     public WebsiteElement getWebsiteElement() {
         return websiteElement;
     }
-    public StockDataTableColumn getStockDataTableColumn() {
+    public StockDataDbTableColumn getStockDataTableColumn() {
         return stockDataTableColumn;
     }
 
-    public CourseDataTableColumn getCourseDataTableColumn() {
+    public CourseDataDbTableColumn getCourseDataTableColumn() {
         return courseDataTableColumn;
     }
 

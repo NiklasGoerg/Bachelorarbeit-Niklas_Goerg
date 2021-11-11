@@ -1,12 +1,12 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 
 import de.tud.inf.mmt.wmscrape.WMScrape;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.course.CourseDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.course.CourseDataTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourseOrStockSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementCorrelation;
@@ -285,14 +285,14 @@ public class ScrapingTabManager {
 
     private void fillStockCorrelationTable(WebsiteElement websiteElement, TableView<ElementCorrelation> table) {
         ObservableList<ElementCorrelation> stockSelections = FXCollections.observableArrayList();
-        ArrayList<StockDataTableColumn> addedStockColumns = new ArrayList<>();
+        ArrayList<StockDataDbTableColumn> addedStockColumns = new ArrayList<>();
 
         for (ElementCorrelation elementCorrelation : websiteElement.getElementCorrelations()) {
             stockSelections.add(elementCorrelation);
             addedStockColumns.add(elementCorrelation.getStockDataTableColumn());
         }
 
-        for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
+        for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
             if(!addedStockColumns.contains(column)) {
                 addedStockColumns.add(column);
                 stockSelections.add(new ElementCorrelation(websiteElement, column));
@@ -304,14 +304,14 @@ public class ScrapingTabManager {
 
     private void fillCourseCorrelationTable(WebsiteElement websiteElement, TableView<ElementCorrelation> table) {
         ObservableList<ElementCorrelation> stockSelections = FXCollections.observableArrayList();
-        ArrayList<CourseDataTableColumn> addedStockColumns = new ArrayList<>();
+        ArrayList<CourseDataDbTableColumn> addedStockColumns = new ArrayList<>();
 
         for (ElementCorrelation elementCorrelation : websiteElement.getElementCorrelations()) {
             stockSelections.add(elementCorrelation);
             addedStockColumns.add(elementCorrelation.getCourseDataTableColumn());
         }
 
-        for(CourseDataTableColumn column : courseDataColumnRepository.findAll()) {
+        for(CourseDataDbTableColumn column : courseDataColumnRepository.findAll()) {
             if(!addedStockColumns.contains(column)) {
                 addedStockColumns.add(column);
                 stockSelections.add(new ElementCorrelation(websiteElement, column));

@@ -38,7 +38,7 @@ public class DynamicDbManger {
         return columns;
     }
 
-    public boolean addColumnIfNotExists(String tableName, DynamicDbRepository repository ,TableColumn column) {
+    public boolean addColumnIfNotExists(String tableName, DynamicDbRepository repository , DbTableColumn column) {
         if(column == null || column.getColumnDatatype() == null || column.getName() == null) {
             return false;
         }
@@ -78,7 +78,7 @@ public class DynamicDbManger {
             statement.close();
             connection.close();
 
-            Optional<TableColumn> column = repository.findByName(columnName);
+            Optional<DbTableColumn> column = repository.findByName(columnName);
             column.ifPresent(repository::delete);
         } catch (SQLException e) {
             e.printStackTrace();

@@ -5,10 +5,10 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotTransactionRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.*;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockDataTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.stock.StockRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.management.StockDataDbManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.StockRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -572,7 +572,7 @@ public class ImportTabManager {
 
         // add correlation for missing stock db columns
         // only excel col title+number left to set
-        for(StockDataTableColumn stockColumn : stockDataColumnRepository.findAll()) {
+        for(StockDataDbTableColumn stockColumn : stockDataColumnRepository.findAll()) {
             //datum is set automatically
             String name = stockColumn.getName();
 
@@ -992,7 +992,7 @@ public class ImportTabManager {
 
     private HashMap<String, ColumnDatatype> getStockColDbDatatypes() {
         HashMap<String, ColumnDatatype> columnDatatypes = new HashMap<>();
-        for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
+        for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
             columnDatatypes.put(column.getName(), column.getColumnDatatype());
         }
         return columnDatatypes;
@@ -1003,7 +1003,7 @@ public class ImportTabManager {
 
         // prepare a statement for each column
 
-        for(StockDataTableColumn column : stockDataColumnRepository.findAll()) {
+        for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
             try {
                 statements.put(column.getName(), getPreparedStockStatement(column.getName(), connection));
             } catch (SQLException e) {
