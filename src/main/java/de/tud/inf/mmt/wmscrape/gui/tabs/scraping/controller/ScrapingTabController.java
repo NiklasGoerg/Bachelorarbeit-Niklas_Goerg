@@ -1,8 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.ScrapingElementsTabController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.ScrapingWebsiteTabController;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
@@ -26,11 +24,11 @@ public class ScrapingTabController {
         Tab tab = new Tab("Scrapen" , parent);
         scrapingSubTabPane.getTabs().add(tab);
 
-        parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/website/scrapingWebsitesTab.fxml", scrapingWebsiteTabController);
+        parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingWebsitesTab.fxml", scrapingWebsiteTabController);
         tab = new Tab("Webseiten" , parent);
         scrapingSubTabPane.getTabs().add(tab);
 
-        parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/element/scrapingElementsTab.fxml", scrapingElementsTabController);
+        parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingElementsTab.fxml", scrapingElementsTabController);
         tab = new Tab("Elemente" , parent);
         scrapingSubTabPane.getTabs().add(tab);
     }

@@ -1,6 +1,7 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;

@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;

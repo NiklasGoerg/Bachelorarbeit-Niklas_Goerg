@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingWebsiteTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
 import javafx.fxml.FXML;

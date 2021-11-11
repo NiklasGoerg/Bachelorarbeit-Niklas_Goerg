@@ -1,6 +1,8 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.NewWebsitePopupController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.WebsiteTestPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
