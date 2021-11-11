@@ -13,6 +13,7 @@ public class ElementSelection {
     private int id;
     private String description;
     // optional, only stock
+    @Transient
     private String isin;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,23 +30,24 @@ public class ElementSelection {
     @JoinColumn(name = "stockIsin")
     private Stock stock;
 
+    @Transient
+    private boolean isChanged = false;
+
     @PostLoad
     private void setPropertiesFromPersistence() {
         selected.set(_selected);
-    }
-
-    @PrePersist
-    private void updateFromProperty() {
-        _selected = selected.get();
+        if(stock != null) isin = stock.getIsin();
+        initListener();
     }
 
     public ElementSelection() {}
 
-    public ElementSelection(String description, String isin, WebsiteElement websiteElement, Stock stock) {
+    public ElementSelection(String description, WebsiteElement websiteElement, Stock stock) {
         this.description = description;
-        this.isin = isin;
         this.websiteElement = websiteElement;
         this.stock = stock;
+        this.isin = stock.getIsin();
+        initListener();
     }
 
     public String getDescription() {
@@ -80,11 +82,14 @@ public class ElementSelection {
         return stock;
     }
 
-
-    // only valuable to persist only those who are selected for the first time
-    // no selection _selected==selected.get()=false -> useless
-    // selection _selected!=selected.get() false=!true -> save
     public boolean isChanged() {
-        return _selected != selected.get();
+        return isChanged;
+    }
+
+    private void initListener() {
+        selected.addListener((o,ov,nv) -> {
+            isChanged = true;
+            _selected = nv;
+        });
     }
 }

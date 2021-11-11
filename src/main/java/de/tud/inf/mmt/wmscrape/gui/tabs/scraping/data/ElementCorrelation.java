@@ -30,16 +30,14 @@ public class ElementCorrelation {
     @JoinColumn(name = "stockDataTableColumnId")
     private StockDataTableColumn stockDataTableColumn;
 
+    @Transient
+    private boolean isChanged = false;
+
     @PostLoad
     private void setPropertiesFromPersistence() {
-        identType.set(representation.getValue());
+        identType.set(_identType.name());
         representation.set(_representation);
-    }
-
-    @PrePersist
-    private void updateFromProperty() {
-        _identType = IdentTypeDeactivated.valueOf(identType.get());
-        _representation = representation.get();
+        initListener();
     }
 
     public ElementCorrelation() {}
@@ -47,6 +45,7 @@ public class ElementCorrelation {
     public ElementCorrelation(WebsiteElement websiteElement, StockDataTableColumn stockDataTableColumn) {
         this.websiteElement = websiteElement;
         this.stockDataTableColumn = stockDataTableColumn;
+        initListener();
     }
 
     public String getIdentType() {
@@ -81,4 +80,18 @@ public class ElementCorrelation {
         return stockDataTableColumn;
     }
 
+    public boolean isChanged() {
+        return isChanged;
+    }
+
+    private void initListener() {
+        identType.addListener((o, ov, nv) -> {
+            isChanged = true;
+            _identType = IdentTypeDeactivated.valueOf(nv);
+        });
+        representation.addListener((o, ov, nv ) -> {
+            isChanged = true;
+            _representation = nv;
+        });
+    }
 }
