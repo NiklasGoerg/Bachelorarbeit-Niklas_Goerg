@@ -296,7 +296,7 @@ public class ImportTabController {
 
         if(excelSheet == null) {
             createAlert("Keine Excel ausgewählt!",
-                    "Wählen Sie eine Exceldatei aus der Liste aus oder erstellen Sie eine neue bevor sie Speichern.",
+                    "Wählen Sie eine Exceldatei aus der Liste aus oder erstellen Sie eine neue bevor Sie Speichern.",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
             return false;
         }

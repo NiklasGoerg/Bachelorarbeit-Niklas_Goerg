@@ -134,11 +134,11 @@ public class ScrapingTabManager {
     }
 
     @Transactional
-    public ObservableList<ElementSelection> initStockSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
+    public void initStockSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
 
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement.getId());
         prepareStockSelectionTable(table);
-        return fillStockSelectionTable(websiteElement, table);
+        fillStockSelectionTable(websiteElement, table);
     }
 
     private void prepareStockSelectionTable(TableView<ElementSelection> table) {
@@ -165,7 +165,7 @@ public class ScrapingTabManager {
         table.getColumns().add(stockIsinColumn);
     }
 
-    private ObservableList<ElementSelection> fillStockSelectionTable(WebsiteElement websiteElement, TableView<ElementSelection> table) {
+    private void fillStockSelectionTable(WebsiteElement websiteElement, TableView<ElementSelection> table) {
         ObservableList<ElementSelection> stockSelections = FXCollections.observableArrayList();
         ArrayList<Stock> addedStockSelection = new ArrayList<>();
 
@@ -187,7 +187,6 @@ public class ScrapingTabManager {
         }
 
         table.getItems().addAll(stockSelections);
-        return stockSelections;
     }
 
     private void deselectOther(TableColumn.CellDataFeatures<ElementSelection, Boolean> row) {
@@ -201,12 +200,12 @@ public class ScrapingTabManager {
     }
 
     @Transactional
-    public ObservableList<ElementCorrelation> initStockCorrelationTable(WebsiteElement staleElement,TableView<ElementCorrelation> table ) {
+    public void initStockCorrelationTable(WebsiteElement staleElement,TableView<ElementCorrelation> table ) {
         // load anew because the element from the table has no session attached anymore and therefore can't resolve
         // lazy evaluation
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement.getId());
         prepareStockCorrelationTable(table);
-        return fillStockCorrelationTable(websiteElement, table);
+        fillStockCorrelationTable(websiteElement, table);
     }
 
     private void prepareStockCorrelationTable(TableView<ElementCorrelation> table) {
@@ -257,7 +256,7 @@ public class ScrapingTabManager {
         table.getColumns().add(representationColumn);
     }
 
-    private ObservableList<ElementCorrelation> fillStockCorrelationTable(WebsiteElement websiteElement, TableView<ElementCorrelation> table) {
+    private void fillStockCorrelationTable(WebsiteElement websiteElement, TableView<ElementCorrelation> table) {
         ObservableList<ElementCorrelation> stockSelections = FXCollections.observableArrayList();
         ArrayList<StockDataTableColumn> addedStockColumns = new ArrayList<>();
 
@@ -274,7 +273,6 @@ public class ScrapingTabManager {
         }
 
         table.getItems().addAll(stockSelections);
-        return stockSelections;
     }
 
     public void saveWebsiteElementSettings(WebsiteElement websiteElement) {
@@ -293,5 +291,58 @@ public class ScrapingTabManager {
         }
 
         websiteElementRepository.save(websiteElement);
+    }
+
+    @Transactional
+    public void initExchangeSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
+
+        WebsiteElement websiteElement = getFreshWebsiteElement(staleElement.getId());
+        prepareExchangeSelectionTable(table);
+        fillExchangeSelectionTable(websiteElement, table);
+    }
+
+    private void prepareExchangeSelectionTable(TableView<ElementSelection> table) {
+        TableColumn<ElementSelection, Boolean> selectedColumn = new TableColumn<>("Selektion");
+        TableColumn<ElementSelection, String> stockNameColumn = new TableColumn<>("Bezeichnung");
+
+        selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
+        selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
+        selectedColumn.setCellValueFactory(row -> {
+            SimpleBooleanProperty sbp = row.getValue().selectedProperty();
+            sbp.addListener( (o, ov, nv) -> {
+                sbp.set(nv);
+                if(nv) deselectOther(row);
+            });
+            return sbp;
+        });
+
+        stockNameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+
+        table.getColumns().add(selectedColumn);
+        table.getColumns().add(stockNameColumn);
+    }
+
+    private void fillExchangeSelectionTable(WebsiteElement websiteElement, TableView<ElementSelection> table) {
+        ObservableList<ElementSelection> stockSelections = FXCollections.observableArrayList();
+        ArrayList<Stock> addedStockSelection = new ArrayList<>();
+
+        for(ElementSelection elementSelection : websiteElement.getElementSelections()) {
+            stockSelections.add(elementSelection);
+            addedStockSelection.add(elementSelection.getStock());
+        }
+
+        for(Stock stock : stockRepository.findAll()) {
+            if(!addedStockSelection.contains(stock)) {
+                ElementSelection elementSelection = new ElementSelection(
+                        stock.getName(),
+                        websiteElement,
+                        stock);
+
+                addedStockSelection.add(stock);
+                stockSelections.add(elementSelection);
+            }
+        }
+
+        table.getItems().addAll(stockSelections);
     }
 }

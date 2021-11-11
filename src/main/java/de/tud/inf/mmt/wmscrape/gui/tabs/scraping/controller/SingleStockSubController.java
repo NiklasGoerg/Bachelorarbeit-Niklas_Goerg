@@ -8,9 +8,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 @Controller
+@Lazy
 public class SingleStockSubController {
 
     @FXML private TableView<ElementSelection> stockSelectionTable;
@@ -21,14 +23,11 @@ public class SingleStockSubController {
     @Autowired
     private ScrapingTabManager scrapingTabManager;
 
-    private ObservableList<ElementSelection> stockSelections;
-    private ObservableList<ElementCorrelation> stockDbCorrelations;
-
     @FXML
     private void initialize() {
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
-        stockSelections = scrapingTabManager.initStockSelectionTable(websiteElement, stockSelectionTable);
-        stockDbCorrelations = scrapingTabManager.initStockCorrelationTable(websiteElement, stockDbColumnTable);
+        scrapingTabManager.initStockSelectionTable(websiteElement, stockSelectionTable);
+        scrapingTabManager.initStockCorrelationTable(websiteElement, stockDbColumnTable);
     }
 
     public ObservableList<ElementSelection> getStockSelections() {

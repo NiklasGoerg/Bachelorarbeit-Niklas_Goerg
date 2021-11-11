@@ -165,7 +165,7 @@ public class ScrapingWebsiteTabController {
         if(getSelectedWebsite() == null) {
             createAlert("Keine Webseite ausgewählt!",
                     "Wählen Sie eine Webseite aus der Liste aus oder" +
-                            " erstellen Sie eine neue bevor sie Speichern.",
+                            " erstellen Sie eine neue bevor Sie Speichern.",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
             return false;
         }

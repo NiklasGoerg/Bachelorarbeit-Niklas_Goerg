@@ -137,7 +137,7 @@
                   <Button mnemonicParsing="false" onAction="#handleCancelButton" text="Zurücksetzen" />
               </buttons>
                <padding>
-                  <Insets right="10.0" top="1.0" />
+                  <Insets right="6.0" top="1.0" />
                </padding>
                <BorderPane.margin>
                   <Insets />

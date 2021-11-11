@@ -41,6 +41,7 @@ public class ScrapingElementsTabController {
     private ObservableList<WebsiteElement> elementObservableList;
     private ObservableList<Website> websiteObservableList = FXCollections.observableList(new ArrayList<>());
 
+    private boolean inlineValidation = false;
 
     @FXML
     private void initialize() {
@@ -50,6 +51,10 @@ public class ScrapingElementsTabController {
 
         reloadWebsiteList();
         websiteChoiceBox.setItems(websiteObservableList);
+
+        urlField.textProperty().addListener(x -> emptyValidator(urlField));
+
+        websiteChoiceBox.getSelectionModel().selectedItemProperty().addListener(x -> nullValidator(websiteChoiceBox));
     }
 
     @FXML
@@ -88,6 +93,9 @@ public class ScrapingElementsTabController {
 
     @FXML
     private void handleSaveButton() {
+        if(!elementIsSelected()) return;
+        inlineValidation = true;
+        if(!isValidInput()) return;
 
         WebsiteElement websiteElement = getSelectedElement();
         websiteElement.setWebsite(websiteChoiceBox.getValue());
@@ -104,6 +112,8 @@ public class ScrapingElementsTabController {
 
     private void loadSpecificWebsite(WebsiteElement staleElement) {
         if (staleElement == null) return;
+
+        inlineValidation = false;
 
         scrapingTabManager.choiceBoxSetWebsiteElement(websiteChoiceBox, staleElement.getId());
 
@@ -146,6 +156,17 @@ public class ScrapingElementsTabController {
         }
     }
 
+    private boolean elementIsSelected() {
+        if(getSelectedElement() == null) {
+            createAlert("Kein Element ausgewählt!",
+                    "Wählen Sie ein Element aus der Liste aus oder" +
+                            " erstellen Sie ein neues bevor Sie Speichern.",
+                    Alert.AlertType.ERROR, ButtonType.OK, true);
+            return false;
+        }
+        return true;
+    }
+
     public WebsiteElement getSelectedElement() {
         return elementList.getSelectionModel().getSelectedItem();
     }
@@ -172,10 +193,42 @@ public class ScrapingElementsTabController {
     }
 
     private void loadSingleExchange() {
-
+        ScrapingTabManager.loadSubMenu(singleExchangeSubController,
+                "gui/tabs/scraping/controller/singleExchangeSubmenu.fxml", subPane);
     }
 
     private void loadTableExchange() {
 
+    }
+
+    private boolean isValidInput() {
+        inlineValidation = true;
+        boolean valid = emptyValidator(urlField);
+        valid &= nullValidator(websiteChoiceBox);
+        return valid;
+    }
+
+    private boolean emptyValidator(TextInputControl input) {
+        boolean isValid = input.getText() != null && !input.getText().isBlank();
+        decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
+        return isValid;
+    }
+
+    private boolean nullValidator(ChoiceBox<Website> choiceBox) {
+        boolean isValid = choiceBox.getValue() != null;
+        decorateField(choiceBox, "Es muss eine Auswahl getroffen werden!", isValid);
+        return isValid;
+    }
+
+    private void decorateField(Control input, String tooltip, boolean isValid) {
+        input.getStyleClass().remove("bad-input");
+        input.setTooltip(null);
+
+        if(!isValid) {
+            if(inlineValidation) {
+                input.setTooltip(scrapingTabManager.createTooltip(tooltip));
+                input.getStyleClass().add("bad-input");
+            }
+        }
     }
 }
