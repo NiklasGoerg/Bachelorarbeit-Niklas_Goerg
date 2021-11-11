@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class WebsiteLoginTestPopupController {
+public class WebsiteTestPopupController {
     @FXML private Label nextStep;
     @FXML private TextArea logTextArea;
     private SimpleStringProperty logText;

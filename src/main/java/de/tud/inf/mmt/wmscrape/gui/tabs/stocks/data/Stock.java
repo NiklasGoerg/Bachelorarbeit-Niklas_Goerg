@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotTransaction;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.ElementSelection;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,6 +23,9 @@ public class Stock {
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock")
     private List<DepotTransaction> depotTransactions = new ArrayList<>();
+
+    @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<ElementSelection> elementSelections = new ArrayList<>();
 
     public Stock() {
     }
@@ -84,5 +88,13 @@ public class Stock {
 
     public void addDepotTransaction(DepotTransaction depotTransaction) {
         this.depotTransactions.add(depotTransaction);
+    }
+
+    public List<ElementSelection> getElementSelections() {
+        return elementSelections;
+    }
+
+    public void setElementSelections(List<ElementSelection> elementSelections) {
+        this.elementSelections = elementSelections;
     }
 }

@@ -8,9 +8,15 @@ tooltip.bad-input {
     -fx-background-color: FF4A4A;
 }
 
-.button, .text-field, .combo-box, .choice-box {
+.button, .text-field, .combo-box, .choice-box, .tab {
     -fx-background-radius: 0;
 }
+
+.split-pane {
+    -fx-background-insets: -1, -1;
+    /*-fx-padding: 0;
+    -fx-box-border: transparent;*/
+ }
 
 #verticalTabPane {
     -fx-padding: -3 0 -3 -5px;

@@ -273,7 +273,7 @@ public class ImportTabManager {
 
                 // add new array if new row
                 if (!excelData.containsKey(rowNumber)) {
-                    excelData.put(rowNumber, new ArrayList<String>());
+                    excelData.put(rowNumber, new ArrayList<>());
                     // add row index
                     excelData.get(rowNumber).add(String.valueOf(rowNumber));
                 }
@@ -638,7 +638,7 @@ public class ImportTabManager {
         // normal program structure guarantees that this is accessed after table load
         ObservableList<String> comboBoxOptions = mapToObservableList(indexToExcelTitle);
 
-        // to undo selection
+        // to be able to undo selection
         comboBoxOptions.add(0, null);
 
 
@@ -1122,42 +1122,28 @@ public class ImportTabManager {
 
     public void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data) throws SQLException {
         switch (datatype) {
-            case DATE:
+            case DATE -> {
                 LocalDate dataToDate = LocalDate.parse(data);
                 statement.setDate(number, Date.valueOf(dataToDate));
-                break;
-            case TEXT:
-                statement.setString(number,data);
-                break;
-            case INT:
-                // casting double to int to remove trailing zeros because of
-                // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
-                statement.setInt(number, (int) Double.parseDouble(data));
-                break;
-            case DOUBLE:
-                statement.setDouble(number, Double.parseDouble(data));
-                break;
-            default:
-                break;
+            }
+            case TEXT -> statement.setString(number, data);
+            case INT ->
+                    // casting double to int to remove trailing zeros because of
+                    // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
+                    statement.setInt(number, (int) Double.parseDouble(data));
+            case DOUBLE -> statement.setDouble(number, Double.parseDouble(data));
+            default -> {}
         }
     }
 
     public void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int number) throws SQLException {
         switch (datatype) {
-            case DATE:
-                statement.setDate(number, null);
-                break;
-            case TEXT:
-                statement.setString(number,null);
-                break;
-            case INT:
-                statement.setInt(number, 0);
-                break;
-            case DOUBLE:
-                statement.setDouble(number, 0);
-                break;
-            default:
-                break;
+            case DATE -> statement.setDate(number, null);
+            case TEXT -> statement.setString(number, null);
+            case INT -> statement.setInt(number, 0);
+            case DOUBLE -> statement.setDouble(number, 0);
+            default -> {
+            }
         }
     }
 }

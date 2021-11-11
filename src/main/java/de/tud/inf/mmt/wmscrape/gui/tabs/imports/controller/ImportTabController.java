@@ -360,7 +360,7 @@ public class ImportTabController {
         // need all methods executed to highlight errors
         boolean valid = validPath();
         valid &= validTitleColNr();
-        valid &= numberValidator(selectionColTitleField);
+        valid &= emptyValidator(selectionColTitleField);
         return valid;
     }
 

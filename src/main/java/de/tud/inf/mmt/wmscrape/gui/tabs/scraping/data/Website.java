@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,7 +34,7 @@ public class Website {
     private String cookieHideIdent;
 
     @OneToMany(mappedBy = "website", fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<WebsiteElement> websiteElements;
+    private List<WebsiteElement> websiteElements = new ArrayList<>();
 
     public Website() {
     }

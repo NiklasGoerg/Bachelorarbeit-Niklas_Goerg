@@ -45,7 +45,7 @@ public class ScrapingWebsiteTabController {
     @Autowired
     private NewWebsitePopupController newWebsitePopupController;
     @Autowired
-    private WebsiteLoginTestPopupController websiteLoginTestPopupController;
+    private WebsiteTestPopupController websiteTestPopupController;
 
     @FXML
     private void initialize() {
@@ -158,7 +158,7 @@ public class ScrapingWebsiteTabController {
                 "gui/tabs/scraping/controller/loginTestPopup.fxml",
                 "Login Test",
                 websiteList,
-                true, websiteLoginTestPopupController);
+                true, websiteTestPopupController);
     }
 
     private boolean websiteIsSelected() {
@@ -212,9 +212,7 @@ public class ScrapingWebsiteTabController {
     }
 
     private void loadSpecificWebsite(Website website) {
-        if (website == null) {
-            return;
-        }
+        if (website == null) return;
 
         inlineValidation = false;
 

@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.stocks.data;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.ElementCorrelation;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -24,8 +25,11 @@ public class StockDataTableColumn {
         this.columnDatatype = columnDatatype;
     }
 
-    @OneToMany(fetch= FetchType.LAZY, mappedBy ="stockDataTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockDataTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockDataTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<ElementCorrelation> elementCorrelations = new ArrayList<>();
 
     public String getName() {
         return name;
