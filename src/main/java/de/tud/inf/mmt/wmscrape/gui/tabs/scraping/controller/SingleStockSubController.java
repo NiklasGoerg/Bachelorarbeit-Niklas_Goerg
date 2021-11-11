@@ -32,10 +32,10 @@ public class SingleStockSubController {
     }
 
     public ObservableList<ElementSelection> getStockSelections() {
-        return stockSelections;
+        return stockSelectionTable.getItems();
     }
 
     public ObservableList<ElementCorrelation> getStockDbCorrelations() {
-        return stockDbCorrelations;
+        return stockDbColumnTable.getItems();
     }
 }

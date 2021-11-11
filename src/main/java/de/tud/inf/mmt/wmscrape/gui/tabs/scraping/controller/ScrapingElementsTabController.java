@@ -1,7 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.ElementCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
@@ -51,7 +50,6 @@ public class ScrapingElementsTabController {
 
         reloadWebsiteList();
         websiteChoiceBox.setItems(websiteObservableList);
-
     }
 
     @FXML
@@ -90,15 +88,13 @@ public class ScrapingElementsTabController {
 
     @FXML
     private void handleSaveButton() {
-        // TODO: save website, set selections to website, save url, save selection
-//        for (ElementSelection selection : singleStockSubController.getStockSelections()) {
-//            System.out.println(selection.isSelected() + ", " + selection.getDescription());
-//        }
 
-        // TODO: save website, set selections to website, save url, save selection
-        for (ElementCorrelation correlation : singleStockSubController.getStockDbCorrelations()) {
-            System.out.println(correlation.getStockDataTableColumn().getName() + ", " + correlation.getIdentType() + ", " + correlation.getRepresentation());
-        }
+        WebsiteElement websiteElement = getSelectedElement();
+        websiteElement.setWebsite(websiteChoiceBox.getValue());
+        websiteElement.setInformationUrl(urlField.getText());
+
+        scrapingTabManager.saveWebsiteElementSettings(websiteElement);
+
     }
 
     @FXML
@@ -106,21 +102,22 @@ public class ScrapingElementsTabController {
 
     }
 
-    private void loadSpecificWebsite(WebsiteElement element) {
-        if (element == null) return;
+    private void loadSpecificWebsite(WebsiteElement staleElement) {
+        if (staleElement == null) return;
 
-        websiteChoiceBox.setValue(element.getWebsite());
-        urlField.setText(element.getInformationUrl());
+        scrapingTabManager.choiceBoxSetWebsiteElement(websiteChoiceBox, staleElement.getId());
 
-        switch (element.getContentType()) {
+        urlField.setText(staleElement.getInformationUrl());
+
+        switch (staleElement.getContentType()) {
             case AKTIEN -> {
-                switch (element.getMultiplicityType()) {
+                switch (staleElement.getMultiplicityType()) {
                     case EINZELWERT -> loadSingleStock();
                     case TABELLE -> loadTableStock();
                 }
             }
             case WECHSELKURS -> {
-                switch (element.getMultiplicityType()) {
+                switch (staleElement.getMultiplicityType()) {
                     case EINZELWERT -> loadSingleExchange();
                     case TABELLE -> loadTableExchange();
                 }
