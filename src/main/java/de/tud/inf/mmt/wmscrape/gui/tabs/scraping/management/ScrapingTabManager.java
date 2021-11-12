@@ -3,12 +3,16 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourseOrStockSubController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.*;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchangeSubController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -58,6 +62,10 @@ public class ScrapingTabManager {
     private ElementCorrelationRepository elementCorrelationRepository;
     @Autowired
     private CourseDataColumnRepository courseDataColumnRepository;
+    @Autowired
+    private ExchangeDataColumnRepository exchangeDataColumnRepository;
+    @Autowired
+    private SingleExchangeSubController singleExchangeSubController;
 
     public Website createNewWebsite(String description) {
         Website website = new Website(description);
@@ -131,10 +139,6 @@ public class ScrapingTabManager {
         control.centerProperty().setValue(scene);
     }
 
-//    #########################
-//    Single Stock section
-//    #########################
-
     public WebsiteElement getFreshWebsiteElement(int id) {
         return websiteElementRepository.getById(id);
     }
@@ -145,6 +149,10 @@ public class ScrapingTabManager {
         // websitEelement from table hast not a loaded website (lazy load) and an ended session
         choiceBox.setValue(getFreshWebsiteElement(id).getWebsite());
     }
+
+//    #########################
+//    Single Course/Stock section
+//    #########################
 
     // used by Stock and Course
     @Transactional
@@ -160,7 +168,7 @@ public class ScrapingTabManager {
         TableColumn<ElementSelection, String> stockNameColumn = new TableColumn<>("Bezeichnung");
         TableColumn<ElementSelection, String> stockIsinColumn = new TableColumn<>("Isin");
 
-        selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
+        //selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
         selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
         selectedColumn.setCellValueFactory(row -> {
             SimpleBooleanProperty sbp = row.getValue().selectedProperty();
@@ -190,10 +198,7 @@ public class ScrapingTabManager {
 
         for(Stock stock : stockRepository.findAll()) {
             if(!addedStockSelection.contains(stock)) {
-                ElementSelection elementSelection = new ElementSelection(
-                        stock.getName(),
-                        websiteElement,
-                        stock);
+                ElementSelection elementSelection = new ElementSelection(websiteElement, stock);
 
                 addedStockSelection.add(stock);
                 stockSelections.add(elementSelection);
@@ -285,16 +290,17 @@ public class ScrapingTabManager {
 
     private void fillStockCorrelationTable(WebsiteElement websiteElement, TableView<ElementCorrelation> table) {
         ObservableList<ElementCorrelation> stockSelections = FXCollections.observableArrayList();
-        ArrayList<StockDataDbTableColumn> addedStockColumns = new ArrayList<>();
+        ArrayList<String> addedStockColumns = new ArrayList<>();
+        addedStockColumns.add("isin"); // don't need isin, it's defined in selection
 
         for (ElementCorrelation elementCorrelation : websiteElement.getElementCorrelations()) {
             stockSelections.add(elementCorrelation);
-            addedStockColumns.add(elementCorrelation.getStockDataTableColumn());
+            addedStockColumns.add(elementCorrelation.getStockDataTableColumn().getName());
         }
 
         for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
-            if(!addedStockColumns.contains(column)) {
-                addedStockColumns.add(column);
+            if(!addedStockColumns.contains(column.getName())) {
+                addedStockColumns.add(column.getName());
                 stockSelections.add(new ElementCorrelation(websiteElement, column));
             }
         }
@@ -322,7 +328,7 @@ public class ScrapingTabManager {
     }
 
     // used by Stock and Course
-    public void saveWebsiteElementSettings(WebsiteElement websiteElement) {
+    public void saveSingleCourseOrStockSettings(WebsiteElement websiteElement) {
 
         for (ElementSelection selection : singleCourseOrStockSubController.getSelections()) {
             if(selection.isChanged()) {
@@ -331,6 +337,127 @@ public class ScrapingTabManager {
         }
 
         for (ElementCorrelation correlation : singleCourseOrStockSubController.getDbCorrelations()) {
+            if(correlation.isChanged()) {
+                elementCorrelationRepository.save(correlation);
+            }
+        }
+
+        websiteElementRepository.save(websiteElement);
+    }
+
+//    #########################
+//    Single Exchange section
+//    #########################
+
+    @Transactional
+    public void initExchangeSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
+
+        WebsiteElement websiteElement = getFreshWebsiteElement(staleElement.getId());
+        prepareExchangeSelectionTable(table);
+        fillExchangeSelectionTable(websiteElement, table);
+    }
+
+    private void prepareExchangeSelectionTable(TableView<ElementSelection> table) {
+        TableColumn<ElementSelection, Boolean> selectedColumn = new TableColumn<>("Selektion");
+        TableColumn<ElementSelection, String> stockNameColumn = new TableColumn<>("Währung");
+
+        selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
+        selectedColumn.setCellValueFactory(row -> {
+            SimpleBooleanProperty sbp = row.getValue().selectedProperty();
+            sbp.addListener( (o, ov, nv) -> {
+                sbp.set(nv);
+                if(nv) deselectOther(row);
+            });
+            return sbp;
+        });
+
+        stockNameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+
+        table.getColumns().add(selectedColumn);
+        table.getColumns().add(stockNameColumn);
+    }
+
+    private void fillExchangeSelectionTable(WebsiteElement websiteElement, TableView<ElementSelection> table) {
+        ObservableList<ElementSelection> stockSelections = FXCollections.observableArrayList();
+        ArrayList<ExchangeDataDbTableColumn> addedStockSelection = new ArrayList<>();
+
+        for(ElementSelection elementSelection : websiteElement.getElementSelections()) {
+            stockSelections.add(elementSelection);
+            addedStockSelection.add(elementSelection.getExchangeDataDbTableColumn());
+        }
+
+        for(ExchangeDataDbTableColumn column : exchangeDataColumnRepository.findAll()) {
+            if(!addedStockSelection.contains(column)) {
+                ElementSelection elementSelection = new ElementSelection(websiteElement, column);
+
+                addedStockSelection.add(column);
+                stockSelections.add(elementSelection);
+            }
+        }
+
+        table.getItems().addAll(stockSelections);
+    }
+
+    @Transactional
+    public List<ElementCorrelation> initExchangeCorrelations(ChoiceBox<IdentTypeDeactivated> dateChoiceBox,
+                                         TextField dataIdentField,
+                                         ChoiceBox<IdentTypeDeactivated> exchangeChoiceBox,
+                                         TextField exchangeIdentField,
+                                         WebsiteElement staleElement) {
+
+        WebsiteElement websiteElement = getFreshWebsiteElement(staleElement.getId());
+
+        List<ElementCorrelation> elementCorrelations = new ArrayList<>();
+        List<String> added = new ArrayList<>();
+
+        // load saved values
+        for (ElementCorrelation correlation : websiteElement.getElementCorrelations()) {
+            if(correlation.getExchangeFieldName().equals("datum")) {
+                bindFieldsToCorrelation(dateChoiceBox, dataIdentField, correlation);
+                added.add("datum");
+            } else if(correlation.getExchangeFieldName().equals("kurs")) {
+                bindFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, correlation);
+                added.add("kurs");
+            } else continue;
+            elementCorrelations.add(correlation);
+        }
+
+        // add new if not saved
+        if(!added.contains("datum")) {
+            ElementCorrelation newCorrelation = new ElementCorrelation(websiteElement, "datum");
+            elementCorrelations.add(newCorrelation);
+            bindFieldsToCorrelation(dateChoiceBox, dataIdentField, newCorrelation);
+        }
+
+        // add new if not saved
+        if(!added.contains("kurs")) {
+            ElementCorrelation newCorrelation = new ElementCorrelation(websiteElement, "kurs");
+            elementCorrelations.add(newCorrelation);
+            bindFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, newCorrelation);
+            exchangeChoiceBox.setValue(IdentTypeDeactivated.XPATH);
+        }
+
+        return elementCorrelations;
+    }
+
+    public void bindFieldsToCorrelation(ChoiceBox<IdentTypeDeactivated> choiceBox, TextInputControl textField, ElementCorrelation correlation) {
+        choiceBox.setValue(IdentTypeDeactivated.valueOf(correlation.getIdentType()));
+        textField.setText(correlation.getRepresentation());
+
+        textField.textProperty().addListener((o, ov, nv) -> correlation.setRepresentation(nv));
+
+        choiceBox.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> correlation.setIdentType(nv.name()));
+    }
+
+    public void saveSingleExchangeSettings(WebsiteElement websiteElement) {
+
+        for (ElementSelection selection : singleExchangeSubController.getExchangeSelections()) {
+            if(selection.isChanged()) {
+                elementSelectionRepository.save(selection);
+            }
+        }
+
+        for (ElementCorrelation correlation : singleExchangeSubController.getElementCorrelations()) {
             if(correlation.isChanged()) {
                 elementCorrelationRepository.save(correlation);
             }

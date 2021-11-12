@@ -1,7 +1,6 @@
 package de.tud.inf.mmt.wmscrape.dynamicdb;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -11,9 +10,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Optional;
 
-@Service
 @SuppressWarnings("rawtypes")
-public class DynamicDbManger {
+public abstract class DynamicDbManger {
     @Autowired
     DataSource dataSource;
 
@@ -66,7 +64,7 @@ public class DynamicDbManger {
         return true;
     }
 
-    public boolean removeColumn(String columnName, String tableName, DynamicDbRepository repository) {
+    protected boolean removeColumn(String columnName, String tableName, DynamicDbRepository repository) {
         try {
             if (!columnExists(columnName, tableName)) {
                 return false;

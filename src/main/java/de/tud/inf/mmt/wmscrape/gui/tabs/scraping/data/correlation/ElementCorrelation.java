@@ -38,6 +38,8 @@ public class ElementCorrelation {
     @JoinColumn(name = "courseDataTableColumnId")
     private CourseDataDbTableColumn courseDataTableColumn;
 
+    // optional for exchange correlations
+    private String exchangeFieldName;
 
     @Transient
     private boolean isChanged = false;
@@ -60,6 +62,12 @@ public class ElementCorrelation {
     public ElementCorrelation(WebsiteElement websiteElement, CourseDataDbTableColumn courseDataTableColumn) {
         this.websiteElement = websiteElement;
         this.courseDataTableColumn = courseDataTableColumn;
+        initListener();
+    }
+
+    public ElementCorrelation(WebsiteElement websiteElement, String exchangeFieldName) {
+        this.websiteElement = websiteElement;
+        this.exchangeFieldName = exchangeFieldName;
         initListener();
     }
 
@@ -90,12 +98,17 @@ public class ElementCorrelation {
     public WebsiteElement getWebsiteElement() {
         return websiteElement;
     }
+
     public StockDataDbTableColumn getStockDataTableColumn() {
         return stockDataTableColumn;
     }
 
     public CourseDataDbTableColumn getCourseDataTableColumn() {
         return courseDataTableColumn;
+    }
+
+    public String getExchangeFieldName() {
+        return exchangeFieldName;
     }
 
     public boolean isChanged() {

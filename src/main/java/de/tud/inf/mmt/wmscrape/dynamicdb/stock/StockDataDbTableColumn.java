@@ -11,14 +11,15 @@ import java.util.List;
 @Entity
 public class StockDataDbTableColumn extends DbTableColumn {
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockDataTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
+
     public StockDataDbTableColumn() {}
 
     public StockDataDbTableColumn(String name, ColumnDatatype columnDatatype) {
         super(name, columnDatatype);
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockDataTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
     public void setExcelCorrelations(List<ExcelCorrelation> excelCorrelations) {
         this.excelCorrelations = excelCorrelations;

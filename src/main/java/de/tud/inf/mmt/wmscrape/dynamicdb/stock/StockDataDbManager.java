@@ -3,8 +3,6 @@ package de.tud.inf.mmt.wmscrape.dynamicdb.stock;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbManger;
 import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,23 +16,20 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
-public class StockDataDbManager {
+public class StockDataDbManager extends DynamicDbManger{
 
     @Autowired
     StockDataColumnRepository stockDataColumnRepository;
     @Autowired
     StockRepository stockRepository;
 
-    @Autowired
-    DynamicDbManger dynamicDbManger;
-
     @PostConstruct
     private void initStockData() {
         // the stock data table is not managed by spring
         // and has to be initialized by myself
 
-        if (!dynamicDbManger.tableExists("stammdaten")) {
-            dynamicDbManger.initializeTable("CREATE TABLE IF NOT EXISTS stammdaten ( isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+        if (!tableExists("stammdaten")) {
+            initializeTable("CREATE TABLE IF NOT EXISTS stammdaten (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         }
 
         ArrayList<String> columnNames = new ArrayList<>();
@@ -42,25 +37,26 @@ public class StockDataDbManager {
             columnNames.add(column.getName());
         }
 
-        for(String colName : dynamicDbManger.getColumns("stammdaten")) {
+        for(String colName : getColumns("stammdaten")) {
             if(!columnNames.contains(colName)) {
-                ColumnDatatype datatype = dynamicDbManger.getColumnDataType(colName, "stammdaten");
+                ColumnDatatype datatype = getColumnDataType(colName, "stammdaten");
                 stockDataColumnRepository.save(new StockDataDbTableColumn(colName, datatype));
             }
         }
 
-        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("wkn", ColumnDatatype.TEXT));
-        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("name", ColumnDatatype.TEXT));
-        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("typ", ColumnDatatype.TEXT));
-        dynamicDbManger.addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("gruppen_id", ColumnDatatype.INT));
+        addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("wkn", ColumnDatatype.TEXT));
+        addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("name", ColumnDatatype.TEXT));
+        addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("typ", ColumnDatatype.TEXT));
+        addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("gruppen_id", ColumnDatatype.INT));
     }
+
 
 
     public void removeColumn(String columnName) {
         Optional<StockDataDbTableColumn> column = stockDataColumnRepository.findByName(columnName);
         if(column.isPresent()) {
             column.get().setExcelCorrelations(new ArrayList<>());
-            dynamicDbManger.removeColumn(column.get().getName(),"stammdaten", stockDataColumnRepository);
+            super.removeColumn(column.get().getName(),"stammdaten", stockDataColumnRepository);
         }
     }
 
@@ -68,7 +64,7 @@ public class StockDataDbManager {
 
         Statement statement;
         try {
-            Connection connection = dynamicDbManger.getConnection();
+            Connection connection = getConnection();
             statement = connection.createStatement();
             // isin, wkn, name columns are created at start if not existing
             ResultSet resultSet = statement.executeQuery("SELECT isin, wkn, name, gruppen_id, typ FROM stammdaten;");
@@ -91,9 +87,5 @@ public class StockDataDbManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public Connection getConnection() {
-        return dynamicDbManger.getConnection();
     }
 }

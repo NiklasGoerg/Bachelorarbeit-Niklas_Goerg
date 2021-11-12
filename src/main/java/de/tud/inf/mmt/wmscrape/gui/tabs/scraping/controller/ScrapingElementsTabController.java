@@ -102,7 +102,17 @@ public class ScrapingElementsTabController {
         websiteElement.setWebsite(websiteChoiceBox.getValue());
         websiteElement.setInformationUrl(urlField.getText());
 
-        scrapingTabManager.saveWebsiteElementSettings(websiteElement);
+        switch (websiteElement.getMultiplicityType()) {
+            case EINZELWERT -> {
+                switch (websiteElement.getContentType()) {
+                    case STAMMDATEN, AKTIENKURS -> scrapingTabManager.saveSingleCourseOrStockSettings(websiteElement);
+                    case WECHSELKURS -> scrapingTabManager.saveSingleExchangeSettings(websiteElement);
+                }
+            }
+            case TABELLE -> System.out.println("");// TODO
+        }
+
+
 
     }
 
