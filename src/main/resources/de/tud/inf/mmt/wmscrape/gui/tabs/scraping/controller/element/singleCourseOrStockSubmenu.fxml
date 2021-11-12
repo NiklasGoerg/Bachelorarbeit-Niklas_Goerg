@@ -11,7 +11,7 @@
    <items>
       <AnchorPane maxWidth="750.0">
          <children>
-            <HBox alignment="CENTER" prefHeight="28.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <HBox alignment="CENTER" prefHeight="28.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
                   <Label text="Auswahl">
                      <padding>
@@ -20,12 +20,12 @@
                   </Label>
                </children>
             </HBox>
-            <TableView fx:id="stockSelectionTable" editable="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="28.0" />
+            <TableView fx:id="stockSelectionTable" editable="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="28.0" />
          </children>
       </AnchorPane>
       <AnchorPane>
          <children>
-            <HBox alignment="CENTER" prefHeight="28.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <HBox alignment="CENTER" prefHeight="28.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
                <children>
                   <Label text="Spaltenzuordnung">
                      <padding>
@@ -34,7 +34,7 @@
                   </Label>
                </children>
             </HBox>
-            <TableView fx:id="stockDbColumnTable" editable="true" layoutX="5.0" layoutY="28.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="28.0" />
+            <TableView fx:id="stockDbColumnTable" editable="true" layoutX="5.0" layoutY="28.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="28.0" />
          </children>
       </AnchorPane>
    </items>

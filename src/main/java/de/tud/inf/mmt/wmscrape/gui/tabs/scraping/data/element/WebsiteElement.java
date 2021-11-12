@@ -1,7 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementDescCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
@@ -28,7 +29,10 @@ public class WebsiteElement {
     private List<ElementSelection> elementSelections = new ArrayList<>();
 
     @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ElementCorrelation> elementCorrelations = new ArrayList<>();
+    private List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<ElementDescCorrelation> elementDescCorrelations = new ArrayList<>();
 
     public WebsiteElement() {}
 
@@ -90,13 +94,27 @@ public class WebsiteElement {
         this.elementSelections = elementSelections;
     }
 
-    public List<ElementCorrelation> getElementCorrelations() {
-        return elementCorrelations;
+    public List<ElementIdentCorrelation> getElementIdentCorrelations() {
+        return elementIdentCorrelations;
     }
 
-    public void setElementCorrelations(List<ElementCorrelation> elementCorrelations) {
-        this.elementCorrelations = elementCorrelations;
+    public void setElementCorrelations(List<ElementIdentCorrelation> elementIdentCorrelations) {
+        this.elementIdentCorrelations = elementIdentCorrelations;
     }
+
+    public List<ElementDescCorrelation> getElementDescCorrelations() {
+        return elementDescCorrelations;
+    }
+
+    public void removeElementDescCorrelation(ElementDescCorrelation correlation) {
+        elementDescCorrelations.remove(correlation);
+    }
+
+    public void removeElementSelection(ElementSelection elementSelection) {
+        elementSelections.remove(elementSelection);
+    }
+
+
 
     @Override
     public String toString() {

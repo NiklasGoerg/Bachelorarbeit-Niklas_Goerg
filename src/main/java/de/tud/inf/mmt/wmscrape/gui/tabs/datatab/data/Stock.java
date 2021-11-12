@@ -21,7 +21,7 @@ public class Stock {
     @Column(name = "gruppenId")
     private int groupId;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<DepotTransaction> depotTransactions = new ArrayList<>();
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)

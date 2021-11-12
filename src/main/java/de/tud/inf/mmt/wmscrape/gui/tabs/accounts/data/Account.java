@@ -26,10 +26,10 @@ public class Account {
     @Column(name = "Kontotyp")
     private AccountType accountType;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true)
+    @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<AccountTransaction> accountTransactions = new ArrayList<>();
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true)
+    @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Depot> depots = new ArrayList<>();
 
     public Account() {

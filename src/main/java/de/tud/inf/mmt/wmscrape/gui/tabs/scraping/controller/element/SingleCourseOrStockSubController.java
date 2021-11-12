@@ -1,7 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
@@ -16,26 +17,26 @@ import org.springframework.stereotype.Controller;
 @Lazy
 public class SingleCourseOrStockSubController {
 
-    @FXML private TableView<ElementSelection> stockSelectionTable;
-    @FXML private TableView<ElementCorrelation> stockDbColumnTable;
+    @FXML protected TableView<ElementSelection> stockSelectionTable;
+    @FXML protected TableView<ElementIdentCorrelation> stockDbColumnTable;
 
     @Autowired
-    private ScrapingElementsTabController scrapingElementsTabController;
+    protected ScrapingElementsTabController scrapingElementsTabController;
     @Autowired
-    private ScrapingTabManager scrapingTabManager;
+    protected ScrapingTabManager scrapingTabManager;
 
     @FXML
-    private void initialize() {
+    protected void initialize() {
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
-        scrapingTabManager.initStockSelectionTable(websiteElement, stockSelectionTable);
-        scrapingTabManager.initCourseOrStockCorrelationTable(websiteElement, stockDbColumnTable);
+        scrapingTabManager.initStockSelectionTable(websiteElement, stockSelectionTable, true);
+        scrapingTabManager.initCourseOrStockCorrelationTable(websiteElement, stockDbColumnTable, MultiplicityType.EINZELWERT);
     }
 
     public ObservableList<ElementSelection> getSelections() {
         return stockSelectionTable.getItems();
     }
 
-    public ObservableList<ElementCorrelation> getDbCorrelations() {
+    public ObservableList<ElementIdentCorrelation> getDbCorrelations() {
         return stockDbColumnTable.getItems();
     }
 }

@@ -38,6 +38,8 @@ public class ScrapingElementsTabController {
     private TableExchangeSubController tableExchangeSubController;
     @Autowired
     private TableStockSubController tableStockSubController;
+    @Autowired
+    private TableCourseSubController tableCourseSubController;
 
     private ObservableList<WebsiteElement> elementObservableList;
     private ObservableList<Website> websiteObservableList = FXCollections.observableList(new ArrayList<>());
@@ -109,7 +111,14 @@ public class ScrapingElementsTabController {
                     case WECHSELKURS -> scrapingTabManager.saveSingleExchangeSettings(websiteElement);
                 }
             }
-            case TABELLE -> System.out.println("");// TODO
+            case TABELLE -> {
+                switch (websiteElement.getContentType()) {
+                    case STAMMDATEN, AKTIENKURS -> {
+                        scrapingTabManager.saveTableCourseOrStockSettings(websiteElement);
+                        // TODO Description table
+                    }
+                }
+            }
         }
 
 
@@ -126,14 +135,20 @@ public class ScrapingElementsTabController {
 
         inlineValidation = false;
 
-        scrapingTabManager.choiceBoxSetWebsiteElement(websiteChoiceBox, staleElement.getId());
+        scrapingTabManager.choiceBoxSetWebsiteElement(websiteChoiceBox, staleElement);
 
         urlField.setText(staleElement.getInformationUrl());
 
         switch (staleElement.getContentType()) {
-            case AKTIENKURS, STAMMDATEN -> {
+            case AKTIENKURS -> {
                 switch (staleElement.getMultiplicityType()) {
-                    case EINZELWERT -> loadSingleStock();
+                    case EINZELWERT -> loadSingleCourseOrStock();
+                    case TABELLE -> loadTableCourse();
+                }
+            }
+            case STAMMDATEN -> {
+                switch (staleElement.getMultiplicityType()) {
+                    case EINZELWERT -> loadSingleCourseOrStock();
                     case TABELLE -> loadTableStock();
                 }
             }
@@ -194,13 +209,9 @@ public class ScrapingElementsTabController {
         if(wait) alert.showAndWait();
     }
 
-    private void loadSingleStock() {
+    private void loadSingleCourseOrStock() {
         ScrapingTabManager.loadSubMenu(singleCourseOrStockSubController,
                 "gui/tabs/scraping/controller/element/singleCourseOrStockSubmenu.fxml", subPane);
-    }
-
-    private void loadTableStock() {
-
     }
 
     private void loadSingleExchange() {
@@ -208,9 +219,19 @@ public class ScrapingElementsTabController {
                 "gui/tabs/scraping/controller/element/singleExchangeSubmenu.fxml", subPane);
     }
 
+    private void loadTableStock() {
+
+    }
+
+    private void loadTableCourse() {
+        ScrapingTabManager.loadSubMenu(tableCourseSubController,
+                "gui/tabs/scraping/controller/element/tableCourseSubmenu.fxml", subPane);
+    }
+
     private void loadTableExchange() {
 
     }
+
 
     private boolean isValidInput() {
         inlineValidation = true;

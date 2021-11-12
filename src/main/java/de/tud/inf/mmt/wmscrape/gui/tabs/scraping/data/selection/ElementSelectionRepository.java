@@ -5,5 +5,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ElementSelectionRepository extends JpaRepository<ElementSelection, Integer> {
+    void deleteAllBy_selected(boolean isSelected);
 
 }

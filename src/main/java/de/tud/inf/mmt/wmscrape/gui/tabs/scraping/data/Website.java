@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeSimple;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
 
@@ -20,10 +20,10 @@ public class Website {
     private String username;
     private String password;
     @Enumerated(value = EnumType.STRING)
-    private IdentType usernameIdentType = IdentType.ID;
+    private IdentTypeSimple usernameIdentTypeSimple = IdentTypeSimple.ID;
     private String usernameIdent;
     @Enumerated(value = EnumType.STRING)
-    private IdentType passwordIdentType = IdentType.ID;
+    private IdentTypeSimple passwordIdentTypeSimple = IdentTypeSimple.ID;
     private String passwordIdent;
     @Enumerated(value = EnumType.STRING)
     private IdentTypeDeactivated loginButtonIdentType = IdentTypeDeactivated.ID;
@@ -38,7 +38,7 @@ public class Website {
     private IdentTypeDeactivated cookieHideIdentType = IdentTypeDeactivated.DEAKTIVIERT;
     private String cookieHideIdent;
 
-    @OneToMany(mappedBy = "website", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "website", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<WebsiteElement> websiteElements = new ArrayList<>();
 
     public Website() {
@@ -76,8 +76,8 @@ public class Website {
         this.username = username;
     }
 
-    public IdentType getUsernameIdentType() {
-        return usernameIdentType;
+    public IdentTypeSimple getUsernameIdentType() {
+        return usernameIdentTypeSimple;
     }
 
     public String getPassword() {
@@ -88,8 +88,8 @@ public class Website {
         this.password = password;
     }
 
-    public void setUsernameIdentType(IdentType usernameIdentType) {
-        this.usernameIdentType = usernameIdentType;
+    public void setUsernameIdentType(IdentTypeSimple usernameIdentTypeSimple) {
+        this.usernameIdentTypeSimple = usernameIdentTypeSimple;
     }
 
     public String getUsernameIdent() {
@@ -100,12 +100,12 @@ public class Website {
         this.usernameIdent = usernameIdent;
     }
 
-    public IdentType getPasswordIdentType() {
-        return passwordIdentType;
+    public IdentTypeSimple getPasswordIdentType() {
+        return passwordIdentTypeSimple;
     }
 
-    public void setPasswordIdentType(IdentType passwordIdentType) {
-        this.passwordIdentType = passwordIdentType;
+    public void setPasswordIdentType(IdentTypeSimple passwordIdentTypeSimple) {
+        this.passwordIdentTypeSimple = passwordIdentTypeSimple;
     }
 
     public String getPasswordIdent() {

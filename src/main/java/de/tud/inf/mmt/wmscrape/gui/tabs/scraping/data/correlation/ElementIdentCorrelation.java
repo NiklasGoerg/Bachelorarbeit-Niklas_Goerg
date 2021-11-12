@@ -3,20 +3,20 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 
 @Entity
-public class ElementCorrelation {
+public class ElementIdentCorrelation {
     @Id
     @GeneratedValue
     private int id;
 
     @Column(name = "identType")
     @Enumerated(EnumType.STRING)
-    private IdentTypeDeactivated _identType = IdentTypeDeactivated.DEAKTIVIERT;
+    protected IdentType _identType = IdentType.DEAKTIVIERT;
     @Transient
     private SimpleStringProperty identType = new SimpleStringProperty(_identType.name());
     @Column(name = "representation")
@@ -51,21 +51,21 @@ public class ElementCorrelation {
         initListener();
     }
 
-    public ElementCorrelation() {}
+    public ElementIdentCorrelation() {}
 
-    public ElementCorrelation(WebsiteElement websiteElement, StockDataDbTableColumn stockDataTableColumn) {
+    public ElementIdentCorrelation(WebsiteElement websiteElement, StockDataDbTableColumn stockDataTableColumn) {
         this.websiteElement = websiteElement;
         this.stockDataTableColumn = stockDataTableColumn;
         initListener();
     }
 
-    public ElementCorrelation(WebsiteElement websiteElement, CourseDataDbTableColumn courseDataTableColumn) {
+    public ElementIdentCorrelation(WebsiteElement websiteElement, CourseDataDbTableColumn courseDataTableColumn) {
         this.websiteElement = websiteElement;
         this.courseDataTableColumn = courseDataTableColumn;
         initListener();
     }
 
-    public ElementCorrelation(WebsiteElement websiteElement, String exchangeFieldName) {
+    public ElementIdentCorrelation(WebsiteElement websiteElement, String exchangeFieldName) {
         this.websiteElement = websiteElement;
         this.exchangeFieldName = exchangeFieldName;
         initListener();
@@ -118,7 +118,7 @@ public class ElementCorrelation {
     private void initListener() {
         identType.addListener((o, ov, nv) -> {
             isChanged = true;
-            _identType = IdentTypeDeactivated.valueOf(nv);
+            _identType = IdentType.valueOf(nv);
         });
         representation.addListener((o, ov, nv ) -> {
             isChanged = true;

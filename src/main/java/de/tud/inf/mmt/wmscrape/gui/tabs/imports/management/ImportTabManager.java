@@ -516,9 +516,8 @@ public class ImportTabManager {
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
                 tableCol.setCellValueFactory(row -> {
-                    SimpleBooleanProperty sbp = selectedStockDataRows.get(Integer.valueOf(row.getValue().get(0)));
-                    sbp.addListener( (o, ov, nv) -> sbp.set(nv));
-                    return sbp;
+                    return selectedStockDataRows.get(Integer.valueOf(row.getValue().get(0)));
+                    //sbp.addListener( (o, ov, nv) -> sbp.set(nv));
                 });
 
                 sheetPreviewTable.getColumns().add(tableCol);
@@ -530,9 +529,8 @@ public class ImportTabManager {
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
                 tableCol.setCellValueFactory(row -> {
-                    SimpleBooleanProperty sbp = selectedTransactionRows.get(Integer.valueOf(row.getValue().get(0)));
-                    sbp.addListener( (o, ov, nv) -> sbp.set(nv));
-                    return sbp;
+                    return selectedTransactionRows.get(Integer.valueOf(row.getValue().get(0)));
+                    //sbp.addListener( (o, ov, nv) -> sbp.set(nv));
                 });
 
                 sheetPreviewTable.getColumns().add(tableCol);

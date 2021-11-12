@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
@@ -33,7 +33,7 @@ public class SingleExchangeSubController {
     @Autowired
     private ScrapingTabManager scrapingTabManager;
 
-    private List<ElementCorrelation> elementCorrelations = new ArrayList<>();
+    private List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
 
     @FXML
     private void initialize() {
@@ -45,7 +45,7 @@ public class SingleExchangeSubController {
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
         scrapingTabManager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable);
 
-        elementCorrelations = scrapingTabManager.initExchangeCorrelations(dateIdentTypeChoiceBox,
+        elementIdentCorrelations = scrapingTabManager.initExchangeCorrelations(dateIdentTypeChoiceBox,
                 dateIdentField, exchangeIdentTypeChoiceBox,
                 exchangeIdentField, websiteElement);
 
@@ -55,8 +55,8 @@ public class SingleExchangeSubController {
         return exchangeSelectionTable.getItems();
     }
 
-    public List<ElementCorrelation> getElementCorrelations() {
-        return elementCorrelations;
+    public List<ElementIdentCorrelation> getElementCorrelations() {
+        return elementIdentCorrelations;
     }
 
 

@@ -3,7 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.NewWebsitePopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.WebsiteTestPopupController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeSimple;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
@@ -24,9 +24,9 @@ public class ScrapingWebsiteTabController {
     @FXML private TextField urlField;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
-    @FXML private ChoiceBox<IdentType> usernameIdentChoiceBox;
+    @FXML private ChoiceBox<IdentTypeSimple> usernameIdentChoiceBox;
     @FXML private TextField usernameIdentField;
-    @FXML private ChoiceBox<IdentType> passwordIdentChoiceBox;
+    @FXML private ChoiceBox<IdentTypeSimple> passwordIdentChoiceBox;
     @FXML private TextField passwordIdentField;
     @FXML private ChoiceBox<IdentTypeDeactivated> loginIdentChoiceBox;
     @FXML private TextField loginIdentField;
@@ -68,8 +68,8 @@ public class ScrapingWebsiteTabController {
         cookieHideIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(cookieHideIdentField));
 
         // set choicebox options
-        usernameIdentChoiceBox.getItems().addAll(IdentType.values());
-        passwordIdentChoiceBox.getItems().addAll(IdentType.values());
+        usernameIdentChoiceBox.getItems().addAll(IdentTypeSimple.values());
+        passwordIdentChoiceBox.getItems().addAll(IdentTypeSimple.values());
         loginIdentChoiceBox.getItems().addAll(IdentTypeDeactivated.values());
         logoutIdentChoiceBox.getItems().addAll(IdentTypeDeactivatedUrl.values());
         cookieAcceptIdentChoiceBox.getItems().addAll(IdentTypeDeactivated.values());

@@ -25,7 +25,7 @@ public class Depot {
     @JoinColumn(name = "accountId", referencedColumnName = "id")
     private Account account;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy ="depot",  orphanRemoval = true)
+    @OneToMany(fetch=FetchType.LAZY, mappedBy ="depot",  orphanRemoval = true, cascade = CascadeType.ALL)
     private List<DepotTransaction> depotTransactions = new ArrayList<>();
 
     public Depot() {

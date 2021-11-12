@@ -2,10 +2,12 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 public class ElementSelection {
@@ -36,6 +38,9 @@ public class ElementSelection {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exchangeDataDbTableColumnId")
     private ExchangeDataDbTableColumn exchangeDataDbTableColumn;
+
+    @OneToOne(mappedBy = "elementSelection", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    private ElementDescCorrelation elementDescCorrelation;
 
     @Transient
     private boolean isChanged = false;
@@ -106,6 +111,22 @@ public class ElementSelection {
 
     public boolean isChanged() {
         return isChanged;
+    }
+
+    public ElementDescCorrelation getElementDescCorrelation() {
+        return elementDescCorrelation;
+    }
+
+    public void setElementDescCorrelation(ElementDescCorrelation elementDescCorrelation) {
+        this.elementDescCorrelation = elementDescCorrelation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ElementSelection that = (ElementSelection) o;
+        return Objects.equals(description, that.description) && Objects.equals(isin, that.isin);
     }
 
     private void initListener() {

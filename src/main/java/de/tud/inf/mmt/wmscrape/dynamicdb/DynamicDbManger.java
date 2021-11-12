@@ -141,12 +141,13 @@ public abstract class DynamicDbManger {
             while (results.next()) {
                 String name = results.getString(1);
                 if (name.equals(tableName)) {
+                    statement.close();
+                    connection.close();
                     return true;
                 }
             }
             statement.close();
             connection.close();
-
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
