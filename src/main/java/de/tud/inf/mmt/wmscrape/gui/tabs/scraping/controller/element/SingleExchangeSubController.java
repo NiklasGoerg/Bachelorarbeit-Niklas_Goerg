@@ -5,7 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCo
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingCourseOrExchangeManager;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
@@ -31,7 +31,7 @@ public class SingleExchangeSubController {
     @Autowired
     protected ScrapingElementsTabController scrapingElementsTabController;
     @Autowired
-    protected ScrapingTabManager scrapingTabManager;
+    protected ScrapingCourseOrExchangeManager manager;
 
     protected List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
 
@@ -43,9 +43,9 @@ public class SingleExchangeSubController {
         exchangeIdentTypeChoiceBox.setValue(IdentTypeDeactivated.XPATH);
 
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
-        scrapingTabManager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable, true);
+        manager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable, true);
 
-        elementIdentCorrelations = scrapingTabManager.initExchangeCorrelations(dateIdentTypeChoiceBox,
+        elementIdentCorrelations = manager.initExchangeCorrelations(dateIdentTypeChoiceBox,
                 dateIdentField, exchangeIdentTypeChoiceBox,
                 exchangeIdentField, websiteElement);
 

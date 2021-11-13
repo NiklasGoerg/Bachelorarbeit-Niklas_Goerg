@@ -4,7 +4,9 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingCourseOrExchangeManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTableManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -26,6 +28,10 @@ public class ScrapingElementsTabController {
 
     @Autowired
     private ScrapingTabManager scrapingTabManager;
+    @Autowired
+    private ScrapingTableManager scrapingTableManager;
+    @Autowired
+    private ScrapingCourseOrExchangeManager scrapingCourseOrExchangeManager;
     @Autowired
     private PrimaryTabManagement primaryTabManagement;
     @Autowired
@@ -103,11 +109,11 @@ public class ScrapingElementsTabController {
         switch (websiteElement.getMultiplicityType()) {
             case EINZELWERT -> {
                 switch (websiteElement.getContentType()) {
-                    case STAMMDATEN, AKTIENKURS -> scrapingTabManager.saveSingleCourseOrStockSettings(websiteElement);
-                    case WECHSELKURS -> scrapingTabManager.saveSingleExchangeSettings(websiteElement);
+                    case STAMMDATEN, AKTIENKURS -> scrapingCourseOrExchangeManager.saveSingleCourseOrStockSettings(websiteElement);
+                    case WECHSELKURS -> scrapingCourseOrExchangeManager.saveSingleExchangeSettings(websiteElement);
                 }
             }
-            case TABELLE -> scrapingTabManager.saveTableCourseOrStockSettings(websiteElement);
+            case TABELLE -> scrapingTableManager.saveTableSettings(websiteElement);
         }
 
 
@@ -199,7 +205,6 @@ public class ScrapingElementsTabController {
         ScrapingTabManager.loadSubMenu(tableSubController,
                 "gui/tabs/scraping/controller/element/tableSubmenu.fxml", subPane);
     }
-
 
     private boolean isValidInput() {
         inlineValidation = true;
