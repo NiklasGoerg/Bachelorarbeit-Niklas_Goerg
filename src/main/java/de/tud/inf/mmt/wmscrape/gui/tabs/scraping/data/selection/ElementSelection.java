@@ -124,8 +124,9 @@ public class ElementSelection {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ElementSelection that = (ElementSelection) o;
+        if (!(o instanceof ElementSelection)) return false;
+        ElementSelection that;
+        that = (ElementSelection) o;
         return Objects.equals(description, that.description) && Objects.equals(isin, that.isin);
     }
 

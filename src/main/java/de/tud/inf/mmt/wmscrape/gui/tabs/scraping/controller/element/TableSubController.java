@@ -21,25 +21,28 @@ public class TableSubController extends SingleCourseOrStockSubController{
     @FXML private ChoiceBox<IdentTypeSimple> tableIdentChoiceBox;
     @FXML private TextField tableIdentField;
 
+    private WebsiteElement websiteElement;
+
     @FXML
     @Override
     protected void initialize() {
 
-        WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
+        websiteElement = scrapingElementsTabController.getSelectedElement();
 
         if(websiteElement.getContentType() != ContentType.WECHSELKURS) {
             scrapingTabManager.initStockSelectionTable(websiteElement, selectionTable, false);
         } else {
-            scrapingTabManager.initExchangeSelectionTable(websiteElement, selectionTable);
+            scrapingTabManager.initExchangeSelectionTable(websiteElement, selectionTable, false);
             selectionTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
 
         scrapingTabManager.initCorrelationTable(websiteElement, columnCorrelationTable, MultiplicityType.TABELLE);
 
         if(websiteElement.getContentType() != ContentType.WECHSELKURS) {
-            scrapingTabManager.initCourseDescriptionTable(websiteElement, elementDescCorrelationTableView);
+            scrapingTabManager.initCourseOrStockDescriptionTable(websiteElement, elementDescCorrelationTableView);
         } else {
-            // TODO
+            scrapingTabManager.initExchangeDescriptionTable(websiteElement,elementDescCorrelationTableView);
+            elementDescCorrelationTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
 
         tableIdentChoiceBox.getItems().addAll(IdentTypeSimple.values());
@@ -51,5 +54,10 @@ public class TableSubController extends SingleCourseOrStockSubController{
 
     public ObservableList<ElementDescCorrelation> getElementDescCorrelations() {
         return elementDescCorrelationTableView.getItems();
+    }
+
+    public void setOriginalElementValues(String url, IdentTypeSimple type) {
+        websiteElement.setTableIdent(type.name());
+        websiteElement.setInformationUrl(url);
     }
 }

@@ -107,14 +107,7 @@ public class ScrapingElementsTabController {
                     case WECHSELKURS -> scrapingTabManager.saveSingleExchangeSettings(websiteElement);
                 }
             }
-            case TABELLE -> {
-                switch (websiteElement.getContentType()) {
-                    case STAMMDATEN, AKTIENKURS -> {
-                        scrapingTabManager.saveTableCourseOrStockSettings(websiteElement);
-                        // TODO Description table
-                    }
-                }
-            }
+            case TABELLE -> scrapingTabManager.saveTableCourseOrStockSettings(websiteElement);
         }
 
 
@@ -123,11 +116,6 @@ public class ScrapingElementsTabController {
 
     @FXML
     private void handleCancelButton() {
-//        var oldElement = getSelectedElement();
-//        var newElement = scrapingTabManager.getFreshWebsiteElement(oldElement);
-//        elementList.getItems().remove(oldElement);
-//        elementList.getItems().add(newElement);
-//        loadSpecificElement(newElement);
         loadSpecificElement(getSelectedElement());
     }
 
@@ -136,9 +124,7 @@ public class ScrapingElementsTabController {
 
         inlineValidation = false;
 
-        scrapingTabManager.choiceBoxSetWebsiteElement(websiteChoiceBox, staleElement);
-
-        urlField.setText(staleElement.getInformationUrl());
+        scrapingTabManager.resetElement(urlField, websiteChoiceBox, staleElement);
 
         switch (staleElement.getMultiplicityType()) {
             case EINZELWERT -> {
@@ -213,7 +199,6 @@ public class ScrapingElementsTabController {
         ScrapingTabManager.loadSubMenu(tableSubController,
                 "gui/tabs/scraping/controller/element/tableSubmenu.fxml", subPane);
     }
-
 
 
     private boolean isValidInput() {

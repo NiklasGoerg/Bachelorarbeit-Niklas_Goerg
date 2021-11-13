@@ -154,6 +154,15 @@ public class ScrapingTabManager {
     }
 
     @Transactional
+    public void resetElement(TextField urlField, ChoiceBox<Website> choiceBox, WebsiteElement oldElement) {
+        var newElement = getFreshWebsiteElement(oldElement);
+        oldElement.setTableIdent(newElement.getTableIdent());
+        oldElement.setTableIdenType(newElement.getTableIdenType());
+        urlField.setText(newElement.getInformationUrl());
+        choiceBox.setValue(newElement.getWebsite());
+    }
+
+    @Transactional
     public void choiceBoxSetWebsiteElement(ChoiceBox<Website> choiceBox, WebsiteElement staleElement) {
         // needs a fresh load in one transaction
         // websitEelement from table hast not a loaded website (lazy load) and an ended session
@@ -428,17 +437,17 @@ public class ScrapingTabManager {
 //    #########################
 
     @Transactional
-    public void initExchangeSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
+    public void initExchangeSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table, boolean singleSelection) {
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
-        prepareExchangeSelectionTable(table);
+        prepareExchangeSelectionTable(table, singleSelection);
         fillExchangeSelectionTable(websiteElement, table);
     }
 
-    private void prepareExchangeSelectionTable(TableView<ElementSelection> table) {
+    private void prepareExchangeSelectionTable(TableView<ElementSelection> table, boolean singleSelection) {
         TableColumn<ElementSelection, Boolean> selectedColumn = new TableColumn<>("Selektion");
         TableColumn<ElementSelection, String> stockNameColumn = new TableColumn<>("Währung");
 
-        createCheckBox(selectedColumn, true);
+        createCheckBox(selectedColumn, singleSelection);
 
         stockNameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
 
@@ -565,7 +574,7 @@ public class ScrapingTabManager {
     }
 
     @Transactional
-    public void initCourseDescriptionTable(WebsiteElement staleElement, TableView<ElementDescCorrelation> table) {
+    public void initCourseOrStockDescriptionTable(WebsiteElement staleElement, TableView<ElementDescCorrelation> table) {
         var websiteElement = getFreshWebsiteElement(staleElement);
         prepareCourseDescriptionTable(table);
         fillCourseDescriptionTable(websiteElement, table);
@@ -575,7 +584,7 @@ public class ScrapingTabManager {
 
         TableColumn<ElementDescCorrelation, String> dbDescriptionCol = new TableColumn<>("Bezeichnung in DB");
         TableColumn<ElementDescCorrelation, String> dbIsinCol = new TableColumn<>("Isin in DB");
-        TableColumn<ElementDescCorrelation, String> wsDescriptionCol = new TableColumn<>("Bezeichnung auf Seite");
+        TableColumn<ElementDescCorrelation, String> wsDescriptionCol = new TableColumn<>("Bezeichnung auf der Seite");
         TableColumn<ElementDescCorrelation, String> wsIsinCol = new TableColumn<>("Isin auf Seite");
 
 
@@ -601,7 +610,11 @@ public class ScrapingTabManager {
         for(ElementSelection selection : websiteElement.getElementSelections()) {
             ElementDescCorrelation correlation = selection.getElementDescCorrelation();
             if(correlation != null) {
+                System.out.println("fill existing");
                 table.getItems().add(correlation);
+            } else if(selection.isSelected()) {
+                System.out.println("fill with new");
+                addNewElementDescCorrelation(selection);
             }
         }
     }
@@ -609,7 +622,9 @@ public class ScrapingTabManager {
     private void addNewElementDescCorrelation(ElementSelection elementSelection) {
 
         for(ElementDescCorrelation correlation : tableSubController.getElementDescCorrelations()) {
-            if(correlation.getElementSelection().equals(elementSelection)) return;
+            if(correlation.getElementSelection().equals(elementSelection)) {
+                return;
+            }
         }
 
         if(elementSelection.getElementDescCorrelation() != null) {
@@ -623,7 +638,9 @@ public class ScrapingTabManager {
     }
 
     private void removeElementDescCorrelation(ElementSelection elementSelection) {
-        tableSubController.getElementDescCorrelations().remove(elementSelection.getElementDescCorrelation());
+        ElementDescCorrelation correlation = elementSelection.getElementDescCorrelation();
+        if (correlation == null) return;
+        tableSubController.getElementDescCorrelations().remove(correlation);
         elementSelection.setElementDescCorrelation(null);
     }
 
@@ -668,5 +685,39 @@ public class ScrapingTabManager {
 //    #########################
 //    Table Exchange section
 //    #########################
+
+    @Transactional
+    public void initExchangeDescriptionTable(WebsiteElement staleElement, TableView<ElementDescCorrelation> table) {
+        var websiteElement = getFreshWebsiteElement(staleElement);
+        prepareExchangeDescriptionTable(table);
+        fillCourseDescriptionTable(websiteElement, table);
+    }
+
+    private void prepareExchangeDescriptionTable(TableView<ElementDescCorrelation> table) {
+
+        TableColumn<ElementDescCorrelation, String> dbDescriptionCol = new TableColumn<>("Bezeichnung in DB");
+        TableColumn<ElementDescCorrelation, String> wsDescriptionCol = new TableColumn<>("Bezeichnung auf der Seite");
+
+
+        dbDescriptionCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getElementSelection().getDescription()));
+
+        // representation
+        wsDescriptionCol.setCellValueFactory(param -> param.getValue().wsCurrencyNameProperty());
+        wsDescriptionCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+
+        table.getColumns().add(dbDescriptionCol);
+        table.getColumns().add(wsDescriptionCol);
+    }
+
+    private void fillExchangeDescriptionTable(WebsiteElement websiteElement, TableView<ElementDescCorrelation> table) {
+        for(ElementSelection selection : websiteElement.getElementSelections()) {
+            ElementDescCorrelation correlation = selection.getElementDescCorrelation();
+            if(correlation != null) {
+                table.getItems().add(correlation);
+            }
+        }
+    }
+
 
 }

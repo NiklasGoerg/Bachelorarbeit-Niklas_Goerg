@@ -121,9 +121,10 @@ public class ElementDescCorrelation {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ElementDescCorrelation that = (ElementDescCorrelation) o;
-        return Objects.equals(elementSelection, that.elementSelection) && Objects.equals(_wsDescription, that._wsDescription) && Objects.equals(_wsIsin, that._wsIsin) && Objects.equals(_wsCurrencyName, that._wsCurrencyName);
+        if (!(o instanceof ElementDescCorrelation)) return false;
+        ElementDescCorrelation that;
+        that = (ElementDescCorrelation) o;
+        return Objects.equals(elementSelection, that.elementSelection) && Objects.equals(_wsDescription,that._wsDescription) && Objects.equals(_wsIsin,that._wsIsin) && Objects.equals(_wsCurrencyName, that._wsCurrencyName);
     }
 
     private void initListener() {

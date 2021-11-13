@@ -43,7 +43,7 @@ public class SingleExchangeSubController {
         exchangeIdentTypeChoiceBox.setValue(IdentTypeDeactivated.XPATH);
 
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
-        scrapingTabManager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable);
+        scrapingTabManager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable, true);
 
         elementIdentCorrelations = scrapingTabManager.initExchangeCorrelations(dateIdentTypeChoiceBox,
                 dateIdentField, exchangeIdentTypeChoiceBox,
