@@ -22,21 +22,21 @@ import java.util.List;
 @Lazy
 public class SingleExchangeSubController {
 
+    @FXML protected TableView<ElementSelection> exchangeSelectionTable;
     @FXML private ChoiceBox<IdentTypeDeactivated> dateIdentTypeChoiceBox;
     @FXML private TextField dateIdentField;
     @FXML private ChoiceBox<IdentTypeDeactivated> exchangeIdentTypeChoiceBox;
     @FXML private TextField exchangeIdentField;
-    @FXML private TableView<ElementSelection> exchangeSelectionTable;
 
     @Autowired
-    private ScrapingElementsTabController scrapingElementsTabController;
+    protected ScrapingElementsTabController scrapingElementsTabController;
     @Autowired
-    private ScrapingTabManager scrapingTabManager;
+    protected ScrapingTabManager scrapingTabManager;
 
-    private List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
+    protected List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
 
     @FXML
-    private void initialize() {
+    protected void initialize() {
         dateIdentTypeChoiceBox.getItems().addAll(IdentTypeDeactivated.values());
         dateIdentTypeChoiceBox.setValue(IdentTypeDeactivated.DEAKTIVIERT);
         exchangeIdentTypeChoiceBox.getItems().addAll(IdentTypeDeactivated.values());

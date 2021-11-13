@@ -17,8 +17,8 @@ import org.springframework.stereotype.Controller;
 @Lazy
 public class SingleCourseOrStockSubController {
 
-    @FXML protected TableView<ElementSelection> stockSelectionTable;
-    @FXML protected TableView<ElementIdentCorrelation> stockDbColumnTable;
+    @FXML protected TableView<ElementSelection> selectionTable;
+    @FXML protected TableView<ElementIdentCorrelation> columnCorrelationTable;
 
     @Autowired
     protected ScrapingElementsTabController scrapingElementsTabController;
@@ -28,15 +28,15 @@ public class SingleCourseOrStockSubController {
     @FXML
     protected void initialize() {
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
-        scrapingTabManager.initStockSelectionTable(websiteElement, stockSelectionTable, true);
-        scrapingTabManager.initCourseOrStockCorrelationTable(websiteElement, stockDbColumnTable, MultiplicityType.EINZELWERT);
+        scrapingTabManager.initStockSelectionTable(websiteElement, selectionTable, true);
+        scrapingTabManager.initCorrelationTable(websiteElement, columnCorrelationTable, MultiplicityType.EINZELWERT);
     }
 
     public ObservableList<ElementSelection> getSelections() {
-        return stockSelectionTable.getItems();
+        return selectionTable.getItems();
     }
 
     public ObservableList<ElementIdentCorrelation> getDbCorrelations() {
-        return stockDbColumnTable.getItems();
+        return columnCorrelationTable.getItems();
     }
 }

@@ -77,16 +77,16 @@
                         </BorderPane>
                         <HBox>
                            <children>
-                              <VBox minWidth="-Infinity" prefWidth="563.0">
+                              <VBox minWidth="-Infinity" prefWidth="706.0">
                                  <children>
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <HBox alignment="CENTER_RIGHT" minHeight="-Infinity" prefWidth="130.0">
+                                          <HBox alignment="CENTER_RIGHT" prefWidth="145.0">
                                              <children>
                                                 <Label text="Webseite" />
                                              </children>
                                           </HBox>
-                                          <ChoiceBox fx:id="websiteChoiceBox" prefWidth="409.0">
+                                          <ChoiceBox fx:id="websiteChoiceBox" prefWidth="510.0">
                                              <HBox.margin>
                                                 <Insets left="10.0" />
                                              </HBox.margin>
@@ -98,12 +98,12 @@
                                     </HBox>
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
+                                          <HBox alignment="CENTER_RIGHT" prefWidth="145.0">
                                              <children>
                                                 <Label text="Informations-URL" />
                                              </children>
                                           </HBox>
-                                          <TextField fx:id="urlField" prefWidth="410.0">
+                                          <TextField fx:id="urlField" prefWidth="510.0">
                                              <HBox.margin>
                                                 <Insets left="10.0" />
                                              </HBox.margin>

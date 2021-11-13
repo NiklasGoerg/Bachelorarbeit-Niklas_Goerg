@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="499.0" prefWidth="1145.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableCourseSubController">
+<AnchorPane prefHeight="499.0" prefWidth="1145.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController">
    <children>
       <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -25,12 +25,12 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                   </HBox>
-                  <ChoiceBox prefWidth="150.0">
+                  <ChoiceBox fx:id="tableIdentChoiceBox" prefWidth="150.0">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                   </ChoiceBox>
-                  <TextField prefWidth="350.0" />
+                  <TextField fx:id="tableIdentField" prefWidth="350.0" />
                </children>
                <VBox.margin>
                   <Insets bottom="1.0" />
@@ -51,7 +51,7 @@
                         <Insets bottom="2.0" />
                      </padding>
                   </HBox>
-                  <TableView fx:id="stockSelectionTable" editable="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0" />
+                  <TableView fx:id="selectionTable" editable="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0" />
                </children>
             </AnchorPane>
             <AnchorPane>
@@ -78,7 +78,7 @@
                                     <Label text="Zuordnung des Tabellenkopfes" />
                                  </children>
                               </HBox>
-                              <TableView fx:id="stockDbColumnTable" editable="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="20.0" />
+                              <TableView fx:id="columnCorrelationTable" editable="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="20.0" />
                            </children>
                         </AnchorPane>
                     </items>

@@ -11,7 +11,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourseOrStockSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchangeSubController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableCourseSubController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementDescCorrelation;
@@ -71,9 +71,11 @@ public class ScrapingTabManager {
     @Autowired
     private SingleExchangeSubController singleExchangeSubController;
     @Autowired
-    private TableCourseSubController tableCourseSubController;
+    private TableSubController tableSubController;
     @Autowired
     private ElementDescCorrelationRepository elementDescCorrelationRepository;
+
+    private final static String[] exchangeCols = {"Bezeichnung", "Datum", "Kurs"};
 
     public Website createNewWebsite(String description) {
         Website website = new Website(description);
@@ -280,24 +282,27 @@ public class ScrapingTabManager {
     }
 
 
-    // used by Stock and Course
+    // used by Stock, Course and Exchange
     @Transactional
-    public void initCourseOrStockCorrelationTable(WebsiteElement staleElement, TableView<ElementIdentCorrelation> table , MultiplicityType multiplicityType) {
+    public void initCorrelationTable(WebsiteElement staleElement, TableView<ElementIdentCorrelation> table , MultiplicityType multiplicityType) {
         // load anew because the element from the table has no session attached anymore and therefore can't resolve
         // lazy evaluation
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
 
-        prepareCourseOrStockCorrelationTable(table, websiteElement.getContentType(), multiplicityType);
+        prepareCorrelationTable(table, websiteElement.getContentType(), multiplicityType);
 
-        if(websiteElement.getContentType() == ContentType.AKTIENKURS) {
+        var type = websiteElement.getContentType();
+        if(type == ContentType.AKTIENKURS) {
             fillCourseCorrelationTable(websiteElement,table, multiplicityType);
-        } else {
+        } else if(type == ContentType.STAMMDATEN) {
             fillStockCorrelationTable(websiteElement,table, multiplicityType);
+        } else if(type == ContentType.WECHSELKURS) {
+            fillExchangeCorrelationTable(websiteElement, table);
         }
 
     }
 
-    private void prepareCourseOrStockCorrelationTable(TableView<ElementIdentCorrelation> table, ContentType contentType, MultiplicityType multiplicityType) {
+    private void prepareCorrelationTable(TableView<ElementIdentCorrelation> table, ContentType contentType, MultiplicityType multiplicityType) {
 
         TableColumn<ElementIdentCorrelation, String> dataElementColumn = new TableColumn<>("Datenelement");
         TableColumn<ElementIdentCorrelation, String> identTypeColumn = new TableColumn<>("Selektionstyp");
@@ -307,8 +312,10 @@ public class ScrapingTabManager {
         // DbColName
         if(contentType == ContentType.AKTIENKURS) {
             dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getCourseDataTableColumn().getName()));
-        } else {
+        } else if(contentType == ContentType.STAMMDATEN){
             dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockDataTableColumn().getName()));
+        } else  {
+            dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getExchangeFieldName()));
         }
 
 
@@ -334,47 +341,67 @@ public class ScrapingTabManager {
     }
 
     private void fillStockCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table, MultiplicityType multiplicityType) {
-        ObservableList<ElementIdentCorrelation> stockSelections = FXCollections.observableArrayList();
+        ObservableList<ElementIdentCorrelation> stockCorrelations = FXCollections.observableArrayList();
         ArrayList<String> addedStockColumns = new ArrayList<>();
 
         // don't need isin, it's defined in selection
         if(multiplicityType == MultiplicityType.EINZELWERT) addedStockColumns.add("isin");
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
-            stockSelections.add(elementIdentCorrelation);
+            stockCorrelations.add(elementIdentCorrelation);
             addedStockColumns.add(elementIdentCorrelation.getStockDataTableColumn().getName());
         }
 
         for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
             if(!addedStockColumns.contains(column.getName())) {
                 addedStockColumns.add(column.getName());
-                stockSelections.add(new ElementIdentCorrelation(websiteElement, column));
+                stockCorrelations.add(new ElementIdentCorrelation(websiteElement, column));
             }
         }
 
-        table.getItems().addAll(stockSelections);
+        table.getItems().addAll(stockCorrelations);
     }
 
     private void fillCourseCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table, MultiplicityType multiplicityType) {
-        ObservableList<ElementIdentCorrelation> stockSelections = FXCollections.observableArrayList();
+        ObservableList<ElementIdentCorrelation> courseCorrelations = FXCollections.observableArrayList();
         ArrayList<String> addedStockColumns = new ArrayList<>();
 
         // don't need isin, it's defined in selection
         if(multiplicityType == MultiplicityType.EINZELWERT) addedStockColumns.add("isin");
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
-            stockSelections.add(elementIdentCorrelation);
+            courseCorrelations.add(elementIdentCorrelation);
             addedStockColumns.add(elementIdentCorrelation.getCourseDataTableColumn().getName());
         }
 
         for(CourseDataDbTableColumn column : courseDataColumnRepository.findAll()) {
             if(!addedStockColumns.contains(column.getName())) {
                 addedStockColumns.add(column.getName());
-                stockSelections.add(new ElementIdentCorrelation(websiteElement, column));
+                courseCorrelations.add(new ElementIdentCorrelation(websiteElement, column));
             }
         }
 
-        table.getItems().addAll(stockSelections);
+        table.getItems().addAll(courseCorrelations);
+    }
+
+    private void fillExchangeCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table) {
+        ObservableList<ElementIdentCorrelation> exchangeCorrelations = FXCollections.observableArrayList();
+        ArrayList<String> addedStockColumns = new ArrayList<>();
+
+
+        for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
+            exchangeCorrelations.add(elementIdentCorrelation);
+            addedStockColumns.add(elementIdentCorrelation.getExchangeFieldName());
+        }
+
+        for(String column : exchangeCols) {
+            if(!addedStockColumns.contains(column)) {
+                addedStockColumns.add(column);
+                exchangeCorrelations.add(new ElementIdentCorrelation(websiteElement, column));
+            }
+        }
+
+        table.getItems().addAll(exchangeCorrelations);
     }
 
     // used by Stock and Course
@@ -400,9 +427,11 @@ public class ScrapingTabManager {
 //    Single Exchange section
 //    #########################
 
+    @Transactional
     public void initExchangeSelectionTable(WebsiteElement staleElement,TableView<ElementSelection> table ) {
+        WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
         prepareExchangeSelectionTable(table);
-        fillExchangeSelectionTable(staleElement, table);
+        fillExchangeSelectionTable(websiteElement, table);
     }
 
     private void prepareExchangeSelectionTable(TableView<ElementSelection> table) {
@@ -429,7 +458,7 @@ public class ScrapingTabManager {
         }
 
         for(ExchangeDataDbTableColumn column : exchangeDataColumnRepository.findAll()) {
-            if(!addedStockSelection.contains(column)) {
+            if(!addedStockSelection.contains(column.getName())) {
                 ElementSelection elementSelection = new ElementSelection(websiteElement, column);
 
                 addedStockSelection.add(column.getName());
@@ -454,35 +483,35 @@ public class ScrapingTabManager {
 
         // load saved values
         for (ElementIdentCorrelation correlation : websiteElement.getElementIdentCorrelations()) {
-            if(correlation.getExchangeFieldName().equals("datum")) {
-                bindFieldsToCorrelation(dateChoiceBox, dataIdentField, correlation);
+            if(correlation.getExchangeFieldName().equals("_date_")) {
+                bindExchangeFieldsToCorrelation(dateChoiceBox, dataIdentField, correlation);
                 added.add("datum");
-            } else if(correlation.getExchangeFieldName().equals("kurs")) {
-                bindFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, correlation);
+            } else if(correlation.getExchangeFieldName().equals("_price_")) {
+                bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, correlation);
                 added.add("kurs");
             } else continue;
             elementIdentCorrelations.add(correlation);
         }
 
         // add new if not saved
-        if(!added.contains("datum")) {
-            var newCorrelation = new ElementIdentCorrelation(websiteElement, "datum");
+        if(!added.contains("_date_")) {
+            var newCorrelation = new ElementIdentCorrelation(websiteElement, "_data_");
             elementIdentCorrelations.add(newCorrelation);
-            bindFieldsToCorrelation(dateChoiceBox, dataIdentField, newCorrelation);
+            bindExchangeFieldsToCorrelation(dateChoiceBox, dataIdentField, newCorrelation);
         }
 
         // add new if not saved
-        if(!added.contains("kurs")) {
-            var newCorrelation = new ElementIdentCorrelation(websiteElement, "kurs");
+        if(!added.contains("_price_")) {
+            var newCorrelation = new ElementIdentCorrelation(websiteElement, "_price_");
             elementIdentCorrelations.add(newCorrelation);
-            bindFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, newCorrelation);
+            bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, newCorrelation);
             exchangeChoiceBox.setValue(IdentTypeDeactivated.XPATH);
         }
 
         return elementIdentCorrelations;
     }
 
-    public void bindFieldsToCorrelation(ChoiceBox<IdentTypeDeactivated> choiceBox, TextInputControl textField, ElementIdentCorrelation correlation) {
+    public void bindExchangeFieldsToCorrelation(ChoiceBox<IdentTypeDeactivated> choiceBox, TextInputControl textField, ElementIdentCorrelation correlation) {
         choiceBox.setValue(IdentTypeDeactivated.valueOf(correlation.getIdentType()));
         textField.setText(correlation.getRepresentation());
 
@@ -509,13 +538,13 @@ public class ScrapingTabManager {
     }
 
 //    #########################
-//    Table Course section
+//    Table Course/Stock section
 //    #########################
 
     @Transactional
     public void saveTableCourseOrStockSettings(WebsiteElement websiteElement) {
 
-        for (var selection : tableCourseSubController.getSelections()) {
+        for (var selection : tableSubController.getSelections()) {
             if(selection.isSelected() && selection.getElementDescCorrelation() != null) {
                 elementDescCorrelationRepository.save(selection.getElementDescCorrelation());
             }
@@ -524,7 +553,7 @@ public class ScrapingTabManager {
             }
         }
 
-        for (var identCorrelation : tableCourseSubController.getDbCorrelations()) {
+        for (var identCorrelation : tableSubController.getDbCorrelations()) {
             if(identCorrelation.isChanged()) {
                 elementIdentCorrelationRepository.save(identCorrelation);
             }
@@ -555,14 +584,10 @@ public class ScrapingTabManager {
 
 
         // representation
-        wsDescriptionCol.setCellValueFactory(param -> {
-            return param.getValue().wsDescriptionProperty();
-        });
+        wsDescriptionCol.setCellValueFactory(param -> param.getValue().wsDescriptionProperty());
         wsDescriptionCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        wsIsinCol.setCellValueFactory(param -> {
-            return param.getValue().wsIsinProperty();
-        });
+        wsIsinCol.setCellValueFactory(param -> param.getValue().wsIsinProperty());
         wsIsinCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
 
@@ -583,23 +608,65 @@ public class ScrapingTabManager {
 
     private void addNewElementDescCorrelation(ElementSelection elementSelection) {
 
-        for(ElementDescCorrelation correlation : tableCourseSubController.getElementDescCorrelations()) {
+        for(ElementDescCorrelation correlation : tableSubController.getElementDescCorrelations()) {
             if(correlation.getElementSelection().equals(elementSelection)) return;
         }
 
         if(elementSelection.getElementDescCorrelation() != null) {
-            tableCourseSubController.getElementDescCorrelationTableView().getItems().add(elementSelection.getElementDescCorrelation());
+            tableSubController.getElementDescCorrelations().add(elementSelection.getElementDescCorrelation());
             return;
         }
 
         var correlation = new ElementDescCorrelation(elementSelection, elementSelection.getWebsiteElement());
         elementSelection.setElementDescCorrelation(correlation);
-        tableCourseSubController.getElementDescCorrelationTableView().getItems().add(correlation);
+        tableSubController.getElementDescCorrelations().add(correlation);
     }
 
     private void removeElementDescCorrelation(ElementSelection elementSelection) {
-        tableCourseSubController.getElementDescCorrelations().remove(elementSelection.getElementDescCorrelation());
+        tableSubController.getElementDescCorrelations().remove(elementSelection.getElementDescCorrelation());
         elementSelection.setElementDescCorrelation(null);
     }
+
+    @Transactional
+    public List<ElementIdentCorrelation> initTableSelectionCorrelation(ChoiceBox<IdentTypeTable> tableIdentChoiceBox,
+                                                                  TextField tableIdentField,
+                                                                  WebsiteElement staleElement) {
+
+        WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
+
+        List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
+        List<String> added = new ArrayList<>();
+
+        // load saved values
+        for (ElementIdentCorrelation correlation : websiteElement.getElementIdentCorrelations()) {
+            if(correlation.getExchangeFieldName().equals("_table_")) {
+                bindTableIdentToCorrelation(tableIdentChoiceBox, tableIdentField, correlation);
+                added.add("_table_");
+            } else continue;
+            elementIdentCorrelations.add(correlation);
+        }
+
+        // add new if not saved
+        if(!added.contains("_table_")) {
+            var newCorrelation = new ElementIdentCorrelation(websiteElement, "_table_");
+            elementIdentCorrelations.add(newCorrelation);
+            bindTableIdentToCorrelation(tableIdentChoiceBox, tableIdentField, newCorrelation);
+        }
+
+        return elementIdentCorrelations;
+    }
+
+    public void bindTableIdentToCorrelation(ChoiceBox<IdentTypeTable> choiceBox, TextInputControl textField, ElementIdentCorrelation correlation) {
+        choiceBox.setValue(IdentTypeTable.valueOf(correlation.getIdentType()));
+        textField.setText(correlation.getRepresentation());
+
+        textField.textProperty().addListener((o, ov, nv) -> correlation.setRepresentation(nv));
+
+        choiceBox.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> correlation.setIdentType(nv.name()));
+    }
+
+//    #########################
+//    Table Exchange section
+//    #########################
 
 }

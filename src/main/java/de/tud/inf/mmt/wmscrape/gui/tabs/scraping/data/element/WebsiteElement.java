@@ -4,6 +4,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeSimple;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 
@@ -22,8 +23,14 @@ public class WebsiteElement {
     @JoinColumn(name = "websiteId", referencedColumnName = "id")
     private Website website;
     private String informationUrl;
+    @Enumerated(EnumType.STRING)
     private ContentType contentType;
+    @Enumerated(EnumType.STRING)
     private MultiplicityType multiplicityType;
+    //only for table scraping
+    private String tableIdent;
+    @Enumerated(EnumType.STRING)
+    private IdentTypeSimple tableIdenType = IdentTypeSimple.ID;
 
     @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementSelection> elementSelections = new ArrayList<>();
@@ -33,6 +40,7 @@ public class WebsiteElement {
 
     @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementDescCorrelation> elementDescCorrelations = new ArrayList<>();
+
 
     public WebsiteElement() {}
 
@@ -86,6 +94,22 @@ public class WebsiteElement {
         this.multiplicityType = multiplicityType;
     }
 
+    public String getTableIdent() {
+        return tableIdent;
+    }
+
+    public void setTableIdent(String tableIdent) {
+        this.tableIdent = tableIdent;
+    }
+
+    public IdentTypeSimple getTableIdenType() {
+        return tableIdenType;
+    }
+
+    public void setTableIdenType(IdentTypeSimple tableIdenType) {
+        this.tableIdenType = tableIdenType;
+    }
+
     public List<ElementSelection> getElementSelections() {
         return elementSelections;
     }
@@ -113,8 +137,6 @@ public class WebsiteElement {
     public void removeElementSelection(ElementSelection elementSelection) {
         elementSelections.remove(elementSelection);
     }
-
-
 
     @Override
     public String toString() {
