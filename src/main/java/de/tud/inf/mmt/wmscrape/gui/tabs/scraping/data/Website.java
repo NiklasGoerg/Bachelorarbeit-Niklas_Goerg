@@ -20,10 +20,10 @@ public class Website {
     private String username;
     private String password;
     @Enumerated(value = EnumType.STRING)
-    private IdentTypeSimple usernameIdentTypeSimple = IdentTypeSimple.ID;
+    private IdentTypeSimple usernameIdentType = IdentTypeSimple.ID;
     private String usernameIdent;
     @Enumerated(value = EnumType.STRING)
-    private IdentTypeSimple passwordIdentTypeSimple = IdentTypeSimple.ID;
+    private IdentTypeSimple passwordIdentType = IdentTypeSimple.ID;
     private String passwordIdent;
     @Enumerated(value = EnumType.STRING)
     private IdentTypeDeactivated loginButtonIdentType = IdentTypeDeactivated.ID;
@@ -77,7 +77,7 @@ public class Website {
     }
 
     public IdentTypeSimple getUsernameIdentType() {
-        return usernameIdentTypeSimple;
+        return usernameIdentType;
     }
 
     public String getPassword() {
@@ -89,7 +89,7 @@ public class Website {
     }
 
     public void setUsernameIdentType(IdentTypeSimple usernameIdentTypeSimple) {
-        this.usernameIdentTypeSimple = usernameIdentTypeSimple;
+        this.usernameIdentType = usernameIdentTypeSimple;
     }
 
     public String getUsernameIdent() {
@@ -101,11 +101,11 @@ public class Website {
     }
 
     public IdentTypeSimple getPasswordIdentType() {
-        return passwordIdentTypeSimple;
+        return passwordIdentType;
     }
 
     public void setPasswordIdentType(IdentTypeSimple passwordIdentTypeSimple) {
-        this.passwordIdentTypeSimple = passwordIdentTypeSimple;
+        this.passwordIdentType = passwordIdentTypeSimple;
     }
 
     public String getPasswordIdent() {

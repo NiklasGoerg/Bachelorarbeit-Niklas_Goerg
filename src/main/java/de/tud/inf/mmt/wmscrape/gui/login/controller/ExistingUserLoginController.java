@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.login.controller;
 
-import de.tud.inf.mmt.wmscrape.appdata.SpringIndependentData;
+import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -32,7 +32,7 @@ public class ExistingUserLoginController {
             return;
         }
 
-        Boolean success = LoginManager.loginExistingUser(usernameField.getText(), passwordField.getText(), usernameField);
+        boolean success = LoginManager.loginExistingUser(usernameField.getText(), passwordField.getText(), usernameField);
 
         if (!success) {
             Alert alert = new Alert(Alert.AlertType.ERROR,

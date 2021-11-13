@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.login.manager;
 
 import de.tud.inf.mmt.wmscrape.WMScrape;
-import de.tud.inf.mmt.wmscrape.appdata.SpringIndependentData;
+import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;

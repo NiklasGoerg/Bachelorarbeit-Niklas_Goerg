@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs;
 
-import de.tud.inf.mmt.wmscrape.appdata.SpringIndependentData;
+import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;

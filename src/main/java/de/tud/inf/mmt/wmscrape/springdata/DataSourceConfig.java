@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.appdata;
+package de.tud.inf.mmt.wmscrape.springdata;
 
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;

@@ -179,12 +179,18 @@ public class ImportTabController {
                         Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -4:
+                // no data title row
+                createAlert("Keine Daten gefunden!",
+                        "In der angegebenen Titelzeile sind keine Daten.",
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                return;
+            case -5:
                 // titles not unique
                 createAlert("Titel nicht einzigartig!",
                         "Die Titelzeile enthält Elemente mit gleichen Namen.",
                         Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
-            case -5:
+            case -6:
                 // Selection column not found
                 createAlert("Übernahmespalte nicht gefunden!",
                         "In der Zeile "+excelSheet.getTitleRow()+" " +
@@ -192,7 +198,7 @@ public class ImportTabController {
                         excelSheet.getSelectionColTitle() + "'.",
                         Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
-            case -6:
+            case -7:
                 // Cell evaluation error
                 alert = new Alert(
                         Alert.AlertType.WARNING,

@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui;
 
-import de.tud.inf.mmt.wmscrape.appdata.SpringContextAccessor;
+import de.tud.inf.mmt.wmscrape.springdata.SpringContextAccessor;
 import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabController;
 import javafx.application.Application;

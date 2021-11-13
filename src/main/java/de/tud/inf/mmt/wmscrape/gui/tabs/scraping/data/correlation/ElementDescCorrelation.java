@@ -27,6 +27,7 @@ public class ElementDescCorrelation {
     @Transient
     private SimpleStringProperty wsIsin = new SimpleStringProperty();
 
+    // only for currency exchange correlation
     @Column(name = "wsCurrencyName")
     private String _wsCurrencyName;
     @Transient

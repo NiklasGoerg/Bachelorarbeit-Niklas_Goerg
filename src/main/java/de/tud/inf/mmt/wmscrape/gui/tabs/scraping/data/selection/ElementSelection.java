@@ -16,9 +16,6 @@ public class ElementSelection {
     @GeneratedValue
     private int id;
     private String description;
-    // optional, only stock
-    @Transient
-    private String isin;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "websiteElementId")
@@ -28,6 +25,10 @@ public class ElementSelection {
     private boolean _selected = false;
     @Transient
     private SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
+
+    // optional, only stock
+    @Transient
+    private String isin;
 
     // optional, only stock/course
     @ManyToOne(fetch = FetchType.LAZY)

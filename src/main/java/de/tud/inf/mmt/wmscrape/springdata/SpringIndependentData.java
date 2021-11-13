@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.appdata;
+package de.tud.inf.mmt.wmscrape.springdata;
 
 public class SpringIndependentData {
 

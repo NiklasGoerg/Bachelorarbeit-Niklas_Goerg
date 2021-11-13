@@ -28,8 +28,8 @@ module de.tud.inf.mmt.wmscrape {
 
     opens de.tud.inf.mmt.wmscrape;
     exports de.tud.inf.mmt.wmscrape;
-    exports de.tud.inf.mmt.wmscrape.appdata;
-    opens de.tud.inf.mmt.wmscrape.appdata;
+    exports de.tud.inf.mmt.wmscrape.springdata;
+    opens de.tud.inf.mmt.wmscrape.springdata;
     exports de.tud.inf.mmt.wmscrape.gui.tabs;
     opens de.tud.inf.mmt.wmscrape.gui.tabs;
     exports de.tud.inf.mmt.wmscrape.gui;

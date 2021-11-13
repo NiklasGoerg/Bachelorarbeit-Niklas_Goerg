@@ -15,7 +15,8 @@ public class ExcelSheet {
     private int titleRow = 1;
     private String selectionColTitle;
 
-    @OneToMany(fetch= FetchType.EAGER, mappedBy ="excelSheet",  orphanRemoval = true, cascade = CascadeType.ALL)
+    // TODO maybe set back to eager
+    @OneToMany(fetch= FetchType.LAZY, mappedBy ="excelSheet",  orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
     public ExcelSheet() {}

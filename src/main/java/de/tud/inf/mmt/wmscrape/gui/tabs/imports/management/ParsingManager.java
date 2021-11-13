@@ -57,6 +57,7 @@ public class ParsingManager {
         return selectedTransactionRows;
     }
 
+
     public Workbook decryptAndGetWorkbook(ExcelSheet excelSheet) throws EncryptedDocumentException {
         try {
             return WorkbookFactory.create(new File(excelSheet.getPath()), excelSheet.getPassword());
@@ -98,13 +99,19 @@ public class ParsingManager {
         }
 
         removeEmptyRows(excelSheetRows);
+
+        // title row is empty -> invalid
+        if(!excelSheetRows.containsKey(excelSheet.getTitleRow() - 1)) {
+            return -4;
+        }
+
         unifyRows(excelSheetRows);
         removeEmptyCols(excelSheetRows, excelSheet);
         indexToExcelTitle = extractColTitles(excelSheet.getTitleRow() - 1, excelSheetRows);
 
         createNormalizedTitles(indexToExcelTitle);
         if (!titlesAreUnique(indexToExcelTitle)) {
-            return -4;
+            return -5;
         }
 
         titleToExcelIndex = reverseMap(indexToExcelTitle);
@@ -112,7 +119,7 @@ public class ParsingManager {
         int selectionColNumber = getSelectionColNumber(indexToExcelTitle, excelSheet);
         if (selectionColNumber == -1) {
             // selection col not found
-            return -5;
+            return -6;
         }
 
         selectedStockDataRows = getSelectedInitially(excelSheetRows, selectionColNumber);
@@ -131,7 +138,7 @@ public class ParsingManager {
         // add rows themselves
         sheetPreviewTable.setItems(sheetPreviewTableData);
         if (evalFaults) {
-            return -6;
+            return -7;
         }
         return 0;
     }
