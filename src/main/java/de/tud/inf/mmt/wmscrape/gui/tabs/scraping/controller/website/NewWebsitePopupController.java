@@ -7,7 +7,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
-import org.controlsfx.validation.ValidationSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -20,8 +19,6 @@ public class NewWebsitePopupController {
     private ScrapingTabManager scrapingTabManager;
     @Autowired
     private ScrapingWebsiteTabController scrapingWebsiteTabController;
-
-    ValidationSupport dbPathValidation = new ValidationSupport();
 
     @FXML
     private void initialize() {

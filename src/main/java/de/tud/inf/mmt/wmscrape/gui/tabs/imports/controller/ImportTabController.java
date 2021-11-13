@@ -79,7 +79,7 @@ public class ImportTabController {
 
     @FXML
     private void handleDeleteExcelSheetButton() {
-        clearFields();
+        //clearFields();
         ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
 
         if(excelSheet == null) {
@@ -236,36 +236,24 @@ public class ImportTabController {
         int result = importTabManager.startDataExtraction();
 
         switch (result) {
-            case 0:
-                createAlert("Import abgeschlossen!",
-                        "Alle Excel Sheet Stammmdaten und Transaktionen wurden importiert.",
-                        Alert.AlertType.INFORMATION, ButtonType.OK, true);
-                return;
-            case -1:
-                createAlert("Import unvollständig!", "Nicht alle Zellen wurden " +
-                                "importiert. Der Log enthält mehr Informationen.",
-                        Alert.AlertType.WARNING, ButtonType.OK, true);
-                return;
-            case -2:
-                createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
-                        Alert.AlertType.INFORMATION, ButtonType.OK, true);
-                return;
-            case -3:
-                createAlert("Zuordnung unvollständig!",
-                        "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für " +
-                                "Stammdaten: isin und für Transaktionen: wertpapier_isin, datum, depot_name",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
-                return;
-            case -4:
-                createAlert("Fehler bei Sql-Statement erstellung.!",
-                        "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
-                return;
-            default:
-                createAlert("Fehler mit unbekannter Id!",
-                        "Eine Fehlerbeschreibung zur Id: '" +result + "' existiert nicht",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
-                break;
+            case 0 -> createAlert("Import abgeschlossen!",
+                    "Alle Excel Sheet Stammmdaten und Transaktionen wurden importiert.",
+                    Alert.AlertType.INFORMATION, ButtonType.OK, true);
+            case -1 -> createAlert("Import unvollständig!", "Nicht alle Zellen wurden " +
+                            "importiert. Der Log enthält mehr Informationen.",
+                    Alert.AlertType.WARNING, ButtonType.OK, true);
+            case -2 -> createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
+                    Alert.AlertType.INFORMATION, ButtonType.OK, true);
+            case -3 -> createAlert("Zuordnung unvollständig!",
+                    "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für " +
+                            "Stammdaten: isin und für Transaktionen: wertpapier_isin, datum, depot_name",
+                    Alert.AlertType.ERROR, ButtonType.OK, true);
+            case -4 -> createAlert("Fehler bei Sql-Statement erstellung.!",
+                    "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",
+                    Alert.AlertType.ERROR, ButtonType.OK, true);
+            default -> createAlert("Fehler mit unbekannter Id!",
+                    "Eine Fehlerbeschreibung zur Id: '" + result + "' existiert nicht",
+                    Alert.AlertType.ERROR, ButtonType.OK, true);
         }
     }
 
