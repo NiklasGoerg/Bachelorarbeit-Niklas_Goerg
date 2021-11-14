@@ -11,11 +11,11 @@ import java.util.Objects;
 public class ElementDescCorrelation {
 
     @Id
-    @GeneratedValue
     private int id;
 
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "elementSelectionId")
+    @JoinColumn(name = "id", referencedColumnName = "id")
     private ElementSelection elementSelection;
 
     @Column(name = "wsDescription")
@@ -34,7 +34,7 @@ public class ElementDescCorrelation {
     private final SimpleStringProperty wsCurrencyName = new SimpleStringProperty();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "websiteElementId")
+    @JoinColumn(name = "websiteElementId", referencedColumnName = "id")
     private WebsiteElement websiteElement;
 
     @Transient
