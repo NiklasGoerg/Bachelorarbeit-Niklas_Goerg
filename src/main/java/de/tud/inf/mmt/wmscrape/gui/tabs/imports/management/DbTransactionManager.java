@@ -74,13 +74,13 @@ public class DbTransactionManager {
     public PreparedStatement getPreparedTransactionStatement(String dbColName, Connection connection) throws SQLException {
         String sql = "INSERT INTO depottransaktion (depot_id, zeitpunkt, wertpapier_isin, " + dbColName + ") VALUES(?,?,?,?) " +
                 "ON DUPLICATE KEY UPDATE " + dbColName + "=VALUES(" + dbColName + ");";
-        return connection.prepareCall(sql);
+        return connection.prepareStatement(sql);
     }
 
     public PreparedStatement getPreparedStockStatement(String dbColName, Connection connection) throws SQLException {
         String sql = "INSERT INTO stammdaten (isin, datum, " + dbColName + ") VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
                 dbColName + "=VALUES(" + dbColName + ");";
-        return connection.prepareCall(sql);
+        return connection.prepareStatement(sql);
     }
 
     boolean executeStatements(Connection connection, HashMap<String, PreparedStatement> statements) {
