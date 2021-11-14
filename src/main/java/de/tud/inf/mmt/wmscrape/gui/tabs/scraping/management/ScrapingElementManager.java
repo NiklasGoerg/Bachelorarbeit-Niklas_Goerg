@@ -38,7 +38,7 @@ import java.util.ArrayList;
 
 public abstract class ScrapingElementManager {
 
-    private final static String[] exchangeCols = {"Bezeichnung", "Datum", "Kurs"};
+    private final static String[] exchangeCols = {"bezeichnung", "datum", "kurs"};
     @Autowired
     private StockRepository stockRepository;
     @Autowired
@@ -207,7 +207,7 @@ public abstract class ScrapingElementManager {
 
         // DbColName
         if(contentType == ContentType.AKTIENKURS) {
-            dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getCourseDataTableColumn().getName()));
+            dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getCourseDataDbTableColumn().getName()));
         } else if(contentType == ContentType.STAMMDATEN){
             dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockDataTableColumn().getName()));
         } else  {
@@ -264,7 +264,7 @@ public abstract class ScrapingElementManager {
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
             courseCorrelations.add(elementIdentCorrelation);
-            addedStockColumns.add(elementIdentCorrelation.getCourseDataTableColumn().getName());
+            addedStockColumns.add(elementIdentCorrelation.getCourseDataDbTableColumn().getName());
         }
 
         for(CourseDataDbTableColumn column : courseDataColumnRepository.findAll()) {

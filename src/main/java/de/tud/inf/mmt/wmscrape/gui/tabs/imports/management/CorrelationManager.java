@@ -116,7 +116,7 @@ public class CorrelationManager {
         stockDataCorrelationTable.getItems().addAll(stockColumnRelations);
     }
 
-    void constructComboBox(TableColumn<ExcelCorrelation, String> excelColumn, ObservableList<String> comboBoxOptions) {
+    private void constructComboBox(TableColumn<ExcelCorrelation, String> excelColumn, ObservableList<String> comboBoxOptions) {
         excelColumn.setCellFactory(col -> {
             TableCell<ExcelCorrelation, String> cell = new TableCell<>();
             ComboBox<String> comboBox = new ComboBox<>(comboBoxOptions);
@@ -142,7 +142,7 @@ public class CorrelationManager {
         });
     }
 
-    void updateCorrelationByComboBox(TableCell<ExcelCorrelation, String> cell, String newValue) {
+    private void updateCorrelationByComboBox(TableCell<ExcelCorrelation, String> cell, String newValue) {
         if (cell.getTableRow().getItem() != null) {
             ExcelCorrelation correlation = cell.getTableRow().getItem();
             correlation.setExcelColTitle(newValue);
@@ -154,13 +154,13 @@ public class CorrelationManager {
         return parsingManager.getTitleToExcelIndex().getOrDefault(newValue, -1);
     }
 
-    public ObservableList<String> mapToObservableList(Map<Integer, String> map) {
+    private ObservableList<String> mapToObservableList(Map<Integer, String> map) {
         ObservableList<String> excelColTitles = FXCollections.observableArrayList();
         excelColTitles.addAll(map.values());
         return excelColTitles;
     }
 
-    void prepareCorrelationTable(TableView<ExcelCorrelation> table) {
+    private void prepareCorrelationTable(TableView<ExcelCorrelation> table) {
         // could be done better
         // normal program structure guarantees that this is accessed after table load
         ObservableList<String> comboBoxOptions = mapToObservableList(parsingManager.getIndexToExcelTitle());

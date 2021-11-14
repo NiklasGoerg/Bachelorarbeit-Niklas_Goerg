@@ -6,10 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class CourseDataDbManager extends DynamicDbManger{
+
+    public static final String TABLE_NAME = "kursdaten";
 
     @Autowired
     CourseDataColumnRepository courseDataColumnRepository;
@@ -19,8 +25,8 @@ public class CourseDataDbManager extends DynamicDbManger{
         // the course data table is not managed by spring
         // and has to be initialized by myself
 
-        if (!tableExists("kursdaten")) {
-            initializeTable("CREATE TABLE IF NOT EXISTS kursdaten (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+        if (!tableExists(TABLE_NAME)) {
+            initializeTable("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         }
 
         ArrayList<String> columnNames = new ArrayList<>();
@@ -28,25 +34,34 @@ public class CourseDataDbManager extends DynamicDbManger{
             columnNames.add(column.getName());
         }
 
-        for(String colName : getColumns("kursdaten")) {
+        for(String colName : getColumns(TABLE_NAME)) {
             if(!columnNames.contains(colName)) {
-                ColumnDatatype datatype = getColumnDataType(colName, "kursdaten");
+                ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
                 courseDataColumnRepository.save(new CourseDataDbTableColumn(colName, datatype));
             }
         }
 
-        addColumnIfNotExists("kursdaten", courseDataColumnRepository,new CourseDataDbTableColumn("kurs_in_eur", ColumnDatatype.TEXT));
-        addColumnIfNotExists("kursdaten", courseDataColumnRepository,new CourseDataDbTableColumn("volumen", ColumnDatatype.DOUBLE));
-        addColumnIfNotExists("kursdaten", courseDataColumnRepository,new CourseDataDbTableColumn("tages_hoch", ColumnDatatype.DOUBLE));
-        addColumnIfNotExists("kursdaten", courseDataColumnRepository,new CourseDataDbTableColumn("tages_tief", ColumnDatatype.DOUBLE));
+        initColumn("kurs_in_eur", ColumnDatatype.TEXT);
+        initColumn("volumen", ColumnDatatype.DOUBLE);
+        initColumn("tages_hoch", ColumnDatatype.DOUBLE);
+        initColumn("tages_tief", ColumnDatatype.DOUBLE);
     }
 
+    private boolean initColumn(String name, ColumnDatatype columnDatatype) {
+        return addColumnIfNotExists(TABLE_NAME, courseDataColumnRepository, new CourseDataDbTableColumn(name, columnDatatype));
+    }
 
-//    public void removeColumn(String columnName) {
-//        Optional<StockDataDbTableColumn> column = stockDataColumnRepository.findByName(columnName);
-//        if(column.isPresent()) {
-//            column.get().setExcelCorrelations(new ArrayList<>());
-//            super.removeColumn(column.get().getName(),"stammdaten", stockDataColumnRepository);
-//        }
-//    }
+    @Override
+    public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public void removeColumn(String columnName) {
+        Optional<CourseDataDbTableColumn> column = courseDataColumnRepository.findByName(columnName);
+        if(column.isPresent()) {
+            column.get().setElementIdentCorrelations(new ArrayList<>());
+            super.removeColumn(column.get().getName(), TABLE_NAME, courseDataColumnRepository);
+        }
+    }
 }

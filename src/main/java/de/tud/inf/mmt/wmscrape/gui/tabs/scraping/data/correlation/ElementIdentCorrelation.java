@@ -35,8 +35,8 @@ public class ElementIdentCorrelation {
 
     // optional for course correlations
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseDataTableColumnId", referencedColumnName = "id")
-    private CourseDataDbTableColumn courseDataTableColumn;
+    @JoinColumn(name = "courseDataDbTableColumnId", referencedColumnName = "id")
+    private CourseDataDbTableColumn courseDataDbTableColumn;
 
     // optional for exchange correlations
     private String exchangeFieldName;
@@ -59,9 +59,9 @@ public class ElementIdentCorrelation {
         initListener();
     }
 
-    public ElementIdentCorrelation(WebsiteElement websiteElement, CourseDataDbTableColumn courseDataTableColumn) {
+    public ElementIdentCorrelation(WebsiteElement websiteElement, CourseDataDbTableColumn courseDataDbTableColumn) {
         this.websiteElement = websiteElement;
-        this.courseDataTableColumn = courseDataTableColumn;
+        this.courseDataDbTableColumn = courseDataDbTableColumn;
         initListener();
     }
 
@@ -103,8 +103,8 @@ public class ElementIdentCorrelation {
         return stockDataTableColumn;
     }
 
-    public CourseDataDbTableColumn getCourseDataTableColumn() {
-        return courseDataTableColumn;
+    public CourseDataDbTableColumn getCourseDataDbTableColumn() {
+        return courseDataDbTableColumn;
     }
 
     public String getExchangeFieldName() {

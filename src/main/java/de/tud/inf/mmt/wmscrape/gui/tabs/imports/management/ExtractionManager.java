@@ -32,7 +32,7 @@ public class ExtractionManager {
     private StockRepository stockRepository;
     @Autowired
     private DepotRepository depotRepository;
-    
+
     public int startDataExtraction() {
         
         if (!isInExtractableState()) return -2;
@@ -64,7 +64,7 @@ public class ExtractionManager {
         return 0;
     }
 
-    public int extractStockData() {
+    private int extractStockData() {
 
         importTabManager.addToLog("##### Start Stammdaten-Import #####\n");
 
@@ -163,7 +163,7 @@ public class ExtractionManager {
         return 0;
     }
 
-    int extractTransactionData() {
+    private int extractTransactionData() {
         importTabManager.addToLog("##### Start Transaktions Import #####\n");
 
         // execution is not stopped at a silent error but a log message is added
@@ -287,7 +287,7 @@ public class ExtractionManager {
         return 0;
     }
 
-    boolean matchingDataType(ColumnDatatype colDatatype, String colData) {
+    private boolean matchingDataType(ColumnDatatype colDatatype, String colData) {
         if (colDatatype == null) {
             return false;
         } else if (colData == null) {
@@ -305,7 +305,7 @@ public class ExtractionManager {
         } else return colDatatype == ColumnDatatype.TEXT;
     }
 
-    int getColNrByName(String name, ObservableList<ExcelCorrelation> correlations) {
+    private int getColNrByName(String name, ObservableList<ExcelCorrelation> correlations) {
         for (ExcelCorrelation correlation : correlations) {
             if (correlation.getDbColTitle().equals(name)) {
                 return correlation.getExcelColNumber();
@@ -314,12 +314,12 @@ public class ExtractionManager {
         return -1;
     }
 
-    boolean isInExtractableState() {
+    private boolean isInExtractableState() {
         return parsingManager.getExcelSheetRows() != null && parsingManager.getSelectedTransactionRows() != null && parsingManager.getSelectedStockDataRows() != null &&
                 correlationManager.getStockColumnRelations().size() != 0 && correlationManager.getTransactionColumnRelations().size() != 0;
     }
 
-    boolean correlationsHaveValidState() {
+    private boolean correlationsHaveValidState() {
         if (getColNrByName("isin", correlationManager.getStockColumnRelations()) == -1) return false;
         if (getColNrByName("wertpapier_isin", correlationManager.getTransactionColumnRelations()) == -1) return false;
         if (getColNrByName("transaktions_datum", correlationManager.getTransactionColumnRelations()) == -1) return false;

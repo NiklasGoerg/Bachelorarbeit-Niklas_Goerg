@@ -93,7 +93,6 @@ public class ImportTabManager {
         logText.set(this.logText.getValue() +"\n" + line);
     }
 
-
     public int fillExcelPreview(TableView<ObservableList<String>> sheetPreviewTable, ExcelSheet excelSheet) throws EncryptedDocumentException{
         return parsingManager.fillExcelPreview(sheetPreviewTable, excelSheet);
     }

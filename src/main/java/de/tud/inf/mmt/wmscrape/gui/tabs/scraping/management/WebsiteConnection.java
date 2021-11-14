@@ -1,8 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import javafx.beans.property.SimpleStringProperty;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxBinary;
@@ -14,44 +14,43 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
 
-public class WebsiteManager {
+public abstract class WebsiteConnection {
 
-    private Website website;
-    private int waitDurationSec;
-    private FirefoxOptions options;
-    private boolean headless;
+    protected final Website website;
+    private int waitForWsElementSec = 5;
+    private final boolean headless;
     private WebDriver driver;
     private WebDriverWait wait;
     private JavascriptExecutor js;
     private SimpleStringProperty logText;
 
-    public WebsiteManager(Website website) {
+    public WebsiteConnection(Website website) {
         this.website = website;
         headless = true;
-        waitDurationSec = 5;
+        this.logText = new SimpleStringProperty();
     }
 
-    public WebsiteManager(Website website, SimpleStringProperty logText) {
-        this.website = website;
-        headless = true;
-        waitDurationSec = 5;
-        this.logText = logText;
-    }
-
-    public WebsiteManager(Website website, boolean headless, int waitDurationSec, SimpleStringProperty logText) {
+    public WebsiteConnection(Website website, SimpleStringProperty logText, Boolean headless) {
         this.website = website;
         this.headless = headless;
-        this.waitDurationSec = waitDurationSec;
         this.logText = logText;
     }
 
-    public WebDriver getDriver() {
+    public boolean isHeadless() {
+        return headless;
+    }
+
+    public void setWaitForWsElementSec(int waitForWsElementSec) {
+        this.waitForWsElementSec = waitForWsElementSec;
+    }
+
+    protected WebDriver getDriver() {
         return driver;
     }
 
-    public void startBrowser() {
+    protected void startBrowser() {
         FirefoxBinary firefoxBinary = new FirefoxBinary();
-        options = new FirefoxOptions();
+        FirefoxOptions options = new FirefoxOptions();
         options.setBinary(firefoxBinary);
         options.setLogLevel(FirefoxDriverLogLevel.ERROR);
 
@@ -59,17 +58,14 @@ public class WebsiteManager {
 
         driver = new FirefoxDriver(options);
         js = (JavascriptExecutor) driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(waitDurationSec));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(waitForWsElementSec));
     }
 
-    public void loadPage() {
-        driver.manage().window().maximize();
-        driver.get(website.getUrl());
-        waitLoadEvent();
-        addToLog("INFO: "+website.getUrl()+" geladen");
+    protected void loadLoginPage() {
+        loadPage(website.getUrl());
     }
 
-    public boolean acceptCookies() {
+    protected boolean acceptCookies() {
         IdentTypeDeactivated type = website.getCookieAcceptIdentType();
         if(type == IdentTypeDeactivated.DEAKTIVIERT) return true;
 
@@ -82,7 +78,7 @@ public class WebsiteManager {
         return true;
     }
 
-    public boolean hideCookies() {
+    protected boolean hideCookies() {
         IdentTypeDeactivated type = website.getCookieHideIdentType();
         if(type == IdentTypeDeactivated.DEAKTIVIERT) return true;
 
@@ -112,7 +108,7 @@ public class WebsiteManager {
         return true;
     }
 
-    public boolean fillLoginInformation() {
+    protected boolean fillLoginInformation() {
 
         WebElement username = findElementByType(website.getUsernameIdentType().ordinal(), website.getUsernameIdent());
         if(username == null) return false;
@@ -126,7 +122,7 @@ public class WebsiteManager {
         return true;
     }
 
-    public boolean login() {
+    protected boolean login() {
         WebElement password = findElementByType(website.getPasswordIdentType().ordinal(), website.getPasswordIdent());
 
         // submit like pressing enter
@@ -143,7 +139,7 @@ public class WebsiteManager {
         return true;
     }
 
-    public boolean logout() {
+    protected boolean logout() {
         IdentTypeDeactivatedUrl type = website.getLogoutIdentType();
         if(type == IdentTypeDeactivatedUrl.DEAKTIVIERT) return true;
 
@@ -162,8 +158,20 @@ public class WebsiteManager {
         return true;
     }
 
+    public void loadPage(String url) {
+        driver.get(url);
+        waitLoadEvent();
+        addToLog("INFO: "+website.getUrl()+" geladen");
+    }
+
+    private void waitLoadEvent() {
+        wait.until(webDriver -> js.executeScript("return document.readyState").equals("complete"));
+    }
+
     private WebElement findElementByType(int type, String identifier) {
-        if(website.getCookieHideIdentType() != IdentTypeDeactivated.DEAKTIVIERT) hideCookies();
+        // called separately in tester
+        if(website.getCookieHideIdentType() != IdentTypeDeactivated.DEAKTIVIERT
+                && !(this instanceof WebsiteTester)) hideCookies();
 
         // little trick: my ident enums always start with id, xpath, css
         // therefore id=0, xpath=1, css=2
@@ -202,10 +210,6 @@ public class WebsiteManager {
         return null;
     }
 
-    private void waitLoadEvent() {
-        wait.until(webDriver -> js.executeScript("return document.readyState").equals("complete"));
-    }
-
     private void clickElement(WebElement element) {
         try {
             element.click();
@@ -217,7 +221,7 @@ public class WebsiteManager {
         }
     }
 
-    public void quit() {
+    protected void quit() {
         if(driver != null) {
             addToLog("INFO: Browser wurde beendet");
             driver.quit();
@@ -225,7 +229,8 @@ public class WebsiteManager {
         }
     }
 
-    public void addToLog(String line) {
+    private void addToLog(String line) {
         logText.set(this.logText.getValue() +"\n" + line);
     }
+
 }

@@ -8,16 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
 public class StockDataDbManager extends DynamicDbManger{
 
+    public static final String TABLE_NAME = "stammdaten";
     @Autowired
     StockDataColumnRepository stockDataColumnRepository;
     @Autowired
@@ -28,8 +26,8 @@ public class StockDataDbManager extends DynamicDbManger{
         // the stock data table is not managed by spring
         // and has to be initialized by myself
 
-        if (!tableExists("stammdaten")) {
-            initializeTable("CREATE TABLE IF NOT EXISTS stammdaten (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+        if (!tableExists(TABLE_NAME)) {
+            initializeTable("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         }
 
         ArrayList<String> columnNames = new ArrayList<>();
@@ -37,28 +35,23 @@ public class StockDataDbManager extends DynamicDbManger{
             columnNames.add(column.getName());
         }
 
-        for(String colName : getColumns("stammdaten")) {
+        for(String colName : getColumns(TABLE_NAME)) {
             if(!columnNames.contains(colName)) {
-                ColumnDatatype datatype = getColumnDataType(colName, "stammdaten");
+                ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
                 stockDataColumnRepository.save(new StockDataDbTableColumn(colName, datatype));
             }
         }
 
-        addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("wkn", ColumnDatatype.TEXT));
-        addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("name", ColumnDatatype.TEXT));
-        addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("typ", ColumnDatatype.TEXT));
-        addColumnIfNotExists("stammdaten", stockDataColumnRepository,new StockDataDbTableColumn("gruppen_id", ColumnDatatype.INT));
+        initColumn("wkn", ColumnDatatype.TEXT);
+        initColumn("name", ColumnDatatype.TEXT);
+        initColumn("typ", ColumnDatatype.TEXT);
+        initColumn("gruppen_id", ColumnDatatype.INT);
     }
 
-
-
-    public void removeColumn(String columnName) {
-        Optional<StockDataDbTableColumn> column = stockDataColumnRepository.findByName(columnName);
-        if(column.isPresent()) {
-            column.get().setExcelCorrelations(new ArrayList<>());
-            super.removeColumn(column.get().getName(),"stammdaten", stockDataColumnRepository);
-        }
+    private boolean initColumn(String name, ColumnDatatype datatype) {
+        return addColumnIfNotExists(TABLE_NAME, stockDataColumnRepository, new StockDataDbTableColumn(name, datatype));
     }
+
 
     public void createMissingStocks() {
 
@@ -67,7 +60,7 @@ public class StockDataDbManager extends DynamicDbManger{
             Connection connection = getConnection();
             statement = connection.createStatement();
             // isin, wkn, name columns are created at start if not existing
-            ResultSet resultSet = statement.executeQuery("SELECT isin, wkn, name, gruppen_id, typ FROM stammdaten;");
+            ResultSet resultSet = statement.executeQuery("SELECT isin, wkn, name, gruppen_id, typ FROM "+TABLE_NAME+";");
 
             while (resultSet.next()) {
                 String isin = resultSet.getString("isin");
@@ -86,6 +79,30 @@ public class StockDataDbManager extends DynamicDbManger{
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
+
+//        PreparedStatement pst = connection.prepareStatement("SET @col := ?;");
+//        pst.setString(1, dbColName);
+//        pst.execute();
+//        pst.execute("SET @sql := CONCAT(\"INSERT INTO "+TABLE_NAME+" (isin, datum, \", @col, \") VALUES(?,?,?) ON DUPLICATE KEY UPDATE \", @col, \"=VALUES(\", @col, \");\");");
+//        pst.execute("PREPARE stmt FROM @sql;");
+
+        String sql = "INSERT INTO "+TABLE_NAME+" (isin, datum, " + dbColName + ") VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
+                dbColName + "=VALUES(" + dbColName + ");";
+        return connection.prepareStatement(sql);
+    }
+
+    @Override
+    public void removeColumn(String columnName) {
+        Optional<StockDataDbTableColumn> column = stockDataColumnRepository.findByName(columnName);
+        if(column.isPresent()) {
+            column.get().setExcelCorrelations(new ArrayList<>());
+            super.removeColumn(column.get().getName(), TABLE_NAME, stockDataColumnRepository);
         }
     }
 }

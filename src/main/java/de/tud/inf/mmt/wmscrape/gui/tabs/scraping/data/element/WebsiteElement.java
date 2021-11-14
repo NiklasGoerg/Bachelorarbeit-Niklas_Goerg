@@ -82,16 +82,8 @@ public class WebsiteElement {
         return contentType;
     }
 
-    public void setContentType(ContentType contentType) {
-        this.contentType = contentType;
-    }
-
     public MultiplicityType getMultiplicityType() {
         return multiplicityType;
-    }
-
-    public void setMultiplicityType(MultiplicityType multiplicityType) {
-        this.multiplicityType = multiplicityType;
     }
 
     public String getTableIdent() {

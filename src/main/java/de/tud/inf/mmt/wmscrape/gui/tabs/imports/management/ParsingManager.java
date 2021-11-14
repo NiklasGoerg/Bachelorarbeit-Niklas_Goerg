@@ -58,7 +58,7 @@ public class ParsingManager {
     }
 
 
-    public Workbook decryptAndGetWorkbook(ExcelSheet excelSheet) throws EncryptedDocumentException {
+    private Workbook decryptAndGetWorkbook(ExcelSheet excelSheet) throws EncryptedDocumentException {
         try {
             return WorkbookFactory.create(new File(excelSheet.getPath()), excelSheet.getPassword());
         } catch (IOException e) {
@@ -143,7 +143,7 @@ public class ParsingManager {
         return 0;
     }
 
-    boolean getExcelSheetData(Workbook workbook, int startRow, ObservableMap<Integer, ArrayList<String>> excelData) {
+    private boolean getExcelSheetData(Workbook workbook, int startRow, ObservableMap<Integer, ArrayList<String>> excelData) {
 
         importTabManager.addToLog("##### Start Excel Parsing #####\n");
 
@@ -224,7 +224,7 @@ public class ParsingManager {
         return evalFault;
     }
 
-    void removeEmptyRows(Map<Integer, ArrayList<String>> excelData) {
+    private void removeEmptyRows(Map<Integer, ArrayList<String>> excelData) {
         // Remove rows which are empty
         List<Integer> rowsToRemove = new ArrayList<>();
 
@@ -252,7 +252,7 @@ public class ParsingManager {
         rowsToRemove.forEach(excelData::remove);
     }
 
-    void removeEmptyCols(Map<Integer, ArrayList<String>> rowMap, ExcelSheet excelSheet) {
+    private void removeEmptyCols(Map<Integer, ArrayList<String>> rowMap, ExcelSheet excelSheet) {
         // Lists have to be unified beforehand
         List<Integer> colsToRemove = new ArrayList<>();
 
@@ -284,7 +284,7 @@ public class ParsingManager {
         }
     }
 
-    void unifyRows(Map<Integer, ArrayList<String>> rowMap) {
+    private void unifyRows(Map<Integer, ArrayList<String>> rowMap) {
         // Adds columns to create uniform rows of the same length
         int maxCols = 0;
         int cols;
@@ -303,7 +303,7 @@ public class ParsingManager {
         }
     }
 
-    int getSelectionColNumber(Map<Integer, String> titles, ExcelSheet excelSheet) {
+    private int getSelectionColNumber(Map<Integer, String> titles, ExcelSheet excelSheet) {
         String formattedTitle = formatConform(excelSheet.getSelectionColTitle());
 
         for (int col : titles.keySet()) {
@@ -314,7 +314,7 @@ public class ParsingManager {
         return -1;
     }
 
-    HashMap<Integer, String> extractColTitles(int rowNumber, Map<Integer, ArrayList<String>> rowMap) {
+    private HashMap<Integer, String> extractColTitles(int rowNumber, Map<Integer, ArrayList<String>> rowMap) {
         HashMap<Integer, String> titleMap = new HashMap<>();
 
         if (rowMap == null || !rowMap.containsKey(rowNumber)) {
@@ -328,7 +328,7 @@ public class ParsingManager {
         return titleMap;
     }
 
-    HashMap<String, Integer> reverseMap(Map<Integer, String> map) {
+    private HashMap<String, Integer> reverseMap(Map<Integer, String> map) {
         // must be unique titles
         HashMap<String, Integer> newMap = new HashMap<>();
         for (Map.Entry<Integer, String> entry : map.entrySet()) {
@@ -337,7 +337,7 @@ public class ParsingManager {
         return newMap;
     }
 
-    void createNormalizedTitles(Map<Integer, String> titles) {
+    private void createNormalizedTitles(Map<Integer, String> titles) {
         Map<Integer, String> replacements = new HashMap<>();
         int emptyCount = 1;
 
@@ -355,11 +355,11 @@ public class ParsingManager {
         titles.putAll(replacements);
     }
 
-    String formatConform(String string) {
+    private String formatConform(String string) {
         return string.trim();//.replaceAll("[\\\\/:\\*\\?\\\"<>\\|'\\s\\[\\]\\(\\)´`\\^%&\\{\\}+\\-.]", "_");
     }
 
-    boolean titlesAreUnique(Map<Integer, String> titlesLoadedExcel) {
+    private boolean titlesAreUnique(Map<Integer, String> titlesLoadedExcel) {
         Set<String> set = new HashSet<>();
         for (String each : titlesLoadedExcel.values()) {
             if (!set.add(each)) {
@@ -370,7 +370,7 @@ public class ParsingManager {
         return true;
     }
 
-    Map<Integer, SimpleBooleanProperty> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData, int selectionColNr) {
+    private Map<Integer, SimpleBooleanProperty> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData, int selectionColNr) {
         HashMap<Integer, SimpleBooleanProperty> selectedRows = new HashMap<>();
         for (int rowNr : excelData.keySet()) {
             ArrayList<String> row = excelData.get(rowNr);
@@ -384,7 +384,7 @@ public class ParsingManager {
         return selectedRows;
     }
 
-    void addColumnsToView(TableView<ObservableList<String>> sheetPreviewTable, Map<Integer, String> titles, ExcelSheet excelSheet) {
+    private void addColumnsToView(TableView<ObservableList<String>> sheetPreviewTable, Map<Integer, String> titles, ExcelSheet excelSheet) {
 
 
         for (Integer col : titles.keySet()) {

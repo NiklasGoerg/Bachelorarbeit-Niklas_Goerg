@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,11 +22,13 @@ public class DbTransactionManager {
     @Autowired
     private StockDataColumnRepository stockDataColumnRepository;
     @Autowired
+    private StockDataDbManager stockDataDbManager;
+    @Autowired
     private ImportTabManager importTabManager;
     @Autowired
     private CorrelationManager correlationManager;
 
-    HashMap<String, ColumnDatatype> getStockColDbDatatypes() {
+    public HashMap<String, ColumnDatatype> getStockColDbDatatypes() {
         HashMap<String, ColumnDatatype> columnDatatypes = new HashMap<>();
         for (StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
             columnDatatypes.put(column.getName(), column.getColumnDatatype());
@@ -33,14 +36,14 @@ public class DbTransactionManager {
         return columnDatatypes;
     }
 
-    HashMap<String, PreparedStatement> createStockDataStatements(Connection connection) {
+    public HashMap<String, PreparedStatement> createStockDataStatements(Connection connection) {
         HashMap<String, PreparedStatement> statements = new HashMap<>();
 
         // prepare a statement for each column
 
         for (StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
             try {
-                statements.put(column.getName(), getPreparedStockStatement(column.getName(), connection));
+                statements.put(column.getName(), stockDataDbManager.getPreparedStatement(column.getName(), connection));
             } catch (SQLException e) {
                 e.printStackTrace();
                 importTabManager.addToLog("FEHLER: Erstellung des Statements fehlgeschlagen. Spalte: '"
@@ -51,7 +54,7 @@ public class DbTransactionManager {
         return statements;
     }
 
-    HashMap<String, PreparedStatement> createTransactionDataStatements(Connection connection) {
+    public HashMap<String, PreparedStatement> createTransactionDataStatements(Connection connection) {
         HashMap<String, PreparedStatement> statements = new HashMap<>();
 
         // prepare a statement for each column
@@ -77,13 +80,9 @@ public class DbTransactionManager {
         return connection.prepareStatement(sql);
     }
 
-    public PreparedStatement getPreparedStockStatement(String dbColName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO stammdaten (isin, datum, " + dbColName + ") VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
-                dbColName + "=VALUES(" + dbColName + ");";
-        return connection.prepareStatement(sql);
-    }
 
-    boolean executeStatements(Connection connection, HashMap<String, PreparedStatement> statements) {
+
+    public boolean executeStatements(Connection connection, HashMap<String, PreparedStatement> statements) {
         boolean silentError = false;
         try {
             for (PreparedStatement statement : statements.values()) {
@@ -156,7 +155,7 @@ public class DbTransactionManager {
         return true;
     }
 
-    public void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data) throws SQLException {
+    private void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data) throws SQLException {
         switch (datatype) {
             case DATE -> {
                 LocalDate dataToDate = LocalDate.parse(data);
@@ -173,7 +172,7 @@ public class DbTransactionManager {
         }
     }
 
-    public void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int number) throws SQLException {
+    private void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int number) throws SQLException {
         switch (datatype) {
             case DATE -> statement.setDate(number, null);
             case TEXT -> statement.setString(number, null);

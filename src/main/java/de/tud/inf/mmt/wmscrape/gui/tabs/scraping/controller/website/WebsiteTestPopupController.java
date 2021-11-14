@@ -2,9 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingWebsiteTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.WebsiteManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.WebsiteTester;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -17,9 +15,8 @@ public class WebsiteTestPopupController {
     @FXML private Label nextStep;
     @FXML private TextArea logTextArea;
     private SimpleStringProperty logText;
-    private WebsiteManager websiteManager;
+    private WebsiteTester websiteTester;
     private Website website;
-    private int step;
 
     @Autowired
     private ScrapingWebsiteTabController scrapingWebsiteTabController;
@@ -30,86 +27,40 @@ public class WebsiteTestPopupController {
         logTextArea.textProperty().bind(logText);
 
         website = scrapingWebsiteTabController.getSelectedWebsite();
-        websiteManager = new WebsiteManager(website, false, 5, logText);
+        websiteTester = new WebsiteTester(website, logText);
 
-        step = 0;
         nextStep.setText("Browser starten");
     }
 
     @FXML
     private void handleNextStepButton() {
 
-        // if closed stop test
-        if(step>0 && websiteManager.getDriver() == null) handleCancelButton();
+        boolean done = websiteTester.doNextStep();
+        if(done) {
+            handleCancelButton();
+            return;
+        }
 
+        int step = websiteTester.getStep();
+
+        // next step
         switch (step) {
-            case 0 -> {
-                websiteManager.startBrowser();
-                nextStep.setText("Webseite laden");
-            }
-            case 1 -> {
-                websiteManager.loadPage();
-
-                if(website.getCookieAcceptIdentType() == IdentTypeDeactivated.DEAKTIVIERT) {
-                    if(website.getCookieHideIdentType() == IdentTypeDeactivated.DEAKTIVIERT) {
-                        nextStep.setText("Login Informationen ausfüllen");
-                        step=4;
-                        return;
-                    }
-                    nextStep.setText("Cookies verstecken");
-                    step=3;
-                    return;
-                }
-                nextStep.setText("Cookies akzeptieren");
-            }
-            case 2 ->  {
-                websiteManager.acceptCookies();
-                if(website.getCookieHideIdentType() == IdentTypeDeactivated.DEAKTIVIERT) {
-                    nextStep.setText("Login Informationen ausfüllen");
-                    step+=1;
-                } else nextStep.setText("Cookies verstecken");
-            }
-            case 3 -> {
-                websiteManager.hideCookies();
-                nextStep.setText("Login Informationen ausfüllen");
-            }
-            case 4 -> {
-                websiteManager.fillLoginInformation();
-                nextStep.setText("Einloggen");
-            }
-            case 5 -> {
-                websiteManager.login();
-
-                if(website.getCookieHideIdentType() == IdentTypeDeactivated.DEAKTIVIERT) {
-                    nextStep.setText("Ausloggen");
-                    step+=1;
-
-                    if(website.getLogoutIdentType() == IdentTypeDeactivatedUrl.DEAKTIVIERT) {
-                        nextStep.setText("Browser schließen");
-                        step++;
-                    }
-                } else nextStep.setText("Cookies verstecken");
-            }
-            case 6 -> {
-                websiteManager.hideCookies();
-                nextStep.setText("Ausloggen");
-            }
-            case 7 -> {
-                websiteManager.logout();
-                nextStep.setText("Browser schließen");
-            }
-            case 8 -> {
-                websiteManager.quit();
-                nextStep.setText("Test beenden");
-            }
+            case 1 -> nextStep.setText("Webseite laden");
+            case 2 -> nextStep.setText("Cookies akzeptieren");
+            case 3, 6 -> nextStep.setText("Cookies verstecken");
+            case 4 -> nextStep.setText("Login Informationen ausfüllen");
+            case 5 -> nextStep.setText("Einloggen");
+            case 7 -> nextStep.setText("Ausloggen");
+            case 8 -> nextStep.setText("Browser schließen");
+            case 9 -> nextStep.setText("Test beenden");
             default -> handleCancelButton();
         }
-        step++;
+
     }
 
     @FXML
     private void handleCancelButton() {
-        websiteManager.quit();
+        websiteTester.cancel();
         logTextArea.getScene().getWindow().hide();
     }
 

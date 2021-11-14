@@ -7,12 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
 public class ExchangeDataDbManager extends DynamicDbManger{
 
+    public static final String TABLE_NAME = "wechselkurse";
     @Autowired
     ExchangeDataColumnRepository exchangeDataColumnRepository;
 
@@ -21,8 +25,8 @@ public class ExchangeDataDbManager extends DynamicDbManger{
         // the exchange data table is not managed by spring
         // and has to be initialized by myself
 
-        if (!tableExists("wechselkurse")) {
-            initializeTable("CREATE TABLE IF NOT EXISTS wechselkurse (datum DATE PRIMARY KEY);");
+        if (!tableExists(TABLE_NAME)) {
+            initializeTable("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (datum DATE PRIMARY KEY);");
         }
 
         ArrayList<String> columnNames = new ArrayList<>();
@@ -30,27 +34,36 @@ public class ExchangeDataDbManager extends DynamicDbManger{
             columnNames.add(column.getName());
         }
 
-        for(String colName : getColumns("wechselkurse")) {
+        for(String colName : getColumns(TABLE_NAME)) {
             if(!columnNames.contains(colName)) {
-                ColumnDatatype datatype = getColumnDataType(colName, "wechselkurse");
+                ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
                 exchangeDataColumnRepository.save(new ExchangeDataDbTableColumn(colName, datatype));
             }
         }
 
-        addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("eur", ColumnDatatype.DOUBLE));
-        addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("usd", ColumnDatatype.DOUBLE));
-        addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("gbp", ColumnDatatype.DOUBLE));
-        addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("jpy", ColumnDatatype.DOUBLE));
-        addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("cad", ColumnDatatype.DOUBLE));
-        addColumnIfNotExists("wechselkurse", exchangeDataColumnRepository,new CourseDataDbTableColumn("cny", ColumnDatatype.DOUBLE));
+        initColumn("eur");
+        initColumn("usd");
+        initColumn("gbp");
+        initColumn("jpy");
+        initColumn("cad");
+        initColumn("cny");
     }
 
+    private boolean initColumn(String name) {
+        return addColumnIfNotExists(TABLE_NAME, exchangeDataColumnRepository, new CourseDataDbTableColumn(name, ColumnDatatype.DOUBLE));
+    }
 
+    @Override
+    public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
+        return null;
+    }
+
+    @Override
     public void removeColumn(String columnName) {
         Optional<ExchangeDataDbTableColumn> column = exchangeDataColumnRepository.findByName(columnName);
         if(column.isPresent()) {
             column.get().setElementSelections(new ArrayList<>());
-            super.removeColumn(column.get().getName(),"wechselkurse", exchangeDataColumnRepository);
+            super.removeColumn(column.get().getName(), TABLE_NAME, exchangeDataColumnRepository);
         }
     }
 
