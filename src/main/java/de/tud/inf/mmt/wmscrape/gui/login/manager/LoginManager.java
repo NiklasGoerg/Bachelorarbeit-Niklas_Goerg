@@ -232,18 +232,26 @@ public class LoginManager {
         try {
 
             String newDbName = newUsername+"_USER_DB";
-            Statement statement = connection.createStatement();
-
-            statement.execute("CREATE DATABASE IF NOT EXISTS "+newDbName+";");
-
-            PreparedStatement pst = connection.prepareCall( "GRANT ALL PRIVILEGES ON "+newDbName+" TO ?@'%' IDENTIFIED BY ?;");
+            PreparedStatement pst = connection.prepareStatement("SET @user := ?, @pass := ?, @db := ?;");
             pst.setString(1, newUsername);
             pst.setString(2, newPassword);
+            pst.setString(3, newDbName);
             pst.execute();
-            pst.close();
 
-            statement.executeUpdate("FLUSH PRIVILEGES;");
-            statement.close();
+            pst.execute("SET @sql := CONCAT(\"CREATE USER \", QUOTE(@user), \"@'%' IDENTIFIED BY \", QUOTE(@pass));");
+            pst.execute("PREPARE stmt FROM @sql;");
+            pst.execute("EXECUTE stmt;");
+
+            pst.execute("SET @sql := CONCAT(\"CREATE DATABASE IF NOT EXISTS  \", @db, \";\");");
+            pst.execute("PREPARE stmt FROM @sql;");
+            pst.execute("EXECUTE stmt;");
+
+            pst.execute("SET @sql := CONCAT(\"GRANT ALL PRIVILEGES ON \", @db, \".* TO \", QUOTE(@user), \"@'%'\");");
+            pst.execute("PREPARE stmt FROM @sql;");
+            pst.execute("EXECUTE stmt;");
+
+            pst.execute("FLUSH PRIVILEGES;");
+            pst.close();
 
             return true;
         } catch (SQLException e) {
