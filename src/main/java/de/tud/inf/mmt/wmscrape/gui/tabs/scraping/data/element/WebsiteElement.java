@@ -4,7 +4,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeSimple;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 
@@ -30,7 +30,7 @@ public class WebsiteElement {
     //only for table scraping
     private String tableIdent;
     @Enumerated(EnumType.STRING)
-    private IdentTypeSimple tableIdenType = IdentTypeSimple.ID;
+    private IdentType tableIdenType = IdentType.ID;
 
     @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementSelection> elementSelections = new ArrayList<>();
@@ -94,11 +94,11 @@ public class WebsiteElement {
         this.tableIdent = tableIdent;
     }
 
-    public IdentTypeSimple getTableIdenType() {
+    public IdentType getTableIdenType() {
         return tableIdenType;
     }
 
-    public void setTableIdenType(IdentTypeSimple tableIdenType) {
+    public void setTableIdenType(IdentType tableIdenType) {
         this.tableIdenType = tableIdenType;
     }
 

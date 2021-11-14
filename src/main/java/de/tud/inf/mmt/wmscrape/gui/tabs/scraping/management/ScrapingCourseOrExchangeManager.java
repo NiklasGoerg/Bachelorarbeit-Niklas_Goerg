@@ -4,7 +4,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourse
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchangeSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
@@ -25,9 +25,9 @@ public class ScrapingCourseOrExchangeManager extends ScrapingElementManager {
     private SingleCourseOrStockSubController singleCourseOrStockSubController;
 
     @Transactional
-    public List<ElementIdentCorrelation> initExchangeCorrelations(ChoiceBox<IdentTypeDeactivated> dateChoiceBox,
+    public List<ElementIdentCorrelation> initExchangeCorrelations(ChoiceBox<IdentType> dateChoiceBox,
                                                                   TextField dataIdentField,
-                                                                  ChoiceBox<IdentTypeDeactivated> exchangeChoiceBox,
+                                                                  ChoiceBox<IdentType> exchangeChoiceBox,
                                                                   TextField exchangeIdentField,
                                                                   WebsiteElement staleElement) {
 
@@ -60,14 +60,14 @@ public class ScrapingCourseOrExchangeManager extends ScrapingElementManager {
             var newCorrelation = new ElementIdentCorrelation(websiteElement, "_price_");
             elementIdentCorrelations.add(newCorrelation);
             bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, newCorrelation);
-            exchangeChoiceBox.setValue(IdentTypeDeactivated.XPATH);
+            exchangeChoiceBox.setValue(IdentType.XPATH);
         }
 
         return elementIdentCorrelations;
     }
 
-    public void bindExchangeFieldsToCorrelation(ChoiceBox<IdentTypeDeactivated> choiceBox, TextInputControl textField, ElementIdentCorrelation correlation) {
-        choiceBox.setValue(IdentTypeDeactivated.valueOf(correlation.getIdentType()));
+    public void bindExchangeFieldsToCorrelation(ChoiceBox<IdentType> choiceBox, TextInputControl textField, ElementIdentCorrelation correlation) {
+        choiceBox.setValue(IdentType.valueOf(correlation.getIdentType()));
         textField.setText(correlation.getRepresentation());
 
         textField.textProperty().addListener((o, ov, nv) -> correlation.setRepresentation(nv));

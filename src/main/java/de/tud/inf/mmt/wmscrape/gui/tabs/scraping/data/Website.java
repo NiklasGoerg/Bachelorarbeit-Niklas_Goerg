@@ -1,9 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeSimple;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,22 +18,22 @@ public class Website {
     private String username;
     private String password;
     @Enumerated(value = EnumType.STRING)
-    private IdentTypeSimple usernameIdentType = IdentTypeSimple.ID;
+    private IdentType usernameIdentType = IdentType.ID;
     private String usernameIdent;
     @Enumerated(value = EnumType.STRING)
-    private IdentTypeSimple passwordIdentType = IdentTypeSimple.ID;
+    private IdentType passwordIdentType = IdentType.ID;
     private String passwordIdent;
     @Enumerated(value = EnumType.STRING)
-    private IdentTypeDeactivated loginButtonIdentType = IdentTypeDeactivated.ID;
+    private IdentType loginButtonIdentType = IdentType.ID;
     private String loginButtonIdent;
     @Enumerated(value = EnumType.STRING)
-    private IdentTypeDeactivatedUrl logoutIdentType = IdentTypeDeactivatedUrl.DEAKTIVIERT;
+    private IdentType logoutIdentType = IdentType.DEAKTIVIERT;
     private String logoutIdent;
     @Enumerated(value = EnumType.STRING)
-    private IdentTypeDeactivated cookieAcceptIdentType = IdentTypeDeactivated.DEAKTIVIERT;
+    private IdentType cookieAcceptIdentType = IdentType.DEAKTIVIERT;
     private String cookieAcceptIdent;
     @Enumerated(value = EnumType.STRING)
-    private IdentTypeDeactivated cookieHideIdentType = IdentTypeDeactivated.DEAKTIVIERT;
+    private IdentType cookieHideIdentType = IdentType.DEAKTIVIERT;
     private String cookieHideIdent;
 
     @OneToMany(mappedBy = "website", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
@@ -76,7 +74,7 @@ public class Website {
         this.username = username;
     }
 
-    public IdentTypeSimple getUsernameIdentType() {
+    public IdentType getUsernameIdentType() {
         return usernameIdentType;
     }
 
@@ -88,8 +86,8 @@ public class Website {
         this.password = password;
     }
 
-    public void setUsernameIdentType(IdentTypeSimple usernameIdentTypeSimple) {
-        this.usernameIdentType = usernameIdentTypeSimple;
+    public void setUsernameIdentType(IdentType usernameIdentType) {
+        this.usernameIdentType = usernameIdentType;
     }
 
     public String getUsernameIdent() {
@@ -100,12 +98,12 @@ public class Website {
         this.usernameIdent = usernameIdent;
     }
 
-    public IdentTypeSimple getPasswordIdentType() {
+    public IdentType getPasswordIdentType() {
         return passwordIdentType;
     }
 
-    public void setPasswordIdentType(IdentTypeSimple passwordIdentTypeSimple) {
-        this.passwordIdentType = passwordIdentTypeSimple;
+    public void setPasswordIdentType(IdentType passwordIdentType) {
+        this.passwordIdentType = passwordIdentType;
     }
 
     public String getPasswordIdent() {
@@ -116,11 +114,11 @@ public class Website {
         this.passwordIdent = passwordIdent;
     }
 
-    public IdentTypeDeactivated getLoginButtonIdentType() {
+    public IdentType getLoginButtonIdentType() {
         return loginButtonIdentType;
     }
 
-    public void setLoginButtonIdentType(IdentTypeDeactivated loginButtonIdentType) {
+    public void setLoginButtonIdentType(IdentType loginButtonIdentType) {
         this.loginButtonIdentType = loginButtonIdentType;
     }
 
@@ -132,11 +130,11 @@ public class Website {
         this.loginButtonIdent = loginButtonIdent;
     }
 
-    public IdentTypeDeactivatedUrl getLogoutIdentType() {
+    public IdentType getLogoutIdentType() {
         return logoutIdentType;
     }
 
-    public void setLogoutIdentType(IdentTypeDeactivatedUrl logoutIdentType) {
+    public void setLogoutIdentType(IdentType logoutIdentType) {
         this.logoutIdentType = logoutIdentType;
     }
 
@@ -148,11 +146,11 @@ public class Website {
         this.logoutIdent = logoutIdent;
     }
 
-    public IdentTypeDeactivated getCookieAcceptIdentType() {
+    public IdentType getCookieAcceptIdentType() {
         return cookieAcceptIdentType;
     }
 
-    public void setCookieAcceptIdentType(IdentTypeDeactivated cookieAcceptIdentType) {
+    public void setCookieAcceptIdentType(IdentType cookieAcceptIdentType) {
         this.cookieAcceptIdentType = cookieAcceptIdentType;
     }
 
@@ -164,11 +162,11 @@ public class Website {
         this.cookieAcceptIdent = cookieAcceptIdent;
     }
 
-    public IdentTypeDeactivated getCookieHideIdentType() {
+    public IdentType getCookieHideIdentType() {
         return cookieHideIdentType;
     }
 
-    public void setCookieHideIdentType(IdentTypeDeactivated cookieHideIdentType) {
+    public void setCookieHideIdentType(IdentType cookieHideIdentType) {
         this.cookieHideIdentType = cookieHideIdentType;
     }
 

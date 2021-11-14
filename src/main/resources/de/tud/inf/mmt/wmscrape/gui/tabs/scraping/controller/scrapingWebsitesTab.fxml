@@ -378,9 +378,9 @@
             </VBox>
             <ButtonBar nodeOrientation="RIGHT_TO_LEFT">
               <buttons>
-                  <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
                 <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern" />
                   <Button mnemonicParsing="false" onAction="#handleTestButton" text="Testen" />
+                  <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
               </buttons>
                <padding>
                   <Insets right="10.0" />

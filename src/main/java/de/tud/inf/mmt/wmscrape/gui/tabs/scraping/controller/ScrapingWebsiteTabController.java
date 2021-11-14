@@ -3,10 +3,8 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.NewWebsitePopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.WebsiteTestPopupController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeSimple;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,6 +14,9 @@ import org.springframework.stereotype.Controller;
 
 import java.util.Optional;
 
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.*;
+
+
 @Controller
 public class ScrapingWebsiteTabController {
 
@@ -24,17 +25,17 @@ public class ScrapingWebsiteTabController {
     @FXML private TextField urlField;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
-    @FXML private ChoiceBox<IdentTypeSimple> usernameIdentChoiceBox;
+    @FXML private ChoiceBox<IdentType> usernameIdentChoiceBox;
     @FXML private TextField usernameIdentField;
-    @FXML private ChoiceBox<IdentTypeSimple> passwordIdentChoiceBox;
+    @FXML private ChoiceBox<IdentType> passwordIdentChoiceBox;
     @FXML private TextField passwordIdentField;
-    @FXML private ChoiceBox<IdentTypeDeactivated> loginIdentChoiceBox;
+    @FXML private ChoiceBox<IdentType> loginIdentChoiceBox;
     @FXML private TextField loginIdentField;
-    @FXML private ChoiceBox<IdentTypeDeactivatedUrl> logoutIdentChoiceBox;
+    @FXML private ChoiceBox<IdentType> logoutIdentChoiceBox;
     @FXML private TextField logoutIdentField;
-    @FXML private ChoiceBox<IdentTypeDeactivated> cookieAcceptIdentChoiceBox;
+    @FXML private ChoiceBox<IdentType> cookieAcceptIdentChoiceBox;
     @FXML private TextField cookieAcceptIdentField;
-    @FXML private ChoiceBox<IdentTypeDeactivated> cookieHideChoiceBox;
+    @FXML private ChoiceBox<IdentType> cookieHideChoiceBox;
     @FXML private TextField cookieHideIdentField;
 
     private ObservableList<Website> websiteObservableList;
@@ -68,12 +69,12 @@ public class ScrapingWebsiteTabController {
         cookieHideIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(cookieHideIdentField));
 
         // set choicebox options
-        usernameIdentChoiceBox.getItems().addAll(IdentTypeSimple.values());
-        passwordIdentChoiceBox.getItems().addAll(IdentTypeSimple.values());
-        loginIdentChoiceBox.getItems().addAll(IdentTypeDeactivated.values());
-        logoutIdentChoiceBox.getItems().addAll(IdentTypeDeactivatedUrl.values());
-        cookieAcceptIdentChoiceBox.getItems().addAll(IdentTypeDeactivated.values());
-        cookieHideChoiceBox.getItems().addAll(IdentTypeDeactivated.values());
+        usernameIdentChoiceBox.getItems().addAll(identTypeSimple);
+        passwordIdentChoiceBox.getItems().addAll(identTypeSimple);
+        loginIdentChoiceBox.getItems().addAll(identTypeDeactivated);
+        logoutIdentChoiceBox.getItems().addAll(identTypeDeactivatedUrl);
+        cookieAcceptIdentChoiceBox.getItems().addAll(identTypeDeactivated);
+        cookieHideChoiceBox.getItems().addAll(identTypeDeactivated);
 
         websiteList.getSelectionModel().selectFirst();
     }

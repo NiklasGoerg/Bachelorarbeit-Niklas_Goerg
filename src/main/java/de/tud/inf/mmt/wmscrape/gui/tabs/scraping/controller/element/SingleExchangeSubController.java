@@ -3,7 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingCourseOrExchangeManager;
 import javafx.collections.ObservableList;
@@ -18,14 +18,16 @@ import org.springframework.stereotype.Controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.identTypeDeactivated;
+
 @Controller
 @Lazy
 public class SingleExchangeSubController {
 
     @FXML protected TableView<ElementSelection> exchangeSelectionTable;
-    @FXML private ChoiceBox<IdentTypeDeactivated> dateIdentTypeChoiceBox;
+    @FXML private ChoiceBox<IdentType> dateIdentTypeChoiceBox;
     @FXML private TextField dateIdentField;
-    @FXML private ChoiceBox<IdentTypeDeactivated> exchangeIdentTypeChoiceBox;
+    @FXML private ChoiceBox<IdentType> exchangeIdentTypeChoiceBox;
     @FXML private TextField exchangeIdentField;
 
     @Autowired
@@ -37,10 +39,10 @@ public class SingleExchangeSubController {
 
     @FXML
     protected void initialize() {
-        dateIdentTypeChoiceBox.getItems().addAll(IdentTypeDeactivated.values());
-        dateIdentTypeChoiceBox.setValue(IdentTypeDeactivated.DEAKTIVIERT);
-        exchangeIdentTypeChoiceBox.getItems().addAll(IdentTypeDeactivated.values());
-        exchangeIdentTypeChoiceBox.setValue(IdentTypeDeactivated.XPATH);
+        dateIdentTypeChoiceBox.getItems().addAll(identTypeDeactivated);
+        dateIdentTypeChoiceBox.setValue(IdentType.DEAKTIVIERT);
+        exchangeIdentTypeChoiceBox.getItems().addAll(identTypeDeactivated);
+        exchangeIdentTypeChoiceBox.setValue(IdentType.XPATH);
 
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
         manager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable, true);

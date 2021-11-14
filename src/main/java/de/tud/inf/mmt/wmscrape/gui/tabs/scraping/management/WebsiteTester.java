@@ -1,8 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import javafx.beans.property.SimpleStringProperty;
 
 public class WebsiteTester extends WebsiteConnection {
@@ -22,8 +21,8 @@ public class WebsiteTester extends WebsiteConnection {
             case 1 -> {
                 loadLoginPage();
 
-                if(website.getCookieAcceptIdentType() == IdentTypeDeactivated.DEAKTIVIERT) {
-                    if(website.getCookieHideIdentType() == IdentTypeDeactivated.DEAKTIVIERT) {
+                if(website.getCookieAcceptIdentType() == IdentType.DEAKTIVIERT) {
+                    if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
                         step=4;
                         return false;
                     }
@@ -33,7 +32,7 @@ public class WebsiteTester extends WebsiteConnection {
             }
             case 2 ->  {
                 acceptCookies();
-                if(website.getCookieHideIdentType() == IdentTypeDeactivated.DEAKTIVIERT) {
+                if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
                     step+=1;
                 }
             }
@@ -41,9 +40,9 @@ public class WebsiteTester extends WebsiteConnection {
             case 4 -> fillLoginInformation();
             case 5 -> {
                 login();
-                if(website.getCookieHideIdentType() == IdentTypeDeactivated.DEAKTIVIERT) {
+                if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
                     step+=1;
-                    if(website.getLogoutIdentType() == IdentTypeDeactivatedUrl.DEAKTIVIERT) {
+                    if(website.getLogoutIdentType() == IdentType.DEAKTIVIERT) {
                         step++;
                     }
                 }

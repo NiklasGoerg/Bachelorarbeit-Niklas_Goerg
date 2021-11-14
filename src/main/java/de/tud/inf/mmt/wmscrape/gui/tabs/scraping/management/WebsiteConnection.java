@@ -1,8 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivatedUrl;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import javafx.beans.property.SimpleStringProperty;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxBinary;
@@ -66,8 +65,8 @@ public abstract class WebsiteConnection {
     }
 
     protected boolean acceptCookies() {
-        IdentTypeDeactivated type = website.getCookieAcceptIdentType();
-        if(type == IdentTypeDeactivated.DEAKTIVIERT) return true;
+        IdentType type = website.getCookieAcceptIdentType();
+        if(type == IdentType.DEAKTIVIERT) return true;
 
         WebElement element = findElementByType(type.ordinal(), website.getCookieAcceptIdent());
 
@@ -79,13 +78,13 @@ public abstract class WebsiteConnection {
     }
 
     protected boolean hideCookies() {
-        IdentTypeDeactivated type = website.getCookieHideIdentType();
-        if(type == IdentTypeDeactivated.DEAKTIVIERT) return true;
+        IdentType type = website.getCookieHideIdentType();
+        if(type == IdentType.DEAKTIVIERT) return true;
 
         String identifier = website.getCookieHideIdent().replace("\"","'");
 
         // delete the frame completely
-        if(type == IdentTypeDeactivated.ID) {
+        if(type == IdentType.ID) {
             js.executeScript("const frames = document.getElementsByTagName(\"iframe\");" +
                     "for (let frame of frames) { if(frame.getAttribute(\"id\") == \"" +
                     identifier +
@@ -93,12 +92,12 @@ public abstract class WebsiteConnection {
         }
 
         String selectBy;
-        if(type == IdentTypeDeactivated.ID) {
+        if(type == IdentType.ID) {
             selectBy = "getElementById(\""+identifier+"\")";
-        } else if (type == IdentTypeDeactivated.XPATH) {
+        } else if (type == IdentType.XPATH) {
             selectBy = "evaluate(\""+identifier+"\", document, null, " +
                     "XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue";
-        } else if (type == IdentTypeDeactivated.CSS) {
+        } else if (type == IdentType.CSS) {
             selectBy = "querySelector(\""+identifier+"\")";
         } else return false;
 
@@ -126,7 +125,7 @@ public abstract class WebsiteConnection {
         WebElement password = findElementByType(website.getPasswordIdentType().ordinal(), website.getPasswordIdent());
 
         // submit like pressing enter
-        if(website.getLoginButtonIdentType() == IdentTypeDeactivated.DEAKTIVIERT) {
+        if(website.getLoginButtonIdentType() == IdentType.DEAKTIVIERT) {
             password.submit();
             return true;
         }
@@ -140,12 +139,12 @@ public abstract class WebsiteConnection {
     }
 
     protected boolean logout() {
-        IdentTypeDeactivatedUrl type = website.getLogoutIdentType();
-        if(type == IdentTypeDeactivatedUrl.DEAKTIVIERT) return true;
+        IdentType type = website.getLogoutIdentType();
+        if(type == IdentType.DEAKTIVIERT) return true;
 
-        if(website.getCookieHideIdentType() != IdentTypeDeactivated.DEAKTIVIERT) hideCookies();
+        if(website.getCookieHideIdentType() != IdentType.DEAKTIVIERT) hideCookies();
 
-        if(type == IdentTypeDeactivatedUrl.URL) {
+        if(type == IdentType.URL) {
             driver.get(website.getLogoutIdent());
             return true;
         }
@@ -170,7 +169,7 @@ public abstract class WebsiteConnection {
 
     private WebElement findElementByType(int type, String identifier) {
         // called separately in tester
-        if(website.getCookieHideIdentType() != IdentTypeDeactivated.DEAKTIVIERT
+        if(website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
                 && !(this instanceof WebsiteTester)) hideCookies();
 
         // little trick: my ident enums always start with id, xpath, css

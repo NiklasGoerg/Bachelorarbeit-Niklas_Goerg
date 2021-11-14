@@ -3,7 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeSimple;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTableManager;
 import javafx.collections.ObservableList;
@@ -15,12 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.identTypeSimple;
+
 @Controller
 @Lazy
 public class TableSubController extends SingleCourseOrStockSubController{
 
     @FXML private TableView<ElementDescCorrelation> elementDescCorrelationTableView;
-    @FXML private ChoiceBox<IdentTypeSimple> tableIdentChoiceBox;
+    @FXML private ChoiceBox<IdentType> tableIdentChoiceBox;
     @FXML private TextField tableIdentField;
 
     private WebsiteElement websiteElement;
@@ -47,7 +49,7 @@ public class TableSubController extends SingleCourseOrStockSubController{
         scrapingTableManager.initCorrelationTable(websiteElement, columnCorrelationTable, MultiplicityType.TABELLE);
 
 
-        tableIdentChoiceBox.getItems().addAll(IdentTypeSimple.values());
+        tableIdentChoiceBox.getItems().addAll(identTypeSimple);
         tableIdentChoiceBox.setValue(websiteElement.getTableIdenType());
         tableIdentChoiceBox.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> websiteElement.setTableIdenType(nv));
         tableIdentField.setText(websiteElement.getTableIdent());

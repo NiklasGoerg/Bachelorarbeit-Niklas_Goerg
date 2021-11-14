@@ -25,3 +25,9 @@ tooltip.bad-input {
 #verticalTabPane *.tab-label {
     -fx-rotate: 90;
 }
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    /* https://gist.github.com/maxd/63691840fc372f22f470 */
+    -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-background;
+    -fx-background-insets: 0 1 1 0, 1 2 1 1, 2 3 1 2;
+}

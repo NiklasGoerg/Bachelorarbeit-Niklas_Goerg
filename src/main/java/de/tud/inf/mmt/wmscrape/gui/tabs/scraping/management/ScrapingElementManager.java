@@ -12,10 +12,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCo
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElementRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeTable;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelectionRepository;
 import javafx.beans.binding.Bindings;
@@ -35,6 +32,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.identTypeDeactivated;
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.identTypeTable;
 
 public abstract class ScrapingElementManager {
 
@@ -83,8 +83,8 @@ public abstract class ScrapingElementManager {
     private void createChoiceBoxIdentTypeDeaktivated(TableColumn<ElementIdentCorrelation, String> column) {
         column.setCellFactory(col -> {
             TableCell<ElementIdentCorrelation, String> cell = new TableCell<>();
-            ChoiceBox<IdentTypeDeactivated> choiceBox = new ChoiceBox<>();
-            choiceBox.getItems().addAll(IdentTypeDeactivated.values());
+            ChoiceBox<IdentType> choiceBox = new ChoiceBox<>();
+            choiceBox.getItems().addAll(identTypeDeactivated);
 
             // update value
             choiceBox.valueProperty().addListener((o, ov, nv) -> {
@@ -96,7 +96,7 @@ public abstract class ScrapingElementManager {
             // set initial value
             cell.graphicProperty().addListener((o, ov, nv) -> {
                 if (cell.getTableRow() != null && cell.getTableRow().getItem() != null && cell.getTableRow().getItem().getIdentType() != null) {
-                    choiceBox.setValue(IdentTypeDeactivated.valueOf(cell.getTableRow().getItem().getIdentType()));
+                    choiceBox.setValue(IdentType.valueOf(cell.getTableRow().getItem().getIdentType()));
                 }
             });
 
@@ -108,8 +108,8 @@ public abstract class ScrapingElementManager {
     private void createChoiceBoxIdentTypeTable(TableColumn<ElementIdentCorrelation, String> column) {
         column.setCellFactory(col -> {
             TableCell<ElementIdentCorrelation, String> cell = new TableCell<>();
-            ChoiceBox<IdentTypeTable> choiceBox = new ChoiceBox<>();
-            choiceBox.getItems().addAll(IdentTypeTable.values());
+            ChoiceBox<IdentType> choiceBox = new ChoiceBox<>();
+            choiceBox.getItems().addAll(identTypeTable);
 
             // update value
             choiceBox.valueProperty().addListener((o, ov, nv) -> {
@@ -121,7 +121,7 @@ public abstract class ScrapingElementManager {
             // set initial value
             cell.graphicProperty().addListener((o, ov, nv) -> {
                 if (cell.getTableRow() != null && cell.getTableRow().getItem() != null && cell.getTableRow().getItem().getIdentType() != null) {
-                    choiceBox.setValue(IdentTypeTable.valueOf(cell.getTableRow().getItem().getIdentType()));
+                    choiceBox.setValue(IdentType.valueOf(cell.getTableRow().getItem().getIdentType()));
                 }
             });
 

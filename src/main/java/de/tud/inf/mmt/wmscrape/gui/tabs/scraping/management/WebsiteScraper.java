@@ -4,7 +4,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypeDeactivated;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import javafx.beans.property.SimpleStringProperty;
@@ -86,7 +86,7 @@ public class WebsiteScraper extends WebsiteConnection{
     private void processSingleCourse(ElementSelection selection, List<ElementIdentCorrelation> correlations) {
         String isin = selection.getIsin();
         var dateCorr = getDateCorrelation(correlations);
-        IdentTypeDeactivated dateType = getSingleType(dateCorr);
+        IdentType dateType = getSingleType(dateCorr);
 
         for(var correlation : correlations) {
             if(!correlation.equals(dateCorr)) {
@@ -106,8 +106,8 @@ public class WebsiteScraper extends WebsiteConnection{
         return null;
     }
 
-    private IdentTypeDeactivated getSingleType(ElementIdentCorrelation correlation) {
-        return IdentTypeDeactivated.valueOf(correlation.getIdentType());
+    private IdentType getSingleType(ElementIdentCorrelation correlation) {
+        return IdentType.valueOf(correlation.getIdentType());
     }
 
     private void processTable() {}
