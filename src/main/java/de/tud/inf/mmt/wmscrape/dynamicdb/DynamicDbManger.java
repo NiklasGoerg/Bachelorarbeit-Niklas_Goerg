@@ -194,4 +194,7 @@ public abstract class DynamicDbManger {
             return null;
         }
     }
+
+    public abstract PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException;
+    public abstract void removeColumn(String columnName);
 }
