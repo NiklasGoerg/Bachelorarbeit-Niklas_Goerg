@@ -18,7 +18,7 @@ public class ElementSelection {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "websiteElementId")
+    @JoinColumn(name = "websiteElementId", referencedColumnName = "id")
     private WebsiteElement websiteElement;
 
     @Column(name = "isSelected")
@@ -32,12 +32,12 @@ public class ElementSelection {
 
     // optional, only stock/course
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stockIsin")
+    @JoinColumn(name = "stockIsin", referencedColumnName = "isin")
     private Stock stock;
 
     // optional, only exchange
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exchangeDataDbTableColumnId")
+    @JoinColumn(name = "exchangeDataDbTableColumnId", referencedColumnName = "id")
     private ExchangeDataDbTableColumn exchangeDataDbTableColumn;
 
     @OneToOne(mappedBy = "elementSelection", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)

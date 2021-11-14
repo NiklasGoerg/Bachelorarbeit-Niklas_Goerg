@@ -150,6 +150,11 @@ public class ScrapingElementsTabController {
         websiteObservableList.addAll(scrapingTabManager.getWebsites());
     }
 
+    public void updateWebsiteChoiceBox() {
+        reloadWebsiteList();
+        websiteChoiceBox.setItems(websiteObservableList);
+    }
+
     public void selectElement(WebsiteElement element) {
         elementList.getSelectionModel().select(element);
 

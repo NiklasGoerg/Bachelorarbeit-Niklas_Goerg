@@ -30,6 +30,9 @@ public class ScrapingTabController {
 
         parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingElementsTab.fxml", scrapingElementsTabController);
         tab = new Tab("Elemente" , parent);
+        tab.selectedProperty().addListener((o,ov,nv) -> {
+            if(nv) scrapingElementsTabController.updateWebsiteChoiceBox();
+        });
         scrapingSubTabPane.getTabs().add(tab);
     }
 }

@@ -25,17 +25,17 @@ public class ElementIdentCorrelation {
     private final SimpleStringProperty representation = new SimpleStringProperty();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "websiteElementId")
+    @JoinColumn(name = "websiteElementId", referencedColumnName = "id")
     private WebsiteElement websiteElement;
 
     // optional for stock correlations
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stockDataTableColumnId")
+    @JoinColumn(name = "stockDataTableColumnId", referencedColumnName = "id")
     private StockDataDbTableColumn stockDataTableColumn;
 
     // optional for course correlations
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseDataTableColumnId")
+    @JoinColumn(name = "courseDataTableColumnId", referencedColumnName = "id")
     private CourseDataDbTableColumn courseDataTableColumn;
 
     // optional for exchange correlations
