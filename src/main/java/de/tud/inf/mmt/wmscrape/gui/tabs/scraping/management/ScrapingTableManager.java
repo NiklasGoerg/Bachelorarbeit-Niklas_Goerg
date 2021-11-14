@@ -55,10 +55,10 @@ public class ScrapingTableManager extends ScrapingElementManager {
         wsIsinCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
 
-        table.getColumns().add(dbDescriptionCol);
         table.getColumns().add(dbIsinCol);
-        table.getColumns().add(wsDescriptionCol);
         table.getColumns().add(wsIsinCol);
+        table.getColumns().add(dbDescriptionCol);
+        table.getColumns().add(wsDescriptionCol);
     }
 
     private void prepareExchangeDescriptionTable(TableView<ElementDescCorrelation> table) {
@@ -116,14 +116,20 @@ public class ScrapingTableManager extends ScrapingElementManager {
     @Transactional
     public void saveTableSettings(WebsiteElement websiteElement) {
 
-        for (var selection : tableSubController.getSelections()) {
-            if(selection.isSelected() && selection.getElementDescCorrelation() != null) {
-                elementDescCorrelationRepository.save(selection.getElementDescCorrelation());
+        for(var correlation : tableSubController.getElementDescCorrelations()) {
+            if(correlation.isChanged()) {
+                elementDescCorrelationRepository.save(correlation);
             }
+        }
+
+        for (var selection : tableSubController.getSelections()) {
             if(selection.isChanged()) {
                 elementSelectionRepository.save(selection);
             }
         }
+
+        elementDescCorrelationRepository.flush();
+        elementSelectionRepository.flush();
 
         for (var identCorrelation : tableSubController.getDbCorrelations()) {
             if(identCorrelation.isChanged()) {
@@ -132,7 +138,6 @@ public class ScrapingTableManager extends ScrapingElementManager {
         }
 
         elementSelectionRepository.deleteAllBy_selected(false);
-        //elementDescCorrelationRepository.flush();
         websiteElementRepository.save(websiteElement);
     }
 

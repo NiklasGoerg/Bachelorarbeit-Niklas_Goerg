@@ -21,17 +21,17 @@ public class ElementDescCorrelation {
     @Column(name = "wsDescription")
     private String _wsDescription;
     @Transient
-    private SimpleStringProperty wsDescription = new SimpleStringProperty();
+    private final SimpleStringProperty wsDescription = new SimpleStringProperty();
     @Column(name = "wsIsin")
     private String _wsIsin;
     @Transient
-    private SimpleStringProperty wsIsin = new SimpleStringProperty();
+    private final SimpleStringProperty wsIsin = new SimpleStringProperty();
 
     // only for currency exchange correlation
     @Column(name = "wsCurrencyName")
     private String _wsCurrencyName;
     @Transient
-    private SimpleStringProperty wsCurrencyName = new SimpleStringProperty();
+    private final SimpleStringProperty wsCurrencyName = new SimpleStringProperty();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "websiteElementId")

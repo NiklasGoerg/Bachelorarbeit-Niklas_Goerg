@@ -115,9 +115,6 @@ public class ScrapingElementsTabController {
             }
             case TABELLE -> scrapingTableManager.saveTableSettings(websiteElement);
         }
-
-
-
     }
 
     @FXML

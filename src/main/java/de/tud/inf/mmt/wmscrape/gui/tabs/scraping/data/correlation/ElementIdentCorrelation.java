@@ -18,11 +18,11 @@ public class ElementIdentCorrelation {
     @Enumerated(EnumType.STRING)
     protected IdentType _identType = IdentType.DEAKTIVIERT;
     @Transient
-    private SimpleStringProperty identType = new SimpleStringProperty(_identType.name());
+    private final SimpleStringProperty identType = new SimpleStringProperty(_identType.name());
     @Column(name = "representation")
     private String _representation;
     @Transient
-    private SimpleStringProperty representation = new SimpleStringProperty();
+    private final SimpleStringProperty representation = new SimpleStringProperty();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "websiteElementId")

@@ -24,7 +24,7 @@ public class ElementSelection {
     @Column(name = "isSelected")
     private boolean _selected = false;
     @Transient
-    private SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
 
     // optional, only stock
     @Transient
