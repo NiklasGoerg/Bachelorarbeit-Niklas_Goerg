@@ -12,26 +12,27 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCo
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElementRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.*;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelectionRepository;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_DEACTIVATED;
 import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_TABLE;
@@ -39,6 +40,9 @@ import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.ID
 public abstract class ScrapingElementManager {
 
     private final static String[] EXCHANGE_COLS = {"bezeichnung", "kurs"};
+    private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_DEACTIVATED);
+    private final static ObservableList<String> identTableObservable = getObservableList(IDENT_TYPE_TABLE);
+
     @Autowired
     private StockRepository stockRepository;
     @Autowired
@@ -54,6 +58,9 @@ public abstract class ScrapingElementManager {
     @Autowired
     protected ElementIdentCorrelationRepository elementIdentCorrelationRepository;
 
+    private static ObservableList<String> getObservableList(IdentType[] identTypeArray) {
+        return FXCollections.observableList(Stream.of(identTypeArray).map(Enum::name).collect(Collectors.toList()));
+    }
 
     private void deselectOther(TableColumn.CellDataFeatures<ElementSelection, Boolean> row) {
         ElementSelection selectedOne = row.getValue();
@@ -80,36 +87,6 @@ public abstract class ScrapingElementManager {
         });
     }
 
-    private void createChoiceBoxIdentType(TableColumn<ElementIdentCorrelation, String> column, MultiplicityType multiplicityType) {
-        column.setCellFactory(col -> {
-            TableCell<ElementIdentCorrelation, String> cell = new TableCell<>();
-            ChoiceBox<IdentType> choiceBox = new ChoiceBox<>();
-
-            if(multiplicityType == MultiplicityType.EINZELWERT) {
-                choiceBox.getItems().addAll(IDENT_TYPE_DEACTIVATED);
-            } else {
-                choiceBox.getItems().addAll(IDENT_TYPE_TABLE);
-            }
-
-            // update value
-            choiceBox.valueProperty().addListener((o, ov, nv) -> {
-                if (cell.getTableRow().getItem() != null) {
-                    cell.getTableRow().getItem().setIdentType(nv.name());
-                }
-            });
-
-            // set initial value
-            cell.graphicProperty().addListener((o, ov, nv) -> {
-                if (cell.getTableRow() != null && cell.getTableRow().getItem() != null && cell.getTableRow().getItem().getIdentTypeName() != null) {
-                    choiceBox.setValue(IdentType.valueOf(cell.getTableRow().getItem().getIdentTypeName()));
-                }
-            });
-
-            cell.graphicProperty().bind(Bindings.when(cell.emptyProperty()).then((Node) null).otherwise(choiceBox));
-            return cell;
-        });
-    }
-
     protected abstract void removeElementDescCorrelation(ElementSelection value);
 
     protected abstract void addNewElementDescCorrelation(ElementSelection value);
@@ -117,7 +94,6 @@ public abstract class ScrapingElementManager {
     protected WebsiteElement getFreshWebsiteElement(WebsiteElement staleElement) {
         return websiteElementRepository.getById(staleElement.getId());
     }
-
 
 
     @Transactional
@@ -195,7 +171,12 @@ public abstract class ScrapingElementManager {
         }
 
         // choiceBox
-        createChoiceBoxIdentType(identTypeColumn, multiplicityType);
+        identTypeColumn.setCellValueFactory(param -> param.getValue().identTypeProperty());
+        if(multiplicityType == MultiplicityType.EINZELWERT) {
+            identTypeColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(identTypeDeactivatedObservable));
+        } else {
+            identTypeColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(identTableObservable));
+        }
 
         // representation
         representationColumn.setCellValueFactory(param -> param.getValue().representationProperty());

@@ -1,6 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.data;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 
@@ -11,17 +13,27 @@ public class ExcelCorrelation {
     @GeneratedValue
     private int id;
     private String dbColTitle;
-    private String excelColTitle;
-    private int excelColNumber = -1;
+    @Column(name = "excelColTitle")
+    private String _excelColTitle;
+    @Transient
+    private final SimpleStringProperty excelColTitle = new SimpleStringProperty();
+
+    @Column(name = "excelColNumber")
+    private int _excelColNumber = -1;
+    @Transient
+    private SimpleIntegerProperty excelColNumber = new SimpleIntegerProperty();
     @Enumerated(EnumType.STRING)
     private CorrelationType correlationType;
 
     public ExcelCorrelation() {
+        initListener();
     }
 
     public ExcelCorrelation(String excelColTitle, String dbColTitle) {
-        this.excelColTitle = excelColTitle;
+        this.excelColTitle.set(excelColTitle);
+        this._excelColTitle = excelColTitle;
         this.dbColTitle = dbColTitle;
+        initListener();
     }
 
     @ManyToOne(fetch=FetchType.LAZY)
@@ -45,19 +57,27 @@ public class ExcelCorrelation {
     }
 
     public String getExcelColTitle() {
+        return excelColTitle.get();
+    }
+
+    public SimpleStringProperty excelColTitleProperty() {
         return excelColTitle;
     }
 
     public void setExcelColTitle(String excelColTitle) {
-        this.excelColTitle = excelColTitle;
+        this.excelColTitle.set(excelColTitle);
     }
 
     public int getExcelColNumber() {
+        return excelColNumber.get();
+    }
+
+    public SimpleIntegerProperty excelColNumberProperty() {
         return excelColNumber;
     }
 
     public void setExcelColNumber(int excelColNumber) {
-        this.excelColNumber = excelColNumber;
+        this.excelColNumber.set(excelColNumber);
     }
 
     public CorrelationType getCorrelationType() {
@@ -82,5 +102,17 @@ public class ExcelCorrelation {
 
     public void setStockDataTableColumn(StockDataDbTableColumn stockDataTableColumn) {
         this.stockDataTableColumn = stockDataTableColumn;
+    }
+
+    @PostLoad
+    private void setPropertiesFromPersistence() {
+        excelColTitle.set(_excelColTitle);
+        excelColNumber.set(_excelColNumber);
+        initListener();
+    }
+
+    private void initListener() {
+        excelColTitle.addListener((o, ov, nv ) -> _excelColTitle = nv);
+        excelColNumber.addListener((o, ov, nv ) -> _excelColNumber = (int) nv);
     }
 }

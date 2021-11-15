@@ -7,14 +7,11 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.CorrelationType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -111,44 +108,11 @@ public class CorrelationManager {
             }
         }
 
-        stockDataCorrelationTable.setMinHeight(stockColumnRelations.size() * 32.5);
+        //stockDataCorrelationTable.setMinHeight(stockColumnRelations.size() * 32.5);
 
         stockDataCorrelationTable.getItems().addAll(stockColumnRelations);
     }
 
-    private void constructComboBox(TableColumn<ExcelCorrelation, String> excelColumn, ObservableList<String> comboBoxOptions) {
-        excelColumn.setCellFactory(col -> {
-            TableCell<ExcelCorrelation, String> cell = new TableCell<>();
-            ComboBox<String> comboBox = new ComboBox<>(comboBoxOptions);
-
-            // update value inside the object
-            comboBox.valueProperty().addListener((o, ov, nv) -> {
-                if (cell.getTableRow().getItem() != null) {
-                    updateCorrelationByComboBox(cell, nv);
-                }
-            });
-
-            comboBox.prefWidthProperty().bind(col.widthProperty().multiply(1));
-
-            // cell.tableRowProperty().addListener((o, ov, nv) -> {
-            cell.graphicProperty().addListener((o, ov, nv) -> {
-                if (cell.getTableRow().getItem() != null && cell.getTableRow().getItem().getExcelColTitle() != null) {
-                    comboBox.setValue(cell.getTableRow().getItem().getExcelColTitle());
-                }
-            });
-
-            cell.graphicProperty().bind(Bindings.when(cell.emptyProperty()).then((Node) null).otherwise(comboBox));
-            return cell;
-        });
-    }
-
-    private void updateCorrelationByComboBox(TableCell<ExcelCorrelation, String> cell, String newValue) {
-        if (cell.getTableRow().getItem() != null) {
-            ExcelCorrelation correlation = cell.getTableRow().getItem();
-            correlation.setExcelColTitle(newValue);
-            correlation.setExcelColNumber(getExcelColNumber(newValue));
-        }
-    }
 
     private Integer getExcelColNumber(String newValue) {
         return parsingManager.getTitleToExcelIndex().getOrDefault(newValue, -1);
@@ -178,9 +142,23 @@ public class CorrelationManager {
         // populate with name from ExcelCorrelation property
         stockDbColumn.setCellValueFactory(new PropertyValueFactory<>("dbColTitle"));
 
-        constructComboBox(excelColumn, comboBoxOptions);
 
-        //excelColumn.setCellValueFactory(new PropertyValueFactory<>("excelColTitle"));
+
+        // choiceBox
+        excelColumn.setCellValueFactory(param -> param.getValue().excelColTitleProperty());
+        excelColumn.setCellFactory(param -> {
+            ComboBoxTableCell<ExcelCorrelation, String> cell = new ComboBoxTableCell<>();
+            cell.getItems().addAll(comboBoxOptions);
+
+            // auto update number from title on change
+            cell.itemProperty().addListener((o, ov, nv) -> {
+                if (excelColumn.getTableView() != null && excelColumn.getTableView().getSelectionModel().getSelectedItem() != null) {
+                    ExcelCorrelation correlation = excelColumn.getTableView().getSelectionModel().getSelectedItem();
+                    correlation.setExcelColNumber(getExcelColNumber(correlation.getExcelColTitle()));
+                }
+            });
+            return cell;
+        });
 
         table.getColumns().add(stockDbColumn);
         table.getColumns().add(excelColumn);
@@ -202,9 +180,6 @@ public class CorrelationManager {
                 addedTransDbCols.add(excelCorrelation.getDbColTitle());
             }
         }
-
-
-        transactionCorrelationTable.setMinHeight(transactionColumnsWithType.size() * 32.5);
 
 
         for (String colName : transactionColumnsWithType.keySet()) {
