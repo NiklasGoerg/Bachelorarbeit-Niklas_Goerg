@@ -38,4 +38,6 @@ public abstract class DbTableColumn {
     public void setColumnDatatype(ColumnDatatype columnDatatype) {
         this.columnDatatype = columnDatatype;
     }
+
+    public abstract String getTableName();
 }

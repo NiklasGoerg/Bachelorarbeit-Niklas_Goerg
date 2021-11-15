@@ -325,11 +325,16 @@ public class ScrapingWebsiteTabController {
             loginIdentChoiceBox.setValue(IdentType.ENTER);
             logoutIdentChoiceBox.setValue(IdentType.DEAKTIVIERT);
 
-            clearTopFields();
-
             logoutIdentChoiceBox.getItems().clear();
             logoutIdentChoiceBox.getItems().add(IdentType.DEAKTIVIERT);
             logoutIdentChoiceBox.setValue(IdentType.DEAKTIVIERT);
+
+            urlField.setText("-");
+            usernameField.setText("-");
+            passwordField.setText("-");
+            usernameIdentField.setText("-");
+            passwordIdentField.setText("-");
+            loginIdentField.setText("-");
 
             setEditable(false);
         } else if (oldIdentType == IdentType.DEAKTIVIERT) {
@@ -340,6 +345,7 @@ public class ScrapingWebsiteTabController {
             logoutIdentChoiceBox.getItems().addAll(IDENT_TYPE_DEACTIVATED_URL);
             logoutIdentChoiceBox.setValue(IdentType.ID);
 
+            clearTopFields();
             setEditable(true);
         } else {
             setEditable(true);

@@ -1,7 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -54,7 +53,10 @@ public class WebsiteScraper extends WebsiteConnection {
         if(!fillLoginInformation()) return false;
 
         delayRandom();
-        return login();
+        if(!login()) return false;
+
+        delayRandom();
+        return true;
     }
 
     private boolean usesNoLogin() {
@@ -68,7 +70,7 @@ public class WebsiteScraper extends WebsiteConnection {
 
     private void delayRandom() {
         // from sec to milliseconds
-        int randSleep = ThreadLocalRandom.current().nextInt(minActionDelay, maxActionDelay*1000 + 1);
+        int randSleep = ThreadLocalRandom.current().nextInt(minActionDelay, maxActionDelay + 1);
 
         try {
             Thread.sleep(randSleep);
@@ -77,7 +79,8 @@ public class WebsiteScraper extends WebsiteConnection {
         }
     }
 
-    private void processElement(WebsiteElement element) {
+    // TODO
+    public void processElement(WebsiteElement element) {
         boolean loggedIn = doLoginRoutine();
         if(!loggedIn) return;
 
@@ -114,6 +117,7 @@ public class WebsiteScraper extends WebsiteConnection {
 
         for(CorrelationResult result : preparedCorrelationResults) {
             extractCorrelationResult(result);
+            result.setIsin(isin);
         }
 
     }
@@ -122,16 +126,19 @@ public class WebsiteScraper extends WebsiteConnection {
         List<CorrelationResult> preparedCorrelationResults = new ArrayList<>();
 
         String colName;
+        String tableName;
         for(var correlation : correlations) {
             colName = correlation.getCourseDataDbTableColumn().getName();
-            ColumnDatatype datatype = CourseDataDbManager.colNameToDataType.get(colName);
-            preparedCorrelationResults.add(new CorrelationResult(colName, CourseDataDbManager.TABLE_NAME, dataToday, datatype, correlation.getIdentType()));
+            tableName = correlation.getCourseDataDbTableColumn().getTableName();
+
+            ColumnDatatype datatype = correlation.getColumnDatatype();
+            preparedCorrelationResults.add(new CorrelationResult(tableName, colName, dataToday, datatype, correlation.getIdentType(), correlation.getIdentification()));
         }
         return preparedCorrelationResults;
     }
 
     private void extractCorrelationResult(CorrelationResult result) {
-        String extract = extractTextDataByType(result.getIdentType(), result.getIdentifier());
+        String extract = extractTextDataByType(result.getIdentType(), result.getIdentifier(), result.dbColName);
         result.setWebsiteData(extract);
 
     }

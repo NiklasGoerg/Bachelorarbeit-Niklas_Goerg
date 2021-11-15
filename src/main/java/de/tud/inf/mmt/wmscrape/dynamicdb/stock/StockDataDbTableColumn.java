@@ -20,8 +20,12 @@ public class StockDataDbTableColumn extends DbTableColumn {
         super(name, columnDatatype);
     }
 
-
     public void setExcelCorrelations(List<ExcelCorrelation> excelCorrelations) {
         this.excelCorrelations = excelCorrelations;
+    }
+
+    @Override
+    public String getTableName() {
+        return StockDataDbManager.TABLE_NAME;
     }
 }

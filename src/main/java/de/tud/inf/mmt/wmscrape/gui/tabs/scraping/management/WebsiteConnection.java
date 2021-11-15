@@ -159,7 +159,7 @@ public abstract class WebsiteConnection {
         return true;
     }
 
-    public void loadPage(String url) {
+    protected void loadPage(String url) {
         driver.get(url);
         waitLoadEvent();
         addToLog("INFO: "+website.getUrl()+" geladen");
@@ -208,10 +208,12 @@ public abstract class WebsiteConnection {
         return null;
     }
 
-    protected String extractTextDataByType(IdentType type, String identifier) {
+    protected String extractTextDataByType(IdentType type, String identifier, String highlightText) {
         WebElement element = extractElementsByType(type, identifier);
         if(element == null) return null;
-        return element.getText();
+        String text = element.getText();
+        if(!headless) highlightElement(element, highlightText);
+        return text;
     }
 
     private void clickElement(WebElement element) {
@@ -223,6 +225,19 @@ public abstract class WebsiteConnection {
 
             js.executeScript("arguments[0].click()", element);
         }
+    }
+
+    private void highlightElement(WebElement element, String text) {
+        js.executeScript("arguments[0].setAttribute('style', 'border:2px solid #c95c55;')", element);
+
+        js.executeScript("var d = document.createElement('div');" +
+                "d.setAttribute('style','position:relative;display:inline-block;');" +
+                "var s = document.createElement('span');" +
+                "s.setAttribute('style','background-color:#c95c55;color:white;position:absolute;bottom:125%;left:50%;padding:0 5px;');" +
+                "var t = document.createTextNode('"+text+"');"+
+                "s.appendChild(t);" +
+                "d.appendChild(s);" +
+                "arguments[0].appendChild(d);", element);
     }
 
     protected void quit() {

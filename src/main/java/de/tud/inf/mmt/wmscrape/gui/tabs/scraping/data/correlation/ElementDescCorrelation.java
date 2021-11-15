@@ -45,9 +45,9 @@ public class ElementDescCorrelation {
     }
 
     public ElementDescCorrelation(ElementSelection elementSelection, WebsiteElement websiteElement) {
+        this();
         this.elementSelection = elementSelection;
         this.websiteElement = websiteElement;
-        initListener();
     }
 
     public int getId() {

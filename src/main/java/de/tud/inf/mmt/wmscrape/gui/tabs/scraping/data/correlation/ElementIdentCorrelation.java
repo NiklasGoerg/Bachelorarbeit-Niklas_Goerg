@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation;
 
+import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -16,13 +17,13 @@ public class ElementIdentCorrelation {
 
     @Column(name = "identType")
     @Enumerated(EnumType.STRING)
-    protected IdentType _identType = IdentType.DEAKTIVIERT;
+    private IdentType _identType = IdentType.DEAKTIVIERT;
     @Transient
     private final SimpleStringProperty identType = new SimpleStringProperty(_identType.name());
-    @Column(name = "representation")
-    private String _representation;
+    @Column(name = "identification")
+    private String _identification;
     @Transient
-    private final SimpleStringProperty representation = new SimpleStringProperty();
+    private final SimpleStringProperty identification = new SimpleStringProperty();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "websiteElementId", referencedColumnName = "id")
@@ -38,6 +39,8 @@ public class ElementIdentCorrelation {
     @JoinColumn(name = "courseDataDbTableColumnId", referencedColumnName = "id")
     private CourseDataDbTableColumn courseDataDbTableColumn;
 
+    private ColumnDatatype columnDatatype;
+
     // optional for exchange correlations
     private String exchangeFieldName;
 
@@ -47,27 +50,33 @@ public class ElementIdentCorrelation {
     @PostLoad
     private void setPropertiesFromPersistence() {
         identType.set(_identType.name());
-        representation.set(_representation);
+        identification.set(_identification);
         initListener();
     }
 
     public ElementIdentCorrelation() {}
 
-    public ElementIdentCorrelation(WebsiteElement websiteElement, StockDataDbTableColumn stockDataTableColumn) {
+    private ElementIdentCorrelation(WebsiteElement websiteElement) {
         this.websiteElement = websiteElement;
-        this.stockDataTableColumn = stockDataTableColumn;
         initListener();
     }
 
+    public ElementIdentCorrelation(WebsiteElement websiteElement, StockDataDbTableColumn stockDataTableColumn) {
+        this(websiteElement);
+        this.stockDataTableColumn = stockDataTableColumn;
+        this.columnDatatype = stockDataTableColumn.getColumnDatatype();
+    }
+
     public ElementIdentCorrelation(WebsiteElement websiteElement, CourseDataDbTableColumn courseDataDbTableColumn) {
-        this.websiteElement = websiteElement;
+        this(websiteElement);
         this.courseDataDbTableColumn = courseDataDbTableColumn;
-        initListener();
+        this.columnDatatype = courseDataDbTableColumn.getColumnDatatype();
     }
 
     public ElementIdentCorrelation(WebsiteElement websiteElement, String exchangeFieldName) {
         this.websiteElement = websiteElement;
         this.exchangeFieldName = exchangeFieldName;
+        this.columnDatatype = ColumnDatatype.DOUBLE;
         initListener();
     }
 
@@ -86,16 +95,16 @@ public class ElementIdentCorrelation {
         this.identType.set(identType);
     }
 
-    public String getRepresentation() {
-        return representation.get();
+    public String getIdentification() {
+        return identification.get();
     }
 
-    public void setRepresentation(String representation) {
-        this.representation.set(representation);
+    public void setIdentification(String identification) {
+        this.identification.set(identification);
     }
 
-    public SimpleStringProperty representationProperty() {
-        return representation;
+    public SimpleStringProperty identificationProperty() {
+        return identification;
     }
 
     public WebsiteElement getWebsiteElement() {
@@ -114,6 +123,10 @@ public class ElementIdentCorrelation {
         return exchangeFieldName;
     }
 
+    public ColumnDatatype getColumnDatatype() {
+        return columnDatatype;
+    }
+
     public boolean isChanged() {
         return isChanged;
     }
@@ -123,9 +136,9 @@ public class ElementIdentCorrelation {
             isChanged = true;
             _identType = IdentType.valueOf(nv);
         });
-        representation.addListener((o, ov, nv ) -> {
+        identification.addListener((o, ov, nv ) -> {
             isChanged = true;
-            _representation = nv;
+            _identification = nv;
         });
     }
 }

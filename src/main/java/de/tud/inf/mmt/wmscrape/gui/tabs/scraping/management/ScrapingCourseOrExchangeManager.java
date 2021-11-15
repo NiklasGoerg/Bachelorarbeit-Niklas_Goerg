@@ -68,9 +68,9 @@ public class ScrapingCourseOrExchangeManager extends ScrapingElementManager {
 
     public void bindExchangeFieldsToCorrelation(ChoiceBox<IdentType> choiceBox, TextInputControl textField, ElementIdentCorrelation correlation) {
         choiceBox.setValue(correlation.getIdentType());
-        textField.setText(correlation.getRepresentation());
+        textField.setText(correlation.getIdentification());
 
-        textField.textProperty().addListener((o, ov, nv) -> correlation.setRepresentation(nv));
+        textField.textProperty().addListener((o, ov, nv) -> correlation.setIdentification(nv));
 
         choiceBox.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> correlation.setIdentType(nv.name()));
     }

@@ -179,9 +179,9 @@ public abstract class ScrapingElementManager {
         }
 
         // representation
-        representationColumn.setCellValueFactory(param -> param.getValue().representationProperty());
+        representationColumn.setCellValueFactory(param -> param.getValue().identificationProperty());
         representationColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-
+        representationColumn.setMinWidth(70);
 
         table.getColumns().add(dataElementColumn);
         table.getColumns().add(identTypeColumn);

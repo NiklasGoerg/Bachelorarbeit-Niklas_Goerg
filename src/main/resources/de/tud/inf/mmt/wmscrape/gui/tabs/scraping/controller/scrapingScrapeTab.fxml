@@ -13,7 +13,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <BorderPane prefHeight="655.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingScrapeTabController">
    <center>
       <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
@@ -43,7 +42,7 @@
                         </Label>
                      </children>
                   </HBox>
-                  <TextArea AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0" />
+                  <TextArea fx:id="logArea" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0" />
                </children>
             </AnchorPane>
          </items>
@@ -67,7 +66,7 @@
    <bottom>
       <HBox alignment="CENTER" BorderPane.alignment="CENTER">
          <children>
-          <Button mnemonicParsing="false" prefWidth="250.0" text="Start">
+          <Button mnemonicParsing="false" onAction="#handleStartButton" prefWidth="250.0" text="Start">
                <HBox.margin>
                   <Insets top="-1.0" />
                </HBox.margin>

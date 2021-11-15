@@ -26,4 +26,9 @@ public class ExchangeDataDbTableColumn extends DbTableColumn {
     public void setElementSelections(List<ElementSelection> elementSelections) {
         this.elementSelections = elementSelections;
     }
+
+    @Override
+    public String getTableName() {
+        return ExchangeDataDbManager.TABLE_NAME;
+    }
 }

@@ -19,12 +19,13 @@ public class CorrelationResult {
     String websiteData;
 
 
-    public CorrelationResult(String dbTableName, String dbColName, Date date, ColumnDatatype datatype, IdentType identType) {
+    public CorrelationResult(String dbTableName, String dbColName, Date date, ColumnDatatype datatype, IdentType identType, String identifier) {
         this.dbTableName = dbTableName;
         this.dbColName = dbColName;
         this.date = date;
         this.datatype = datatype;
         this.identType = identType;
+        this.identifier = identifier;
     }
 
 
@@ -58,5 +59,13 @@ public class CorrelationResult {
 
     public void setWebsiteData(String websiteData) {
         this.websiteData = websiteData;
+    }
+
+    public String getIsin() {
+        return isin;
+    }
+
+    public void setIsin(String isin) {
+        this.isin = isin;
     }
 }
