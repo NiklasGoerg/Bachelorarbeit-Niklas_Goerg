@@ -1,5 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
 
+import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -9,15 +11,18 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class WebsiteScraper extends WebsiteConnection{
+public class WebsiteScraper extends WebsiteConnection {
 
 
     private int minActionDelay = 2000;
     private int maxActionDelay = 5000;
-
+    private final Date dataToday = Date.valueOf(LocalDate.now());
 
     public WebsiteScraper(Website website, SimpleStringProperty logText, Boolean headless) {
         super(website, logText, headless);
@@ -34,6 +39,9 @@ public class WebsiteScraper extends WebsiteConnection{
 
     protected boolean doLoginRoutine() {
         startBrowser();
+
+        if(usesNoLogin()) return true;
+
         loadLoginPage();
 
         delayRandom();
@@ -49,6 +57,15 @@ public class WebsiteScraper extends WebsiteConnection{
         return login();
     }
 
+    private boolean usesNoLogin() {
+        if(website.getUsernameIdentType() == IdentType.DEAKTIVIERT ||
+                website.getPasswordIdentType() == IdentType.DEAKTIVIERT ||
+                website.getLogoutIdentType() == IdentType.DEAKTIVIERT) {
+            return true;
+        }
+        return false;
+    }
+
     private void delayRandom() {
         // from sec to milliseconds
         int randSleep = ThreadLocalRandom.current().nextInt(minActionDelay, maxActionDelay*1000 + 1);
@@ -60,8 +77,15 @@ public class WebsiteScraper extends WebsiteConnection{
         }
     }
 
-    private void processElement(WebsiteConnection connection, WebsiteElement element) {
+    private void processElement(WebsiteElement element) {
         boolean loggedIn = doLoginRoutine();
+        if(!loggedIn) return;
+
+        delayRandom();
+        loadPage(element.getInformationUrl());
+
+
+
         MultiplicityType multiplicityType = element.getMultiplicityType();
         ContentType contentType = element.getContentType();
 
@@ -69,7 +93,7 @@ public class WebsiteScraper extends WebsiteConnection{
             if(selection.isSelected()) {
 
                 switch (multiplicityType) {
-                    case TABELLE -> processTable();
+                    case TABELLE -> System.out.println("0");
                     case EINZELWERT -> {
                         switch (contentType) {
                             case STAMMDATEN -> System.out.println("1");
@@ -85,31 +109,30 @@ public class WebsiteScraper extends WebsiteConnection{
 
     private void processSingleCourse(ElementSelection selection, List<ElementIdentCorrelation> correlations) {
         String isin = selection.getIsin();
-        var dateCorr = getDateCorrelation(correlations);
-        IdentType dateType = getSingleType(dateCorr);
 
-        for(var correlation : correlations) {
-            if(!correlation.equals(dateCorr)) {
+        List<CorrelationResult> preparedCorrelationResults = prepareCorrelationResults(correlations);
 
-            }
-
+        for(CorrelationResult result : preparedCorrelationResults) {
+            extractCorrelationResult(result);
         }
+
     }
 
+    private List<CorrelationResult> prepareCorrelationResults(List<ElementIdentCorrelation> correlations) {
+        List<CorrelationResult> preparedCorrelationResults = new ArrayList<>();
 
-    private ElementIdentCorrelation getDateCorrelation(List<ElementIdentCorrelation> correlations) {
+        String colName;
         for(var correlation : correlations) {
-            if(correlation.getCourseDataDbTableColumn().getName().equals("datum")) {
-                return correlation;
-            }
+            colName = correlation.getCourseDataDbTableColumn().getName();
+            ColumnDatatype datatype = CourseDataDbManager.colNameToDataType.get(colName);
+            preparedCorrelationResults.add(new CorrelationResult(colName, CourseDataDbManager.TABLE_NAME, dataToday, datatype, correlation.getIdentType()));
         }
-        return null;
+        return preparedCorrelationResults;
     }
 
-    private IdentType getSingleType(ElementIdentCorrelation correlation) {
-        return IdentType.valueOf(correlation.getIdentType());
+    private void extractCorrelationResult(CorrelationResult result) {
+        String extract = extractTextDataByType(result.getIdentType(), result.getIdentifier());
+        result.setWebsiteData(extract);
+
     }
-
-    private void processTable() {}
-
 }

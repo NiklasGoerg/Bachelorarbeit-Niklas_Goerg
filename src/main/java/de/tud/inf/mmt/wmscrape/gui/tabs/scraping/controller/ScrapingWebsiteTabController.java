@@ -69,16 +69,18 @@ public class ScrapingWebsiteTabController {
         cookieHideIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(cookieHideIdentField));
 
         // set choicebox options
-        usernameIdentChoiceBox.getItems().addAll(identTypeSimple);
-        passwordIdentChoiceBox.getItems().addAll(identTypeSimple);
-        loginIdentChoiceBox.getItems().addAll(identTypeDeactivated);
-        logoutIdentChoiceBox.getItems().addAll(identTypeDeactivatedUrl);
-        cookieAcceptIdentChoiceBox.getItems().addAll(identTypeDeactivated);
-        cookieHideChoiceBox.getItems().addAll(identTypeDeactivated);
+        addTypeToChoiceBox(usernameIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
+        addTypeToChoiceBox(passwordIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
+        addTypeToChoiceBox(loginIdentChoiceBox, IDENT_TYPE_DEACTIVATED_ENTER);
+        addTypeToChoiceBox(logoutIdentChoiceBox, IDENT_TYPE_DEACTIVATED_URL);
+        addTypeToChoiceBox(cookieAcceptIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
+        addTypeToChoiceBox(cookieHideChoiceBox, IDENT_TYPE_DEACTIVATED);
+
+        addDeselectListener(usernameIdentChoiceBox);
+        addDeselectListener(passwordIdentChoiceBox);
 
         websiteList.getSelectionModel().selectFirst();
     }
-
 
     @FXML
     private void handleNewWebsiteButton() {
@@ -91,7 +93,6 @@ public class ScrapingWebsiteTabController {
 
     @FXML
     private void handleDeleteWebsiteButton() {
-        clearFields();
         Website website = getSelectedWebsite();
 
         if(website == null) {
@@ -110,6 +111,7 @@ public class ScrapingWebsiteTabController {
         }
 
         scrapingTabManager.deleteSpecificWebsite(website);
+        clearFields();
         reloadWebsiteList();
         websiteList.getSelectionModel().selectFirst();
     }
@@ -124,21 +126,7 @@ public class ScrapingWebsiteTabController {
 
         Website website = websiteList.getSelectionModel().getSelectedItem();
 
-        website.setUrl(urlField.getText());
-        website.setUsername(usernameField.getText());
-        website.setPassword(passwordField.getText());
-        website.setUsernameIdentType(usernameIdentChoiceBox.getValue());
-        website.setUsernameIdent(usernameIdentField.getText());
-        website.setPasswordIdentType(passwordIdentChoiceBox.getValue());
-        website.setPasswordIdent(passwordIdentField.getText());
-        website.setLoginButtonIdentType(loginIdentChoiceBox.getValue());
-        website.setLoginButtonIdent(loginIdentField.getText());
-        website.setLogoutIdentType(logoutIdentChoiceBox.getValue());
-        website.setLogoutIdent(logoutIdentField.getText());
-        website.setCookieAcceptIdentType(cookieAcceptIdentChoiceBox.getValue());
-        website.setCookieAcceptIdent(cookieAcceptIdentField.getText());
-        website.setCookieHideIdentType(cookieHideChoiceBox.getValue());
-        website.setCookieHideIdent(cookieHideIdentField.getText());
+        setFieldDataToWebsite(website);
 
         scrapingTabManager.saveWebsite(website);
 
@@ -180,23 +168,45 @@ public class ScrapingWebsiteTabController {
     }
 
     private void clearFields() {
+        clearTopFields();
+
+        cookieAcceptIdentField.clear();
+        cookieHideIdentField.clear();
+        usernameIdentChoiceBox.setValue(null);
+        passwordIdentChoiceBox.setValue(null);
+        loginIdentChoiceBox.setValue(null);
+        logoutIdentChoiceBox.setValue(null);
+        cookieAcceptIdentChoiceBox.setValue(null);
+        cookieHideChoiceBox.setValue(null);
+    }
+
+    private void clearTopFields() {
         urlField.clear();
         usernameField.clear();
         passwordField.clear();
-        usernameIdentChoiceBox.setValue(null);
         usernameIdentField.clear();
-        passwordIdentChoiceBox.setValue(null);
         passwordIdentField.clear();
-        loginIdentChoiceBox.setValue(null);
         loginIdentField.clear();
-        logoutIdentChoiceBox.setValue(null);
         logoutIdentField.clear();
-        cookieAcceptIdentChoiceBox.setValue(null);
-        cookieAcceptIdentField.clear();
-        cookieHideChoiceBox.setValue(null);
-        cookieHideIdentField.clear();
     }
 
+    private void setFieldDataToWebsite(Website website) {
+        website.setUrl(urlField.getText());
+        website.setUsername(usernameField.getText());
+        website.setPassword(passwordField.getText());
+        website.setUsernameIdentType(usernameIdentChoiceBox.getValue());
+        website.setUsernameIdent(usernameIdentField.getText());
+        website.setPasswordIdentType(passwordIdentChoiceBox.getValue());
+        website.setPasswordIdent(passwordIdentField.getText());
+        website.setLoginButtonIdentType(loginIdentChoiceBox.getValue());
+        website.setLoginButtonIdent(loginIdentField.getText());
+        website.setLogoutIdentType(logoutIdentChoiceBox.getValue());
+        website.setLogoutIdent(logoutIdentField.getText());
+        website.setCookieAcceptIdentType(cookieAcceptIdentChoiceBox.getValue());
+        website.setCookieAcceptIdent(cookieAcceptIdentField.getText());
+        website.setCookieHideIdentType(cookieHideChoiceBox.getValue());
+        website.setCookieHideIdent(cookieHideIdentField.getText());
+    }
 
     public void selectWebsite(Website website) {
         websiteList.getSelectionModel().select(website);
@@ -218,6 +228,8 @@ public class ScrapingWebsiteTabController {
         if (website == null) return;
 
         inlineValidation = false;
+
+        setEditable(true);
 
         urlField.setText(website.getUrl());
         usernameField.setText(website.getUsername());
@@ -244,7 +256,6 @@ public class ScrapingWebsiteTabController {
         alert.setHeaderText(title);
         if(wait) alert.showAndWait();
     }
-
 
     private boolean isValidInput() {
         // evaluate all to highlight all
@@ -299,4 +310,60 @@ public class ScrapingWebsiteTabController {
         }
     }
 
+    private void addDeselectListener(ChoiceBox<IdentType> choiceBox) {
+        choiceBox.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> deselectOnDeactivated(ov, nv));
+    }
+
+    private void addTypeToChoiceBox(ChoiceBox<IdentType> choiceBox, IdentType[] identType) {
+        choiceBox.getItems().addAll(identType);
+    }
+
+    private void deselectOnDeactivated(IdentType oldIdentType,IdentType newIdentType) {
+        if(newIdentType == IdentType.DEAKTIVIERT) {
+            usernameIdentChoiceBox.setValue(IdentType.DEAKTIVIERT);
+            passwordIdentChoiceBox.setValue(IdentType.DEAKTIVIERT);
+            loginIdentChoiceBox.setValue(IdentType.ENTER);
+            logoutIdentChoiceBox.setValue(IdentType.DEAKTIVIERT);
+
+            clearTopFields();
+
+            logoutIdentChoiceBox.getItems().clear();
+            logoutIdentChoiceBox.getItems().add(IdentType.DEAKTIVIERT);
+            logoutIdentChoiceBox.setValue(IdentType.DEAKTIVIERT);
+
+            setEditable(false);
+        } else if (oldIdentType == IdentType.DEAKTIVIERT) {
+            usernameIdentChoiceBox.setValue(newIdentType);
+            passwordIdentChoiceBox.setValue(newIdentType);
+
+            logoutIdentChoiceBox.getItems().clear();
+            logoutIdentChoiceBox.getItems().addAll(IDENT_TYPE_DEACTIVATED_URL);
+            logoutIdentChoiceBox.setValue(IdentType.ID);
+
+            setEditable(true);
+        } else {
+            setEditable(true);
+        }
+    }
+
+    private boolean IdentTypesDeactivatedState() {
+        return usernameIdentChoiceBox.getValue() == IdentType.DEAKTIVIERT ||
+        passwordIdentChoiceBox.getValue() == IdentType.DEAKTIVIERT;
+    }
+
+    private void setEditable(boolean editable) {
+        urlField.setEditable(editable);
+        usernameField.setEditable(editable);
+        passwordField.setEditable(editable);
+        usernameIdentField.setEditable(editable);
+        passwordIdentField.setEditable(editable);
+        loginIdentField.setEditable(editable);
+        logoutIdentField.setEditable(editable);
+    }
+
+    public Website getWebsiteUnpersistedData() {
+        Website newWebsite = new Website();
+        setFieldDataToWebsite(newWebsite);
+        return newWebsite;
+    }
 }

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
-import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.identTypeSimple;
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_SIMPLE;
 
 @Controller
 @Lazy
@@ -49,7 +49,7 @@ public class TableSubController extends SingleCourseOrStockSubController{
         scrapingTableManager.initCorrelationTable(websiteElement, columnCorrelationTable, MultiplicityType.TABELLE);
 
 
-        tableIdentChoiceBox.getItems().addAll(identTypeSimple);
+        tableIdentChoiceBox.getItems().addAll(IDENT_TYPE_SIMPLE);
         tableIdentChoiceBox.setValue(websiteElement.getTableIdenType());
         tableIdentChoiceBox.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> websiteElement.setTableIdenType(nv));
         tableIdentField.setText(websiteElement.getTableIdent());

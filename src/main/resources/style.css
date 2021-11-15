@@ -31,3 +31,7 @@ tooltip.bad-input {
     -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-background;
     -fx-background-insets: 0 1 1 0, 1 2 1 1, 2 3 1 2;
 }
+
+.text-input:readonly {
+    -fx-background-color: #c4c4c4;
+}

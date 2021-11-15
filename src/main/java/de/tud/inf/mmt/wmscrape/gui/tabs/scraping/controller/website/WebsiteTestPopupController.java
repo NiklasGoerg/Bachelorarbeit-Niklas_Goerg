@@ -26,7 +26,7 @@ public class WebsiteTestPopupController {
         logText = new SimpleStringProperty("");
         logTextArea.textProperty().bind(logText);
 
-        website = scrapingWebsiteTabController.getSelectedWebsite();
+        website = scrapingWebsiteTabController.getWebsiteUnpersistedData();
         websiteTester = new WebsiteTester(website, logText);
 
         nextStep.setText("Browser starten");

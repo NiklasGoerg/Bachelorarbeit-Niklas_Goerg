@@ -9,7 +9,7 @@ public class WebsiteTester extends WebsiteConnection {
     private int step = 0;
 
     public WebsiteTester(Website website, SimpleStringProperty logText) {
-        super(website, logText, true);
+        super(website, logText, false);
     }
 
     public boolean doNextStep() {
@@ -43,7 +43,7 @@ public class WebsiteTester extends WebsiteConnection {
                 if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
                     step+=1;
                     if(website.getLogoutIdentType() == IdentType.DEAKTIVIERT) {
-                        step++;
+                        step+=1;
                     }
                 }
             }

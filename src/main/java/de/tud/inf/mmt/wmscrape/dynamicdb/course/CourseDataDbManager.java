@@ -10,12 +10,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class CourseDataDbManager extends DynamicDbManger{
 
     public static final String TABLE_NAME = "kursdaten";
+    public static final Map<String, ColumnDatatype> colNameToDataType = new HashMap<>();
 
     @Autowired
     CourseDataColumnRepository courseDataColumnRepository;
@@ -32,11 +35,13 @@ public class CourseDataDbManager extends DynamicDbManger{
         ArrayList<String> columnNames = new ArrayList<>();
         for(CourseDataDbTableColumn column : courseDataColumnRepository.findAll()) {
             columnNames.add(column.getName());
+            colNameToDataType.put(column.getName(), column.getColumnDatatype());
         }
 
         for(String colName : getColumns(TABLE_NAME)) {
             if(!columnNames.contains(colName)) {
                 ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
+                colNameToDataType.put(colName, datatype);
                 courseDataColumnRepository.save(new CourseDataDbTableColumn(colName, datatype));
             }
         }

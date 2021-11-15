@@ -71,8 +71,11 @@ public class ElementIdentCorrelation {
         initListener();
     }
 
-    public String getIdentType() {
+    public String getIdentTypeName() {
         return identType.get();
+    }
+    public IdentType getIdentType() {
+        return IdentType.valueOf(identType.get());
     }
 
     public SimpleStringProperty identTypeProperty() {

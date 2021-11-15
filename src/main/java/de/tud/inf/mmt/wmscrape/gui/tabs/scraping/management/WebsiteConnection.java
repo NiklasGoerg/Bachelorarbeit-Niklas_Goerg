@@ -68,7 +68,7 @@ public abstract class WebsiteConnection {
         IdentType type = website.getCookieAcceptIdentType();
         if(type == IdentType.DEAKTIVIERT) return true;
 
-        WebElement element = findElementByType(type.ordinal(), website.getCookieAcceptIdent());
+        WebElement element = findElementByType(type, website.getCookieAcceptIdent());
 
         if(element == null) return false;
 
@@ -109,11 +109,11 @@ public abstract class WebsiteConnection {
 
     protected boolean fillLoginInformation() {
 
-        WebElement username = findElementByType(website.getUsernameIdentType().ordinal(), website.getUsernameIdent());
+        WebElement username = findElementByType(website.getUsernameIdentType(), website.getUsernameIdent());
         if(username == null) return false;
         username.sendKeys(website.getUsername());
 
-        WebElement password = findElementByType(website.getPasswordIdentType().ordinal(), website.getPasswordIdent());
+        WebElement password = findElementByType(website.getPasswordIdentType(), website.getPasswordIdent());
         if(password == null) return false;
         password.sendKeys(website.getPassword());
 
@@ -122,15 +122,15 @@ public abstract class WebsiteConnection {
     }
 
     protected boolean login() {
-        WebElement password = findElementByType(website.getPasswordIdentType().ordinal(), website.getPasswordIdent());
+        WebElement password = findElementByType(website.getPasswordIdentType(), website.getPasswordIdent());
 
         // submit like pressing enter
-        if(website.getLoginButtonIdentType() == IdentType.DEAKTIVIERT) {
+        if(website.getLoginButtonIdentType() == IdentType.ENTER) {
             password.submit();
             return true;
         }
 
-        WebElement loginButton = findElementByType(website.getLoginButtonIdentType().ordinal(), website.getLoginButtonIdent());
+        WebElement loginButton = findElementByType(website.getLoginButtonIdentType(), website.getLoginButtonIdent());
         if(loginButton == null) return false;
         clickElement(loginButton);
 
@@ -142,14 +142,16 @@ public abstract class WebsiteConnection {
         IdentType type = website.getLogoutIdentType();
         if(type == IdentType.DEAKTIVIERT) return true;
 
-        if(website.getCookieHideIdentType() != IdentType.DEAKTIVIERT) hideCookies();
+        // // called separately in tester
+        if(website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
+                && !(this instanceof WebsiteTester)) hideCookies();
 
         if(type == IdentType.URL) {
             driver.get(website.getLogoutIdent());
             return true;
         }
 
-        WebElement logoutButton = findElementByType(type.ordinal(), website.getLogoutIdent());
+        WebElement logoutButton = findElementByType(type, website.getLogoutIdent());
         if(logoutButton == null) return false;
         clickElement(logoutButton);
 
@@ -167,46 +169,49 @@ public abstract class WebsiteConnection {
         wait.until(webDriver -> js.executeScript("return document.readyState").equals("complete"));
     }
 
-    private WebElement findElementByType(int type, String identifier) {
+    private WebElement findElementByType(IdentType type, String identifier) {
         // called separately in tester
         if(website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
                 && !(this instanceof WebsiteTester)) hideCookies();
 
-        // little trick: my ident enums always start with id, xpath, css
-        // therefore id=0, xpath=1, css=2
 
-        List<WebElement> elements;
-
-        if(type == 0) {
-            elements = driver.findElements(By.id(identifier));
-        } else if(type == 1) {
-            elements = driver.findElements(By.xpath(identifier));
-        } else if(type==2) {
-            elements = driver.findElements(By.cssSelector(identifier));
-        } else return null;
-
-        // found element in main document
-        if(elements.size()>0) return elements.get(0);
+        // search element in main document
+        WebElement element = extractElementsByType(type, identifier);
+        if(element != null) return element;
 
         // search in multiple frames
         for(WebElement frame : driver.findElements(By.tagName("iframe"))) {
             driver.switchTo().frame(frame);
 
-            if(type == 0) {
-                elements = driver.findElements(By.id(identifier));
-            } else if(type == 1) {
-                elements = driver.findElements(By.xpath(identifier));
-            } else {
-                elements = driver.findElements(By.cssSelector(identifier));
-            }
-
-            for (WebElement element : elements) return element;
+            element = extractElementsByType(type, identifier);
+            if(element != null) return element;
 
             driver.switchTo().parentFrame();
         }
 
-        addToLog("FEHLER: Kein Element unter "+identifier+" gefunden");
+        addToLog("FEHLER: Kein Element unter '"+identifier+"' gefunden");
         return null;
+    }
+
+    private WebElement extractElementsByType(IdentType type, String identifier) {
+        List<WebElement> elements;
+
+        if(type == IdentType.ID) {
+            elements = driver.findElements(By.id(identifier));
+        } else if(type == IdentType.XPATH) {
+            elements = driver.findElements(By.xpath(identifier));
+        } else if(type== IdentType.CSS) {
+            elements = driver.findElements(By.cssSelector(identifier));
+        } else return null;
+
+        if(elements.size()>0) return elements.get(0);
+        return null;
+    }
+
+    protected String extractTextDataByType(IdentType type, String identifier) {
+        WebElement element = extractElementsByType(type, identifier);
+        if(element == null) return null;
+        return element.getText();
     }
 
     private void clickElement(WebElement element) {

@@ -33,12 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
-import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.identTypeDeactivated;
-import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.identTypeTable;
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_DEACTIVATED;
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_TABLE;
 
 public abstract class ScrapingElementManager {
 
-    private final static String[] exchangeCols = {"bezeichnung", "datum", "kurs"};
+    private final static String[] EXCHANGE_COLS = {"bezeichnung", "kurs"};
     @Autowired
     private StockRepository stockRepository;
     @Autowired
@@ -80,11 +80,16 @@ public abstract class ScrapingElementManager {
         });
     }
 
-    private void createChoiceBoxIdentTypeDeaktivated(TableColumn<ElementIdentCorrelation, String> column) {
+    private void createChoiceBoxIdentType(TableColumn<ElementIdentCorrelation, String> column, MultiplicityType multiplicityType) {
         column.setCellFactory(col -> {
             TableCell<ElementIdentCorrelation, String> cell = new TableCell<>();
             ChoiceBox<IdentType> choiceBox = new ChoiceBox<>();
-            choiceBox.getItems().addAll(identTypeDeactivated);
+
+            if(multiplicityType == MultiplicityType.EINZELWERT) {
+                choiceBox.getItems().addAll(IDENT_TYPE_DEACTIVATED);
+            } else {
+                choiceBox.getItems().addAll(IDENT_TYPE_TABLE);
+            }
 
             // update value
             choiceBox.valueProperty().addListener((o, ov, nv) -> {
@@ -95,33 +100,8 @@ public abstract class ScrapingElementManager {
 
             // set initial value
             cell.graphicProperty().addListener((o, ov, nv) -> {
-                if (cell.getTableRow() != null && cell.getTableRow().getItem() != null && cell.getTableRow().getItem().getIdentType() != null) {
-                    choiceBox.setValue(IdentType.valueOf(cell.getTableRow().getItem().getIdentType()));
-                }
-            });
-
-            cell.graphicProperty().bind(Bindings.when(cell.emptyProperty()).then((Node) null).otherwise(choiceBox));
-            return cell;
-        });
-    }
-
-    private void createChoiceBoxIdentTypeTable(TableColumn<ElementIdentCorrelation, String> column) {
-        column.setCellFactory(col -> {
-            TableCell<ElementIdentCorrelation, String> cell = new TableCell<>();
-            ChoiceBox<IdentType> choiceBox = new ChoiceBox<>();
-            choiceBox.getItems().addAll(identTypeTable);
-
-            // update value
-            choiceBox.valueProperty().addListener((o, ov, nv) -> {
-                if (cell.getTableRow().getItem() != null) {
-                    cell.getTableRow().getItem().setIdentType(nv.name());
-                }
-            });
-
-            // set initial value
-            cell.graphicProperty().addListener((o, ov, nv) -> {
-                if (cell.getTableRow() != null && cell.getTableRow().getItem() != null && cell.getTableRow().getItem().getIdentType() != null) {
-                    choiceBox.setValue(IdentType.valueOf(cell.getTableRow().getItem().getIdentType()));
+                if (cell.getTableRow() != null && cell.getTableRow().getItem() != null && cell.getTableRow().getItem().getIdentTypeName() != null) {
+                    choiceBox.setValue(IdentType.valueOf(cell.getTableRow().getItem().getIdentTypeName()));
                 }
             });
 
@@ -214,14 +194,8 @@ public abstract class ScrapingElementManager {
             dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getExchangeFieldName()));
         }
 
-
         // choiceBox
-        if(multiplicityType == MultiplicityType.EINZELWERT) {
-            createChoiceBoxIdentTypeDeaktivated(identTypeColumn);
-        }
-        else {
-            createChoiceBoxIdentTypeTable(identTypeColumn);
-        }
+        createChoiceBoxIdentType(identTypeColumn, multiplicityType);
 
         // representation
         representationColumn.setCellValueFactory(param -> param.getValue().representationProperty());
@@ -237,8 +211,9 @@ public abstract class ScrapingElementManager {
         ObservableList<ElementIdentCorrelation> stockCorrelations = FXCollections.observableArrayList();
         ArrayList<String> addedStockColumns = new ArrayList<>();
 
-        // don't need isin, it's defined in selection
+        // don't need isin, it's defined in selection nor datum
         if(multiplicityType == MultiplicityType.EINZELWERT) addedStockColumns.add("isin");
+        addedStockColumns.add("datum");
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
             stockCorrelations.add(elementIdentCorrelation);
@@ -259,8 +234,9 @@ public abstract class ScrapingElementManager {
         ObservableList<ElementIdentCorrelation> courseCorrelations = FXCollections.observableArrayList();
         ArrayList<String> addedStockColumns = new ArrayList<>();
 
-        // don't need isin, it's defined in selection
+        // don't need isin, it's defined in selection nor datum
         if(multiplicityType == MultiplicityType.EINZELWERT) addedStockColumns.add("isin");
+        addedStockColumns.add("datum");
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
             courseCorrelations.add(elementIdentCorrelation);
@@ -287,7 +263,7 @@ public abstract class ScrapingElementManager {
             addedStockColumns.add(elementIdentCorrelation.getExchangeFieldName());
         }
 
-        for(String column : exchangeCols) {
+        for(String column : EXCHANGE_COLS) {
             if(!addedStockColumns.contains(column)) {
                 addedStockColumns.add(column);
                 exchangeCorrelations.add(new ElementIdentCorrelation(websiteElement, column));

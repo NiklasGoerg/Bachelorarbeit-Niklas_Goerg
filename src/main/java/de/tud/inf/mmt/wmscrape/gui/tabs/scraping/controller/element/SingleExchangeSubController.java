@@ -18,7 +18,7 @@ import org.springframework.stereotype.Controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.identTypeDeactivated;
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_DEACTIVATED;
 
 @Controller
 @Lazy
@@ -39,9 +39,9 @@ public class SingleExchangeSubController {
 
     @FXML
     protected void initialize() {
-        dateIdentTypeChoiceBox.getItems().addAll(identTypeDeactivated);
+        dateIdentTypeChoiceBox.getItems().addAll(IDENT_TYPE_DEACTIVATED);
         dateIdentTypeChoiceBox.setValue(IdentType.DEAKTIVIERT);
-        exchangeIdentTypeChoiceBox.getItems().addAll(identTypeDeactivated);
+        exchangeIdentTypeChoiceBox.getItems().addAll(IDENT_TYPE_DEACTIVATED);
         exchangeIdentTypeChoiceBox.setValue(IdentType.XPATH);
 
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();

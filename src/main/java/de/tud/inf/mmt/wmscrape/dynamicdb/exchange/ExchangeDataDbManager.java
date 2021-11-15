@@ -2,7 +2,6 @@ package de.tud.inf.mmt.wmscrape.dynamicdb.exchange;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbManger;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +49,7 @@ public class ExchangeDataDbManager extends DynamicDbManger{
     }
 
     private boolean initColumn(String name) {
-        return addColumnIfNotExists(TABLE_NAME, exchangeDataColumnRepository, new CourseDataDbTableColumn(name, ColumnDatatype.DOUBLE));
+        return addColumnIfNotExists(TABLE_NAME, exchangeDataColumnRepository, new ExchangeDataDbTableColumn(name, ColumnDatatype.DOUBLE));
     }
 
     @Override
