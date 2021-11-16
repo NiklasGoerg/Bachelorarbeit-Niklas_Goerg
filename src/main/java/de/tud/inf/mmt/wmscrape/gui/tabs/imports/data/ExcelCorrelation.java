@@ -26,14 +26,14 @@ public class ExcelCorrelation {
     private CorrelationType correlationType;
 
     public ExcelCorrelation() {
+        excelColNumber.set(_excelColNumber);
         initListener();
     }
 
     public ExcelCorrelation(String excelColTitle, String dbColTitle) {
+        this();
         this.excelColTitle.set(excelColTitle);
-        this._excelColTitle = excelColTitle;
         this.dbColTitle = dbColTitle;
-        initListener();
     }
 
     @ManyToOne(fetch=FetchType.LAZY)
