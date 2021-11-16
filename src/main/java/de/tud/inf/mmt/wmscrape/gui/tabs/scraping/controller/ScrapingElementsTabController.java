@@ -13,12 +13,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
 @Controller
+@Lazy
 public class ScrapingElementsTabController {
 
     @FXML private ListView<WebsiteElement> elementList;
@@ -44,7 +46,7 @@ public class ScrapingElementsTabController {
     private TableSubController tableSubController;
 
     private ObservableList<WebsiteElement> elementObservableList;
-    private ObservableList<Website> websiteObservableList = FXCollections.observableList(new ArrayList<>());
+    private final ObservableList<Website> websiteObservableList = FXCollections.observableList(new ArrayList<>());
 
     private boolean inlineValidation = false;
 

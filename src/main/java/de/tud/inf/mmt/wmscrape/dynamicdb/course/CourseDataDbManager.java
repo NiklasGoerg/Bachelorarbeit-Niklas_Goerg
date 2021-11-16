@@ -50,22 +50,6 @@ public class CourseDataDbManager extends DynamicDbManger{
         initColumn("volumen", ColumnDatatype.DOUBLE);
         initColumn("tages_hoch", ColumnDatatype.DOUBLE);
         initColumn("tages_tief", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief1", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief2", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief3", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief4", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief5", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief6", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief7", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief8", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief9", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief10", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief11", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief12", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief13", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief14", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief15", ColumnDatatype.DOUBLE);
-
     }
 
     private boolean initColumn(String name, ColumnDatatype columnDatatype) {

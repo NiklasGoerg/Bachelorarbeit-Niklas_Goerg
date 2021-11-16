@@ -148,6 +148,7 @@ public abstract class WebsiteConnection {
 
         if(type == IdentType.URL) {
             driver.get(website.getLogoutIdent());
+            addToLog("INFO: Logout erfolgreich");
             return true;
         }
 

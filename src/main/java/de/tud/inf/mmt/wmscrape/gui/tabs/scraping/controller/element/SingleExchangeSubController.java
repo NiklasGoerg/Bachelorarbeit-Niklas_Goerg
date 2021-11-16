@@ -25,8 +25,6 @@ import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.ID
 public class SingleExchangeSubController {
 
     @FXML protected TableView<ElementSelection> exchangeSelectionTable;
-    @FXML private ChoiceBox<IdentType> dateIdentTypeChoiceBox;
-    @FXML private TextField dateIdentField;
     @FXML private ChoiceBox<IdentType> exchangeIdentTypeChoiceBox;
     @FXML private TextField exchangeIdentField;
 
@@ -39,16 +37,13 @@ public class SingleExchangeSubController {
 
     @FXML
     protected void initialize() {
-        dateIdentTypeChoiceBox.getItems().addAll(IDENT_TYPE_DEACTIVATED);
-        dateIdentTypeChoiceBox.setValue(IdentType.DEAKTIVIERT);
         exchangeIdentTypeChoiceBox.getItems().addAll(IDENT_TYPE_DEACTIVATED);
         exchangeIdentTypeChoiceBox.setValue(IdentType.XPATH);
 
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
         manager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable, true);
 
-        elementIdentCorrelations = manager.initExchangeCorrelations(dateIdentTypeChoiceBox,
-                dateIdentField, exchangeIdentTypeChoiceBox,
+        elementIdentCorrelations = manager.initExchangeCorrelations(exchangeIdentTypeChoiceBox,
                 exchangeIdentField, websiteElement);
 
     }

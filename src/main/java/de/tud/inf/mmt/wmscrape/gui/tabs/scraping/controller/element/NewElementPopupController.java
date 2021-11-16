@@ -11,9 +11,11 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
 @Controller
+@Lazy
 public class NewElementPopupController {
     @FXML private TextField descriptionField;
     @FXML private ChoiceBox<ContentType> contentTypeChoiceBox;

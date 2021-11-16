@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.HashMap;
 
 @Transactional
 @Service
+@Lazy
 public class DbTransactionManager {
     @Autowired
     private StockDataColumnRepository stockDataColumnRepository;

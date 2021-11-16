@@ -8,6 +8,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import javafx.collections.ObservableList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 @Service
+@Lazy
 public class ExtractionManager {
     @Autowired
     private ImportTabManager importTabManager;

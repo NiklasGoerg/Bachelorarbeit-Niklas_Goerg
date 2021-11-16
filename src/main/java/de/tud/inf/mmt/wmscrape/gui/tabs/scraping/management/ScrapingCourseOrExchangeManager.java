@@ -25,9 +25,7 @@ public class ScrapingCourseOrExchangeManager extends ScrapingElementManager {
     private SingleCourseOrStockSubController singleCourseOrStockSubController;
 
     @Transactional
-    public List<ElementIdentCorrelation> initExchangeCorrelations(ChoiceBox<IdentType> dateChoiceBox,
-                                                                  TextField dataIdentField,
-                                                                  ChoiceBox<IdentType> exchangeChoiceBox,
+    public List<ElementIdentCorrelation> initExchangeCorrelations(ChoiceBox<IdentType> exchangeChoiceBox,
                                                                   TextField exchangeIdentField,
                                                                   WebsiteElement staleElement) {
 
@@ -36,23 +34,15 @@ public class ScrapingCourseOrExchangeManager extends ScrapingElementManager {
         List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
         List<String> added = new ArrayList<>();
 
+        // TODO change to tableColoumn
+
         // load saved values
         for (ElementIdentCorrelation correlation : websiteElement.getElementIdentCorrelations()) {
-            if(correlation.getExchangeFieldName().equals("_date_")) {
-                bindExchangeFieldsToCorrelation(dateChoiceBox, dataIdentField, correlation);
-                added.add("datum");
-            } else if(correlation.getExchangeFieldName().equals("_price_")) {
+            if(correlation.getExchangeFieldName().equals("_price_")) {
                 bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, correlation);
                 added.add("kurs");
             } else continue;
             elementIdentCorrelations.add(correlation);
-        }
-
-        // add new if not saved
-        if(!added.contains("_date_")) {
-            var newCorrelation = new ElementIdentCorrelation(websiteElement, "_data_");
-            elementIdentCorrelations.add(newCorrelation);
-            bindExchangeFieldsToCorrelation(dateChoiceBox, dataIdentField, newCorrelation);
         }
 
         // add new if not saved

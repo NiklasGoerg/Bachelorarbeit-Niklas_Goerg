@@ -12,6 +12,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -21,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@Lazy
 public class ParsingManager {
     
     @Autowired
