@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@DiscriminatorValue("C")
 public class CourseDataDbTableColumn extends DbTableColumn {
 
     public CourseDataDbTableColumn() {}

@@ -2,7 +2,9 @@ package de.tud.inf.mmt.wmscrape.dynamicdb;
 
 import javax.persistence.*;
 
-@MappedSuperclass
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="ColType")
 public abstract class DbTableColumn {
 
     @Id
