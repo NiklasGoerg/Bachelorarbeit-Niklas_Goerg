@@ -320,11 +320,10 @@ public class ExtractionManager {
     }
 
     private boolean correlationsHaveValidState() {
-        var stockColumnRelations = correlationManager.getStockColumnRelations();
-        if (getColNrByName("isin", stockColumnRelations) == -1) return false;
-        if (getColNrByName("wertpapier_isin", stockColumnRelations) == -1) return false;
-        if (getColNrByName("transaktions_datum", stockColumnRelations) == -1) return false;
-        if (getColNrByName("depot_name", stockColumnRelations) == -1) return false;
+        if (getColNrByName("isin", correlationManager.getStockColumnRelations()) == -1) return false;
+        if (getColNrByName("wertpapier_isin", correlationManager.getTransactionColumnRelations()) == -1) return false;
+        if (getColNrByName("transaktions_datum", correlationManager.getTransactionColumnRelations()) == -1) return false;
+        if (getColNrByName("depot_name", correlationManager.getTransactionColumnRelations()) == -1) return false;
 
         return true;
     }
