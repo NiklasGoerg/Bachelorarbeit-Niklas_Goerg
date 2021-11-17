@@ -250,11 +250,11 @@ public abstract class WebsiteConnection {
         }
     }
 
-    private void addToLog(String line) {
+    protected void addToLog(String line) {
         logText.set(this.logText.getValue() +"\n" + line);
     }
 
-    public WebElement recursiveSearch(IdentType type, String identifier, List<WebElement> elements, int depth) {
+    private WebElement recursiveSearch(IdentType type, String identifier, List<WebElement> elements, int depth) {
         // search in multiple frames
         if (depth >= IFRAME_SEARCH_DEPTH) return null;
 

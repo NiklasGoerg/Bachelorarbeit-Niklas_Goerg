@@ -306,14 +306,14 @@ public class ExtractionManager {
         } else if (colData == null) {
             // null is valid in order to override values that may be set in the wrong column
             return true;
-        } else if (colDatatype == ColumnDatatype.INT && colData.matches("^-?[0-9]+(\\.0{5})?$")) {
+        } else if (colDatatype == ColumnDatatype.INT && colData.matches("^[\\-+]?[0-9]+(\\.0{5})?$")) {
             // normal format would be "^-?[0-9]+$" but because of
             // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
             // 5 zeros are added to int
             return true;
-        } else if (colDatatype == ColumnDatatype.DOUBLE && colData.matches("^-?[0-9]+((\\.|,)?[0-9]+)?$")) {
+        } else if (colDatatype == ColumnDatatype.DOUBLE && colData.matches("^[\\-+]?[0-9]+([.,]?[0-9]+)?$")) {
             return true;
-        } else if (colDatatype == ColumnDatatype.DATE && colData.matches("^[1-9][0-9]{3}\\-[0-9]{2}\\-[0-9]{2}$")) {
+        } else if (colDatatype == ColumnDatatype.DATE && colData.matches("^[1-9][0-9]{3}-[0-9]{2}-[0-9]{2}$")) {
             return true;
         } else return colDatatype == ColumnDatatype.TEXT;
     }
@@ -339,8 +339,6 @@ public class ExtractionManager {
         if (getColNrByName("wertpapier_isin", correlationManager.getTransactionColumnRelations()) == -1) return false;
         if (getColNrByName("transaktions_datum", correlationManager.getTransactionColumnRelations()) == -1) return false;
         if (getColNrByName("transaktionstyp", correlationManager.getTransactionColumnRelations()) == -1) return false;
-        if (getColNrByName("depot_name", correlationManager.getTransactionColumnRelations()) == -1) return false;
-
-        return true;
+        return getColNrByName("depot_name", correlationManager.getTransactionColumnRelations()) != -1;
     }
 }

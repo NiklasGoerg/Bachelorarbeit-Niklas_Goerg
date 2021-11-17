@@ -10,6 +10,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -183,9 +184,6 @@ public class ParsingManager {
                                 value = cell.getStringCellValue();
                                 break;
                             case NUMERIC:
-                                //String raw = formatter.formatCellValue(cell);
-                                //if(!raw.matches("^[0-9]+((\\.|,)[0-9]*)?$")) {
-                                //    value = raw;
                                 if (DateUtil.isCellDateFormatted(cell)) {
                                     Date date = new Date(cell.getDateCellValue().getTime());
                                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -204,7 +202,7 @@ public class ParsingManager {
                                 value = "";
                                 break;
                         }
-                    } catch (Exception e) {
+                    } catch (NotImplementedException e) {
                         // TODO: http://poi.apache.org/components/spreadsheet/user-defined-functions.html
                         //      https://poi.apache.org/components/spreadsheet/eval-devguide.html (bottom)
                         // example org.apache.poi.ss.formula.eval.NotImplementedException: Error evaluating cell 'WP Depot'!AX75

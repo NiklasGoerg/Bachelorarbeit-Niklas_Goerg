@@ -14,6 +14,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 
@@ -160,7 +161,9 @@ public class DbTransactionManager {
     private void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data) throws SQLException {
         switch (datatype) {
             case DATE -> {
-                LocalDate dataToDate = LocalDate.parse(data);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate dataToDate = LocalDate.from(formatter.parse(data));
+                //LocalDate dataToDate = LocalDate.parse(data);
                 statement.setDate(number, Date.valueOf(dataToDate));
             }
             case TEXT -> statement.setString(number, data);

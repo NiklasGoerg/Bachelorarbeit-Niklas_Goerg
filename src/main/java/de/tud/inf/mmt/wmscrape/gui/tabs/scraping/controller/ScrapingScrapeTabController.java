@@ -11,11 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.Optional;
+
 @Controller
 public class ScrapingScrapeTabController {
 
     //@FXML private TreeView
     @FXML private TextArea logArea;
+
+    //TODO remove
+    @Autowired
+    DataSource dataSource;
 
     @Autowired
     private WebsiteRepository websiteRepository;
@@ -32,15 +40,23 @@ public class ScrapingScrapeTabController {
     @FXML
     @Transactional
     public void handleStartButton() {
-        Website website = fresh();
-        WebsiteElement element = website.getWebsiteElements().get(0);
+        Optional<Website> website = fresh();
 
-        WebsiteScraper scraper = new WebsiteScraper(website, logText, false);
-        scraper.processElement(element);
+        if(website.isEmpty()) return;
+
+        WebsiteElement element = website.get().getWebsiteElements().get(0);
+
+        WebsiteScraper scraper;
+        try {
+            scraper = new WebsiteScraper(website.get(), logText, false, dataSource.getConnection());
+            scraper.processElement(element);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    private Website fresh() {
-        return websiteRepository.findByDescription("localhost").get();
+    private Optional<Website> fresh() {
+        return websiteRepository.findByDescription("localhost");
     }
 
     @FXML
