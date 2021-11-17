@@ -6,6 +6,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "Wertpapier")
@@ -96,5 +97,13 @@ public class Stock {
 
     public void setElementSelections(List<ElementSelection> elementSelections) {
         this.elementSelections = elementSelections;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Stock stock = (Stock) o;
+        return Objects.equals(isin, stock.isin);
     }
 }

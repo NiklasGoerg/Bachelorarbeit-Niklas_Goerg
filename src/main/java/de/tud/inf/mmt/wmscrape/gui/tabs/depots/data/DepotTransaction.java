@@ -27,7 +27,7 @@ public class DepotTransaction {
     @JoinColumn(name="wertpapierIsin", referencedColumnName="isin", updatable=false, insertable=false)
     private Stock stock;
     //@Enumerated(EnumType.STRING)
-    @Column(name = "tansaktionstyp")
+    @Column(name = "transaktionstyp")
     private String transactionType;
     @Column(name = "anzahl")
     private int amount;

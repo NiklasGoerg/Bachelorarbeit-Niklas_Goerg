@@ -37,26 +37,31 @@ public class ScrapingTableManager extends ScrapingElementManager {
 
     private void prepareCourseDescriptionTable(TableView<ElementDescCorrelation> table) {
 
-        TableColumn<ElementDescCorrelation, String> dbDescriptionCol = new TableColumn<>("Bezeichnung in DB");
-        TableColumn<ElementDescCorrelation, String> dbIsinCol = new TableColumn<>("Isin in DB");
-        TableColumn<ElementDescCorrelation, String> wsDescriptionCol = new TableColumn<>("Bezeichnung auf der Seite");
-        TableColumn<ElementDescCorrelation, String> wsIsinCol = new TableColumn<>("Isin auf Seite");
-
+        TableColumn<ElementDescCorrelation, String> dbDescriptionCol = new TableColumn<>("DB-Bezeichnung");
+        TableColumn<ElementDescCorrelation, String> dbIsinCol = new TableColumn<>("DB-ISIN");
+        TableColumn<ElementDescCorrelation, String> wsDescriptionCol = new TableColumn<>("Seite-Bezeichnung");
+        TableColumn<ElementDescCorrelation, String> wsIsinCol = new TableColumn<>("Seite-ISIN");
+        TableColumn<ElementDescCorrelation, String> dbWknColl = new TableColumn<>("DB-WKN");
+        TableColumn<ElementDescCorrelation, String> wsWknColl = new TableColumn<>("Seite-WKN");
 
         dbDescriptionCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getElementSelection().getDescription()));
         dbIsinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getElementSelection().getIsin()));
-
+        dbWknColl.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getElementSelection().getWkn()));
 
         // representation
         wsDescriptionCol.setCellValueFactory(param -> param.getValue().wsDescriptionProperty());
-        wsDescriptionCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        textFieldCellFactory(wsDescriptionCol);
 
         wsIsinCol.setCellValueFactory(param -> param.getValue().wsIsinProperty());
-        wsIsinCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        textFieldCellFactory(wsIsinCol);
 
+        wsWknColl.setCellValueFactory(param -> param.getValue().wsWknProperty());
+        textFieldCellFactory(wsWknColl);
 
         table.getColumns().add(dbIsinCol);
         table.getColumns().add(wsIsinCol);
+        table.getColumns().add(dbWknColl);
+        table.getColumns().add(wsWknColl);
         table.getColumns().add(dbDescriptionCol);
         table.getColumns().add(wsDescriptionCol);
     }
@@ -70,7 +75,7 @@ public class ScrapingTableManager extends ScrapingElementManager {
 
         // representation
         wsDescriptionCol.setCellValueFactory(param -> param.getValue().wsCurrencyNameProperty());
-        wsDescriptionCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        textFieldCellFactory(wsDescriptionCol);
 
 
         table.getColumns().add(dbDescriptionCol);
@@ -141,4 +146,7 @@ public class ScrapingTableManager extends ScrapingElementManager {
         websiteElementRepository.save(websiteElement);
     }
 
+    private void textFieldCellFactory(TableColumn<ElementDescCorrelation, String> wsWknColl) {
+        wsWknColl.setCellFactory(TextFieldTableCell.forTableColumn());
+    }
 }

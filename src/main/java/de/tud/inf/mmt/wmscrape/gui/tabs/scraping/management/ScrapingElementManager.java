@@ -123,7 +123,7 @@ public abstract class ScrapingElementManager {
 
         for(ElementSelection elementSelection : websiteElement.getElementSelections()) {
             table.getItems().add(elementSelection);
-            addedStockSelection.add(elementSelection.getStock().getIsin());
+            addedStockSelection.add(elementSelection.getIsin());
         }
 
         for(Stock stock : stockRepository.findAll()) {

@@ -17,7 +17,10 @@ public class WebsiteTester extends WebsiteConnection {
         if(step>0 && getDriver() == null) return true;
 
         switch (step) {
-            case 0 -> startBrowser();
+            case 0 -> {
+                startBrowser();
+                if(website.getUsernameIdentType() == IdentType.DEAKTIVIERT) {step = 8; return false;}
+            }
             case 1 -> {
                 loadLoginPage();
 
@@ -31,15 +34,19 @@ public class WebsiteTester extends WebsiteConnection {
                 }
             }
             case 2 ->  {
-                acceptCookies();
+                if (!acceptCookies()) {step = 8; return false;}
                 if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
                     step+=1;
                 }
             }
-            case 3, 6 -> hideCookies();
-            case 4 -> fillLoginInformation();
+            case 3, 6 -> {
+                if(!hideCookies()) {step = 8; return false;}
+            }
+            case 4 -> {
+                if(!fillLoginInformation()) {step = 8; return false;}
+            }
             case 5 -> {
-                login();
+                if(!login()) {step = 8; return false;}
                 if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
                     step+=1;
                     if(website.getLogoutIdentType() == IdentType.DEAKTIVIERT) {

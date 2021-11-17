@@ -21,7 +21,6 @@ public class Depot {
     @Column(name = "Schließungsdatum")
     private Date closed;
     @ManyToOne(fetch=FetchType.LAZY)
-
     @JoinColumn(name = "accountId", referencedColumnName = "id")
     private Account account;
 

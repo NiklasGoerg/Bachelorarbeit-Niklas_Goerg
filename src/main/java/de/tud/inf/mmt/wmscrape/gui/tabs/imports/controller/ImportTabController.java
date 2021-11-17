@@ -1,16 +1,17 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller;
 
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManager;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -28,9 +29,12 @@ public class ImportTabController {
     @FXML private PasswordField passwordField;
     @FXML private TextField titleRowNrField;
     @FXML private TextField selectionColTitleField;
+    @FXML private TextField depotColTitleField;
     @FXML private TableView<ObservableList<String>> sheetPreviewTable;
     @FXML private TableView<ExcelCorrelation> stockDataCorrelationTable;
     @FXML private TableView<ExcelCorrelation> transactionCorrelationTable;
+    @FXML private GridPane rightPanelBox;
+    @FXML private SplitPane rootNode;
 
     @Autowired
     private PrimaryTabManagement primaryTabManagement;
@@ -41,6 +45,7 @@ public class ImportTabController {
 
     private ObservableList<ExcelSheet> excelSheetObservableList;
     private boolean inlineValidation = false;
+    private static final BorderPane noSelectionReplacement = new BorderPane(new Label("Wählen Sie eine Excelkonfiguration aus oder erstellen Sie eine neue (unten links)"));
 
     @Autowired
     StockDataColumnRepository stockDataColumnRepository;
@@ -51,6 +56,12 @@ public class ImportTabController {
 
     @FXML
     private void initialize() {
+
+        setRightPanelBoxVisibile(false);
+        sheetPreviewTable.setPlaceholder(getPlaceholder());
+        stockDataCorrelationTable.setPlaceholder(getPlaceholder());
+        transactionCorrelationTable.setPlaceholder(getPlaceholder());
+
         excelSheetObservableList = importTabManager.initExcelSheetList(excelSheetList);
         excelSheetList.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldSheet, newSheet) -> loadSpecificExcel(newSheet));
@@ -58,6 +69,7 @@ public class ImportTabController {
         pathField.textProperty().addListener((o,ov,nv) -> validPath());
         titleRowNrField.textProperty().addListener((o,ov,nv) -> validTitleColNr());
         selectionColTitleField.textProperty().addListener((o,ov,nv) -> emptyValidator(selectionColTitleField));
+        depotColTitleField.textProperty().addListener((o,ov,nv) -> emptyValidator(depotColTitleField));
 
         logText = new SimpleStringProperty("");
         logTextArea = new TextArea();
@@ -72,7 +84,7 @@ public class ImportTabController {
     private void handleNewExcelSheetButton() {
         primaryTabManagement.loadFxml(
                 "gui/tabs/imports/controller/newExcelPopup.fxml",
-                "Neue Exceltabelle anlegen",
+                "Neue Konfiguration anlegen",
                 excelSheetList,
                 true, newExcelPopupController);
     }
@@ -84,14 +96,14 @@ public class ImportTabController {
 
         if(excelSheet == null) {
             createAlert("Keine Excel zum löschen ausgewählt!",
-                    "Wählen Sie eine Exceldatei aus der Liste aus um diese zu löschen.",
+                    "Wählen Sie eine Konfiguration aus der Liste aus um diese zu löschen.",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
             return;
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setHeaderText("Einstellungen löschen?");
-        alert.setContentText("Bitte bestätigen Sie, dass sie diese Exceleinstellungen löschen möchten.");
+        alert.setContentText("Bitte bestätigen Sie, dass sie diese Konfiguration löschen möchten.");
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -99,6 +111,7 @@ public class ImportTabController {
 
         importTabManager.deleteSpecificExcel(excelSheet);
         reloadExcelList();
+        setRightPanelBoxVisibile(false);
         excelSheetList.getSelectionModel().selectFirst();
     }
 
@@ -114,12 +127,13 @@ public class ImportTabController {
         excelSheet.setPassword(passwordField.getText());
         excelSheet.setTitleRow(Integer.parseInt(titleRowNrField.getText()));
         excelSheet.setSelectionColTitle(selectionColTitleField.getText());
+        excelSheet.setDepotColTitle(depotColTitleField.getText());
 
         importTabManager.saveExcel(excelSheet);
 
         Alert alert = new Alert(
                 Alert.AlertType.INFORMATION,
-                "Die Exceltabelle wurde gespeichert.",
+                "Die Excelkonfiguration wurde gespeichert.",
                 ButtonType.OK);
         alert.setHeaderText("Daten gespeichert!");
         alert.showAndWait();
@@ -193,21 +207,29 @@ public class ImportTabController {
             case -6:
                 // Selection column not found
                 createAlert("Übernahmespalte nicht gefunden!",
-                        "In der Zeile "+excelSheet.getTitleRow()+" " +
+                        "In der Zeile "+(excelSheet.getTitleRow()+1)+" " +
                         "existiert keine Spalte mit dem Namen '" +
                         excelSheet.getSelectionColTitle() + "'.",
                         Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -7:
+                // Selection column not found
+                createAlert("Depotspalte nicht gefunden!",
+                        "In der Zeile "+(excelSheet.getTitleRow()+1)+" " +
+                                "existiert keine Spalte mit dem Namen '" +
+                                excelSheet.getDepotColTitle() + "'.",
+                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                return;
+            case -8:
                 // Cell evaluation error
                 alert = new Alert(
                         Alert.AlertType.WARNING,
-                        "Einige Zellen konnten nicht evaluiert werden. Diese wurden mit 'ERROR' gefüllt. ",
+                        "Einige Zellen konnten nicht evaluiert werden.",
                         ButtonType.OK);
-                alert.setHeaderText("Evaluierungs Fehler!");
+                alert.setHeaderText("Fehler bei der Evaluierung!");
 
                 TextArea textArea = new TextArea(
-                        "Einige Zellen konnten nicht evaluiert werden. Diese werde mit ERROR angezeigt. " +
+                        "Einige Zellen konnten nicht evaluiert werden.\n" +
                         "Genauere Informationen befinden sich im Log.\n" +
                         "Die von POI unterstützten Funktionen können hier nachgeschlagen werden: \n\n" +
                         "https://poi.apache.org/components/spreadsheet/eval-devguide.html");
@@ -234,6 +256,8 @@ public class ImportTabController {
 
     @FXML
     private void importExcel() {
+        logText.set("");
+
         if (transactionCorrelationTable.getItems().size() == 0 || stockDataCorrelationTable.getItems().size() == 0) {
             createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
                     Alert.AlertType.INFORMATION, ButtonType.OK, true);
@@ -243,7 +267,7 @@ public class ImportTabController {
 
         switch (result) {
             case 0 -> createAlert("Import abgeschlossen!",
-                    "Alle Excel Sheet Stammmdaten und Transaktionen wurden importiert.",
+                    "Alle Stammmdaten und Transaktionen wurden importiert.",
                     Alert.AlertType.INFORMATION, ButtonType.OK, true);
             case -1 -> createAlert("Import unvollständig!", "Nicht alle Zellen wurden " +
                             "importiert. Der Log enthält mehr Informationen.",
@@ -251,8 +275,8 @@ public class ImportTabController {
             case -2 -> createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
                     Alert.AlertType.INFORMATION, ButtonType.OK, true);
             case -3 -> createAlert("Zuordnung unvollständig!",
-                    "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für " +
-                            "Stammdaten: isin und für Transaktionen: wertpapier_isin, transaktions_datum, depot_name",
+                    "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für" +
+                            "Stammdaten:\n isin, wkn\nTransaktionen: wertpapier_isin, transaktions_datum, depot_name",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
             case -4 -> createAlert("Fehler bei Sql-Statement erstellung.!",
                     "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",
@@ -290,7 +314,7 @@ public class ImportTabController {
 
         if(excelSheet == null) {
             createAlert("Keine Excel ausgewählt!",
-                    "Wählen Sie eine Exceldatei aus der Liste aus oder erstellen Sie eine neue bevor Sie Speichern.",
+                    "Wählen Sie eine Excelkonfiguration aus der Liste aus oder erstellen Sie eine neue, bevor Sie Speichern.",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
             return false;
         }
@@ -321,6 +345,7 @@ public class ImportTabController {
             return;
         }
 
+        setRightPanelBoxVisibile(true);
         inlineValidation = false;
         logText.set("");
 
@@ -328,6 +353,7 @@ public class ImportTabController {
         passwordField.setText(excelSheet.getPassword());
         titleRowNrField.setText(String.valueOf(excelSheet.getTitleRow()));
         selectionColTitleField.setText(excelSheet.getSelectionColTitle());
+        depotColTitleField.setText(excelSheet.getDepotColTitle());
 
         sheetPreviewTable.getColumns().clear();
         sheetPreviewTable.getItems().clear();
@@ -384,6 +410,23 @@ public class ImportTabController {
             if(inlineValidation) {
                 input.setTooltip(importTabManager.createTooltip(tooltip));
                 input.getStyleClass().add("bad-input");
+            }
+        }
+    }
+
+    private Label getPlaceholder() {
+        return new Label("Keine Vorschau geladen.");
+    }
+
+    private void setRightPanelBoxVisibile(boolean visible) {
+        if(!visible) {
+            rootNode.getItems().remove(rightPanelBox);
+            rootNode.getItems().add(noSelectionReplacement);
+        } else {
+            if(!rootNode.getItems().contains(rightPanelBox)) {
+                rootNode.getItems().remove(noSelectionReplacement);
+                rootNode.getItems().add(rightPanelBox);
+                rootNode.setDividerPosition(0, 0);
             }
         }
     }

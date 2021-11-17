@@ -20,6 +20,8 @@ import java.util.HashMap;
 @Service
 @Lazy
 public class ExtractionManager {
+    // POI: index 0, EXCEL Index: 1y
+    private final static int OFFSET = 1;
     @Autowired
     private ImportTabManager importTabManager;
     @Autowired
@@ -84,12 +86,11 @@ public class ExtractionManager {
         Date dateToday = new Date(System.currentTimeMillis());
 
         // go through all rows
-
         for (int row : excelSheetRows.keySet()) {
 
             // skip rows if not selected
             if (!(parsingManager.getSelectedStockDataRows().get(row).get())) {
-                //addToLog("INFO: Stammdaten von Zeile: " + row + " ist nicht markiert.");
+                //addToLog("INFO: Stammdaten von Zeile: " + (row+OFFSET) + " ist nicht markiert.");
                 continue;
             }
 
@@ -102,7 +103,17 @@ public class ExtractionManager {
             String isin = rowData.get(isinCol);
             if (isin == null || isin.isBlank() || isin.length() >= 50) {
                 silentError = true;
-                importTabManager.addToLog("FEHLER: Isin der Zeile " + row + " fehlerhaft oder länger als 50 Zeichen. ->'" + isin + "'");
+                importTabManager.addToLog("FEHLER: Isin der Zeile " + (row+OFFSET) + " leer oder länger als 50 Zeichen. ->'" + isin + "'");
+                continue;
+            }
+
+            int wknCol = getColNrByName("wkn", stockColumnRelations);
+
+            // check if wkn valid
+            String wkn = rowData.get(wknCol);
+            if (wkn == null || wkn.isBlank()) {
+                silentError = true;
+                importTabManager.addToLog("FEHLER: Wkn der Zeile " + (row+OFFSET) + " leer. ->'" + wkn + "'");
                 continue;
             }
 
@@ -136,7 +147,7 @@ public class ExtractionManager {
 
                 if (!matchingDataType(datatype, colData)) {
                     silentError = true;
-                    importTabManager.addToLog("Fehler: Der Datentyp der Zeile " + row + " in der Spalte '" + correlation.getExcelColTitle() +
+                    importTabManager.addToLog("Fehler: Der Datentyp der Zeile " + (row+OFFSET) + " in der Spalte '" + correlation.getExcelColTitle() +
                             "', stimmt nicht mit dem der Datenbankspalte " + dbColName + " vom Typ " + datatype.name() +
                             " überein. Zellendaten: '" + colData + "'");
                     continue;
@@ -193,7 +204,7 @@ public class ExtractionManager {
 
             String depotName = rowData.get(depotNameCol);
             if (depotName == null || depotName.isBlank() || depotName.length() >= 50) {
-                importTabManager.addToLog("FEHLER: Depotname der Zeile " + row + " fehlerhaft, leer oder länger als 50 Zeichen.Wert: '"
+                importTabManager.addToLog("FEHLER: Depotname der Zeile " + (row+OFFSET) + " fehlerhaft oder leer. Wert: '"
                         + depotName + "' ");
                 silentError = true;
                 continue;
@@ -201,14 +212,14 @@ public class ExtractionManager {
 
             String isin = rowData.get(isinCol);
             if (isin == null || isin.isBlank() || isin.length() >= 50) {
-                importTabManager.addToLog("FEHLER: Isin der Zeile " + row + " fehlerhaft, leer oder länger als 50 Zeichen. Wert: '" + isin + "'");
+                importTabManager.addToLog("FEHLER: Isin der Zeile " + (row+OFFSET) + " fehlerhaft, leer oder länger als 50 Zeichen. Wert: '" + isin + "'");
                 silentError = true;
                 continue;
             }
 
             String date = rowData.get(dateCol);
             if (!matchingDataType(ColumnDatatype.DATE, date)) {
-                importTabManager.addToLog("FEHLER: Transaktionsdatum '" + date + "' der Zeile " + row + " ist fehlerhaft.");
+                importTabManager.addToLog("FEHLER: Transaktionsdatum '" + date + "' der Zeile " + (row+OFFSET) + " ist fehlerhaft.");
                 silentError = true;
                 continue;
             }
@@ -218,7 +229,7 @@ public class ExtractionManager {
             // stocks are created beforehand
             var stock = stockRepository.findByIsin(isin);
             if (stock.isEmpty()) {
-                importTabManager.addToLog("FEHLER: Das passende Wertpapier zur Transaktion aus Zeile " + row +
+                importTabManager.addToLog("FEHLER: Das passende Wertpapier zur Transaktion aus Zeile " + (row+OFFSET) +
                         " konnte nicht gefunden werden. Angegebene Isin: '" + isin + "'");
                 silentError = true;
                 continue;
@@ -323,8 +334,11 @@ public class ExtractionManager {
 
     private boolean correlationsHaveValidState() {
         if (getColNrByName("isin", correlationManager.getStockColumnRelations()) == -1) return false;
+        if (getColNrByName("wkn", correlationManager.getStockColumnRelations()) == -1) return false;
+        if (getColNrByName("name", correlationManager.getStockColumnRelations()) == -1) return false;
         if (getColNrByName("wertpapier_isin", correlationManager.getTransactionColumnRelations()) == -1) return false;
         if (getColNrByName("transaktions_datum", correlationManager.getTransactionColumnRelations()) == -1) return false;
+        if (getColNrByName("transaktionstyp", correlationManager.getTransactionColumnRelations()) == -1) return false;
         if (getColNrByName("depot_name", correlationManager.getTransactionColumnRelations()) == -1) return false;
 
         return true;

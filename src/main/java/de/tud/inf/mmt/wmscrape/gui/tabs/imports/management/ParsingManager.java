@@ -28,7 +28,7 @@ public class ParsingManager {
     @Autowired
     private ImportTabManager importTabManager;
 
-    private ObservableList<ObservableList<String>> sheetPreviewTableData = FXCollections.observableArrayList();
+    private final ObservableList<ObservableList<String>> sheetPreviewTableData = FXCollections.observableArrayList();
 
     private ObservableMap<Integer, ArrayList<String>> excelSheetRows;
 
@@ -82,6 +82,10 @@ public class ParsingManager {
             return -1;
         }
 
+        if(workbook == null) {
+            return -1;
+        }
+
         if (excelSheet.getTitleRow() > workbook.getSheetAt(0).getLastRowNum() || excelSheet.getTitleRow() <= 0) {
             // column out of bounds
             return -2;
@@ -96,37 +100,32 @@ public class ParsingManager {
             e.printStackTrace();
         }
 
-        if (excelSheetRows.size() == 0) {
-            return -3;
-        }
+        if (excelSheetRows.size() == 0) return -3;
 
         removeEmptyRows(excelSheetRows);
 
         // title row is empty -> invalid
-        if(!excelSheetRows.containsKey(excelSheet.getTitleRow() - 1)) {
-            return -4;
-        }
+        if(!excelSheetRows.containsKey(excelSheet.getTitleRow() - 1)) return -4;
 
         unifyRows(excelSheetRows);
         removeEmptyCols(excelSheetRows, excelSheet);
         indexToExcelTitle = extractColTitles(excelSheet.getTitleRow() - 1, excelSheetRows);
 
         createNormalizedTitles(indexToExcelTitle);
-        if (!titlesAreUnique(indexToExcelTitle)) {
-            return -5;
-        }
+        if (!titlesAreUnique(indexToExcelTitle)) return -5;
 
         titleToExcelIndex = reverseMap(indexToExcelTitle);
 
-        int selectionColNumber = getSelectionColNumber(indexToExcelTitle, excelSheet);
-        if (selectionColNumber == -1) {
-            // selection col not found
-            return -6;
-        }
+        int selectionColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getSelectionColTitle());
+        // selection col not found
+        if (selectionColNumber == -1) return -6;
 
-        selectedStockDataRows = getSelectedInitially(excelSheetRows, selectionColNumber);
-        // have to initialize twice because otherwise the same booleanproperties are used
-        selectedTransactionRows = getSelectedInitially(excelSheetRows, selectionColNumber);
+        int depotColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getDepotColTitle());
+        // depot col not found
+        if (depotColNumber == -1) return -7;
+
+        selectedStockDataRows = getSelectedInitially(excelSheetRows, selectionColNumber, true);
+        selectedTransactionRows = getSelectedInitially(excelSheetRows, depotColNumber, false);
 
         addColumnsToView(sheetPreviewTable, indexToExcelTitle, excelSheet);
 
@@ -139,9 +138,7 @@ public class ParsingManager {
 
         // add rows themselves
         sheetPreviewTable.setItems(sheetPreviewTableData);
-        if (evalFaults) {
-            return -7;
-        }
+        if (evalFaults) return -8;
         return 0;
     }
 
@@ -254,6 +251,10 @@ public class ParsingManager {
         rowsToRemove.forEach(excelData::remove);
     }
 
+    private void removeUnselectedRows(Map<Integer, ArrayList<String>> rowMap){
+
+    }
+
     private void removeEmptyCols(Map<Integer, ArrayList<String>> rowMap, ExcelSheet excelSheet) {
         // Lists have to be unified beforehand
         List<Integer> colsToRemove = new ArrayList<>();
@@ -305,11 +306,9 @@ public class ParsingManager {
         }
     }
 
-    private int getSelectionColNumber(Map<Integer, String> titles, ExcelSheet excelSheet) {
-        String formattedTitle = formatConform(excelSheet.getSelectionColTitle());
-
+    private int getColNumberByName(Map<Integer, String> titles, String title) {
         for (int col : titles.keySet()) {
-            if (titles.get(col).equals(formattedTitle)) {
+            if (titles.get(col).equals(title.trim())) {
                 return col;
             }
         }
@@ -345,7 +344,7 @@ public class ParsingManager {
 
         String title;
         for (int key : titles.keySet()) {
-            title = formatConform(titles.get(key));
+            title = titles.get(key).trim();
             if (title.isBlank()) {
                 title = "LEER" + emptyCount;
                 emptyCount++;
@@ -355,10 +354,6 @@ public class ParsingManager {
         }
 
         titles.putAll(replacements);
-    }
-
-    private String formatConform(String string) {
-        return string.trim();//.replaceAll("[\\\\/:\\*\\?\\\"<>\\|'\\s\\[\\]\\(\\)´`\\^%&\\{\\}+\\-.]", "_");
     }
 
     private boolean titlesAreUnique(Map<Integer, String> titlesLoadedExcel) {
@@ -372,17 +367,23 @@ public class ParsingManager {
         return true;
     }
 
-    private Map<Integer, SimpleBooleanProperty> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData, int selectionColNr) {
+    private Map<Integer, SimpleBooleanProperty> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData, int selectionColNr, boolean removeUnselected) {
         HashMap<Integer, SimpleBooleanProperty> selectedRows = new HashMap<>();
+        List<Integer> toDelete =  new ArrayList<>();
+
         for (int rowNr : excelData.keySet()) {
             ArrayList<String> row = excelData.get(rowNr);
             // same as for the checkbox -> not blank == checked
             if (!row.get(selectionColNr).isBlank()) {
                 selectedRows.put(rowNr, new SimpleBooleanProperty(true));
-            } else {
+            } else if(!removeUnselected){
                 selectedRows.put(rowNr, new SimpleBooleanProperty(false));
+            } else {
+                toDelete.add(rowNr);
             }
         }
+
+        for (int rowNr : toDelete) excelData.remove(rowNr);
         return selectedRows;
     }
 

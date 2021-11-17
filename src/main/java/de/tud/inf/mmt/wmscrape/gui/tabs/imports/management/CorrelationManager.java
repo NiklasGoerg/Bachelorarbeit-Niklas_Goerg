@@ -58,7 +58,7 @@ public class CorrelationManager {
         transactionColumnsWithType.put("depot_name", ColumnDatatype.TEXT);
         transactionColumnsWithType.put("wertpapier_isin", ColumnDatatype.TEXT);
         transactionColumnsWithType.put("transaktions_datum", ColumnDatatype.DATE);
-        transactionColumnsWithType.put("tansaktionstyp", ColumnDatatype.TEXT);
+        transactionColumnsWithType.put("transaktionstyp", ColumnDatatype.TEXT);
         transactionColumnsWithType.put("anzahl", ColumnDatatype.INT);
         transactionColumnsWithType.put("währung", ColumnDatatype.TEXT);
         transactionColumnsWithType.put("preis", ColumnDatatype.DOUBLE);

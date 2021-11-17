@@ -9,6 +9,8 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
@@ -39,9 +41,12 @@ public class ScrapingWebsiteTabController {
     @FXML private TextField cookieAcceptIdentField;
     @FXML private ChoiceBox<IdentType> cookieHideChoiceBox;
     @FXML private TextField cookieHideIdentField;
+    @FXML private VBox rightPanelBox;
+    @FXML private SplitPane rootNode;
 
     private ObservableList<Website> websiteObservableList;
     private boolean inlineValidation = false;
+    private static final BorderPane noSelectionReplacement = new BorderPane(new Label("Wählen Sie eine Webseite aus oder erstellen Sie eine neue (unten links)"));
 
     @Autowired
     private ScrapingTabManager scrapingTabManager;
@@ -55,6 +60,7 @@ public class ScrapingWebsiteTabController {
     @FXML
     private void initialize() {
 
+        setRightPanelBoxVisible(false);
         websiteObservableList = scrapingTabManager.initWebsiteList(websiteList);
         websiteList.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldWs, newWs) -> loadSpecificWebsite(newWs));
@@ -80,6 +86,13 @@ public class ScrapingWebsiteTabController {
 
         addDeselectListener(usernameIdentChoiceBox);
         addDeselectListener(passwordIdentChoiceBox);
+
+        loginIdentChoiceBox.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
+            loginIdentField.setEditable(nv != IdentType.ENTER);
+            loginIdentField.setText("-");
+        });
+
+
 
         websiteList.getSelectionModel().selectFirst();
     }
@@ -115,6 +128,7 @@ public class ScrapingWebsiteTabController {
         scrapingTabManager.deleteSpecificWebsite(website);
         clearFields();
         reloadWebsiteList();
+        setRightPanelBoxVisible(false);
         websiteList.getSelectionModel().selectFirst();
     }
 
@@ -231,6 +245,7 @@ public class ScrapingWebsiteTabController {
 
         inlineValidation = false;
 
+        setRightPanelBoxVisible(true);
         setEditable(true);
 
         urlField.setText(website.getUrl());
@@ -374,4 +389,18 @@ public class ScrapingWebsiteTabController {
         setFieldDataToWebsite(newWebsite);
         return newWebsite;
     }
+
+    private void setRightPanelBoxVisible(boolean visible) {
+        if(!visible) {
+            rootNode.getItems().remove(rightPanelBox);
+            rootNode.getItems().add(noSelectionReplacement);
+        } else {
+            if(!rootNode.getItems().contains(rightPanelBox)) {
+                rootNode.getItems().remove(noSelectionReplacement);
+                rootNode.getItems().add(rightPanelBox);
+                rootNode.setDividerPosition(0, 0);
+            }
+        }
+    }
+
 }

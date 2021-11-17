@@ -15,6 +15,7 @@ import java.util.List;
 
 public abstract class WebsiteConnection {
 
+    public static final int IFRAME_SEARCH_DEPTH = 3;
     protected final Website website;
     private int waitForWsElementSec = 5;
     private final boolean headless;
@@ -83,26 +84,15 @@ public abstract class WebsiteConnection {
 
         String identifier = website.getCookieHideIdent().replace("\"","'");
 
-        // delete the frame completely
-        if(type == IdentType.ID) {
-            js.executeScript("const frames = document.getElementsByTagName(\"iframe\");" +
-                    "for (let frame of frames) { if(frame.getAttribute(\"id\") == \"" +
-                    identifier +
-                    "\") {frame.remove();}}");
+
+        WebElement element= findElementByType(type, identifier);
+        if(element != null) {
+            js.executeScript("(arguments[0]).remove()", element);
+        } else {
+            addToLog("WARNUNG: Cookiebanner nicht ausgeblendet");
+            return false;
         }
 
-        String selectBy;
-        if(type == IdentType.ID) {
-            selectBy = "getElementById(\""+identifier+"\")";
-        } else if (type == IdentType.XPATH) {
-            selectBy = "evaluate(\""+identifier+"\", document, null, " +
-                    "XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue";
-        } else if (type == IdentType.CSS) {
-            selectBy = "querySelector(\""+identifier+"\")";
-        } else return false;
-
-
-        js.executeScript("var e=document. "+selectBy+"; if(e!=null) e.remove();");
         addToLog("INFO: Cookiebanner ausgeblendet");
         return true;
     }
@@ -111,11 +101,11 @@ public abstract class WebsiteConnection {
 
         WebElement username = findElementByType(website.getUsernameIdentType(), website.getUsernameIdent());
         if(username == null) return false;
-        username.sendKeys(website.getUsername());
+        setText(username, website.getUsername());
 
         WebElement password = findElementByType(website.getPasswordIdentType(), website.getPasswordIdent());
         if(password == null) return false;
-        password.sendKeys(website.getPassword());
+        setText(password, website.getPassword());
 
         addToLog("INFO: Login Informationen ausgefüllt");
         return true;
@@ -125,8 +115,8 @@ public abstract class WebsiteConnection {
         WebElement password = findElementByType(website.getPasswordIdentType(), website.getPasswordIdent());
 
         // submit like pressing enter
-        if(website.getLoginButtonIdentType() == IdentType.ENTER) {
-            password.submit();
+        if(password != null && website.getLoginButtonIdentType() == IdentType.ENTER) {
+            submit(password);
             return true;
         }
 
@@ -175,19 +165,14 @@ public abstract class WebsiteConnection {
         if(website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
                 && !(this instanceof WebsiteTester)) hideCookies();
 
-
         // search element in main document
         WebElement element = extractElementsByType(type, identifier);
         if(element != null) return element;
 
-        // search in multiple frames
-        for(WebElement frame : driver.findElements(By.tagName("iframe"))) {
-            driver.switchTo().frame(frame);
-
-            element = extractElementsByType(type, identifier);
-            if(element != null) return element;
-
-            driver.switchTo().parentFrame();
+        // seach in sub iframes
+        element = recursiveSearch(type, identifier, driver.findElements(By.tagName("iframe")), 0);
+        if(element != null) {
+            return element;
         }
 
         addToLog("FEHLER: Kein Element unter '"+identifier+"' gefunden");
@@ -197,24 +182,39 @@ public abstract class WebsiteConnection {
     private WebElement extractElementsByType(IdentType type, String identifier) {
         List<WebElement> elements;
 
-        if(type == IdentType.ID) {
-            elements = driver.findElements(By.id(identifier));
-        } else if(type == IdentType.XPATH) {
-            elements = driver.findElements(By.xpath(identifier));
-        } else if(type== IdentType.CSS) {
-            elements = driver.findElements(By.cssSelector(identifier));
-        } else return null;
+        try {
+            if (type == IdentType.ID) {
+                elements = driver.findElements(By.id(identifier));
+            } else if (type == IdentType.XPATH) {
+                elements = driver.findElements(By.xpath(identifier));
+            } else if (type == IdentType.CSS) {
+                elements = driver.findElements(By.cssSelector(identifier));
+            } else return null;
+        } catch (InvalidSelectorException e) {
+            return null;
+        }
 
         if(elements.size()>0) return elements.get(0);
         return null;
     }
 
-    protected String extractTextDataByType(IdentType type, String identifier, String highlightText) {
-        WebElement element = extractElementsByType(type, identifier);
+    protected String findTextDataByType(IdentType type, String identifier, String highlightText) {
+        WebElement element = findElementByType(type, identifier);
         if(element == null) return null;
         String text = element.getText();
         if(!headless) highlightElement(element, highlightText);
+        driver.switchTo().defaultContent();
         return text;
+    }
+
+    private void setText(WebElement element, String text) {
+        element.sendKeys(text);
+        driver.switchTo().defaultContent();
+    }
+
+    private void submit(WebElement element) {
+        element.submit();
+        driver.switchTo().defaultContent();
     }
 
     private void clickElement(WebElement element) {
@@ -226,6 +226,7 @@ public abstract class WebsiteConnection {
 
             js.executeScript("arguments[0].click()", element);
         }
+        driver.switchTo().defaultContent();
     }
 
     private void highlightElement(WebElement element, String text) {
@@ -251,6 +252,24 @@ public abstract class WebsiteConnection {
 
     private void addToLog(String line) {
         logText.set(this.logText.getValue() +"\n" + line);
+    }
+
+    public WebElement recursiveSearch(IdentType type, String identifier, List<WebElement> elements, int depth) {
+        // search in multiple frames
+        if (depth >= IFRAME_SEARCH_DEPTH) return null;
+
+        WebElement element;
+        for(WebElement frame : elements) {
+            driver.switchTo().frame(frame);
+
+            element = extractElementsByType(type, identifier);
+            if(element != null) return element;
+            element = recursiveSearch(type, identifier, driver.findElements(By.tagName("iframe")), depth+1);
+            if(element != null) return element;
+
+            driver.switchTo().parentFrame();
+        }
+        return null;
     }
 
 }

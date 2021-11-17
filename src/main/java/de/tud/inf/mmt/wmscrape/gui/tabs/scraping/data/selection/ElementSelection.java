@@ -26,9 +26,12 @@ public class ElementSelection {
     @Transient
     private final SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
 
-    // optional, only stock
+    // optional, only stock/course
+    // ony used to circumvent the closed proxy session
     @Transient
     private String isin;
+    @Transient
+    private String wkn;
 
     // optional, only stock/course
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,21 +49,13 @@ public class ElementSelection {
     @Transient
     private boolean isChanged = false;
 
-    @PostLoad
-    private void setPropertiesFromPersistence() {
-        selected.set(_selected);
-        if(stock != null) isin = stock.getIsin();
-        initListener();
-    }
-
     public ElementSelection() {}
 
     public ElementSelection(WebsiteElement websiteElement, Stock stock) {
         this.description = stock.getName();
         this.websiteElement = websiteElement;
         this.stock = stock;
-        this.isin = stock.getIsin();
-        initListener();
+        setPropertiesFromPersistence();
     }
 
     public ElementSelection(WebsiteElement websiteElement, ExchangeDataDbTableColumn exchangeDataDbTableColumn) {
@@ -80,6 +75,10 @@ public class ElementSelection {
 
     public String getIsin() {
         return isin;
+    }
+
+    public String getWkn() {
+        return wkn;
     }
 
     public WebsiteElement getWebsiteElement() {
@@ -120,6 +119,14 @@ public class ElementSelection {
 
     public void setElementDescCorrelation(ElementDescCorrelation elementDescCorrelation) {
         this.elementDescCorrelation = elementDescCorrelation;
+    }
+
+    @PostLoad
+    private void setPropertiesFromPersistence() {
+        selected.set(_selected);
+        if(stock != null) isin = stock.getIsin();
+        if(stock != null) wkn = stock.getWkn();
+        initListener();
     }
 
     @Override

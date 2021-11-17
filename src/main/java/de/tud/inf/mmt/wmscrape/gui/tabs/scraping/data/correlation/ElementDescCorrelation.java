@@ -22,10 +22,17 @@ public class ElementDescCorrelation {
     private String _wsDescription;
     @Transient
     private final SimpleStringProperty wsDescription = new SimpleStringProperty();
+
+    // only for stock/course
     @Column(name = "wsIsin")
     private String _wsIsin;
     @Transient
     private final SimpleStringProperty wsIsin = new SimpleStringProperty();
+
+    @Column(name = "wsWkn")
+    private String _wsWkn;
+    @Transient
+    private final SimpleStringProperty wsWkn = new SimpleStringProperty();
 
     // only for currency exchange correlation
     @Column(name = "wsCurrencyName")
@@ -86,6 +93,18 @@ public class ElementDescCorrelation {
         this.wsIsin.set(wsIsin);
     }
 
+    public String getWsWkn() {
+        return wsWkn.get();
+    }
+
+    public SimpleStringProperty wsWknProperty() {
+        return wsWkn;
+    }
+
+    public void setWsWkn(String wsWkn) {
+        this.wsWkn.set(wsWkn);
+    }
+
     public String getWsCurrencyName() {
         return wsCurrencyName.get();
     }
@@ -112,6 +131,7 @@ public class ElementDescCorrelation {
         wsDescription.set(_wsDescription);
         wsIsin.set(_wsIsin);
         wsCurrencyName.set(_wsCurrencyName);
+        wsWkn.set(_wsWkn);
         initListener();
     }
 
@@ -125,7 +145,7 @@ public class ElementDescCorrelation {
         if (!(o instanceof ElementDescCorrelation)) return false;
         ElementDescCorrelation that;
         that = (ElementDescCorrelation) o;
-        return Objects.equals(elementSelection, that.elementSelection) && Objects.equals(_wsDescription,that._wsDescription) && Objects.equals(_wsIsin,that._wsIsin) && Objects.equals(_wsCurrencyName, that._wsCurrencyName);
+        return Objects.equals(elementSelection, that.elementSelection) && Objects.equals(_wsDescription,that._wsDescription) && Objects.equals(_wsIsin,that._wsIsin) && Objects.equals(_wsWkn,that._wsWkn) && Objects.equals(_wsCurrencyName, that._wsCurrencyName);
     }
 
     private void initListener() {
@@ -140,6 +160,10 @@ public class ElementDescCorrelation {
         wsCurrencyName.addListener((o, ov, nv ) -> {
             isChanged = true;
             _wsCurrencyName = nv;
+        });
+        wsWkn.addListener((o, ov, nv) -> {
+            isChanged = true;
+            _wsWkn = nv;
         });
     }
 }

@@ -75,7 +75,7 @@
                            <children>
                               <HBox alignment="CENTER" prefHeight="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
                                  <children>
-                                    <Label text="Zuordnung des Tabellenkopfes" />
+                                    <Label text="Zuordnung zu den Zeilenelementen" />
                                  </children>
                               </HBox>
                               <TableView fx:id="columnCorrelationTable" editable="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="20.0" />

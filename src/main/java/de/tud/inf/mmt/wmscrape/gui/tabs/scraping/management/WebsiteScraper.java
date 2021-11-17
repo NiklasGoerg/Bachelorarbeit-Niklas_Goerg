@@ -60,12 +60,9 @@ public class WebsiteScraper extends WebsiteConnection {
     }
 
     private boolean usesNoLogin() {
-        if(website.getUsernameIdentType() == IdentType.DEAKTIVIERT ||
+        return website.getUsernameIdentType() == IdentType.DEAKTIVIERT ||
                 website.getPasswordIdentType() == IdentType.DEAKTIVIERT ||
-                website.getLogoutIdentType() == IdentType.DEAKTIVIERT) {
-            return true;
-        }
-        return false;
+                website.getLogoutIdentType() == IdentType.DEAKTIVIERT;
     }
 
     private void delayRandom() {
@@ -138,7 +135,7 @@ public class WebsiteScraper extends WebsiteConnection {
     }
 
     private void extractCorrelationResult(CorrelationResult result) {
-        String extract = extractTextDataByType(result.getIdentType(), result.getIdentifier(), result.dbColName);
+        String extract = findTextDataByType(result.getIdentType(), result.getIdentifier(), result.dbColName);
         result.setWebsiteData(extract);
 
     }

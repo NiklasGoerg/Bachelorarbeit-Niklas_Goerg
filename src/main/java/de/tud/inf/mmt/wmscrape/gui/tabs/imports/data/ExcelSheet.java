@@ -14,8 +14,8 @@ public class ExcelSheet {
     private String password;
     private int titleRow = 1;
     private String selectionColTitle;
+    private String depotColTitle;
 
-    // TODO maybe set back to eager
     @OneToMany(fetch= FetchType.LAZY, mappedBy ="excelSheet",  orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
@@ -75,6 +75,14 @@ public class ExcelSheet {
 
     public void setExcelCorrelations(List<ExcelCorrelation> excelCorrelations) {
         this.excelCorrelations = excelCorrelations;
+    }
+
+    public String getDepotColTitle() {
+        return depotColTitle;
+    }
+
+    public void setDepotColTitle(String depotColTitle) {
+        this.depotColTitle = depotColTitle;
     }
 
     @Override

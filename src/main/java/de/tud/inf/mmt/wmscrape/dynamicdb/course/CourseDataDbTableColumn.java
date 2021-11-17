@@ -19,8 +19,7 @@ public class CourseDataDbTableColumn extends DbTableColumn {
     }
 
 
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    @JoinColumn(name = "elementIdentCorrelationId")
+    @OneToMany(mappedBy = "courseDataDbTableColumn", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
 
     public List<ElementIdentCorrelation> getElementIdentCorrelations() {

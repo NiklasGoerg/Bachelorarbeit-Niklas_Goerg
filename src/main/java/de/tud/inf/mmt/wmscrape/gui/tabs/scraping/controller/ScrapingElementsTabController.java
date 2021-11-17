@@ -1,7 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.*;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.NewElementPopupController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourseOrStockSubController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchangeSubController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingCourseOrExchangeManager;
@@ -27,6 +30,8 @@ public class ScrapingElementsTabController {
     @FXML private ChoiceBox<Website> websiteChoiceBox;
     @FXML private TextField urlField;
     @FXML private BorderPane subPane;
+    @FXML private BorderPane rightPanelBox;
+    @FXML private SplitPane rootNode;
 
     @Autowired
     private ScrapingTabManager scrapingTabManager;
@@ -47,11 +52,13 @@ public class ScrapingElementsTabController {
 
     private ObservableList<WebsiteElement> elementObservableList;
     private final ObservableList<Website> websiteObservableList = FXCollections.observableList(new ArrayList<>());
+    private static final BorderPane noSelectionReplacement = new BorderPane(new Label("Wählen Sie ein Element aus oder erstellen Sie eine neue (unten links)"));
 
     private boolean inlineValidation = false;
 
     @FXML
     private void initialize() {
+        setRightPanelBoxVisible(false);
         elementObservableList = scrapingTabManager.initWebsiteElementList(elementList);
         elementList.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldWs, newWs) -> loadSpecificElement(newWs));
@@ -62,6 +69,8 @@ public class ScrapingElementsTabController {
         urlField.textProperty().addListener(x -> emptyValidator(urlField));
 
         websiteChoiceBox.getSelectionModel().selectedItemProperty().addListener(x -> nullValidator(websiteChoiceBox));
+
+        elementList.getSelectionModel().selectFirst();
     }
 
     @FXML
@@ -95,6 +104,7 @@ public class ScrapingElementsTabController {
         scrapingTabManager.deleteSpecificElement(element);
         clearFields();
         reloadElementList();
+        setRightPanelBoxVisible(false);
         elementList.getSelectionModel().selectFirst();
     }
 
@@ -128,6 +138,7 @@ public class ScrapingElementsTabController {
         if (staleElement == null) return;
 
         inlineValidation = false;
+        setRightPanelBoxVisible(true);
 
         scrapingTabManager.resetElement(urlField, websiteChoiceBox, staleElement);
 
@@ -237,6 +248,19 @@ public class ScrapingElementsTabController {
             if(inlineValidation) {
                 input.setTooltip(scrapingTabManager.createTooltip(tooltip));
                 input.getStyleClass().add("bad-input");
+            }
+        }
+    }
+
+    private void setRightPanelBoxVisible(boolean visible) {
+        if(!visible) {
+            rootNode.getItems().remove(rightPanelBox);
+            rootNode.getItems().add(noSelectionReplacement);
+        } else {
+            if(!rootNode.getItems().contains(rightPanelBox)) {
+                rootNode.getItems().remove(noSelectionReplacement);
+                rootNode.getItems().add(rightPanelBox);
+                rootNode.setDividerPosition(0, 0);
             }
         }
     }
