@@ -20,7 +20,7 @@ import java.util.HashMap;
 @Service
 @Lazy
 public class ExtractionManager {
-    // POI: index 0, EXCEL Index: 1y
+    // POI: index 0, EXCEL Index: 1
     private final static int OFFSET = 1;
     @Autowired
     private ImportTabManager importTabManager;
@@ -76,7 +76,6 @@ public class ExtractionManager {
         boolean silentError = false;
         Connection connection = stockDataDbManager.getConnection();
         HashMap<String, PreparedStatement> statements = dbTransactionManager.createStockDataStatements(connection);
-        HashMap<String, ColumnDatatype> columnDatatypes = dbTransactionManager.getStockColDbDatatypes();
 
         var excelSheetRows = parsingManager.getExcelSheetRows();
         var stockColumnRelations = correlationManager.getStockColumnRelations();
@@ -137,7 +136,8 @@ public class ExtractionManager {
                 }
 
 
-                ColumnDatatype datatype = columnDatatypes.getOrDefault(dbColName, null);
+                ColumnDatatype datatype = correlation.getDbColDataType();
+
                 if (datatype == null) {
                     silentError = true;
                     importTabManager.addToLog("Fehler: Der Datenbankspalte " + dbColName
@@ -145,7 +145,7 @@ public class ExtractionManager {
                     continue;
                 }
 
-                if (!matchingDataType(datatype, colData)) {
+                if (notMatchingDataType(datatype, colData)) {
                     silentError = true;
                     importTabManager.addToLog("Fehler: Der Datentyp der Zeile " + (row+OFFSET) + " in der Spalte '" + correlation.getExcelColTitle() +
                             "', stimmt nicht mit dem der Datenbankspalte " + dbColName + " vom Typ " + datatype.name() +
@@ -183,9 +183,9 @@ public class ExtractionManager {
         boolean silentError = false;
         Connection connection = stockDataDbManager.getConnection();
         HashMap<String, PreparedStatement> statements = dbTransactionManager.createTransactionDataStatements(connection);
+
         var excelSheetRows = parsingManager.getExcelSheetRows();
         var transactionColumnRelations = correlationManager.getTransactionColumnRelations();
-
 
         if (statements == null) return -4;
 
@@ -218,7 +218,7 @@ public class ExtractionManager {
             }
 
             String date = rowData.get(dateCol);
-            if (!matchingDataType(ColumnDatatype.DATE, date)) {
+            if (notMatchingDataType(ColumnDatatype.DATE, date)) {
                 importTabManager.addToLog("FEHLER: Transaktionsdatum '" + date + "' der Zeile " + (row+OFFSET) + " ist fehlerhaft.");
                 silentError = true;
                 continue;
@@ -269,10 +269,9 @@ public class ExtractionManager {
                     if (colData.isBlank()) colData = null;
                 }
 
-                var transactionColumnsWithType = correlationManager.getTransactionColumnsWithType();
-                ColumnDatatype colDatatype = transactionColumnsWithType.getOrDefault(dbColName, ColumnDatatype.INVALID);
+                ColumnDatatype colDatatype = correlation.getDbColDataType();
 
-                if (!matchingDataType(colDatatype, colData)) {
+                if (notMatchingDataType(colDatatype, colData)) {
                     importTabManager.addToLog("FEHLER: Der Wert der Zelle in der Zeile: " + row + " Spalte: '"
                             + correlation.getExcelColTitle() + "' hat nicht den passenden Datentyp für '"
                             + dbColName + "' vom Typ '" + colDatatype + "'. Wert: '" + colData + "'");
@@ -300,22 +299,22 @@ public class ExtractionManager {
         return 0;
     }
 
-    private boolean matchingDataType(ColumnDatatype colDatatype, String colData) {
+    private boolean notMatchingDataType(ColumnDatatype colDatatype, String colData) {
         if (colDatatype == null) {
-            return false;
+            return true;
         } else if (colData == null) {
             // null is valid in order to override values that may be set in the wrong column
-            return true;
+            return false;
         } else if (colDatatype == ColumnDatatype.INT && colData.matches("^[\\-+]?[0-9]+(\\.0{5})?$")) {
             // normal format would be "^-?[0-9]+$" but because of
             // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
             // 5 zeros are added to int
-            return true;
+            return false;
         } else if (colDatatype == ColumnDatatype.DOUBLE && colData.matches("^[\\-+]?[0-9]+([.,]?[0-9]+)?$")) {
-            return true;
+            return false;
         } else if (colDatatype == ColumnDatatype.DATE && colData.matches("^[1-9][0-9]{3}-[0-9]{2}-[0-9]{2}$")) {
-            return true;
-        } else return colDatatype == ColumnDatatype.TEXT;
+            return false;
+        } else return colDatatype != ColumnDatatype.TEXT;
     }
 
     private int getColNrByName(String name, ObservableList<ExcelCorrelation> correlations) {

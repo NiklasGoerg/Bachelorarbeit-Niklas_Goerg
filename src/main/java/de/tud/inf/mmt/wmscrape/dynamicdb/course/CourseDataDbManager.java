@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,19 +43,15 @@ public class CourseDataDbManager extends DynamicDbManger{
             }
         }
 
-        initColumn("kurs_in_eur", ColumnDatatype.TEXT);
+        initColumn("kurs_in_eur", ColumnDatatype.DOUBLE);
         initColumn("volumen", ColumnDatatype.DOUBLE);
         initColumn("tages_hoch", ColumnDatatype.DOUBLE);
         initColumn("tages_tief", ColumnDatatype.DOUBLE);
+        initColumn("datum_interessant", ColumnDatatype.DATE);
     }
 
     private boolean initColumn(String name, ColumnDatatype columnDatatype) {
         return addColumnIfNotExists(TABLE_NAME, courseDataColumnRepository, new CourseDataDbTableColumn(name, columnDatatype));
-    }
-
-    @Override
-    public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
-        return null;
     }
 
     @Override

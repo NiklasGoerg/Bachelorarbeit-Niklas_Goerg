@@ -15,26 +15,44 @@ public class Website {
     @GeneratedValue
     private int id;
     private String description;
+
+    @Column(columnDefinition = "TEXT")
     private String url;
+
+    @Column(columnDefinition = "TEXT")
     private String username;
+
+    @Column(columnDefinition = "TEXT")
     private String password;
+
     @Enumerated(value = EnumType.STRING)
     private IdentType usernameIdentType = IdentType.ID;
+    @Column(columnDefinition = "TEXT")
     private String usernameIdent;
+
     @Enumerated(value = EnumType.STRING)
     private IdentType passwordIdentType = IdentType.ID;
+    @Column(columnDefinition = "TEXT")
     private String passwordIdent;
+
     @Enumerated(value = EnumType.STRING)
     private IdentType loginButtonIdentType = IdentType.ID;
+    @Column(columnDefinition = "TEXT")
     private String loginButtonIdent;
+
     @Enumerated(value = EnumType.STRING)
     private IdentType logoutIdentType = IdentType.DEAKTIVIERT;
+    @Column(columnDefinition = "TEXT")
     private String logoutIdent;
+
     @Enumerated(value = EnumType.STRING)
     private IdentType cookieAcceptIdentType = IdentType.DEAKTIVIERT;
+    @Column(columnDefinition = "TEXT")
     private String cookieAcceptIdent;
+
     @Enumerated(value = EnumType.STRING)
     private IdentType cookieHideIdentType = IdentType.DEAKTIVIERT;
+    @Column(columnDefinition = "TEXT")
     private String cookieHideIdent;
 
     @OneToMany(mappedBy = "website", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)

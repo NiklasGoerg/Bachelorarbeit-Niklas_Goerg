@@ -46,7 +46,7 @@ public class TableSubController extends SingleCourseOrStockSubController{
             elementDescCorrelationTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
 
-        scrapingTableManager.initCorrelationTable(websiteElement, columnCorrelationTable, MultiplicityType.TABELLE);
+        scrapingTableManager.initIdentCorrelationTable(websiteElement, columnCorrelationTable, MultiplicityType.TABELLE);
 
 
         tableIdentChoiceBox.getItems().addAll(IDENT_TYPE_SIMPLE);

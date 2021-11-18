@@ -6,5 +6,5 @@ import java.sql.Date;
 import java.util.Optional;
 
 public interface DepotTransactionRepository extends JpaRepository<DepotTransaction, Integer> {
-    Optional<DepotTransaction> findByDepotIdAndDateAndStockIsin(int depotId, Date date, String stockIsin);
+    Optional<DepotTransaction> findByDepotNameAndDateAndStockIsin(String depotName, Date date, String stockIsin);
 }

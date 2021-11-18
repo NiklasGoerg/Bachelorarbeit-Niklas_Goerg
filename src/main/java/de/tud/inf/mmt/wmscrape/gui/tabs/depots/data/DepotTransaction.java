@@ -13,7 +13,7 @@ public class DepotTransaction {
     private int depotId;
 
     @Id
-    @Column(name = "zeitpunkt")
+    @Column(name = "transaktionsDatum")
     private Date date;
 
     @Id
@@ -23,37 +23,52 @@ public class DepotTransaction {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="depotId", referencedColumnName="id", updatable=false, insertable=false)
     private Depot depot;
+
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="wertpapierIsin", referencedColumnName="isin", updatable=false, insertable=false)
     private Stock stock;
+
     //@Enumerated(EnumType.STRING)
     @Column(name = "transaktionstyp")
     private String transactionType;
+
     @Column(name = "anzahl")
     private int amount;
+
     //@Enumerated(EnumType.STRING)
     @Column(name = "währung")
     private String currency;
+
     @Column(name = "preis")
     private double price;
+
     @Column(name = "wertInEur")
     private double priceInEur;
+
     @Column(name = "bankprovision")
     private double bankProvision;
+
     @Column(name = "maklercourtage")
     private double commission;
+
     @Column(name = "börsenplatzgebühr")
     private double brokerFees;
+
     @Column(name = "spesen")
     private double fees;
+
     @Column(name = "kapitalertragssteuer")
     private double capitalYieldsTax;
+
     @Column(name = "solidaritätssteuer")
     private double soliditarySurcharge;
+
     @Column(name = "quellensteuer")
     private double witholdingTax;
+
     @Column(name = "abgeltungssteuer")
     private double flatTax;
+
     @Column(name = "kirchensteuer")
     private double churchTax;
 
@@ -61,8 +76,8 @@ public class DepotTransaction {
     public DepotTransaction() {
     }
 
-    public DepotTransaction(int depotId, Date date, Stock stock, Depot depot) {
-        this.depotId = depotId;
+    public DepotTransaction(Date date, Stock stock, Depot depot) {
+        this.depotId = depot.getId();
         this.date = date;
         this.stock = stock;
         this.depot = depot;
@@ -73,24 +88,8 @@ public class DepotTransaction {
         return depot;
     }
 
-    public void setDepot(Depot depot) {
-        this.depot = depot;
-    }
-
-    public int getDepotId() {
-        return depotId;
-    }
-
-    public void setDepotId(int depotId) {
-        this.depotId = depotId;
-    }
-
     public String getStockIsin() {
         return stockIsin;
-    }
-
-    public void setStockIsin(String stockIsin) {
-        this.stockIsin = stockIsin;
     }
 
     public Stock getStock() {
@@ -103,10 +102,6 @@ public class DepotTransaction {
 
     public Date getDate() {
         return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
     }
 
     public String getTransactionType() {

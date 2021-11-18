@@ -117,7 +117,7 @@ public class ImportTabController {
 
     @FXML
     private void saveSpecificExcel() {
-        if(!excelIsSelected()) return;
+        if(excelIsNotSelected()) return;
         inlineValidation = true;
         if(!isValidInput()) return;
 
@@ -156,7 +156,7 @@ public class ImportTabController {
         // remove changes if not saved
         loadSpecificExcel(excelSheetList.getSelectionModel().getSelectedItem());
 
-        if(!excelIsSelected()) return;
+        if(excelIsNotSelected()) return;
         inlineValidation = true;
         if(!isValidInput()) return;
 
@@ -275,8 +275,8 @@ public class ImportTabController {
             case -2 -> createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
                     Alert.AlertType.INFORMATION, ButtonType.OK, true);
             case -3 -> createAlert("Zuordnung unvollständig!",
-                    "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für" +
-                            "Stammdaten:\n isin, wkn\nTransaktionen: wertpapier_isin, transaktions_datum, depot_name",
+                    "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für " +
+                            "Stammdaten:\n isin, wkn\nTransaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
             case -4 -> createAlert("Fehler bei Sql-Statement erstellung.!",
                     "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",
@@ -309,16 +309,16 @@ public class ImportTabController {
         stage.setTitle("Log");
     }
 
-    private boolean excelIsSelected() {
+    private boolean excelIsNotSelected() {
         ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
 
         if(excelSheet == null) {
             createAlert("Keine Excel ausgewählt!",
                     "Wählen Sie eine Excelkonfiguration aus der Liste aus oder erstellen Sie eine neue, bevor Sie Speichern.",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public void selectLastExcel() {

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ScrapingCourseOrExchangeManager extends ScrapingElementManager {
+public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
 
     @Autowired
     private SingleExchangeSubController singleExchangeSubController;

@@ -4,6 +4,9 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataDbManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataDbTableColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -25,19 +28,13 @@ public class DbTransactionManager {
     @Autowired
     private StockDataColumnRepository stockDataColumnRepository;
     @Autowired
+    private TransactionDataColumnRepository transactionDataColumnRepository;
+    @Autowired
     private StockDataDbManager stockDataDbManager;
     @Autowired
     private ImportTabManager importTabManager;
     @Autowired
     private CorrelationManager correlationManager;
-
-    public HashMap<String, ColumnDatatype> getStockColDbDatatypes() {
-        HashMap<String, ColumnDatatype> columnDatatypes = new HashMap<>();
-        for (StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
-            columnDatatypes.put(column.getName(), column.getColumnDatatype());
-        }
-        return columnDatatypes;
-    }
 
     public HashMap<String, PreparedStatement> createStockDataStatements(Connection connection) {
         HashMap<String, PreparedStatement> statements = new HashMap<>();
@@ -62,9 +59,10 @@ public class DbTransactionManager {
 
         // prepare a statement for each column
 
-        var transactionColumnsWithType = correlationManager.getTransactionColumnsWithType();
-        for (String colName : transactionColumnsWithType.keySet()) {
-            ColumnDatatype type = transactionColumnsWithType.get(colName);
+        for (TransactionDataDbTableColumn column : transactionDataColumnRepository.findAll()) {
+            ColumnDatatype type = column.getColumnDatatype();
+            String colName = column.getName();
+
             try {
                 statements.put(colName, getPreparedTransactionStatement(colName, connection));
             } catch (SQLException e) {
@@ -78,12 +76,10 @@ public class DbTransactionManager {
     }
 
     public PreparedStatement getPreparedTransactionStatement(String dbColName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO depottransaktion (depot_id, zeitpunkt, wertpapier_isin, " + dbColName + ") VALUES(?,?,?,?) " +
+        String sql = "INSERT INTO "+ TransactionDataDbManager.TABLE_NAME +" (depot_id, transaktions_datum, wertpapier_isin, " + dbColName + ") VALUES(?,?,?,?) " +
                 "ON DUPLICATE KEY UPDATE " + dbColName + "=VALUES(" + dbColName + ");";
         return connection.prepareStatement(sql);
     }
-
-
 
     public boolean executeStatements(Connection connection, HashMap<String, PreparedStatement> statements) {
         boolean silentError = false;

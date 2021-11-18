@@ -16,8 +16,6 @@ public class PreparedCorrelation {
 
     // stock/course
     private String isin;
-    private String websiteData;
-
     // stock/course table
     private String wkn;
 
@@ -54,14 +52,6 @@ public class PreparedCorrelation {
 
     public String getIdentifier() {
         return identifier;
-    }
-
-    public String getWebsiteData() {
-        return websiteData;
-    }
-
-    public void setWebsiteData(String websiteData) {
-        this.websiteData = websiteData;
     }
 
     public String getIsin() {

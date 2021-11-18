@@ -1,6 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.data;
 
+import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataDbTableColumn;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -13,6 +15,9 @@ public class ExcelCorrelation {
     @GeneratedValue
     private int id;
     private String dbColTitle;
+    @Enumerated(EnumType.STRING)
+    private ColumnDatatype dbColType;
+
     @Column(name = "excelColTitle")
     private String _excelColTitle;
     @Transient
@@ -21,20 +26,10 @@ public class ExcelCorrelation {
     @Column(name = "excelColNumber")
     private int _excelColNumber = -1;
     @Transient
-    private SimpleIntegerProperty excelColNumber = new SimpleIntegerProperty();
+    private final SimpleIntegerProperty excelColNumber = new SimpleIntegerProperty();
+
     @Enumerated(EnumType.STRING)
     private CorrelationType correlationType;
-
-    public ExcelCorrelation() {
-        excelColNumber.set(_excelColNumber);
-        initListener();
-    }
-
-    public ExcelCorrelation(String excelColTitle, String dbColTitle) {
-        this();
-        this.excelColTitle.set(excelColTitle);
-        this.dbColTitle = dbColTitle;
-    }
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="excelSheetId", referencedColumnName="id")
@@ -44,16 +39,47 @@ public class ExcelCorrelation {
     @JoinColumn(name="stockDataTableColumnId", referencedColumnName="id")
     private StockDataDbTableColumn stockDataTableColumn;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transactionDataTableColumnId", referencedColumnName="id")
+    private TransactionDataDbTableColumn transactionDataTableColumn;
+
+    public ExcelCorrelation() {
+        excelColNumber.set(_excelColNumber);
+        initListener();
+    }
+
+    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet) {
+        this();
+        this.correlationType = correlationType;
+        this.excelSheet = excelSheet;
+    }
+
+    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, StockDataDbTableColumn column) {
+        this(correlationType, excelSheet);
+        this.dbColType = column.getColumnDatatype();
+        this.dbColTitle = column.getName();
+        this.stockDataTableColumn = column;
+    }
+
+    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, TransactionDataDbTableColumn column) {
+        this(correlationType, excelSheet);
+        this.dbColType = column.getColumnDatatype();
+        this.dbColTitle = column.getName();
+        this.transactionDataTableColumn = column;
+    }
+
+    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, ColumnDatatype columnDatatype, String colName) {
+        this(correlationType, excelSheet);
+        this.dbColType = columnDatatype;
+        this.dbColTitle = colName;
+    }
+
     public int getId() {
         return id;
     }
 
     public String getDbColTitle() {
         return dbColTitle;
-    }
-
-    public void setDbColTitle(String dbColTitle) {
-        this.dbColTitle = dbColTitle;
     }
 
     public String getExcelColTitle() {
@@ -64,16 +90,8 @@ public class ExcelCorrelation {
         return excelColTitle;
     }
 
-    public void setExcelColTitle(String excelColTitle) {
-        this.excelColTitle.set(excelColTitle);
-    }
-
     public int getExcelColNumber() {
         return excelColNumber.get();
-    }
-
-    public SimpleIntegerProperty excelColNumberProperty() {
-        return excelColNumber;
     }
 
     public void setExcelColNumber(int excelColNumber) {
@@ -84,24 +102,8 @@ public class ExcelCorrelation {
         return correlationType;
     }
 
-    public void setCorrelationType(CorrelationType correlationType) {
-        this.correlationType = correlationType;
-    }
-
-    public ExcelSheet getExcelSheet() {
-        return excelSheet;
-    }
-
-    public void setExcelSheet(ExcelSheet excelSheet) {
-        this.excelSheet = excelSheet;
-    }
-
-    public StockDataDbTableColumn getStockDataTableColumn() {
-        return stockDataTableColumn;
-    }
-
-    public void setStockDataTableColumn(StockDataDbTableColumn stockDataTableColumn) {
-        this.stockDataTableColumn = stockDataTableColumn;
+    public ColumnDatatype getDbColDataType() {
+        return dbColType;
     }
 
     @PostLoad

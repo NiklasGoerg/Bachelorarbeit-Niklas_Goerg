@@ -82,8 +82,6 @@ public class StockDataDbManager extends DynamicDbManger{
         }
     }
 
-
-    @Override
     public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
 
 //        PreparedStatement pst = connection.prepareStatement("SET @col := ?;");

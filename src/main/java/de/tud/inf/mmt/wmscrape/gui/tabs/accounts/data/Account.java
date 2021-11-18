@@ -14,14 +14,19 @@ public class Account {
     @Id
     @GeneratedValue
     private int id;
+
     @Column(name = "Kontonummer")
     private String identificationNumber;
+
     @Column(name = "Eigentümer")
     private String owner;
+
     @Column(name = "Öffnungsdatum")
     private Date opened;
+
     @Column(name = "Schließungsdatum")
     private Date closed;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "Kontotyp")
     private AccountType accountType;

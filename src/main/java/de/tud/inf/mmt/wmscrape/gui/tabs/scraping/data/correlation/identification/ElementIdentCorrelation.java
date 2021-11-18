@@ -15,15 +15,21 @@ public class ElementIdentCorrelation {
     @GeneratedValue
     private int id;
 
-    @Column(name = "identType")
+    @Column(name = "identType", columnDefinition = "TEXT")
     @Enumerated(EnumType.STRING)
     private IdentType _identType = IdentType.DEAKTIVIERT;
     @Transient
     private final SimpleStringProperty identType = new SimpleStringProperty(_identType.name());
-    @Column(name = "identification")
+
+    @Column(name = "identification", columnDefinition = "TEXT")
     private String _identification;
     @Transient
     private final SimpleStringProperty identification = new SimpleStringProperty();
+
+    @Column(name = "regex", columnDefinition = "TEXT")
+    private String _regex;
+    @Transient
+    private final SimpleStringProperty regex = new SimpleStringProperty();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "websiteElementId", referencedColumnName = "id")
@@ -42,6 +48,7 @@ public class ElementIdentCorrelation {
     private ColumnDatatype columnDatatype;
 
     // optional for exchange correlations
+    @Column(columnDefinition = "TEXT")
     private String exchangeFieldName;
 
     @Transient
@@ -51,6 +58,7 @@ public class ElementIdentCorrelation {
     private void setPropertiesFromPersistence() {
         identType.set(_identType.name());
         identification.set(_identification);
+        regex.set(_regex);
         initListener();
     }
 
@@ -74,10 +82,9 @@ public class ElementIdentCorrelation {
     }
 
     public ElementIdentCorrelation(WebsiteElement websiteElement, String exchangeFieldName) {
-        this.websiteElement = websiteElement;
+        this(websiteElement);
         this.exchangeFieldName = exchangeFieldName;
         this.columnDatatype = ColumnDatatype.DOUBLE;
-        initListener();
     }
 
     public String getIdentTypeName() {
@@ -101,6 +108,18 @@ public class ElementIdentCorrelation {
 
     public void setIdentification(String identification) {
         this.identification.set(identification);
+    }
+
+    public String getRegex() {
+        return regex.get();
+    }
+
+    public SimpleStringProperty regexProperty() {
+        return regex;
+    }
+
+    public void setRegex(String regex) {
+        this.regex.set(regex);
     }
 
     public SimpleStringProperty identificationProperty() {
@@ -139,6 +158,10 @@ public class ElementIdentCorrelation {
         identification.addListener((o, ov, nv ) -> {
             isChanged = true;
             _identification = nv;
+        });
+        regex.addListener((o, ov, nv ) -> {
+            isChanged = true;
+            _regex = nv;
         });
     }
 }

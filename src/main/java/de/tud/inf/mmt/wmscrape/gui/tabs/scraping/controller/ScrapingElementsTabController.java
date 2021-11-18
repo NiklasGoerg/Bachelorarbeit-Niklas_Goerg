@@ -7,7 +7,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchan
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingCourseOrExchangeManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingCourseAndExchangeManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingTableManager;
 import javafx.collections.FXCollections;
@@ -38,7 +38,7 @@ public class ScrapingElementsTabController {
     @Autowired
     private ScrapingTableManager scrapingTableManager;
     @Autowired
-    private ScrapingCourseOrExchangeManager scrapingCourseOrExchangeManager;
+    private ScrapingCourseAndExchangeManager scrapingCourseAndExchangeManager;
     @Autowired
     private PrimaryTabManagement primaryTabManagement;
     @Autowired
@@ -121,8 +121,8 @@ public class ScrapingElementsTabController {
         switch (websiteElement.getMultiplicityType()) {
             case EINZELWERT -> {
                 switch (websiteElement.getContentType()) {
-                    case STAMMDATEN, AKTIENKURS -> scrapingCourseOrExchangeManager.saveSingleCourseOrStockSettings(websiteElement);
-                    case WECHSELKURS -> scrapingCourseOrExchangeManager.saveSingleExchangeSettings(websiteElement);
+                    case STAMMDATEN, AKTIENKURS -> scrapingCourseAndExchangeManager.saveSingleCourseOrStockSettings(websiteElement);
+                    case WECHSELKURS -> scrapingCourseAndExchangeManager.saveSingleExchangeSettings(websiteElement);
                 }
             }
             case TABELLE -> scrapingTableManager.saveTableSettings(websiteElement);

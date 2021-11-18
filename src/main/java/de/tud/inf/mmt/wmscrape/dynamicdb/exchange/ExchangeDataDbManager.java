@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -52,10 +49,6 @@ public class ExchangeDataDbManager extends DynamicDbManger{
         return addColumnIfNotExists(TABLE_NAME, exchangeDataColumnRepository, new ExchangeDataDbTableColumn(name, ColumnDatatype.DOUBLE));
     }
 
-    @Override
-    public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
-        return null;
-    }
 
     @Override
     public void removeColumn(String columnName) {

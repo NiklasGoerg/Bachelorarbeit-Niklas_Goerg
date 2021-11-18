@@ -18,12 +18,16 @@ import java.util.regex.Pattern;
 
 public abstract class GeneralExtraction {
 
+    private static final String[] DATE_FORMATS = {"dd-MM-yyyy", "dd-MM-yy", "MM-dd-yyyy", "MM-dd-yy", "yy-MM-dd"};
+
+    protected Connection connection;
+    protected SimpleStringProperty logText;
+
+    /** make sure that the to be inserted value is the first attribute in the statement*/
     protected abstract PreparedStatement prepareStatement(Connection connection, PreparedCorrelation correlation);
     protected abstract PreparedCorrelation prepareCorrelation(ElementIdentCorrelation correlation, ElementSelection selection);
     protected abstract String findData(PreparedCorrelation correlation);
 
-    protected Connection connection;
-    protected SimpleStringProperty logText;
 
     protected GeneralExtraction(Connection connection, SimpleStringProperty logText) {
         this.connection = connection;
@@ -42,7 +46,7 @@ public abstract class GeneralExtraction {
             log("FEHLER: SQL Statement:"+e.getMessage()+" <-> "+e.getCause());
         } catch (NumberFormatException | DateTimeParseException e) {
             e.printStackTrace();
-            log("FEHLER: Bei dem Parsen des Wertes '"+data+"' in das Format"+datatype.name()+
+            log("FEHLER: Bei dem Parsen des Wertes '"+data+"' in das Format "+datatype.name()+
                     ". "+e.getMessage()+" <-> "+e.getCause());
         }
     }
@@ -62,33 +66,30 @@ public abstract class GeneralExtraction {
     protected String sanitize(String data, ColumnDatatype datatype) {
         if(data == null) return "";
 
-        String sanitized = removeExceptFirst("\\S+", data.trim());
-
         switch (datatype) {
-            case INT, DOUBLE -> sanitized = removeExceptFirst("(\\-|\\+)?[0-9]+((\\.|,)?[0-9]+)?", sanitized).replace(",",".");
-            case DATE -> sanitized = getRegularDate(sanitized);
+            case INT, DOUBLE -> {
+                return findFirst("(\\-|\\+)?[0-9]+((\\.|,)?[0-9]+)?", data).replace(",",".");
+            }
+            case DATE -> {
+                return getRegularDate(data);
+            }
             case TEXT -> {
-                return sanitized;
+                return data.trim();
             }
             default -> {
                 return "";
             }
         }
-        return sanitized;
     }
 
-    private String removeExceptFirst(String regex, String text) {
+    protected String findFirst(String regex, String text) {
 
-        StringBuilder builder = new StringBuilder(text);
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(text);
 
         // delete everything except the first match
-        if (matcher.find()) {
-            builder.delete(0, matcher.start()-1);
-            builder.delete(matcher.end(), text.length()-1);
-        }
-        return builder.toString();
+        if (matcher.find()) return matcher.group(0);
+        return null;
     }
 
     protected boolean isValid(String data, ColumnDatatype datatype) {
@@ -111,49 +112,40 @@ public abstract class GeneralExtraction {
     private String getRegularDate(String text) {
 
         // matches every date format
-        if (!text.matches("^[^0-9]*(\\d{4}|\\d{1,2}|\\d)[^0-9]+\\d{1,2}[^0-9]+(\\d{4}|\\d{1,2}|\\d)[^0-9]*$")) {
-            return "";
-        }
+        String match = findFirst("(\\d{4}|\\d{1,2}|\\d)[^0-9]+\\d{1,2}[^0-9]+(\\d{4}|\\d{1,2}|\\d)", text);
 
-        String[] sub = getDateSubstrings(text);
+        if (match == null) return "";
+
+        String[] sub = getDateSubstrings(match);
+
         // building new date from parts
         if (sub[0].length()==2 && sub[1].length()==1 && sub[2].length()==1) {
             // yy-m-d -> dd-MM-yyyy
-            // TODO year >2099
-            return "-0"+sub[2]+"-0"+sub[1]+"-20"+sub[0];
-        }
-        if (sub[0].length()==1 && sub[1].length()==1 && sub[2].length()==2) {
-            // ?-?-yy -> dd-MM-yyyy
-            // TODO year >2099
-            return "0"+sub[0]+"-0"+sub[1]+"-20"+sub[2];
-        }
-
-
+            reorder(sub, 0, 2);
+        } else if(match.matches("^[^0-9]*\\d{4}[^0-9]+\\d{1,2}[^0-9]+\\d{1,2}[^0-9]*$")) {
+            // matches yyyy-?-? -> ?-?-yyyy assuming yyyy-MM-dd
+            assumeDMOrder(sub, 2, 1);
+            reorder(sub, 0,2);
+        } else if(match.matches("^[^0-9]*\\d{1,2}[^0-9]+\\d{1,2}[^0-9]+\\d{4}[^0-9]*$")) {
+            // matches ?-?-yyyy
+            assumeDMOrder(sub, 0, 1);
+        } else if(match.matches("^[^0-9]*(\\d{1,2}[^0-9]+\\d{1,2}[^0-9]+\\d{1,2})[^0-9]*$")) {
+            // matches ?-?-? -> ?-?-yyyy
+            assumeDMOrder(sub, 0, 1);
+        } else return "";
 
         var firstPadding = "0".repeat(2 - sub[0].length());
         var centerPadding = "0".repeat(2 - sub[1].length());
-        var lastPadding = "0".repeat(2 - sub[2].length());
+        var lastPadding = "";
 
-        if(text.matches("^[^0-9]*\\d{4}[^0-9]+\\d{1,2}[^0-9]+\\d{1,2}[^0-9]*$")) {
-            // matches yyyy-?-? -> ?-?-yyyy assuming yyyy-MM-dd
-            assumeDMOrder(sub, 2, 1);
-            return lastPadding+sub[2] +"-"+ centerPadding+sub[1] +"-"+ sub[0];
+        if(sub[2].length() < 4) {
+            lastPadding = "0".repeat(2 - sub[2].length());
+        }
 
-        } else if(text.matches("^[^0-9]*\\d{1,2}[^0-9]+\\d{1,2}[^0-9]+\\d{4}[^0-9]*$")) {
-            // matches ?-?-yyyy
-            assumeDMOrder(sub, 0, 1);
-            return firstPadding+sub[0] +"-"+ centerPadding+sub[1] +"-"+ sub[2];
-
-        } else if(text.matches("^[^0-9]*(\\d{1,2}[^0-9]+\\d{1,2}[^0-9]+\\d{1,2})[^0-9]*$")) {
-            // matches ?-?-? -> ?-?-yyyy
-            // TODO year >2099
-            assumeDMOrder(sub, 0, 1);
-            return firstPadding+sub[0] +"-"+ centerPadding+sub[1] +"-20"+ lastPadding+sub[2];
-
-        } else return "";
+        return firstPadding+sub[0] +"-"+ centerPadding+sub[1] +"-"+ lastPadding+sub[2];
     }
 
-    private void assumeDMOrder(String[] order, int x, int y) {
+    private boolean assumeDMOrder(String[] order, int x, int y) {
         // Assume Date Month order
         String tmp;
 
@@ -162,10 +154,16 @@ public abstract class GeneralExtraction {
 
         if(a <= 12 && b > 12) {
             // assuming 'b' is day an 'a' is month
-            tmp = order[x];
-            order[x] = order[y];
-            order[y] = tmp;
+            reorder(order,x,y);
+            return true;
         }
+        return false;
+    }
+
+    private static void reorder(String[] order, int x, int y) {
+        String tmp = order[x];
+        order[x] = order[y];
+        order[y] = tmp;
     }
 
     private String[] getDateSubstrings(String text) {
@@ -203,8 +201,18 @@ public abstract class GeneralExtraction {
     }
 
     private Date getDateFromString(String date) {
-        LocalDate dataToDate = LocalDate.from(DateTimeFormatter.ofPattern("dd-MM-yyyy").parse(date));
-        return Date.valueOf(dataToDate);
+
+        // last option but date should be prepared to be accepted with the first/second format
+        for (String format : DATE_FORMATS) {
+            try {
+                LocalDate dataToDate = LocalDate.from(DateTimeFormatter.ofPattern(format).parse(date));
+                log("INFO: Datum "+date+" mit Format "+format+" geparsed.");
+                return Date.valueOf(dataToDate);
+            } catch (DateTimeParseException e) {
+                log("FEHLER: Datum "+date+" parsen mit Format "+format+ " nicht möglich.");
+            }
+        }
+        return null;
     }
 
     protected void log(String line) {

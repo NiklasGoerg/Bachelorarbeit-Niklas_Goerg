@@ -10,7 +10,9 @@ public class ExcelSheet {
     @GeneratedValue
     private int id;
     private String description;
+    @Column(columnDefinition = "TEXT")
     private String path;
+    @Column(columnDefinition = "TEXT")
     private String password;
     private int titleRow = 1;
     private String selectionColTitle;

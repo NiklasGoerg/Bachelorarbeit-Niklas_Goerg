@@ -14,12 +14,15 @@ public class Depot {
     @GeneratedValue
     private int id;
 
-    @Column(length = 50)
+    @Column(columnDefinition = "TEXT")
     private String name;
+
     @Column(name = "Öffnungsdatum")
     private Date opened;
+
     @Column(name = "Schließungsdatum")
     private Date closed;
+
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "accountId", referencedColumnName = "id")
     private Account account;
@@ -76,9 +79,5 @@ public class Depot {
 
     public void setDepotTransactions(List<DepotTransaction> depotTransactions) {
         this.depotTransactions = depotTransactions;
-    }
-
-    public void addDepotTransaction(DepotTransaction depotTransaction) {
-        this.depotTransactions.add(depotTransaction);
     }
 }

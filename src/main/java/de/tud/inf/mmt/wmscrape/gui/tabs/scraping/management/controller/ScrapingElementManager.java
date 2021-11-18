@@ -81,6 +81,7 @@ public abstract class ScrapingElementManager {
                 } else {
                     if(nv) addNewElementDescCorrelation(row.getValue());
                     else removeElementDescCorrelation(row.getValue());
+                    column.getTableView().refresh();
                 }
             });
             return sbp;
@@ -137,7 +138,7 @@ public abstract class ScrapingElementManager {
 
 
     @Transactional
-    public void initCorrelationTable(WebsiteElement staleElement, TableView<ElementIdentCorrelation> table , MultiplicityType multiplicityType) {
+    public void initIdentCorrelationTable(WebsiteElement staleElement, TableView<ElementIdentCorrelation> table , MultiplicityType multiplicityType) {
         // load anew because the element from the table has no session attached anymore and therefore can't resolve
         // lazy evaluation
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
@@ -146,29 +147,37 @@ public abstract class ScrapingElementManager {
 
         var type = websiteElement.getContentType();
         if(type == ContentType.AKTIENKURS) {
-            fillCourseCorrelationTable(websiteElement,table, multiplicityType);
+            fillCourseIdentCorrelationTable(websiteElement,table, multiplicityType);
         } else if(type == ContentType.STAMMDATEN) {
-            fillStockCorrelationTable(websiteElement,table, multiplicityType);
+            fillStockIdentCorrelationTable(websiteElement,table, multiplicityType);
         } else if(type == ContentType.WECHSELKURS) {
-            fillExchangeCorrelationTable(websiteElement, table);
+            fillExchangeIdentCorrelationTable(websiteElement, table);
         }
     }
 
     private void prepareCorrelationTable(TableView<ElementIdentCorrelation> table, ContentType contentType, MultiplicityType multiplicityType) {
 
-        TableColumn<ElementIdentCorrelation, String> dataElementColumn = new TableColumn<>("Datenelement");
+        TableColumn<ElementIdentCorrelation, String> nameColumn = new TableColumn<>("Datenelement");
+        TableColumn<ElementIdentCorrelation, String> typeColumn = new TableColumn<>("DB Datentyp");
         TableColumn<ElementIdentCorrelation, String> identTypeColumn = new TableColumn<>("Selektionstyp");
-        TableColumn<ElementIdentCorrelation, String> representationColumn = new TableColumn<>("Webseitenrepräsentation");
-        representationColumn.setMinWidth(210);
+        TableColumn<ElementIdentCorrelation, String> identificationColumn = new TableColumn<>("Webseitenidentifikation");
+        TableColumn<ElementIdentCorrelation, String> regexColumn = new TableColumn<>("Regex-Unterauswahl");
+        identificationColumn.setMinWidth(200);
+        regexColumn.setMinWidth(210);
+        identTypeColumn.setMinWidth(135);
+
 
         // DbColName
         if(contentType == ContentType.AKTIENKURS) {
-            dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getCourseDataDbTableColumn().getName()));
+            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getCourseDataDbTableColumn().getName()));
         } else if(contentType == ContentType.STAMMDATEN){
-            dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockDataTableColumn().getName()));
+            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockDataTableColumn().getName()));
         } else  {
-            dataElementColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getExchangeFieldName()));
+            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getExchangeFieldName()));
         }
+
+        // datatype
+        typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getColumnDatatype().name()));
 
         // choiceBox
         identTypeColumn.setCellValueFactory(param -> param.getValue().identTypeProperty());
@@ -179,16 +188,21 @@ public abstract class ScrapingElementManager {
         }
 
         // representation
-        representationColumn.setCellValueFactory(param -> param.getValue().identificationProperty());
-        representationColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        representationColumn.setMinWidth(70);
+        identificationColumn.setCellValueFactory(param -> param.getValue().identificationProperty());
+        identificationColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        table.getColumns().add(dataElementColumn);
+        // regex
+        regexColumn.setCellValueFactory(param -> param.getValue().regexProperty());
+        regexColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        table.getColumns().add(nameColumn);
+        table.getColumns().add(typeColumn);
         table.getColumns().add(identTypeColumn);
-        table.getColumns().add(representationColumn);
+        table.getColumns().add(identificationColumn);
+        table.getColumns().add(regexColumn);
     }
 
-    private void fillStockCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table, MultiplicityType multiplicityType) {
+    private void fillStockIdentCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table, MultiplicityType multiplicityType) {
         ObservableList<ElementIdentCorrelation> stockCorrelations = FXCollections.observableArrayList();
         ArrayList<String> addedStockColumns = new ArrayList<>();
 
@@ -211,7 +225,7 @@ public abstract class ScrapingElementManager {
         table.getItems().addAll(stockCorrelations);
     }
 
-    private void fillCourseCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table, MultiplicityType multiplicityType) {
+    private void fillCourseIdentCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table, MultiplicityType multiplicityType) {
         ObservableList<ElementIdentCorrelation> courseCorrelations = FXCollections.observableArrayList();
         ArrayList<String> addedStockColumns = new ArrayList<>();
 
@@ -234,7 +248,7 @@ public abstract class ScrapingElementManager {
         table.getItems().addAll(courseCorrelations);
     }
 
-    private void fillExchangeCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table) {
+    private void fillExchangeIdentCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table) {
         ObservableList<ElementIdentCorrelation> exchangeCorrelations = FXCollections.observableArrayList();
         ArrayList<String> addedStockColumns = new ArrayList<>();
 

@@ -3,23 +3,24 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.CorrelationType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,12 +33,11 @@ public class CorrelationManager {
     private ExcelCorrelationRepository excelCorrelationRepository;
     @Autowired
     private StockDataColumnRepository stockDataColumnRepository;
-
+    @Autowired
+    private TransactionDataColumnRepository transactionDataColumnRepository;
 
     private ObservableList<ExcelCorrelation> stockColumnRelations = FXCollections.observableArrayList();
     private ObservableList<ExcelCorrelation> transactionColumnRelations = FXCollections.observableArrayList();
-    
-    private HashMap<String, ColumnDatatype> transactionColumnsWithType;
 
     public ObservableList<ExcelCorrelation> getStockColumnRelations() {
         return stockColumnRelations;
@@ -47,33 +47,8 @@ public class CorrelationManager {
         return transactionColumnRelations;
     }
 
-    public HashMap<String, ColumnDatatype> getTransactionColumnsWithType() {
-        return transactionColumnsWithType;
-    }
 
-    @PostConstruct
-    private void init() {
-        // this is fixed because the fields of the transaction object are too
-        transactionColumnsWithType =  new HashMap<>();
-        transactionColumnsWithType.put("depot_name", ColumnDatatype.TEXT);
-        transactionColumnsWithType.put("wertpapier_isin", ColumnDatatype.TEXT);
-        transactionColumnsWithType.put("transaktions_datum", ColumnDatatype.DATE);
-        transactionColumnsWithType.put("transaktionstyp", ColumnDatatype.TEXT);
-        transactionColumnsWithType.put("anzahl", ColumnDatatype.INT);
-        transactionColumnsWithType.put("währung", ColumnDatatype.TEXT);
-        transactionColumnsWithType.put("preis", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("wert_in_eur", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("bankprovision", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("maklercourtage", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("börsenplatzgebühr", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("spesen", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("kapitalertragssteuer", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("solidaritätssteuer", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("quellensteuer", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("abgeltungssteuer", ColumnDatatype.DOUBLE);
-        transactionColumnsWithType.put("kirchensteuer", ColumnDatatype.DOUBLE);
-    }
-
+    @Transactional
     public void fillStockDataCorrelationTable(TableView<ExcelCorrelation> stockDataCorrelationTable, ExcelSheet excelSheet) {
 
         // add comboboxes...
@@ -84,7 +59,7 @@ public class CorrelationManager {
 
         // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
         // therefore the values persist until a new db transaction is done
-        // therefore i have to fetch them manually
+        // therefore I have to fetch them manually
         for (ExcelCorrelation excelCorrelation : getAllByExcelSheetId(excelSheet)) {
             if (excelCorrelation.getCorrelationType() == CorrelationType.STOCKDATA) {
                 stockColumnRelations.add(excelCorrelation);
@@ -93,28 +68,18 @@ public class CorrelationManager {
         }
 
         // add correlation for missing stock db columns
-        // only excel col title+number left to set
         for (StockDataDbTableColumn stockColumn : stockDataColumnRepository.findAll()) {
             //datum is set automatically
             String name = stockColumn.getName();
 
             if (!name.equals("datum") && !addedStockDbCols.contains(name)) {
-                ExcelCorrelation excelCorrelation = new ExcelCorrelation();
-                excelCorrelation.setCorrelationType(CorrelationType.STOCKDATA);
-                excelCorrelation.setExcelSheet(excelSheet);
-                excelCorrelation.setStockDataTableColumn(stockColumn);
-                excelCorrelation.setDbColTitle(stockColumn.getName());
-
+                ExcelCorrelation excelCorrelation = new ExcelCorrelation(CorrelationType.STOCKDATA, excelSheet, stockColumn);
                 addedStockDbCols.add(name);
                 stockColumnRelations.add(excelCorrelation);
             }
         }
-
-        //stockDataCorrelationTable.setMinHeight(stockColumnRelations.size() * 32.5);
-
         stockDataCorrelationTable.getItems().addAll(stockColumnRelations);
     }
-
 
     private Integer getExcelColNumber(String newValue) {
         return parsingManager.getTitleToExcelIndex().getOrDefault(newValue, -1);
@@ -131,20 +96,16 @@ public class CorrelationManager {
         // normal program structure guarantees that this is accessed after table load
         ObservableList<String> comboBoxOptions = mapToObservableList(parsingManager.getIndexToExcelTitle());
 
-        // to be able to undo selection
+        // to be able to undo a selection
         comboBoxOptions.add(0, null);
 
-
-        TableColumn<ExcelCorrelation, String> stockDbColumn = new TableColumn<>("Datenbank Spalten");
-        TableColumn<ExcelCorrelation, String> excelColumn = new TableColumn<>("Excel Spalten");
-
-        //stockDbColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.5));
-        //excelColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.5));
+        TableColumn<ExcelCorrelation, String> dbColumn = new TableColumn<>("Datenbank Spalte");
+        TableColumn<ExcelCorrelation, String> typeColumn = new TableColumn<>("DB-Typ");
+        TableColumn<ExcelCorrelation, String> excelColumn = new TableColumn<>("Excel Spalte");
 
         // populate with name from ExcelCorrelation property
-        stockDbColumn.setCellValueFactory(new PropertyValueFactory<>("dbColTitle"));
-
-
+        dbColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getDbColTitle()));
+        typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getDbColDataType().name()));
 
         // choiceBox
         excelColumn.setCellValueFactory(param -> param.getValue().excelColTitleProperty());
@@ -162,7 +123,8 @@ public class CorrelationManager {
             return cell;
         });
 
-        table.getColumns().add(stockDbColumn);
+        table.getColumns().add(dbColumn);
+        table.getColumns().add(typeColumn);
         table.getColumns().add(excelColumn);
     }
 
@@ -172,10 +134,11 @@ public class CorrelationManager {
 
         transactionColumnRelations = FXCollections.observableArrayList();
         ArrayList<String> addedTransDbCols = new ArrayList<>();
+        addedTransDbCols.add("depot_id");
 
         // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
         // therefore the values persist until a new db transaction is done
-        // therefore i have to fetch them manually
+        // therefore I have to fetch them manually
         for (ExcelCorrelation excelCorrelation : getAllByExcelSheetId(excelSheet)) {
             if (excelCorrelation.getCorrelationType() == CorrelationType.TRANSACTION) {
                 transactionColumnRelations.add(excelCorrelation);
@@ -183,14 +146,18 @@ public class CorrelationManager {
             }
         }
 
+        if(!addedTransDbCols.contains("depot_name")) {
+            ExcelCorrelation excelCorrelation = new ExcelCorrelation(CorrelationType.TRANSACTION,excelSheet, ColumnDatatype.TEXT, "depot_name");
+            addedTransDbCols.add(excelCorrelation.getDbColTitle());
+            transactionColumnRelations.add(excelCorrelation);
+        }
 
-        for (String colName : transactionColumnsWithType.keySet()) {
-            if (!addedTransDbCols.contains(colName)) {
-                ExcelCorrelation excelCorrelation = new ExcelCorrelation();
-                excelCorrelation.setCorrelationType(CorrelationType.TRANSACTION);
-                excelCorrelation.setExcelSheet(excelSheet);
-                excelCorrelation.setDbColTitle(colName);
-                addedTransDbCols.add(colName);
+        for (TransactionDataDbTableColumn column : transactionDataColumnRepository.findAll()) {
+            String name = column.getName();
+
+            if (!addedTransDbCols.contains(name)) {
+                ExcelCorrelation excelCorrelation = new ExcelCorrelation(CorrelationType.TRANSACTION, excelSheet, column);
+                addedTransDbCols.add(name);
                 transactionColumnRelations.add(excelCorrelation);
             }
         }

@@ -22,13 +22,20 @@ public class WebsiteElement {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "websiteId", referencedColumnName = "id")
     private Website website;
+
+    @Column(columnDefinition = "TEXT")
     private String informationUrl;
+
     @Enumerated(EnumType.STRING)
     private ContentType contentType;
+
     @Enumerated(EnumType.STRING)
     private MultiplicityType multiplicityType;
+
     //only for table scraping
+    @Column(columnDefinition = "TEXT")
     private String tableIdent;
+
     @Enumerated(EnumType.STRING)
     private IdentType tableIdenType = IdentType.ID;
 

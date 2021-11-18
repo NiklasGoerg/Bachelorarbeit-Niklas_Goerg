@@ -2,7 +2,6 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -44,12 +43,11 @@ public class ScrapingScrapeTabController {
 
         if(website.isEmpty()) return;
 
-        WebsiteElement element = website.get().getWebsiteElements().get(0);
-
-        WebsiteScraper scraper;
         try {
-            scraper = new WebsiteScraper(website.get(), logText, false, dataSource.getConnection());
-            scraper.processElement(element);
+            // TODO close datasource
+            WebsiteScraper scraper = new WebsiteScraper(website.get(), logText, false, dataSource.getConnection());
+            scraper.processWebsite();
+            scraper.quit();
         } catch (SQLException e) {
             e.printStackTrace();
         }

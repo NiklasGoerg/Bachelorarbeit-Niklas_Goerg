@@ -16,9 +16,13 @@ public class Stock {
     @Column(length = 50)
     private String isin;
     private String wkn;
+
+    @Column(columnDefinition = "TEXT")
     private String name;
+
     @Column(name = "typ")
     private String stockType;
+
     @Column(name = "gruppenId")
     private int groupId;
 

@@ -52,9 +52,16 @@ public class ElementDescCorrelation {
     }
 
     public ElementDescCorrelation(ElementSelection elementSelection, WebsiteElement websiteElement) {
-        this();
         this.elementSelection = elementSelection;
         this.websiteElement = websiteElement;
+
+        // initial state is to show the same values as in the db
+        this._wsDescription = elementSelection.getDescription();
+        this._wsCurrencyName = elementSelection.getDescription();
+        this._wsIsin = elementSelection.getIsin();
+        this._wsWkn = elementSelection.getWkn();
+        setPropertiesFromPersistence();
+        initListener();
     }
 
     public int getId() {

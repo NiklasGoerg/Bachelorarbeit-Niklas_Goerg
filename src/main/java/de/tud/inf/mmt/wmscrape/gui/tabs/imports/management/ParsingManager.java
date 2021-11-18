@@ -181,7 +181,7 @@ public class ParsingManager {
                     try {
                         switch (evaluator.evaluateInCell(cell).getCellType()) {
                             case STRING:
-                                value = cell.getStringCellValue();
+                                value = cell.getStringCellValue().trim();
                                 break;
                             case NUMERIC:
                                 if (DateUtil.isCellDateFormatted(cell)) {
@@ -305,8 +305,10 @@ public class ParsingManager {
     }
 
     private int getColNumberByName(Map<Integer, String> titles, String title) {
+        if(title == null | titles == null) return -1;
+
         for (int col : titles.keySet()) {
-            if (titles.get(col).equals(title.trim())) {
+            if (titles.getOrDefault(col, "").equals(title.trim())) {
                 return col;
             }
         }

@@ -15,20 +15,23 @@ import javafx.beans.property.SimpleStringProperty;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WebsiteScraper extends WebsiteConnection {
 
-    private int minIntraSiteDelay = 2000;
-    private int maxIntraSiteDelay = 5000;
+    private int minIntraSiteDelay = 0;
+    private int maxIntraSiteDelay = 2;
     private final Date dataToday = Date.valueOf(LocalDate.now());
-
     private final SingleCourseElementExtraction singleCourseExtraction;
+    private final Connection connection;
 
     public WebsiteScraper(Website website, SimpleStringProperty logText, Boolean headless, Connection connection) {
         super(website, logText, headless);
 
+        this.connection = connection;
         singleCourseExtraction = new SingleCourseElementExtraction(connection, logText);
     }
 
@@ -42,10 +45,6 @@ public class WebsiteScraper extends WebsiteConnection {
     }
 
     private boolean doLoginRoutine() {
-        startBrowser();
-
-        if(usesNoLogin()) return true;
-
         loadLoginPage();
 
         delayRandom();
@@ -64,13 +63,13 @@ public class WebsiteScraper extends WebsiteConnection {
         return true;
     }
 
-    private boolean usesNoLogin() {
-        return website.getUsernameIdentType() == IdentType.DEAKTIVIERT ||
-                website.getPasswordIdentType() == IdentType.DEAKTIVIERT ||
-                website.getLogoutIdentType() == IdentType.DEAKTIVIERT;
+    private boolean usesLogin() {
+        return website.getUsernameIdentType() != IdentType.DEAKTIVIERT &&
+                website.getPasswordIdentType() != IdentType.DEAKTIVIERT;
     }
 
     private void delayRandom() {
+        // TODO log delay
         int randSleep = ThreadLocalRandom.current().nextInt(minIntraSiteDelay, maxIntraSiteDelay + 1);
 
         try {
@@ -81,32 +80,47 @@ public class WebsiteScraper extends WebsiteConnection {
     }
 
     // TODO
-    public void processElement(WebsiteElement element) {
-        boolean loggedIn = doLoginRoutine();
-        if(!loggedIn) return;
+    public void processWebsite() {
+        startBrowser();
 
-        delayRandom();
-        loadPage(element.getInformationUrl());
+        // TODO log not logged in
+        if(usesLogin()) {
+            // returns false if error at login
+            if (!doLoginRoutine()) return;
+            // wait until page of first element is loaded
+            delayRandom();
+        }
 
+        for(WebsiteElement element : website.getWebsiteElements()) {
+            loadPage(element.getInformationUrl());
 
+            var multiplicityType = element.getMultiplicityType();
+            var contentType = element.getContentType();
 
-        MultiplicityType multiplicityType = element.getMultiplicityType();
-        ContentType contentType = element.getContentType();
+            processWebsiteElement(element, multiplicityType, contentType);
 
-        for(ElementSelection selection : element.getElementSelections()) {
-            if(selection.isSelected()) {
+            delayRandom();
+        }
+        logout();
+    }
 
-                switch (multiplicityType) {
-                    case TABELLE -> System.out.println("0");
-                    case EINZELWERT -> {
-                        switch (contentType) {
-                            case STAMMDATEN -> System.out.println("1");
-                            case WECHSELKURS -> System.out.println("2");
-                            case AKTIENKURS -> singleCourseExtraction.extract(element);
-                        }
-                    }
+    public void quit() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void processWebsiteElement(WebsiteElement element, MultiplicityType multiplicityType, ContentType contentType) {
+        switch (multiplicityType) {
+            case TABELLE -> System.out.println("0");
+            case EINZELWERT -> {
+                switch (contentType) {
+                    case STAMMDATEN -> System.out.println("1");
+                    case WECHSELKURS -> System.out.println("2");
+                    case AKTIENKURS -> singleCourseExtraction.extract(element);
                 }
-
             }
         }
     }
@@ -132,6 +146,27 @@ public class WebsiteScraper extends WebsiteConnection {
         protected String findData(PreparedCorrelation correlation) {
             // the reason this is an embedded class. to access the method
             return findTextDataByType(correlation.getIdentType(), correlation.getIdentifier(), correlation.getDbColName());
+        }
+
+        @Override
+        protected PreparedStatement prepareStatement(Connection connection, PreparedCorrelation correlation) {
+            String dbColName = correlation.getDbColName();
+
+            String sql = "INSERT INTO "+correlation.getDbTableName()+" (" + dbColName + ", isin, datum) VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
+                    dbColName + "=VALUES(" + dbColName + ");";
+
+            try {
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setString(2, correlation.getIsin());
+                statement.setDate(3, correlation.getDate());
+                return statement;
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                log("FEHLER: SQL-Statement Erstellung. Spalte '"+dbColName+"' der Tabelle "+correlation.getDbColName()
+                        +". "+e.getMessage()+" <-> "+e.getCause());
+            }
+            return null;
         }
 
     }

@@ -16,6 +16,7 @@ public class AccountTransaction {
 
     @Column(name = "Zeitpunkt")
     private LocalDateTime timestamp;
+
     @Column(name = "Transaktionswert")
     private double amount;
 
