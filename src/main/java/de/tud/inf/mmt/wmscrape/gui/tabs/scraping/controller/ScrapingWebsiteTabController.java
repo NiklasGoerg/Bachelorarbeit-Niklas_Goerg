@@ -246,7 +246,8 @@ public class ScrapingWebsiteTabController {
         inlineValidation = false;
 
         setRightPanelBoxVisible(true);
-        setEditable(true);
+
+        deselectOnDeactivated(passwordIdentChoiceBox.getValue(), website.getPasswordIdentType());
 
         urlField.setText(website.getUrl());
         usernameField.setText(website.getUsername());

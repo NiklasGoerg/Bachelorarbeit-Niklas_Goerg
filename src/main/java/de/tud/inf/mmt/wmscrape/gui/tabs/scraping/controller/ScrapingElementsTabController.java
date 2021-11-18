@@ -130,7 +130,7 @@ public class ScrapingElementsTabController {
     }
 
     @FXML
-    private void handleCancelButton() {
+    private void handleResetButton() {
         loadSpecificElement(getSelectedElement());
     }
 

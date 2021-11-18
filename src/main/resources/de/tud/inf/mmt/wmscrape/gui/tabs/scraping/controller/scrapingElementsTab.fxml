@@ -134,7 +134,7 @@
             <ButtonBar nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
               <buttons>
                 <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern" />
-                  <Button mnemonicParsing="false" onAction="#handleCancelButton" text="Zurücksetzen" />
+                  <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
               </buttons>
                <padding>
                   <Insets right="6.0" top="1.0" />
