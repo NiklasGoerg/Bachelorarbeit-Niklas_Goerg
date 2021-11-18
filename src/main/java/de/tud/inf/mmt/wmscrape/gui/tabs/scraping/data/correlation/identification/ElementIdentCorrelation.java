@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;

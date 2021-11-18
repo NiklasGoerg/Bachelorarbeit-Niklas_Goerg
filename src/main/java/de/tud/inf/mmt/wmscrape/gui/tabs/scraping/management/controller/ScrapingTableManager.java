@@ -1,8 +1,8 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementDescCorrelation;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementDescCorrelationRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import javafx.beans.property.SimpleStringProperty;

@@ -1,9 +1,9 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.scraping;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
+import javafx.beans.property.SimpleStringProperty;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -12,65 +12,27 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class SingleExtraction implements ElementExtraction {
-
-    private Map<String , PreparedStatement> preparedStatements;
-
-    @Override
-    public void extract(WebsiteElement element) {
-        PreparedCorrelation preparedCorrelation;
-        preparedStatements = new HashMap<>();
-        Connection connection = getConnection();
-        PreparedStatement statement;
-        String dbColName;
-
-        // it's a list but due to ui restraints containing only one selection
-        for (var selection : element.getElementSelections()) {
-            for(var ident : element.getElementIdentCorrelations()) {
-
-                preparedCorrelation = prepareCorrelation(ident, selection);
-
-                String data = findData(preparedCorrelation);
-                data = sanitize(data, preparedCorrelation.getDatatype());
-
-                if(isValid(data, ident.getColumnDatatype())) {
-                    dbColName = preparedCorrelation.getDbColName();
-
-                    if(preparedStatements.containsKey(dbColName)) {
-                        statement = preparedStatements.get(dbColName);
-                    } else {
-                        statement = prepareStatement(connection, preparedCorrelation);
-                        if(statement != null) {
-                            preparedStatements.put(dbColName, statement);
-                        }
-                    }
-
-                    fillStatement(statement, data, ident.getColumnDatatype());
-                }
-            }
-            break;
-        }
-        storeInDb();
-
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+public abstract class GeneralExtraction {
 
     protected abstract PreparedStatement prepareStatement(Connection connection, PreparedCorrelation correlation);
     protected abstract PreparedCorrelation prepareCorrelation(ElementIdentCorrelation correlation, ElementSelection selection);
-    protected abstract Connection getConnection();
     protected abstract String findData(PreparedCorrelation correlation);
-    protected abstract void log(String line);
 
-    private void fillStatement(PreparedStatement statement, String data, ColumnDatatype datatype) {
+    protected Connection connection;
+    protected SimpleStringProperty logText;
+
+    protected GeneralExtraction(Connection connection, SimpleStringProperty logText) {
+        this.connection = connection;
+        this.logText = logText;
+    }
+
+    protected Map<String , PreparedStatement> preparedStatements;
+
+    protected void fillStatement(PreparedStatement statement, String data, ColumnDatatype datatype) {
         try {
             if (data == null) fillNullByDataType(datatype, statement);
             else fillByDataType(datatype, statement, data);
@@ -80,12 +42,12 @@ public abstract class SingleExtraction implements ElementExtraction {
             log("FEHLER: SQL Statement:"+e.getMessage()+" <-> "+e.getCause());
         } catch (NumberFormatException | DateTimeParseException e) {
             e.printStackTrace();
-           log("FEHLER: Bei dem Parsen des Wertes '"+data+"' in das Format"+datatype.name()+
-                   ". "+e.getMessage()+" <-> "+e.getCause());
+            log("FEHLER: Bei dem Parsen des Wertes '"+data+"' in das Format"+datatype.name()+
+                    ". "+e.getMessage()+" <-> "+e.getCause());
         }
     }
 
-    private void storeInDb() {
+    protected void storeInDb() {
         for(PreparedStatement statement : preparedStatements.values()) {
             try {
                 statement.executeBatch();
@@ -97,7 +59,7 @@ public abstract class SingleExtraction implements ElementExtraction {
         }
     }
 
-    private String sanitize(String data, ColumnDatatype datatype) {
+    protected String sanitize(String data, ColumnDatatype datatype) {
         if(data == null) return "";
 
         String sanitized = removeExceptFirst("\\S+", data.trim());
@@ -129,7 +91,7 @@ public abstract class SingleExtraction implements ElementExtraction {
         return builder.toString();
     }
 
-    private boolean isValid(String data, ColumnDatatype datatype) {
+    protected boolean isValid(String data, ColumnDatatype datatype) {
         if(datatype == null) return false;
 
         // TODO log
@@ -243,6 +205,10 @@ public abstract class SingleExtraction implements ElementExtraction {
     private Date getDateFromString(String date) {
         LocalDate dataToDate = LocalDate.from(DateTimeFormatter.ofPattern("dd-MM-yyyy").parse(date));
         return Date.valueOf(dataToDate);
+    }
+
+    protected void log(String line) {
+        logText.set(this.logText.getValue() +"\n" + line);
     }
 
 }

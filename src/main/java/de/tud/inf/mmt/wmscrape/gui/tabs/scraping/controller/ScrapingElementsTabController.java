@@ -7,9 +7,9 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchan
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingCourseOrExchangeManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTableManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingCourseOrExchangeManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingTableManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

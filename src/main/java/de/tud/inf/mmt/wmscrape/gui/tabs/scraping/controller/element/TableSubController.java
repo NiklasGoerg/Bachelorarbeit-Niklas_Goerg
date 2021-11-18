@@ -1,11 +1,11 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementDescCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTableManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingTableManager;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;

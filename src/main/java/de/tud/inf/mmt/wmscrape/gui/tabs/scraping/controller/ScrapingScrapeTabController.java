@@ -3,7 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.WebsiteScraper;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;

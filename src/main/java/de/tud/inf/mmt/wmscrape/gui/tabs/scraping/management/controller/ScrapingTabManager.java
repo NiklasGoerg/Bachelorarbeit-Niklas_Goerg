@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller;
 
 import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;

@@ -4,7 +4,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabC
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

@@ -5,7 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.NewWebsitePo
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.WebsiteTestPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller.ScrapingTabManager;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -311,7 +311,7 @@ public class ScrapingWebsiteTabController {
         String value = input.getText();
         if(value==null) return true;
 
-        boolean isValid = !value.matches("^.*[\\\"´`]+.*$");
+        boolean isValid = !value.matches("^.*[\"´`]+.*$");
         decorateField(input, "Die Symbole \",´,` sind nicht erlaubt!", isValid);
         return isValid;
     }

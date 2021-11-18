@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.scraping;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;

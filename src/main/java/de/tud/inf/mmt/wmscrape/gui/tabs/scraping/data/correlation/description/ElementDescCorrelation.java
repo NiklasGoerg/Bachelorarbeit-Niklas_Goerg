@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;

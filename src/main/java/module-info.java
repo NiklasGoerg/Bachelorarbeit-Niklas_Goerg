@@ -46,10 +46,8 @@ module de.tud.inf.mmt.wmscrape {
     exports de.tud.inf.mmt.wmscrape.gui.tabs.imports.data to spring.beans;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.depots.data to spring.beans;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller to spring.beans;
-    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management to spring.beans;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller to spring.core, javafx.fxml;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data to spring.beans;
-    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management to javafx.fxml, org.hibernate.orm.core, spring.core;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data to javafx.base, javafx.fxml, org.hibernate.orm.core, spring.core;
     exports de.tud.inf.mmt.wmscrape.dynamicdb;
     opens de.tud.inf.mmt.wmscrape.dynamicdb;
@@ -59,8 +57,6 @@ module de.tud.inf.mmt.wmscrape {
     opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website to javafx.fxml, spring.core;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums to spring.beans;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums to javafx.base, javafx.fxml, org.hibernate.orm.core, spring.core;
-    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation to spring.beans;
-    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation to javafx.base, javafx.fxml, org.hibernate.orm.core, spring.core;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection to spring.beans;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection to javafx.base, javafx.fxml, org.hibernate.orm.core, spring.core;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element to spring.beans;
@@ -73,5 +69,15 @@ module de.tud.inf.mmt.wmscrape {
     opens de.tud.inf.mmt.wmscrape.dynamicdb.stock;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description to spring.beans;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description to javafx.base, javafx.fxml, org.hibernate.orm.core, spring.core;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification to spring.beans;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification to javafx.base, javafx.fxml, org.hibernate.orm.core, spring.core;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller to spring.beans;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller to javafx.fxml, org.hibernate.orm.core, spring.core;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website to spring.beans;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website to javafx.fxml, org.hibernate.orm.core, spring.core;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.scraping to spring.beans;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.scraping to javafx.fxml, org.hibernate.orm.core, spring.core;
 
 }

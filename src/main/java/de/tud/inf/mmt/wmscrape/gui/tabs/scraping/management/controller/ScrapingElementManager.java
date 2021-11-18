@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
@@ -8,8 +8,8 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.StockRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelation;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.ElementIdentCorrelationRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElementRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
