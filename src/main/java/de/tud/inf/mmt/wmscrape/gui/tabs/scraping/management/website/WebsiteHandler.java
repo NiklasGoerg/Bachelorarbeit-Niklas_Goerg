@@ -11,7 +11,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class WebsiteHandler {
@@ -85,14 +85,13 @@ public abstract class WebsiteHandler {
         IdentType type = website.getCookieHideIdentType();
         if (type == IdentType.DEAKTIVIERT) return true;
 
-        String identifier = website.getCookieHideIdent().replace("\"", "'");
+        String identifier = website.getCookieHideIdent();
 
-
-        WebElement element = extractElementFromRoot(type, identifier);
-        if (element != null) {
-            js.executeScript("(arguments[0]).remove()", element);
+        WebElement banner = extractElementFromRoot(type, identifier);
+        if (banner != null) {
+            js.executeScript("(arguments[0]).remove()", banner);
         } else {
-            addToLog("WARNUNG: Cookiebanner nicht ausgeblendet");
+            addToLog("WARNUNG: Cookiebanner nicht gefunden");
             return false;
         }
 
@@ -115,12 +114,14 @@ public abstract class WebsiteHandler {
     }
 
     protected boolean login() {
-        WebElement password = extractElementFromRoot(website.getPasswordIdentType(), website.getPasswordIdent());
-
-        // submit like pressing enter
-        if (password != null && website.getLoginButtonIdentType() == IdentType.ENTER) {
-            submit(password);
-            return true;
+        if (website.getLoginButtonIdentType() == IdentType.ENTER) {
+            WebElement password = extractElementFromRoot(website.getPasswordIdentType(), website.getPasswordIdent());
+            if(password != null) {
+                // submit like pressing enter
+                submit(password);
+                return true;
+            }
+            return false;
         }
 
         WebElement loginButton = extractElementFromRoot(website.getLoginButtonIdentType(), website.getLoginButtonIdent());
@@ -135,7 +136,7 @@ public abstract class WebsiteHandler {
         IdentType type = website.getLogoutIdentType();
         if (type == IdentType.DEAKTIVIERT) return true;
 
-        // // called separately in tester
+        // called separately in tester
         if (website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
                 && !(this instanceof WebsiteTester)) hideCookies();
 
@@ -169,32 +170,65 @@ public abstract class WebsiteHandler {
     }
 
     public WebElement extractElementFromRoot(IdentType type, String identifier) {
-        var elements = extractElementsFromContext(driver, type, identifier, true);
+        // solely the selenium element without iframe or relation context
+        var elements = extractAllFramesFromContext(type, identifier, null);
+        if (elements != null && elements.size() > 0) return elements.get(0).get();
+        return null;
+    }
+
+    public WebElement extractElementFromContext(IdentType type, String identifier, WebElementInContext webElementInContext) {
+        var elements = extractAllFramesFromContext(type, identifier, webElementInContext);
+        if (elements != null) return elements.get(0).get();
+        return null;
+    }
+
+    public WebElementInContext extractFrameElementFromRoot(IdentType type, String identifier) {
+        // a frame element containing the selenium element and iframe/context information
+        var elements = extractAllFramesFromContext(type, identifier, null);
         if (elements != null && elements.size() > 0) return elements.get(0);
         return null;
     }
 
-    public WebElement extractElementFromContext(SearchContext context, IdentType type, String identifier, boolean resetFrame) {
-        var elements = extractElementsFromContext(context, type, identifier, resetFrame);
-        if (elements != null && elements.size() > 0) return elements.get(0);
-        return null;
+    private void switchToFrame(WebElement frame) {
+        if(frame != null) driver.switchTo().frame(frame);
+        else driver.switchTo().defaultContent();
     }
 
-    public List<WebElement> extractElementsFromContext(SearchContext context, IdentType type,
-                                                       String identifier, boolean resetFrame) {
-        // reset iframe position unit new search -> same iframe position
-        if (resetFrame) driver.switchTo().defaultContent();
+    /**
+     * @param webElementInContext null uses the driver context
+     */
+    public List<WebElementInContext> extractAllFramesFromContext(IdentType type, String identifier, WebElementInContext webElementInContext) {
 
-        // search elements in main document
-        var elements = findElementsRelative(context, type, identifier);
-        if (elements != null) return elements;
+        SearchContext context = driver;
+        WebElement frame = null;
 
-        // search in sub iframes
-        elements = recursiveSearch(context, type, identifier, context.findElements(By.tagName("iframe")), 0);
-        if (elements != null) return elements;
+        if(webElementInContext != null) {
+            context = webElementInContext.getContext();
+            frame = webElementInContext.getFrame();
+            switchToFrame(webElementInContext.getFrame());
+        } else {
+            switchToFrame(null);
+        }
+
+        // search elements in root
+        var webElements = findElementsRelative(context, type, identifier);
+
+        if (webElements != null && webElements.size() > 0) return webToFrameList(webElements, frame, context);
+
+        // search in sub iframes recursively
+        List<WebElementInContext> webElementInContexts = recursiveSearch(context, type, identifier, context.findElements(By.tagName("iframe")), 0);
+        if (webElementInContexts != null) return webElementInContexts;
 
         addToLog("FEHLER: Keine Elemente unter '" + identifier + "' gefunden");
         return null;
+    }
+
+    private List<WebElementInContext> webToFrameList(List<WebElement> webElements, WebElement frame, SearchContext context) {
+        List<WebElementInContext> webElementInContexts = new ArrayList<>();
+        for (WebElement element : webElements) {
+            webElementInContexts.add(new WebElementInContext(element, frame, context));
+        }
+        return webElementInContexts;
     }
 
     private List<WebElement> findElementsRelative(SearchContext context, IdentType type, String identifier) {
@@ -208,19 +242,51 @@ public abstract class WebsiteHandler {
                 default -> elements = null;
             }
         } catch (InvalidSelectorException e) {
+            addToLog("FEHLER: Invalider Identifizierer '"+identifier+"'");
             return null;
         }
         return elements;
     }
 
+    private List<WebElementInContext> recursiveSearch(SearchContext context, IdentType type, String identifier,
+                                                      List<WebElement> iframes, int depth) {
+        // nothing found in max depth. return
+        if (depth >= IFRAME_SEARCH_DEPTH) return null;
+
+        List<WebElementInContext> webElementInContexts;
+
+        // search every iframe
+        for (WebElement frame : iframes) {
+            driver.switchTo().frame(frame);
+
+            // look inside the frame
+            var webElements = findElementsRelative(context, type, identifier);
+
+            // found something
+            if(webElements != null && webElements.size() > 0) {
+                return webToFrameList(webElements, frame, context);
+            }
+
+            // found nothing, search again in the sub-frames inside this frame
+            webElementInContexts = recursiveSearch(context, type, identifier, driver.findElements(By.tagName("iframe")), depth + 1);
+            if (webElementInContexts != null) return webElementInContexts;
+
+            driver.switchTo().parentFrame();
+        }
+        return null;
+    }
+
+    // only call in respective frame
     private void setText(WebElement element, String text) {
         element.sendKeys(text);
     }
 
+    // only call in respective frame
     private void submit(WebElement element) {
         element.submit();
     }
 
+    // only call in respective frame
     private void clickElement(WebElement element) {
         try {
             element.click();
@@ -240,25 +306,6 @@ public abstract class WebsiteHandler {
 
     protected void addToLog(String line) {
         logText.set(this.logText.getValue() + "\n" + line);
-    }
-
-    private List<WebElement> recursiveSearch(SearchContext context, IdentType type, String identifier, List<WebElement> iframes, int depth) {
-        // search in multiple frames
-        if (depth >= IFRAME_SEARCH_DEPTH) return null;
-
-        List<WebElement> elements;
-        for (WebElement frame : iframes) {
-            driver.switchTo().frame(frame);
-
-            elements = findElementsRelative(context, type, identifier);
-            if(elements != null) return elements;
-
-            elements = recursiveSearch(context, type, identifier, driver.findElements(By.tagName("iframe")), depth + 1);
-            if (elements != null) return elements;
-
-            driver.switchTo().parentFrame();
-        }
-        return null;
     }
 
 }
