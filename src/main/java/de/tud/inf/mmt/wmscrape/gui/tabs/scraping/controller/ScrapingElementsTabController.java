@@ -96,6 +96,8 @@ public class ScrapingElementsTabController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setHeaderText("Einstellungen löschen?");
         alert.setContentText("Bitte bestätigen Sie, dass sie dieses Element löschen möchten.");
+        alert.setX(urlField.getScene().getWindow().getX()+(urlField.getScene().getWindow().getWidth()/2)-200);
+        alert.setY(urlField.getScene().getWindow().getY()+(urlField.getScene().getWindow().getHeight()/2)-200);
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -203,6 +205,8 @@ public class ScrapingElementsTabController {
     private void createAlert(String title, String content, Alert.AlertType type, ButtonType buttonType, boolean wait) {
         Alert alert = new Alert(type, content, buttonType);
         alert.setHeaderText(title);
+        alert.setY(urlField.getScene().getWindow().getY() + (urlField.getScene().getWindow().getHeight() / 2) - 200);
+        alert.setX(urlField.getScene().getWindow().getX() + (urlField.getScene().getWindow().getWidth() / 2) - 200);
         if(wait) alert.showAndWait();
     }
 

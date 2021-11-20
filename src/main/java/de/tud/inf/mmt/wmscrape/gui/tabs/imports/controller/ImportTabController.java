@@ -104,6 +104,7 @@ public class ImportTabController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setHeaderText("Einstellungen löschen?");
         alert.setContentText("Bitte bestätigen Sie, dass sie diese Konfiguration löschen möchten.");
+        setAlertPosition(alert);
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -136,6 +137,7 @@ public class ImportTabController {
                 "Die Excelkonfiguration wurde gespeichert.",
                 ButtonType.OK);
         alert.setHeaderText("Daten gespeichert!");
+        setAlertPosition(alert);
         alert.showAndWait();
     }
 
@@ -239,6 +241,7 @@ public class ImportTabController {
                 gridPane.setMaxWidth(Double.MAX_VALUE);
                 gridPane.add(textArea, 0, 0);
                 alert.getDialogPane().setContent(gridPane);
+                setAlertPosition(alert);
                 alert.show();
                 break;
         }
@@ -253,6 +256,8 @@ public class ImportTabController {
         stockDataCorrelationTable.refresh();
         transactionCorrelationTable.refresh();
     }
+
+
 
     @FXML
     private void importExcel() {
@@ -434,6 +439,12 @@ public class ImportTabController {
     private void createAlert(String title, String content, Alert.AlertType type, ButtonType buttonType, boolean wait) {
         Alert alert = new Alert(type, content, buttonType);
         alert.setHeaderText(title);
+        setAlertPosition(alert);
         if(wait) alert.showAndWait();
+    }
+
+    private void setAlertPosition(Alert alert) {
+        alert.setY(pathField.getScene().getWindow().getY() + (pathField.getScene().getWindow().getHeight() / 2) - 200);
+        alert.setX(pathField.getScene().getWindow().getX() + (pathField.getScene().getWindow().getWidth() / 2) - 200);
     }
 }

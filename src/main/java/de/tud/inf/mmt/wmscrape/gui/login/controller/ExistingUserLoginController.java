@@ -39,6 +39,8 @@ public class ExistingUserLoginController {
                     "Der Verbindungsversuch ist fehlgeschlagen!\n" +
                     "Überprüfen Sie den Pfad sowie Nutzername und Passwort.", ButtonType.OK);
             alert.setHeaderText("Verbindungsfehler");
+            alert.setX(usernameField.getScene().getWindow().getX()+(usernameField.getScene().getWindow().getWidth()/2)-200);
+            alert.setY(usernameField.getScene().getWindow().getY()+(usernameField.getScene().getWindow().getHeight()/2)-200);
             alert.showAndWait();
         }
     }

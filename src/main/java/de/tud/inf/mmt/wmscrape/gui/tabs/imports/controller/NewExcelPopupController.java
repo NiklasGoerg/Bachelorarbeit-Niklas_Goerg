@@ -43,6 +43,8 @@ public class NewExcelPopupController {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Eine leere Exceltabellenbeschreibung wurde angelegt", ButtonType.OK);
         alert.setHeaderText("Excel angelegt!");
+        alert.setY(descriptionField.getScene().getWindow().getY() + (descriptionField.getScene().getWindow().getHeight() / 2) - 200);
+        alert.setX(descriptionField.getScene().getWindow().getX() + (descriptionField.getScene().getWindow().getWidth() / 2) - 200);
         alert.showAndWait();
 
         descriptionField.getScene().getWindow().hide();

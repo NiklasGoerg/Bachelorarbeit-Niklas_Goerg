@@ -42,6 +42,9 @@ public class NewWebsitePopupController {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Eine leere Webseitenbeschreibung wurde angelegt", ButtonType.OK);
         alert.setHeaderText("Webseite angelegt!");
+        alert.setX(descriptionField.getScene().getWindow().getX()+(descriptionField.getScene().getWindow().getWidth()/2)-200);
+        alert.setY(descriptionField.getScene().getWindow().getY()+(descriptionField.getScene().getWindow().getHeight()/2)-200);
+
         alert.showAndWait();
 
         descriptionField.getScene().getWindow().hide();

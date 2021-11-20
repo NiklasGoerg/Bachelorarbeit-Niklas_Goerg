@@ -37,6 +37,10 @@ public class NewElementPopupController {
 
     @FXML
     private void handleSaveButton() {
+
+        descriptionField.getScene().getWindow().setX(0);
+        descriptionField.getScene().getWindow().setY(0);
+
         if(!isValidDescription()) {
             return;
         }
@@ -50,6 +54,8 @@ public class NewElementPopupController {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Eine neues Webseiten-Element wurde angelegt", ButtonType.OK);
         alert.setHeaderText("Element angelegt!");
+        alert.setY(descriptionField.getScene().getWindow().getY() + (descriptionField.getScene().getWindow().getHeight() / 2) - 200);
+        alert.setX(descriptionField.getScene().getWindow().getX() + (descriptionField.getScene().getWindow().getWidth() / 2) - 200);
         alert.showAndWait();
 
         descriptionField.getScene().getWindow().hide();
