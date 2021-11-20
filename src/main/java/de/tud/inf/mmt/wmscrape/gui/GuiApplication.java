@@ -1,18 +1,20 @@
 package de.tud.inf.mmt.wmscrape.gui;
 
-import de.tud.inf.mmt.wmscrape.springdata.SpringContextAccessor;
 import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabController;
+import de.tud.inf.mmt.wmscrape.springdata.SpringContextAccessor;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 public class GuiApplication extends Application {
@@ -28,6 +30,7 @@ public class GuiApplication extends Application {
                 Parent parent = fxmlLoader.load();
                 stage.setScene(new Scene(parent));
                 stage.getScene().getStylesheets().add("style.css");
+                stage.getIcons().add(new Image(Objects.requireNonNull(WMScrape.class.getResourceAsStream("/icon.png"))));
                 stage.setTitle("Login");
                 stage.show();
             } catch (IOException e) {
