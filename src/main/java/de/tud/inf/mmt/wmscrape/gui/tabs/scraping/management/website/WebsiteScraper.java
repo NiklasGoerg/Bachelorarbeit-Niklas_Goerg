@@ -8,7 +8,6 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.SingleCourseOrStockExtraction;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.SingleExchangeExtraction;
 import javafx.beans.property.SimpleStringProperty;
-import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
 
 import java.sql.Connection;
@@ -119,12 +118,19 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     public String findText(IdentType type, String identifier, String highlightText) {
-        return findTextInContext(driver, type, identifier, highlightText, true);
+        return findTextInContext(type, identifier, highlightText, null);
     }
 
-    public String findTextInContext(SearchContext context, IdentType type, String identifier,
-                                    String highlightText, boolean resetFrame) {
-        WebElement element = extractElementFromContext(context, type, identifier, resetFrame);
+    public String findTextInContext(IdentType type, String identifier, String highlightText, WebElementInContext webElementInContext) {
+
+        WebElement element;
+
+        if(webElementInContext != null) {
+            element = extractElementFromContext(type, identifier, webElementInContext);
+        } else {
+            element = extractElementFromRoot(type, identifier);
+        }
+
         if(element == null) return "";
 
         if(!headless) highlightElement(element, highlightText);
@@ -132,8 +138,9 @@ public class WebsiteScraper extends WebsiteHandler {
         return element.getText().trim();
     }
 
+    // has to be called while inside the frame
     public void highlightElement(WebElement element, String text) {
-        if(headless) return;
+        if(headless || element == null) return;
 
         js.executeScript("arguments[0].setAttribute('style', 'border:2px solid #c95c55;')", element);
 

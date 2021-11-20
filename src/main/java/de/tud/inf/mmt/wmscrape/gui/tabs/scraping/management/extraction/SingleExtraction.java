@@ -31,14 +31,13 @@ public abstract class SingleExtraction extends GeneralExtraction implements Extr
 
                 carrier = prepareCarrier(ident, selection);
 
-                data = getTextData(carrier);
+                data = scraper.findText(carrier.getIdentType(), carrier.getIdentifier(), carrier.getDbColName());
 
                 if(data.equals("")) {
                     log("FEHLER: Keine Daten enthalten in "+ident);
                 }
 
                 data = processData(carrier, data);
-
 
                 if(isValid(data, ident.getColumnDatatype())) {
                     statement = prepareStatement(connection, carrier);
@@ -52,9 +51,4 @@ public abstract class SingleExtraction extends GeneralExtraction implements Extr
         }
         storeInDb();
     }
-
-    protected String getTextData(InformationCarrier correlation) {
-        return scraper.findText(correlation.getIdentType(), correlation.getIdentifier(), correlation.getDbColName());
-    }
-
 }

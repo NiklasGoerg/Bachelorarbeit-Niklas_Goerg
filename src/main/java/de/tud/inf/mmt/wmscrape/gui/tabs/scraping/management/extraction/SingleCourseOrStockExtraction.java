@@ -26,20 +26,20 @@ public class SingleCourseOrStockExtraction extends SingleExtraction {
 
 
     @Override
-    protected PreparedStatement prepareStatement(Connection connection, InformationCarrier correlation) {
-        String dbColName = correlation.getDbColName();
+    protected PreparedStatement prepareStatement(Connection connection, InformationCarrier carrier) {
+        String dbColName = carrier.getDbColName();
 
-        String sql = "INSERT INTO "+correlation.getDbTableName()+" ("+dbColName+", isin, datum) VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
+        String sql = "INSERT INTO "+carrier.getDbTableName()+" ("+dbColName+", isin, datum) VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
                 dbColName+"=VALUES("+dbColName+");";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(2, correlation.getIsin());
-            statement.setDate(3, correlation.getDate());
+            statement.setString(2, carrier.getIsin());
+            statement.setDate(3, carrier.getDate());
             return statement;
 
         } catch (SQLException e) {
-            handleSqlException(correlation, e);
+            handleSqlException(carrier, e);
         }
         return null;
     }

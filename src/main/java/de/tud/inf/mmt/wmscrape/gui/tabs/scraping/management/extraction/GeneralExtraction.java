@@ -28,7 +28,7 @@ public abstract class GeneralExtraction {
     protected WebsiteScraper scraper;
     protected Date date;
 
-    /** make sure that the to be inserted value is the first attribute in the statement*/
+    /* make sure that the to be inserted value is the first attribute in the statement */
     protected abstract PreparedStatement prepareStatement(Connection connection, InformationCarrier carrier);
     protected abstract InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection);
 
@@ -248,9 +248,9 @@ public abstract class GeneralExtraction {
         logText.set(this.logText.getValue() +"\n" + line);
     }
 
-    protected void handleSqlException(InformationCarrier correlation, SQLException e) {
+    protected void handleSqlException(InformationCarrier carrier, SQLException e) {
         e.printStackTrace();
-        log("FEHLER: SQL-Statement Erstellung. Spalte '"+ correlation.getDbColName() +"' der Tabelle "+ correlation.getDbColName()
+        log("FEHLER: SQL-Statement Erstellung. Spalte '"+ carrier.getDbColName() +"' der Tabelle "+ carrier.getDbColName()
                 +". "+ e.getMessage()+" <-> "+ e.getCause());
     }
 }

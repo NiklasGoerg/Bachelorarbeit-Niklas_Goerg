@@ -5,10 +5,9 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebElementInContext;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
-import org.openqa.selenium.SearchContext;
-import org.openqa.selenium.WebElement;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -23,20 +22,24 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
         super(connection, logText, scraper, date);
     }
 
-    protected abstract boolean validIdentCorrelations(List<ElementIdentCorrelation> elementIdentCorrelations);
+    protected abstract boolean validIdentCorrelations(WebsiteElement element, List<ElementIdentCorrelation> correlations);
 
     protected abstract void updateStatements(Map<String, PreparedStatement> statements, ElementSelection selection);
+
+    protected abstract boolean matches(List<ElementDescCorrelation> descCorrelations, Map<String, InformationCarrier> carrierMap);
+
+    protected abstract void setCorrectValuesFromSelection(Map<String, InformationCarrier> carrierMap, ElementSelection selection);
 
     public void extract(WebsiteElement element) {
         Map<String, InformationCarrier> preparedCarrierMap = new HashMap<>();
         InformationCarrier informationCarrier;
         preparedStatements = new HashMap<>();
         PreparedStatement statement;
-        List<WebElement> rows;
+        List<WebElementInContext> rows;
 
 
-        // e.g. stock/course needs isin, exchange the name
-        if(!validIdentCorrelations(element.getElementIdentCorrelations())) return;
+        // e.g. stock/course needs isin or wkn or the name
+        if(!validIdentCorrelations(element, element.getElementIdentCorrelations())) return;
 
 
         for (var correlation : element.getElementIdentCorrelations()) {
@@ -53,8 +56,8 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
         }
 
         // get the table
-        WebElement webElement = getTable(element);
-        if(webElement == null) {
+        WebElementInContext table = getTable(element);
+        if(table == null) {
             log("FEHLER: Tabelle für "+element.getInformationUrl()+" nicht gefunden.");
             return;
         }
@@ -63,7 +66,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
             if(selection == null || !selection.isSelected()) continue;
 
             // get rows
-            rows = getRows(webElement);
+            rows = getRows(table);
 
             if(rows == null || rows.size() == 0) {
                 log("FEHLER: Tabelle für "+element.getInformationUrl()+" enhält keine Zeilen (<tr>)");
@@ -72,12 +75,13 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
 
             // add/update the sql statement information
             // e.g. setting the isin or exchange name
-            // reset data to null
             updateStatements(preparedStatements, selection);
 
             // update the carrier information
             // also isin/currency
             for(InformationCarrier correlation : preparedCarrierMap.values()) {
+                // TODO necessary?
+                correlation.setExtractedData(null);
                 correlation.setIsin(selection.getIsin());
             }
 
@@ -91,6 +95,11 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
                 // checks if selection with its description correlation exists
                 // that fits the extracted data
                 if(matches(element.getElementDescCorrelations(), preparedCarrierMap)) {
+
+                    // set the correct values from the db like isin/wkn/description
+                    // e.g. a matching wkn has a false isin
+                    // the isin hast to be corrected in the carrier
+                    setCorrectValuesFromSelection(preparedCarrierMap, selection);
 
                     // sets the actual data to the prepared statements
                     // adds them to the statement batch
@@ -106,31 +115,35 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
         storeInDb();
     }
 
-    protected WebElement getTable(WebsiteElement websiteElement) {
-        WebElement element = scraper.extractElementFromRoot(websiteElement.getTableIdenType(), websiteElement.getTableIdent());
-        scraper.highlightElement(element, "Tabelle");
+
+    private WebElementInContext getTable(WebsiteElement websiteElement) {
+        WebElementInContext element = scraper.extractFrameElementFromRoot(websiteElement.getTableIdenType(), websiteElement.getTableIdent());
+
+        if(element == null) return null;
+
+        scraper.highlightElement(element.get(), "Tabelle");
         return element;
     }
 
-    protected List<WebElement> getRows(WebElement from) {
-        List<WebElement> elements = scraper.extractElementsFromContext(from, IdentType.TAG, "tr", false);
+    private List<WebElementInContext> getRows(WebElementInContext table) {
+        List<WebElementInContext> elements = scraper.extractAllFramesFromContext(IdentType.TAG, "tr", table);
 
         if(scraper.isHeadless()) return elements;
 
         int i=1;
-        for(WebElement element : elements) {
-            scraper.highlightElement(element, "Zeile "+i);
+        for(WebElementInContext element : elements) {
+            scraper.highlightElement(element.get(), "Zeile "+i);
             i++;
         }
         return elements;
     }
 
-    protected String getTextData(SearchContext context, InformationCarrier carrier) {
-        return scraper.findTextInContext(context, carrier.getIdentType(), carrier.getIdentifier(),
-                carrier.getDbColName(), false);
+    private String getTextData(WebElementInContext element, InformationCarrier carrier) {
+        return scraper.findTextInContext(carrier.getIdentType(), carrier.getIdentifier(),
+                carrier.getDbColName(), element);
     }
 
-    private void searchInsideRow(Map<String, InformationCarrier> carrierMap, WebElement row) {
+    private void searchInsideRow(Map<String, InformationCarrier> carrierMap, WebElementInContext row) {
         String data;
 
         for(InformationCarrier carrier : carrierMap.values()) {
@@ -150,46 +163,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
         }
     }
 
-    private boolean matches(List<ElementDescCorrelation> descCorrelations, Map<String, InformationCarrier> correlationDbColMap) {
-
-        String extractedIsin = correlationDbColMap.getOrDefault("isin", null).getExtractedData();
-        String extractedWkn = correlationDbColMap.getOrDefault("wkw", null).getExtractedData();
-        String extractedDesc = correlationDbColMap.getOrDefault("name", null).getExtractedData();
-
-        // check matching isin
-        if(extractedIsin != null && extractedIsin.length() > 0) {
-            for(var descCorrelation : descCorrelations) {
-                var correctIsin = descCorrelation.getWsIsin();
-                if(compare(extractedIsin, correctIsin)) {
-                    return true;
-                }
-            }
-        }
-
-        // check matching wkn
-        if(extractedWkn != null && extractedWkn.length() > 0) {
-            for(var descCorrelation : descCorrelations) {
-                var correctWkn = descCorrelation.getWsWkn();
-                if(compare(extractedWkn, correctWkn)) {
-                    return true;
-                }
-            }
-        }
-
-        // check matching description
-        if(extractedDesc != null && extractedDesc.length() > 0) {
-            for(var descCorrelation : descCorrelations) {
-                var correctDescription = descCorrelation.getWsDescription();
-                if(compare(extractedDesc, correctDescription)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private boolean compare(String websiteData, String dbData) {
+    protected boolean compare(String websiteData, String dbData) {
         if (websiteData != null && websiteData.length() > 0) {
             if (dbData.equals(websiteData)) {
                 // matched
@@ -203,7 +177,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
         return false;
     }
 
-    private void partialMatchLog(String extracted, String field) {
+    protected void partialMatchLog(String extracted, String field) {
         log("FEHLER: " + field + " stimmt nicht direkt mit " + extracted + " überein. Die Auswahl-Regex sollte angepasst werden");
     }
 
