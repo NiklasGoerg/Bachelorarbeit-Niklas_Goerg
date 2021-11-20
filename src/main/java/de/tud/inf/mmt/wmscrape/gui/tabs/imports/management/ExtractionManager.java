@@ -79,6 +79,7 @@ public class ExtractionManager {
 
         var excelSheetRows = parsingManager.getExcelSheetRows();
         var stockColumnRelations = correlationManager.getStockColumnRelations();
+        var selected = parsingManager.getSelectedStockDataRows();
 
 
         if (statements == null) return -4;
@@ -88,7 +89,7 @@ public class ExtractionManager {
         for (int row : excelSheetRows.keySet()) {
 
             // skip rows if not selected
-            if (!(parsingManager.getSelectedStockDataRows().get(row).get())) {
+            if (!(selected.get(row).get())) {
                 //addToLog("INFO: Stammdaten von Zeile: " + (row+OFFSET) + " ist nicht markiert.");
                 continue;
             }
@@ -186,6 +187,8 @@ public class ExtractionManager {
 
         var excelSheetRows = parsingManager.getExcelSheetRows();
         var transactionColumnRelations = correlationManager.getTransactionColumnRelations();
+        var selected = parsingManager.getSelectedTransactionRows();
+
 
         if (statements == null) return -4;
 
@@ -197,7 +200,7 @@ public class ExtractionManager {
         // go through all rows
         for (int row : excelSheetRows.keySet()) {
             // skip rows if not selected
-            if (!parsingManager.getSelectedTransactionRows().get(row).get()) continue;
+            if (!selected.get(row).get()) continue;
 
             // the columns for one row
             ArrayList<String> rowData = excelSheetRows.get(row);

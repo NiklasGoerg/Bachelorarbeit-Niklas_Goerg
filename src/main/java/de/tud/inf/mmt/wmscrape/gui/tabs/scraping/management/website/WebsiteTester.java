@@ -4,7 +4,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import javafx.beans.property.SimpleStringProperty;
 
-public class WebsiteTester extends WebsiteConnection {
+public class WebsiteTester extends WebsiteHandler {
 
     private int step = 0;
 

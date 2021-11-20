@@ -1,40 +1,38 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.scraping.PreparedCorrelation;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.scraping.SingleElementExtraction;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.SingleCourseOrStockExtraction;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.SingleExchangeExtraction;
 import javafx.beans.property.SimpleStringProperty;
+import org.openqa.selenium.SearchContext;
+import org.openqa.selenium.WebElement;
 
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class WebsiteScraper extends WebsiteConnection {
+public class WebsiteScraper extends WebsiteHandler {
 
     private int minIntraSiteDelay = 0;
     private int maxIntraSiteDelay = 2;
-    private final Date dataToday = Date.valueOf(LocalDate.now());
-    private final SingleCourseElementExtraction singleCourseExtraction;
+    private final Date dateToday = Date.valueOf(LocalDate.now());
     private final Connection connection;
+    private final SingleCourseOrStockExtraction singleCourseOrStockExtraction;
+    private final SingleExchangeExtraction singleExchangeExtraction;
 
     public WebsiteScraper(Website website, SimpleStringProperty logText, Boolean headless, Connection connection) {
         super(website, logText, headless);
 
         this.connection = connection;
-        singleCourseExtraction = new SingleCourseElementExtraction(connection, logText);
+        singleCourseOrStockExtraction = new SingleCourseOrStockExtraction(connection, logText, this, dateToday);
+        singleExchangeExtraction = new SingleExchangeExtraction(connection, logText, this, dateToday);
     }
-
 
     public void setMinIntraSiteDelay(int minIntraSiteDelay) {
         this.minIntraSiteDelay = minIntraSiteDelay;
@@ -47,13 +45,8 @@ public class WebsiteScraper extends WebsiteConnection {
     private boolean doLoginRoutine() {
         loadLoginPage();
 
-        delayRandom();
         if(!acceptCookies()) return false;
-
-        delayRandom();
         if(!hideCookies()) return false;
-
-        delayRandom();
         if(!fillLoginInformation()) return false;
 
         delayRandom();
@@ -69,11 +62,11 @@ public class WebsiteScraper extends WebsiteConnection {
     }
 
     private void delayRandom() {
-        // TODO log delay
-        int randSleep = ThreadLocalRandom.current().nextInt(minIntraSiteDelay, maxIntraSiteDelay + 1);
+        int randTime = ThreadLocalRandom.current().nextInt(minIntraSiteDelay, maxIntraSiteDelay + 1);
+        addToLog("INFO: Warte "+randTime+"ms");
 
         try {
-            Thread.sleep(randSleep);
+            Thread.sleep(randTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -83,12 +76,12 @@ public class WebsiteScraper extends WebsiteConnection {
     public void processWebsite() {
         startBrowser();
 
-        // TODO log not logged in
         if(usesLogin()) {
             // returns false if error at login
-            if (!doLoginRoutine()) return;
-            // wait until page of first element is loaded
-            delayRandom();
+            if (!doLoginRoutine()) {
+                addToLog("FEHLER: Login nicht korrekt durchgeführt. Abbruch der Bearbeitung.");
+                return;
+            }
         }
 
         for(WebsiteElement element : website.getWebsiteElements()) {
@@ -105,6 +98,7 @@ public class WebsiteScraper extends WebsiteConnection {
     }
 
     public void quit() {
+        super.quit();
         try {
             connection.close();
         } catch (SQLException e) {
@@ -117,57 +111,40 @@ public class WebsiteScraper extends WebsiteConnection {
             case TABELLE -> System.out.println("0");
             case EINZELWERT -> {
                 switch (contentType) {
-                    case STAMMDATEN -> System.out.println("1");
-                    case WECHSELKURS -> System.out.println("2");
-                    case AKTIENKURS -> singleCourseExtraction.extract(element);
+                    case AKTIENKURS,STAMMDATEN -> singleCourseOrStockExtraction.extract(element);
+                    case WECHSELKURS -> singleExchangeExtraction.extract(element);
                 }
             }
         }
     }
 
-    private class SingleCourseElementExtraction extends SingleElementExtraction {
+    public String findText(IdentType type, String identifier, String highlightText) {
+        return findTextInContext(driver, type, identifier, highlightText);
+    }
 
-        protected SingleCourseElementExtraction(Connection connection, SimpleStringProperty logText) {
-            super(connection, logText, CourseDataDbManager.TABLE_NAME);
+    public String findTextInContext(SearchContext context, IdentType type, String identifier, String highlightText) {
+        WebElement element = extractElementFromContext(context, type, identifier);
+        if(element == null) return "";
+
+        if(!headless) highlightElement(element, highlightText);
+
+        return element.getText().trim();
+    }
+
+    public void highlightElement(WebElement element, String text) {
+        if(headless) return;
+
+        js.executeScript("arguments[0].setAttribute('style', 'border:2px solid #c95c55;')", element);
+
+        if(text != null) {
+            js.executeScript("var d = document.createElement('div');" +
+                    "d.setAttribute('style','position:relative;display:inline-block;');" +
+                    "var s = document.createElement('span');" +
+                    "s.setAttribute('style','background-color:#c95c55;color:white;position:absolute;bottom:125%;left:50%;padding:0 5px;');" +
+                    "var t = document.createTextNode('" + text + "');" +
+                    "s.appendChild(t);" +
+                    "d.appendChild(s);" +
+                    "arguments[0].appendChild(d);", element);
         }
-
-        @Override
-        protected PreparedCorrelation prepareCorrelation(ElementIdentCorrelation correlation, ElementSelection selection) {
-            String colName = correlation.getCourseDataDbTableColumn().getName();
-            String tableName = correlation.getCourseDataDbTableColumn().getTableName();
-            ColumnDatatype datatype = correlation.getColumnDatatype();
-
-            var preparedCorrelation = new PreparedCorrelation(tableName, colName, dataToday, datatype, correlation.getIdentType(), correlation.getIdentification());
-            preparedCorrelation.setIsin(selection.getIsin());
-            return preparedCorrelation;
-        }
-
-        @Override
-        protected String findData(PreparedCorrelation correlation) {
-            // the reason this is an embedded class. to access the method
-            return findTextDataByType(correlation.getIdentType(), correlation.getIdentifier(), correlation.getDbColName());
-        }
-
-        @Override
-        protected PreparedStatement prepareStatement(Connection connection, PreparedCorrelation correlation) {
-            String dbColName = correlation.getDbColName();
-
-            String sql = "INSERT INTO "+correlation.getDbTableName()+" (" + dbColName + ", isin, datum) VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
-                    dbColName + "=VALUES(" + dbColName + ");";
-
-            try {
-                PreparedStatement statement = connection.prepareStatement(sql);
-                statement.setString(2, correlation.getIsin());
-                statement.setDate(3, correlation.getDate());
-                return statement;
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-                log("FEHLER: SQL-Statement Erstellung. Spalte '"+dbColName+"' der Tabelle "+correlation.getDbColName()
-                        +". "+e.getMessage()+" <-> "+e.getCause());
-            }
-            return null;
-        }
-
     }
 }

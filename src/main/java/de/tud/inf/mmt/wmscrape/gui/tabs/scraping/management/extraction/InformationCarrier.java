@@ -1,37 +1,45 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.scraping;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 
 import java.sql.Date;
 
-public class PreparedCorrelation {
+public class InformationCarrier {
 
-    private final String dbTableName;
-    private final String dbColName;
-    private final Date date;
+
     private final ColumnDatatype datatype;
     private final IdentType identType;
     private final String identifier;
+    private final String regexFilter;
+    private final Date date;
+    private String dbTableName;
+    private String dbColName;
 
-    // stock/course
+    // stock/course single+table
     private String isin;
-    // stock/course table
-    private String wkn;
 
 
-    public PreparedCorrelation(String dbTableName, String dbColName, Date date, ColumnDatatype datatype, IdentType identType, String identifier) {
-        this.dbTableName = dbTableName;
-        this.dbColName = dbColName;
+    private String extractedData;
+
+    public InformationCarrier(Date date, ColumnDatatype datatype, IdentType identType, String identifier, String regexFilter) {
         this.date = date;
         this.datatype = datatype;
         this.identType = identType;
         this.identifier = identifier;
+        this.regexFilter = regexFilter;
     }
 
+    public void setDbTableName(String dbTableName) {
+        this.dbTableName = dbTableName;
+    }
 
     public String getDbTableName() {
         return dbTableName;
+    }
+
+    public void setDbColName(String dbColName) {
+        this.dbColName = dbColName;
     }
 
     public String getDbColName() {
@@ -54,6 +62,10 @@ public class PreparedCorrelation {
         return identifier;
     }
 
+    public String getRegexFilter() {
+        return regexFilter;
+    }
+
     public String getIsin() {
         return isin;
     }
@@ -62,11 +74,11 @@ public class PreparedCorrelation {
         this.isin = isin;
     }
 
-    public String getWkn() {
-        return wkn;
+    public String getExtractedData() {
+        return extractedData;
     }
 
-    public void setWkn(String wkn) {
-        this.wkn = wkn;
+    public void setExtractedData(String extractedData) {
+        this.extractedData = extractedData;
     }
 }

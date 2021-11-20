@@ -37,12 +37,20 @@ public class ScrapingTableManager extends ScrapingElementManager {
 
     private void prepareCourseDescriptionTable(TableView<ElementDescCorrelation> table) {
 
-        TableColumn<ElementDescCorrelation, String> dbDescriptionCol = new TableColumn<>("DB-Bezeichnung");
+        TableColumn<ElementDescCorrelation, String> dbDescriptionCol = new TableColumn<>("DB-Name");
         TableColumn<ElementDescCorrelation, String> dbIsinCol = new TableColumn<>("DB-ISIN");
-        TableColumn<ElementDescCorrelation, String> wsDescriptionCol = new TableColumn<>("Seite-Bezeichnung");
+        TableColumn<ElementDescCorrelation, String> wsDescriptionCol = new TableColumn<>("Seite-Name");
         TableColumn<ElementDescCorrelation, String> wsIsinCol = new TableColumn<>("Seite-ISIN");
         TableColumn<ElementDescCorrelation, String> dbWknColl = new TableColumn<>("DB-WKN");
         TableColumn<ElementDescCorrelation, String> wsWknColl = new TableColumn<>("Seite-WKN");
+
+        dbIsinCol.prefWidthProperty().bind(table.widthProperty().multiply(0.18));
+        wsIsinCol.prefWidthProperty().bind(table.widthProperty().multiply(0.18));
+        dbWknColl.prefWidthProperty().bind(table.widthProperty().multiply(0.14));
+        wsWknColl.prefWidthProperty().bind(table.widthProperty().multiply(0.14));
+        dbDescriptionCol.prefWidthProperty().bind(table.widthProperty().multiply(0.18));
+        wsDescriptionCol.prefWidthProperty().bind(table.widthProperty().multiply(0.18));
+
 
         dbDescriptionCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getElementSelection().getDescription()));
         dbIsinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getElementSelection().getIsin()));
@@ -146,7 +154,7 @@ public class ScrapingTableManager extends ScrapingElementManager {
         websiteElementRepository.save(websiteElement);
     }
 
-    private void textFieldCellFactory(TableColumn<ElementDescCorrelation, String> wsWknColl) {
-        wsWknColl.setCellFactory(TextFieldTableCell.forTableColumn());
+    private void textFieldCellFactory(TableColumn<ElementDescCorrelation, String> column) {
+        column.setCellFactory(TextFieldTableCell.forTableColumn());
     }
 }

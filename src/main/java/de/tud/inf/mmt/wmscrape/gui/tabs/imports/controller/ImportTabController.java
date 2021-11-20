@@ -48,8 +48,8 @@ public class ImportTabController {
     private static final BorderPane noSelectionReplacement = new BorderPane(new Label("Wählen Sie eine Excelkonfiguration aus oder erstellen Sie eine neue (unten links)"));
 
     @Autowired
-    StockDataColumnRepository stockDataColumnRepository;
-    static ObservableList<ExcelCorrelation> stockDataTableColumns = FXCollections.observableArrayList();
+    private StockDataColumnRepository stockDataColumnRepository;
+    private static ObservableList<ExcelCorrelation> stockDataTableColumns = FXCollections.observableArrayList();
 
     private TextArea logTextArea = new TextArea();
     private SimpleStringProperty logText;

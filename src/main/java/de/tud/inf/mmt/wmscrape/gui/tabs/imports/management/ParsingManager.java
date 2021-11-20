@@ -36,7 +36,6 @@ public class ParsingManager {
     private Map<Integer, String> indexToExcelTitle;
     private Map<String, Integer> titleToExcelIndex;
 
-    // at first, they are equal
     private Map<Integer, SimpleBooleanProperty> selectedStockDataRows;
     private Map<Integer, SimpleBooleanProperty> selectedTransactionRows;
 
@@ -402,10 +401,7 @@ public class ParsingManager {
 
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
-                tableCol.setCellValueFactory(row -> {
-                    return selectedStockDataRows.get(Integer.valueOf(row.getValue().get(0)));
-                    //sbp.addListener( (o, ov, nv) -> sbp.set(nv));
-                });
+                tableCol.setCellValueFactory(row -> selectedStockDataRows.get(Integer.valueOf(row.getValue().get(0))));
 
                 sheetPreviewTable.getColumns().add(tableCol);
 
@@ -415,10 +411,7 @@ public class ParsingManager {
                 tableCol = new TableColumn<>("Transaktionen");
                 tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
                 // my assumption -> no content == not selected
-                tableCol.setCellValueFactory(row -> {
-                    return selectedTransactionRows.get(Integer.valueOf(row.getValue().get(0)));
-                    //sbp.addListener( (o, ov, nv) -> sbp.set(nv));
-                });
+                tableCol.setCellValueFactory(row -> selectedTransactionRows.get(Integer.valueOf(row.getValue().get(0))));
 
                 sheetPreviewTable.getColumns().add(tableCol);
                 continue;
@@ -428,7 +421,7 @@ public class ParsingManager {
             TableColumn<ObservableList<String>, String> tableCol = new TableColumn<>(titles.get(col));
             tableCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().get(col)));
             tableCol.prefWidthProperty().bind(sheetPreviewTable.widthProperty().multiply(0.12));
-            tableCol.setSortable(false);
+            //tableCol.setSortable(false);
             sheetPreviewTable.getColumns().add(tableCol);
         }
     }

@@ -28,6 +28,13 @@ public class DepotTransaction {
     @JoinColumn(name="wertpapierIsin", referencedColumnName="isin", updatable=false, insertable=false)
     private Stock stock;
 
+
+    /**
+     *
+     *  remove this -> create an oject wth the bare minimum of fields and manage the rest dynamicly
+     *
+     */
+
     //@Enumerated(EnumType.STRING)
     @Column(name = "transaktionstyp")
     private String transactionType;

@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identificatio
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
@@ -45,14 +46,15 @@ public class ElementIdentCorrelation {
     @JoinColumn(name = "courseDataDbTableColumnId", referencedColumnName = "id")
     private CourseDataDbTableColumn courseDataDbTableColumn;
 
+    // redundant but saves fetching from the database
     private ColumnDatatype columnDatatype;
+    private String dbColName;
+    private String dbTableName;
 
-    // optional for exchange correlations
-    @Column(columnDefinition = "TEXT")
-    private String exchangeFieldName;
 
     @Transient
     private boolean isChanged = false;
+
 
     @PostLoad
     private void setPropertiesFromPersistence() {
@@ -73,18 +75,23 @@ public class ElementIdentCorrelation {
         this(websiteElement);
         this.stockDataTableColumn = stockDataTableColumn;
         this.columnDatatype = stockDataTableColumn.getColumnDatatype();
+        this.dbColName = stockDataTableColumn.getName();
+        this.dbTableName = stockDataTableColumn.getTableName();
     }
 
     public ElementIdentCorrelation(WebsiteElement websiteElement, CourseDataDbTableColumn courseDataDbTableColumn) {
         this(websiteElement);
         this.courseDataDbTableColumn = courseDataDbTableColumn;
         this.columnDatatype = courseDataDbTableColumn.getColumnDatatype();
+        this.dbColName = courseDataDbTableColumn.getName();
+        this.dbTableName = courseDataDbTableColumn.getTableName();
     }
 
     public ElementIdentCorrelation(WebsiteElement websiteElement, String exchangeFieldName) {
         this(websiteElement);
-        this.exchangeFieldName = exchangeFieldName;
+        this.dbColName = exchangeFieldName;
         this.columnDatatype = ColumnDatatype.DOUBLE;
+        this.dbTableName = ExchangeDataDbManager.TABLE_NAME;
     }
 
     public String getIdentTypeName() {
@@ -130,20 +137,16 @@ public class ElementIdentCorrelation {
         return websiteElement;
     }
 
-    public StockDataDbTableColumn getStockDataTableColumn() {
-        return stockDataTableColumn;
-    }
-
-    public CourseDataDbTableColumn getCourseDataDbTableColumn() {
-        return courseDataDbTableColumn;
-    }
-
-    public String getExchangeFieldName() {
-        return exchangeFieldName;
-    }
-
     public ColumnDatatype getColumnDatatype() {
         return columnDatatype;
+    }
+
+    public String getDbColName() {
+        return dbColName;
+    }
+
+    public String getDbTableName() {
+        return dbTableName;
     }
 
     public boolean isChanged() {

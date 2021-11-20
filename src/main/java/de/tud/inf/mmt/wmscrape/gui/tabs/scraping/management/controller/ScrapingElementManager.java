@@ -35,13 +35,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_DEACTIVATED;
-import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_TABLE;
 
 public abstract class ScrapingElementManager {
 
     private final static String[] EXCHANGE_COLS = {"bezeichnung", "kurs"};
     private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_DEACTIVATED);
-    private final static ObservableList<String> identTableObservable = getObservableList(IDENT_TYPE_TABLE);
 
     @Autowired
     private StockRepository stockRepository;
@@ -109,6 +107,10 @@ public abstract class ScrapingElementManager {
         TableColumn<ElementSelection, String> stockNameColumn = new TableColumn<>("Bezeichnung");
         TableColumn<ElementSelection, String> stockIsinColumn = new TableColumn<>("Isin");
 
+        selectedColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.12));
+        stockNameColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.6));
+        stockIsinColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.22));
+
         createCheckBox(selectedColumn, singleSelection);
 
         stockNameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -143,7 +145,7 @@ public abstract class ScrapingElementManager {
         // lazy evaluation
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
 
-        prepareCorrelationTable(table, websiteElement.getContentType(), multiplicityType);
+        prepareCorrelationTable(table);
 
         var type = websiteElement.getContentType();
         if(type == ContentType.AKTIENKURS) {
@@ -155,37 +157,32 @@ public abstract class ScrapingElementManager {
         }
     }
 
-    private void prepareCorrelationTable(TableView<ElementIdentCorrelation> table, ContentType contentType, MultiplicityType multiplicityType) {
+    private void prepareCorrelationTable(TableView<ElementIdentCorrelation> table) {
 
         TableColumn<ElementIdentCorrelation, String> nameColumn = new TableColumn<>("Datenelement");
         TableColumn<ElementIdentCorrelation, String> typeColumn = new TableColumn<>("DB Datentyp");
         TableColumn<ElementIdentCorrelation, String> identTypeColumn = new TableColumn<>("Selektionstyp");
         TableColumn<ElementIdentCorrelation, String> identificationColumn = new TableColumn<>("Webseitenidentifikation");
         TableColumn<ElementIdentCorrelation, String> regexColumn = new TableColumn<>("Regex-Unterauswahl");
+
+        nameColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.14));
+        typeColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.14));
+        identTypeColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+        identificationColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.275));
+        regexColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.23));
+
+
         identificationColumn.setMinWidth(200);
-        regexColumn.setMinWidth(210);
         identTypeColumn.setMinWidth(135);
 
 
         // DbColName
-        if(contentType == ContentType.AKTIENKURS) {
-            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getCourseDataDbTableColumn().getName()));
-        } else if(contentType == ContentType.STAMMDATEN){
-            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStockDataTableColumn().getName()));
-        } else  {
-            nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getExchangeFieldName()));
-        }
-
+        nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getDbColName()));
         // datatype
         typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getColumnDatatype().name()));
-
         // choiceBox
-        identTypeColumn.setCellValueFactory(param -> param.getValue().identTypeProperty());
-        if(multiplicityType == MultiplicityType.EINZELWERT) {
-            identTypeColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(identTypeDeactivatedObservable));
-        } else {
-            identTypeColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(identTableObservable));
-        }
+        identTypeColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(identTypeDeactivatedObservable));
+
 
         // representation
         identificationColumn.setCellValueFactory(param -> param.getValue().identificationProperty());
@@ -212,7 +209,7 @@ public abstract class ScrapingElementManager {
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
             stockCorrelations.add(elementIdentCorrelation);
-            addedStockColumns.add(elementIdentCorrelation.getStockDataTableColumn().getName());
+            addedStockColumns.add(elementIdentCorrelation.getDbColName());
         }
 
         for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
@@ -235,7 +232,7 @@ public abstract class ScrapingElementManager {
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
             courseCorrelations.add(elementIdentCorrelation);
-            addedStockColumns.add(elementIdentCorrelation.getCourseDataDbTableColumn().getName());
+            addedStockColumns.add(elementIdentCorrelation.getDbColName());
         }
 
         for(CourseDataDbTableColumn column : courseDataColumnRepository.findAll()) {
@@ -255,7 +252,7 @@ public abstract class ScrapingElementManager {
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
             exchangeCorrelations.add(elementIdentCorrelation);
-            addedStockColumns.add(elementIdentCorrelation.getExchangeFieldName());
+            addedStockColumns.add(elementIdentCorrelation.getDbColName());
         }
 
         for(String column : EXCHANGE_COLS) {

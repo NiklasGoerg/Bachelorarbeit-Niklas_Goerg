@@ -34,11 +34,9 @@ public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
         List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
         List<String> added = new ArrayList<>();
 
-        // TODO change to tableColoumn
-
         // load saved values
         for (ElementIdentCorrelation correlation : websiteElement.getElementIdentCorrelations()) {
-            if(correlation.getExchangeFieldName().equals("_price_")) {
+            if(correlation.getDbColName().equals("kurs")) {
                 bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, correlation);
                 added.add("kurs");
             } else continue;
@@ -46,8 +44,8 @@ public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
         }
 
         // add new if not saved
-        if(!added.contains("_price_")) {
-            var newCorrelation = new ElementIdentCorrelation(websiteElement, "_price_");
+        if(!added.contains("kurs")) {
+            var newCorrelation = new ElementIdentCorrelation(websiteElement, "kurs");
             elementIdentCorrelations.add(newCorrelation);
             bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, newCorrelation);
             exchangeChoiceBox.setValue(IdentType.XPATH);
