@@ -113,7 +113,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
     }
 
     protected List<WebElement> getRows(WebElement from) {
-        List<WebElement> elements = scraper.extractElementsFromContext(from, IdentType.TAG, "tr");
+        List<WebElement> elements = scraper.extractElementsFromContext(from, IdentType.TAG, "tr", false);
 
         if(scraper.isHeadless()) return elements;
 
@@ -126,7 +126,8 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
     }
 
     protected String getTextData(SearchContext context, InformationCarrier carrier) {
-        return scraper.findTextInContext(context, carrier.getIdentType(), carrier.getIdentifier(), carrier.getDbColName());
+        return scraper.findTextInContext(context, carrier.getIdentType(), carrier.getIdentifier(),
+                carrier.getDbColName(), false);
     }
 
     private void searchInsideRow(Map<String, InformationCarrier> carrierMap, WebElement row) {

@@ -30,6 +30,7 @@ public abstract class GeneralExtraction {
 
     /** make sure that the to be inserted value is the first attribute in the statement*/
     protected abstract PreparedStatement prepareStatement(Connection connection, InformationCarrier carrier);
+    protected abstract InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection);
 
     protected String processData(InformationCarrier carrier, String data) {
         log("INFO: Daten gefunden '"+ data +"'");
@@ -38,8 +39,6 @@ public abstract class GeneralExtraction {
         log("INFO: Daten bereinigt '"+ data +"'");
         return data;
     }
-
-    protected abstract InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection);
 
     protected InformationCarrier prepareCarrier(ElementIdentCorrelation correlation, ElementSelection selection) {
         ColumnDatatype datatype = correlation.getColumnDatatype();
@@ -206,17 +205,17 @@ public abstract class GeneralExtraction {
     protected boolean isValid(String data, ColumnDatatype datatype) {
         if(datatype == null) return false;
 
+        boolean valid;
+
         switch (datatype) {
-            case INT, DOUBLE -> {
-                return data.matches("^[\\-+]?[0-9]+([.,]?[0-9]+)?$");
-            }
-            case DATE -> {
-                return data.matches("^(\\d{1,2}|\\d{4})-\\d{1,2}-(\\d{1,2}|\\d{4})$");
-            }
-            default -> {
-                return true;
-            }
+            case INT, DOUBLE -> valid =  data.matches("^[\\-+]?[0-9]+([.,]?[0-9]+)?$");
+            case DATE -> valid = data.matches("^(\\d{1,2}|\\d{4})-\\d{1,2}-(\\d{1,2}|\\d{4})$");
+            default -> valid = true;
         }
+
+        if(!valid) log("FEHLER: Der Datentyp "+datatype+" passt nicht zu den Daten '"+data+"'");
+
+        return valid;
     }
 
     protected void fillStatement(int index, PreparedStatement statement, String data, ColumnDatatype datatype) {

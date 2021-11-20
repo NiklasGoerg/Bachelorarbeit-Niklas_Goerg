@@ -11,6 +11,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.Iterator;
 import java.util.List;
 
 public abstract class WebsiteHandler {
@@ -56,7 +57,7 @@ public abstract class WebsiteHandler {
         options.setBinary(firefoxBinary);
         options.setLogLevel(FirefoxDriverLogLevel.ERROR);
 
-        if(headless) options.setHeadless(true);
+        if (headless) options.setHeadless(true);
 
         driver = new FirefoxDriver(options);
         js = (JavascriptExecutor) driver;
@@ -69,11 +70,11 @@ public abstract class WebsiteHandler {
 
     protected boolean acceptCookies() {
         IdentType type = website.getCookieAcceptIdentType();
-        if(type == IdentType.DEAKTIVIERT) return true;
+        if (type == IdentType.DEAKTIVIERT) return true;
 
         WebElement element = extractElementFromRoot(type, website.getCookieAcceptIdent());
 
-        if(element == null) return false;
+        if (element == null) return false;
 
         clickElement(element);
         addToLog("INFO: Cookies akzeptiert");
@@ -82,13 +83,13 @@ public abstract class WebsiteHandler {
 
     protected boolean hideCookies() {
         IdentType type = website.getCookieHideIdentType();
-        if(type == IdentType.DEAKTIVIERT) return true;
+        if (type == IdentType.DEAKTIVIERT) return true;
 
-        String identifier = website.getCookieHideIdent().replace("\"","'");
+        String identifier = website.getCookieHideIdent().replace("\"", "'");
 
 
-        WebElement element= extractElementFromRoot(type, identifier);
-        if(element != null) {
+        WebElement element = extractElementFromRoot(type, identifier);
+        if (element != null) {
             js.executeScript("(arguments[0]).remove()", element);
         } else {
             addToLog("WARNUNG: Cookiebanner nicht ausgeblendet");
@@ -102,11 +103,11 @@ public abstract class WebsiteHandler {
     protected boolean fillLoginInformation() {
 
         WebElement username = extractElementFromRoot(website.getUsernameIdentType(), website.getUsernameIdent());
-        if(username == null) return false;
+        if (username == null) return false;
         setText(username, website.getUsername());
 
         WebElement password = extractElementFromRoot(website.getPasswordIdentType(), website.getPasswordIdent());
-        if(password == null) return false;
+        if (password == null) return false;
         setText(password, website.getPassword());
 
         addToLog("INFO: Login Informationen ausgefüllt");
@@ -117,13 +118,13 @@ public abstract class WebsiteHandler {
         WebElement password = extractElementFromRoot(website.getPasswordIdentType(), website.getPasswordIdent());
 
         // submit like pressing enter
-        if(password != null && website.getLoginButtonIdentType() == IdentType.ENTER) {
+        if (password != null && website.getLoginButtonIdentType() == IdentType.ENTER) {
             submit(password);
             return true;
         }
 
         WebElement loginButton = extractElementFromRoot(website.getLoginButtonIdentType(), website.getLoginButtonIdent());
-        if(loginButton == null) return false;
+        if (loginButton == null) return false;
         clickElement(loginButton);
 
         addToLog("INFO: Login erfolgreich");
@@ -132,20 +133,20 @@ public abstract class WebsiteHandler {
 
     protected boolean logout() {
         IdentType type = website.getLogoutIdentType();
-        if(type == IdentType.DEAKTIVIERT) return true;
+        if (type == IdentType.DEAKTIVIERT) return true;
 
         // // called separately in tester
-        if(website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
+        if (website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
                 && !(this instanceof WebsiteTester)) hideCookies();
 
-        if(type == IdentType.URL) {
+        if (type == IdentType.URL) {
             driver.get(website.getLogoutIdent());
             addToLog("INFO: Logout erfolgreich");
             return true;
         }
 
         WebElement logoutButton = extractElementFromRoot(type, website.getLogoutIdent());
-        if(logoutButton == null) return false;
+        if (logoutButton == null) return false;
         clickElement(logoutButton);
 
         addToLog("INFO: Logout erfolgreich");
@@ -157,10 +158,10 @@ public abstract class WebsiteHandler {
         waitLoadEvent();
 
         // called separately in tester
-        if(website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
+        if (website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
                 && !(this instanceof WebsiteTester)) hideCookies();
 
-        addToLog("INFO: "+website.getUrl()+" geladen");
+        addToLog("INFO: " + url + " geladen");
     }
 
     private void waitLoadEvent() {
@@ -168,30 +169,31 @@ public abstract class WebsiteHandler {
     }
 
     public WebElement extractElementFromRoot(IdentType type, String identifier) {
-        var elements = extractElementsFromContext(driver, type,identifier);
-        if(elements != null && elements.size() > 0) return elements.get(0);
+        var elements = extractElementsFromContext(driver, type, identifier, true);
+        if (elements != null && elements.size() > 0) return elements.get(0);
         return null;
     }
 
-    public WebElement extractElementFromContext(SearchContext context, IdentType type, String identifier) {
-        var elements = extractElementsFromContext(context, type,identifier);
-        if(elements != null && elements.size() > 0) return elements.get(0);
+    public WebElement extractElementFromContext(SearchContext context, IdentType type, String identifier, boolean resetFrame) {
+        var elements = extractElementsFromContext(context, type, identifier, resetFrame);
+        if (elements != null && elements.size() > 0) return elements.get(0);
         return null;
     }
 
-    public List<WebElement> extractElementsFromContext(SearchContext context, IdentType type, String identifier) {
+    public List<WebElement> extractElementsFromContext(SearchContext context, IdentType type,
+                                                       String identifier, boolean resetFrame) {
         // reset iframe position unit new search -> same iframe position
-        driver.switchTo().defaultContent();
+        if (resetFrame) driver.switchTo().defaultContent();
 
-       // search elements in main document
+        // search elements in main document
         var elements = findElementsRelative(context, type, identifier);
-        if(elements != null) return elements;
+        if (elements != null) return elements;
 
         // search in sub iframes
         elements = recursiveSearch(context, type, identifier, context.findElements(By.tagName("iframe")), 0);
-        if(elements != null) return elements;
+        if (elements != null) return elements;
 
-        addToLog("FEHLER: Keine Elemente unter '"+identifier+"' gefunden");
+        addToLog("FEHLER: Keine Elemente unter '" + identifier + "' gefunden");
         return null;
     }
 
@@ -223,15 +225,13 @@ public abstract class WebsiteHandler {
         try {
             element.click();
         } catch (ElementClickInterceptedException e) {
-            addToLog("INFO: Verdeckter Button umgangen");
-            System.out.println("Umgehe versteckten Button:"+e.getMessage());
-
+            addToLog("INFO: Verdeckter Button erkannt");
             js.executeScript("arguments[0].click()", element);
         }
     }
 
     protected void quit() {
-        if(driver != null) {
+        if (driver != null) {
             addToLog("INFO: Browser wurde beendet");
             driver.quit();
             driver = null;
@@ -239,7 +239,7 @@ public abstract class WebsiteHandler {
     }
 
     protected void addToLog(String line) {
-        logText.set(this.logText.getValue() +"\n" + line);
+        logText.set(this.logText.getValue() + "\n" + line);
     }
 
     private List<WebElement> recursiveSearch(SearchContext context, IdentType type, String identifier, List<WebElement> iframes, int depth) {
@@ -247,14 +247,14 @@ public abstract class WebsiteHandler {
         if (depth >= IFRAME_SEARCH_DEPTH) return null;
 
         List<WebElement> elements;
-        for(WebElement frame : iframes) {
+        for (WebElement frame : iframes) {
             driver.switchTo().frame(frame);
 
             elements = findElementsRelative(context, type, identifier);
             if(elements != null) return elements;
 
-            elements = recursiveSearch(context, type, identifier, driver.findElements(By.tagName("iframe")), depth+1);
-            if(elements != null) return elements;
+            elements = recursiveSearch(context, type, identifier, driver.findElements(By.tagName("iframe")), depth + 1);
+            if (elements != null) return elements;
 
             driver.switchTo().parentFrame();
         }

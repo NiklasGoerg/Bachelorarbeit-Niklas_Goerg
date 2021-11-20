@@ -20,7 +20,7 @@ public class InformationCarrier {
     private String isin;
 
 
-    private String extractedData;
+    private String extractedData = null;
 
     public InformationCarrier(Date date, ColumnDatatype datatype, IdentType identType, String identifier, String regexFilter) {
         this.date = date;

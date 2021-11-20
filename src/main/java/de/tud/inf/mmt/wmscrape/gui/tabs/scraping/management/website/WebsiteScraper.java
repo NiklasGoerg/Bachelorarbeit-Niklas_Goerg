@@ -72,7 +72,6 @@ public class WebsiteScraper extends WebsiteHandler {
         }
     }
 
-    // TODO
     public void processWebsite() {
         startBrowser();
 
@@ -97,6 +96,7 @@ public class WebsiteScraper extends WebsiteHandler {
         logout();
     }
 
+    @Override
     public void quit() {
         super.quit();
         try {
@@ -119,11 +119,12 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     public String findText(IdentType type, String identifier, String highlightText) {
-        return findTextInContext(driver, type, identifier, highlightText);
+        return findTextInContext(driver, type, identifier, highlightText, true);
     }
 
-    public String findTextInContext(SearchContext context, IdentType type, String identifier, String highlightText) {
-        WebElement element = extractElementFromContext(context, type, identifier);
+    public String findTextInContext(SearchContext context, IdentType type, String identifier,
+                                    String highlightText, boolean resetFrame) {
+        WebElement element = extractElementFromContext(context, type, identifier, resetFrame);
         if(element == null) return "";
 
         if(!headless) highlightElement(element, highlightText);
