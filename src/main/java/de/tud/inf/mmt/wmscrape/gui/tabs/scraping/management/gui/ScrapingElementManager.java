@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataColumnRepository;
@@ -238,14 +238,16 @@ public abstract class ScrapingElementManager {
         }
 
 
-        // add these for scraping identification purposes
-        if(!addedStockColumns.contains("wkn"))  {
-            addedStockColumns.add("wkn");
-            courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, "wkn"));
-        }
-        if(!addedStockColumns.contains("name"))  {
-            addedStockColumns.add("name");
-            courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, "name"));
+        if(multiplicityType == MultiplicityType.TABELLE) {
+            // add these for scraping identification purposes
+            if (!addedStockColumns.contains("wkn")) {
+                addedStockColumns.add("wkn");
+                courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, "wkn"));
+            }
+            if (!addedStockColumns.contains("name")) {
+                addedStockColumns.add("name");
+                courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, "name"));
+            }
         }
 
 

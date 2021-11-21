@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
@@ -66,12 +66,12 @@ public class ScrapingTableManager extends ScrapingElementManager {
         wsWknColl.setCellValueFactory(param -> param.getValue().wsWknProperty());
         textFieldCellFactory(wsWknColl);
 
+        table.getColumns().add(dbDescriptionCol);
+        table.getColumns().add(wsDescriptionCol);
         table.getColumns().add(dbIsinCol);
         table.getColumns().add(wsIsinCol);
         table.getColumns().add(dbWknColl);
         table.getColumns().add(wsWknColl);
-        table.getColumns().add(dbDescriptionCol);
-        table.getColumns().add(wsDescriptionCol);
     }
 
     private void prepareExchangeDescriptionTable(TableView<ElementDescCorrelation> table) {

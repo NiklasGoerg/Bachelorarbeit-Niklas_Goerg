@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller;
+package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourseOrStockSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchangeSubController;
@@ -8,7 +8,6 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,7 @@ public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
 
     @Transactional
     public List<ElementIdentCorrelation> initExchangeCorrelations(ChoiceBox<IdentType> exchangeChoiceBox,
-                                                                  TextField exchangeIdentField,
+                                                                  TextField exchangeIdentField, TextField regexField,
                                                                   WebsiteElement staleElement) {
 
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
@@ -37,7 +36,7 @@ public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
         // load saved values
         for (ElementIdentCorrelation correlation : websiteElement.getElementIdentCorrelations()) {
             if(correlation.getDbColName().equals("kurs")) {
-                bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, correlation);
+                bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, regexField, correlation);
                 added.add("kurs");
             } else continue;
             elementIdentCorrelations.add(correlation);
@@ -47,20 +46,20 @@ public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
         if(!added.contains("kurs")) {
             var newCorrelation = new ElementIdentCorrelation(websiteElement, "kurs");
             elementIdentCorrelations.add(newCorrelation);
-            bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, newCorrelation);
+            bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, regexField, newCorrelation);
             exchangeChoiceBox.setValue(IdentType.XPATH);
         }
 
         return elementIdentCorrelations;
     }
 
-    public void bindExchangeFieldsToCorrelation(ChoiceBox<IdentType> choiceBox, TextInputControl textField, ElementIdentCorrelation correlation) {
+    public void bindExchangeFieldsToCorrelation(ChoiceBox<IdentType> choiceBox, TextField identField, TextField regexField, ElementIdentCorrelation correlation) {
         choiceBox.setValue(correlation.getIdentType());
-        textField.setText(correlation.getIdentification());
-
-        textField.textProperty().addListener((o, ov, nv) -> correlation.setIdentification(nv));
-
         choiceBox.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> correlation.setIdentType(nv.name()));
+
+        identField.textProperty().bindBidirectional(correlation.identificationProperty());
+        regexField.textProperty().bindBidirectional(correlation.regexProperty());
+
     }
 
     @Transactional

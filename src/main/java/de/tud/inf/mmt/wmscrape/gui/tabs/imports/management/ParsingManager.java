@@ -208,7 +208,7 @@ public class ParsingManager {
                         System.out.println(e.getMessage());
                         String[] cellError = e.toString().split("'");
                         importTabManager.addToLog(e.getMessage() + " _CAUSE:_ " + e.getCause());
-                        value = "ERROR: Evaluationsfehler: " + cellError[cellError.length - 1];
+                        value = "ERR:\t\tEvaluationsfehler: " + cellError[cellError.length - 1];
                         evalFault = true;
                     }
                     excelData.get(rowNumber).add(value.trim());

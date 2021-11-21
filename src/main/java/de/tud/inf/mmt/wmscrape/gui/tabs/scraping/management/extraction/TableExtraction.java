@@ -33,6 +33,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
 
     public void extract(WebsiteElement element) {
         List<ElementDescCorrelation> descriptionCorrelations  = element.getElementDescCorrelations();
+        List<ElementIdentCorrelation> identCorrelations = element.getElementIdentCorrelations();
         List<ElementSelection> elementSelections = element.getElementSelections();
         Set<String> doNotSave = new HashSet<>(Arrays.asList(doNotSaveColumns));
         Map<String, InformationCarrier> preparedCarrierMap = new HashMap<>();
@@ -43,10 +44,12 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
 
 
         // e.g. stock/course needs isin or wkn or the name
-        if(!validIdentCorrelations(element, element.getElementIdentCorrelations())) return;
+        if(!validIdentCorrelations(element, identCorrelations)) return;
 
+        // duplicates on non-headless mode not acceptable
+        if(duplicateIdentifiers(identCorrelations)) return;
 
-        for (var correlation : element.getElementIdentCorrelations()) {
+        for (var correlation : identCorrelations) {
             // create an information carrier with the basic information
             informationCarrier = prepareCarrier(correlation, null);
             preparedCarrierMap.put(correlation.getDbColName(), informationCarrier);
@@ -184,12 +187,12 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
             data = getTextData(row, carrier);
 
             if (data.equals("")) {
-                log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter "+carrier.getIdentifier());
+                log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter '"+carrier.getIdentifier()+"'");
             }
 
             data = processData(carrier, data);
 
-            if (isValid(data, carrier.getDatatype())) {
+            if (isValid(data, carrier.getDatatype(), carrier.getDbColName())) {
                 carrier.setExtractedData(data);
             }
         }
@@ -202,7 +205,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
                 if (dbData.equals(websiteData)) {
                     // matched
                     return true;
-                } else if (dbData.contains(websiteData)) {
+                } else if (dbData.contains(websiteData) || websiteData.contains(dbData) ) {
                     // found inside but no direct match
                     partialMatchLog(dbData, websiteData);
                 }
