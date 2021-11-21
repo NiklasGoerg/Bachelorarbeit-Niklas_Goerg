@@ -25,9 +25,10 @@ public class InformationCarrier {
 
     // only use for non-existing critical elements
     // extracted data has to be overridden
-    public InformationCarrier(Date date, ColumnDatatype datatype) {
+    public InformationCarrier(Date date, ColumnDatatype datatype, String dbColName) {
         this.date = date;
         this.datatype = datatype;
+        this.dbColName = dbColName;
         this.identType = null;
         this.identifier = null;
         this.regexFilter = null;

@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
@@ -94,9 +95,13 @@ public class ElementIdentCorrelation {
         this.dbTableName = ExchangeDataDbManager.TABLE_NAME;
     }
 
-    public String getIdentTypeName() {
-        return identType.get();
+    public ElementIdentCorrelation(WebsiteElement websiteElement, ColumnDatatype datatype, String colName) {
+        this(websiteElement);
+        this.dbColName = colName;
+        this.columnDatatype = datatype;
+        this.dbTableName = CourseDataDbManager.TABLE_NAME;
     }
+
     public IdentType getIdentType() {
         return IdentType.valueOf(identType.get());
     }

@@ -7,6 +7,8 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.SingleCourseOrStockExtraction;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.SingleExchangeExtraction;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.TableCourseOrStockExtraction;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.TableExchangeExtraction;
 import javafx.beans.property.SimpleStringProperty;
 import org.openqa.selenium.WebElement;
 
@@ -24,6 +26,8 @@ public class WebsiteScraper extends WebsiteHandler {
     private final Connection connection;
     private final SingleCourseOrStockExtraction singleCourseOrStockExtraction;
     private final SingleExchangeExtraction singleExchangeExtraction;
+    private final TableExchangeExtraction tableExchangeExtraction;
+    private final TableCourseOrStockExtraction tableCourseOrStockExtraction;
 
     public WebsiteScraper(Website website, SimpleStringProperty logText, Boolean headless, Connection connection) {
         super(website, logText, headless);
@@ -31,6 +35,8 @@ public class WebsiteScraper extends WebsiteHandler {
         this.connection = connection;
         singleCourseOrStockExtraction = new SingleCourseOrStockExtraction(connection, logText, this, dateToday);
         singleExchangeExtraction = new SingleExchangeExtraction(connection, logText, this, dateToday);
+        tableExchangeExtraction = new TableExchangeExtraction(connection, logText, this, dateToday);
+        tableCourseOrStockExtraction = new TableCourseOrStockExtraction(connection, logText, this, dateToday);
     }
 
     public void setMinIntraSiteDelay(int minIntraSiteDelay) {
@@ -107,7 +113,12 @@ public class WebsiteScraper extends WebsiteHandler {
 
     private void processWebsiteElement(WebsiteElement element, MultiplicityType multiplicityType, ContentType contentType) {
         switch (multiplicityType) {
-            case TABELLE -> System.out.println("0");
+            case TABELLE -> {
+                switch (contentType) {
+                    case AKTIENKURS,STAMMDATEN -> tableCourseOrStockExtraction.extract(element);
+                    case WECHSELKURS -> tableExchangeExtraction.extract(element);
+                }
+            }
             case EINZELWERT -> {
                 switch (contentType) {
                     case AKTIENKURS,STAMMDATEN -> singleCourseOrStockExtraction.extract(element);
@@ -133,9 +144,10 @@ public class WebsiteScraper extends WebsiteHandler {
 
         if(element == null) return "";
 
+        // highlight after extraction otherwise the highlight text ist extracted too
+        var tmp = element.getText().trim();
         if(!headless) highlightElement(element, highlightText);
-
-        return element.getText().trim();
+        return tmp;
     }
 
     // has to be called while inside the frame

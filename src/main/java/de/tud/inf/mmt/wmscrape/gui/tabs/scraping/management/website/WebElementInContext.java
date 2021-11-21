@@ -10,6 +10,8 @@ public record WebElementInContext(WebElement element, WebElement frame,
         return element;
     }
 
+    // not used atm
+    // represents the parent
     public SearchContext getContext() {
         return context;
     }

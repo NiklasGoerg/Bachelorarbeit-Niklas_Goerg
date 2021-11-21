@@ -47,6 +47,11 @@ public class ElementDescCorrelation {
     @Transient
     private boolean isChanged = false;
 
+
+    // used in table extraction to check for duplicates
+    @Transient
+    private boolean alreadyExtracted = false;
+
     public ElementDescCorrelation() {
         initListener();
     }
@@ -132,6 +137,13 @@ public class ElementDescCorrelation {
         this.websiteElement = websiteElement;
     }
 
+    public boolean isAlreadyExtracted() {
+        return alreadyExtracted;
+    }
+
+    public void setAlreadyExtracted() {
+        this.alreadyExtracted = true;
+    }
 
     @PostLoad
     private void setPropertiesFromPersistence() {

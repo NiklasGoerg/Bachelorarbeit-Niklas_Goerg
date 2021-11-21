@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.controller;
 
+import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataColumnRepository;
@@ -38,7 +39,7 @@ import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.ID
 
 public abstract class ScrapingElementManager {
 
-    private final static String[] EXCHANGE_COLS = {"bezeichnung", "kurs"};
+    private final static String[] EXCHANGE_COLS = {"name", "kurs"};
     private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_DEACTIVATED);
 
     @Autowired
@@ -181,6 +182,7 @@ public abstract class ScrapingElementManager {
         // datatype
         typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getColumnDatatype().name()));
         // choiceBox
+        identTypeColumn.setCellValueFactory(param -> param.getValue().identTypeProperty());
         identTypeColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(identTypeDeactivatedObservable));
 
 
@@ -234,6 +236,18 @@ public abstract class ScrapingElementManager {
             courseCorrelations.add(elementIdentCorrelation);
             addedStockColumns.add(elementIdentCorrelation.getDbColName());
         }
+
+
+        // add these for scraping identification purposes
+        if(!addedStockColumns.contains("wkn"))  {
+            addedStockColumns.add("wkn");
+            courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, "wkn"));
+        }
+        if(!addedStockColumns.contains("name"))  {
+            addedStockColumns.add("name");
+            courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, "name"));
+        }
+
 
         for(CourseDataDbTableColumn column : courseDataColumnRepository.findAll()) {
             if(!addedStockColumns.contains(column.getName())) {

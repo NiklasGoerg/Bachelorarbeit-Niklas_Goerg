@@ -12,14 +12,15 @@ import javafx.beans.property.SimpleStringProperty;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class TableExtraction extends GeneralExtraction implements Extraction {
 
+    private final static String[] doNotSaveColumns = {"isin", "wkn", "name"};
+
     protected TableExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         super(connection, logText, scraper, date);
+
     }
 
     protected abstract boolean validIdentCorrelations(WebsiteElement element, List<ElementIdentCorrelation> correlations);
@@ -36,6 +37,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
         preparedStatements = new HashMap<>();
         PreparedStatement statement;
         List<WebElementInContext> rows;
+        Set<String> doNotSave = new HashSet<>(Arrays.asList(doNotSaveColumns));
 
 
         // e.g. stock/course needs isin or wkn or the name
@@ -50,8 +52,8 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
             // create a sql statement with the basic information
             // row names stay the same
             statement = prepareStatement(connection, informationCarrier);
-            if (statement != null) {
-                preparedStatements.put(correlation.getDbTableName(), statement);
+            if (statement != null && !doNotSave.contains(correlation.getDbColName())) {
+                preparedStatements.put(correlation.getDbColName(), statement);
             }
         }
 
@@ -62,16 +64,17 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
             return;
         }
 
+        // get rows
+        rows = getRows(table);
+
+        if(rows == null || rows.size() == 0) {
+            log("FEHLER: Tabelle für "+element.getInformationUrl()+" enhält keine Zeilen (<tr>)");
+            return;
+        }
+
+
         for (var selection : element.getElementSelections()) {
             if(selection == null || !selection.isSelected()) continue;
-
-            // get rows
-            rows = getRows(table);
-
-            if(rows == null || rows.size() == 0) {
-                log("FEHLER: Tabelle für "+element.getInformationUrl()+" enhält keine Zeilen (<tr>)");
-                return;
-            }
 
             // add/update the sql statement information
             // e.g. setting the isin or exchange name
@@ -104,7 +107,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
                     // sets the actual data to the prepared statements
                     // adds them to the statement batch
                     for(var carrier : preparedCarrierMap.values()) {
-                        statement = preparedStatements.get(carrier.getDbColName());
+                        statement = preparedStatements.getOrDefault(carrier.getDbColName(), null);
                         if(statement != null) {
                             fillStatement(1, statement, carrier.getExtractedData(), carrier.getDatatype());
                         }
@@ -126,9 +129,9 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
     }
 
     private List<WebElementInContext> getRows(WebElementInContext table) {
-        List<WebElementInContext> elements = scraper.extractAllFramesFromContext(IdentType.TAG, "tr", table);
+        List<WebElementInContext> elements = scraper.extractAllFramesFromContext(IdentType.XPATH, ".//tr", table);
 
-        if(scraper.isHeadless()) return elements;
+        if(scraper.isHeadless() || elements == null) return elements;
 
         int i=1;
         for(WebElementInContext element : elements) {
@@ -178,7 +181,16 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
     }
 
     protected void partialMatchLog(String extracted, String field) {
-        log("FEHLER: " + field + " stimmt nicht direkt mit " + extracted + " überein. Die Auswahl-Regex sollte angepasst werden");
+        log("FEHLER: "+field+" stimmt nicht direkt mit "+extracted+" überein. Die Auswahl-Regex sollte angepasst werden");
     }
 
+    protected boolean notYetExtracted(ElementDescCorrelation correlation) {
+        if (correlation.isAlreadyExtracted()) {
+            log("FEHLER: Für '"+correlation.getElementSelection().getDescription()+ "' wurden bereits Daten aus der Tabelle importiert. Element wird Ignoriert.");
+            return false;
+        } else {
+            correlation.setAlreadyExtracted();
+            return true;
+        }
+    }
 }

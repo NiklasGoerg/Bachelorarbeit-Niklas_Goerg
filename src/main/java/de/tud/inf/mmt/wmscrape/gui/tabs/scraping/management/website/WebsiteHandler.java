@@ -203,8 +203,9 @@ public abstract class WebsiteHandler {
         WebElement frame = null;
 
         if(webElementInContext != null) {
-            context = webElementInContext.getContext();
+            context = webElementInContext.get();
             frame = webElementInContext.getFrame();
+            checkIdentifier(type, identifier);
             switchToFrame(webElementInContext.getFrame());
         } else {
             switchToFrame(null);
@@ -246,6 +247,13 @@ public abstract class WebsiteHandler {
             return null;
         }
         return elements;
+    }
+
+    private String checkIdentifier(IdentType type, String identifier) {
+        if(type == IdentType.XPATH && !identifier.startsWith("./") && !identifier.startsWith("self")) {
+            addToLog("WARNUNG: Potentiell fehlgeformter relativer XPath '"+identifier+"'. Relative Pfade beginnen meist mit .// bzw. self::node()/");
+        }
+        return identifier;
     }
 
     private List<WebElementInContext> recursiveSearch(SearchContext context, IdentType type, String identifier,

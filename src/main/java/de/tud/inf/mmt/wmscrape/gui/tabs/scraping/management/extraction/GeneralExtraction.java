@@ -17,6 +17,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public abstract class GeneralExtraction {
 
@@ -56,12 +57,16 @@ public abstract class GeneralExtraction {
     }
 
     protected String findFirst(String regex, String text) {
+        try {
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(text);
 
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(text);
-
-        // delete everything except the first match
-        if (matcher.find()) return matcher.group(0);
+            // delete everything except the first match
+            if (matcher.find()) return matcher.group(0);
+        } catch (PatternSyntaxException e) {
+            e.printStackTrace();
+            log("FEHLER: Regex '"+regex+"' ist fehlerhaft und kann nicht angewandt werden.");
+        }
         return null;
     }
 
@@ -77,7 +82,7 @@ public abstract class GeneralExtraction {
     private String getRegularDate(String text) {
 
         // matches every date format
-        String match = findFirst("(\\d{4}|\\d{1,2}|\\d)[^0-9]+\\d{1,2}[^0-9]+(\\d{4}|\\d{1,2}|\\d)", text);
+        String match = findFirst("(\\d{4}|\\d{1,2}|\\d)[^0-9]{1,3}\\d{1,2}[^0-9]{1,3}(\\d{4}|\\d{1,2}|\\d)", text);
 
         if (match == null) return "";
 

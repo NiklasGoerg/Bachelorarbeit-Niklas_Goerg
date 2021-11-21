@@ -4,6 +4,7 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,11 +15,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TableCourseOrStockExtraction extends TableExtraction {
 
-    protected TableCourseOrStockExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
+    public TableCourseOrStockExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         super(connection, logText, scraper, date);
     }
 
@@ -59,20 +59,16 @@ public class TableCourseOrStockExtraction extends TableExtraction {
     protected InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection) {
         carrier.setDbColName(correlation.getDbColName());
         carrier.setDbTableName(correlation.getDbTableName());
-        carrier.setIsin(selection.getIsin());
         return carrier;
     }
 
     @Override
     protected boolean validIdentCorrelations(WebsiteElement element, List<ElementIdentCorrelation> correlations) {
 
-        List<String> colNames =
-                correlations.stream()
-                        .map(ElementIdentCorrelation::getDbColName)
-                        .collect(Collectors.toList());
-
-        if(colNames.contains("isin") || colNames.contains("wkn") || colNames.contains("name")) {
-            return true;
+        for(var corr : correlations) {
+            if(corr.getDbColName().equals("isin") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
+            if(corr.getDbColName().equals("wkn") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
+            if(corr.getDbColName().equals("name") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
         }
 
         log("FEHLER: Weder ISIN, WKN noch Namen angegeben für "+element.getInformationUrl());
@@ -81,40 +77,56 @@ public class TableCourseOrStockExtraction extends TableExtraction {
 
     protected boolean matches(List<ElementDescCorrelation> descCorrelations, Map<String, InformationCarrier> carrierMap) {
 
-        String extractedIsin = carrierMap.getOrDefault("isin", null).getExtractedData();
-        String extractedWkn = carrierMap.getOrDefault("wkw", null).getExtractedData();
-        String extractedDesc = carrierMap.getOrDefault("name", null).getExtractedData();
+        String extractedData;
 
         // correct in e.g. correctIsin means the mapped value fits
-        // like ABCD in db has a mapping to 1234 and the extracted value has 1234
+        // like ABCD in database has a mapping to 1234 and the extracted value has 1234
         // this would be a match
 
-        // check matching isin
-        if(extractedIsin != null && extractedIsin.length() > 0) {
-            for(var descCorrelation : descCorrelations) {
-                var correctIsin = descCorrelation.getWsIsin();
-                if(compare(extractedIsin, correctIsin)) {
-                    return true;
+
+        var carrier = carrierMap.getOrDefault("isin", null);
+        if(carrier != null) {
+            extractedData = carrier.getExtractedData();
+
+            // check matching isin
+            if (extractedData != null && extractedData.length() > 0) {
+                for (var corr : descCorrelations) {
+                    var correctIsin = corr.getWsIsin();
+                    if (compare(extractedData, correctIsin)) {
+                        return notYetExtracted(corr);
+                    }
                 }
             }
         }
 
-        // check matching wkn
-        if(extractedWkn != null && extractedWkn.length() > 0) {
-            for(var descCorrelation : descCorrelations) {
-                var correctWkn = descCorrelation.getWsWkn();
-                if(compare(extractedWkn, correctWkn)) {
-                    return true;
+
+        carrier = carrierMap.getOrDefault("wkn", null);
+        if(carrier != null) {
+            extractedData = carrier.getExtractedData();
+
+            // check matching wkn
+            if (extractedData != null && extractedData.length() > 0) {
+                for (var corr : descCorrelations) {
+                    var correctWkn = corr.getWsWkn();
+                    if (compare(extractedData, correctWkn)) {
+                        return notYetExtracted(corr);
+                    }
                 }
             }
         }
 
-        // check matching description
-        if(extractedDesc != null && extractedDesc.length() > 0) {
-            for(var descCorrelation : descCorrelations) {
-                var correctDescription = descCorrelation.getWsDescription();
-                if(compare(extractedDesc, correctDescription)) {
-                    return true;
+
+        carrier = carrierMap.getOrDefault("name", null);
+        if(carrier != null) {
+            extractedData = carrier.getExtractedData();
+
+            // check matching description
+            if (extractedData != null && extractedData.length() > 0) {
+                for (var corr : descCorrelations) {
+                    var correctDescription = corr.getWsDescription();
+                    if (compare(extractedData, correctDescription)) {
+                        return notYetExtracted(corr);
+                    }
                 }
             }
         }
@@ -124,14 +136,15 @@ public class TableCourseOrStockExtraction extends TableExtraction {
 
     @Override
     protected void setCorrectValuesFromSelection(Map<String, InformationCarrier> carrierMap, ElementSelection selection) {
-        var isinCarrier = carrierMap.getOrDefault("isin", new InformationCarrier(date, ColumnDatatype.TEXT));
-        var wknCarrier = carrierMap.getOrDefault("wkw", new InformationCarrier(date, ColumnDatatype.TEXT));
-        var descCarrier = carrierMap.getOrDefault("name", new InformationCarrier(date, ColumnDatatype.TEXT));
+        var isinCarrier = carrierMap.getOrDefault("isin", new InformationCarrier(date, ColumnDatatype.TEXT, "isin"));
+        var wknCarrier = carrierMap.getOrDefault("wkn", new InformationCarrier(date, ColumnDatatype.TEXT, "wkn"));
+        var descCarrier = carrierMap.getOrDefault("name", new InformationCarrier(date, ColumnDatatype.TEXT,"name"));
 
         isinCarrier.setExtractedData(selection.getIsin());
         wknCarrier.setExtractedData(selection.getWkn());
         descCarrier.setExtractedData(selection.getDescription());
 
+        // TODO necessary?
         carrierMap.put("isin", isinCarrier);
         carrierMap.put("wkn", wknCarrier);
         carrierMap.put("name", descCarrier);

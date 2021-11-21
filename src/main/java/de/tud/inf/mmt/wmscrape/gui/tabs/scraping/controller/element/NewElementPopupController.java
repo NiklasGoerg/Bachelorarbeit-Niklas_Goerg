@@ -31,16 +31,12 @@ public class NewElementPopupController {
         descriptionField.textProperty().addListener((o,ov,nv) -> { if (nv != null) isValidDescription();});
         contentTypeChoiceBox.getItems().addAll(ContentType.values());
         multiplicityChoiceBox.getItems().addAll(MultiplicityType.values());
-        contentTypeChoiceBox.setValue(ContentType.STAMMDATEN);
+        contentTypeChoiceBox.setValue(ContentType.AKTIENKURS);
         multiplicityChoiceBox.setValue(MultiplicityType.TABELLE);
     }
 
     @FXML
     private void handleSaveButton() {
-
-        descriptionField.getScene().getWindow().setX(0);
-        descriptionField.getScene().getWindow().setY(0);
-
         if(!isValidDescription()) {
             return;
         }

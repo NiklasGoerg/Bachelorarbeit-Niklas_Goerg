@@ -4,6 +4,7 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,11 +15,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TableExchangeExtraction extends TableExtraction {
 
-    protected TableExchangeExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
+    public TableExchangeExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         super(connection, logText, scraper, date);
     }
 
@@ -55,29 +55,27 @@ public class TableExchangeExtraction extends TableExtraction {
     @Override
     protected boolean validIdentCorrelations(WebsiteElement element, List<ElementIdentCorrelation> correlations) {
 
-        List<String> colNames =
-                correlations.stream()
-                        .map(ElementIdentCorrelation::getDbColName)
-                        .collect(Collectors.toList());
-
-        if(colNames.contains("bezeichnung")) {
-            return true;
+        for(var corr : correlations) {
+            if(corr.getDbColName().equals("name") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
         }
 
-        log("FEHLER: Kursbezeichnung nicht angegeben für "+element.getInformationUrl());
+        log("FEHLER: Wechselkursname nicht angegeben für "+element.getInformationUrl());
         return false;
     }
 
     protected boolean matches(List<ElementDescCorrelation> descCorrelations, Map<String, InformationCarrier> carrierMap) {
 
-        String extractedDescription = carrierMap.getOrDefault("bezeichnung", null).getExtractedData();
+        var carrier = carrierMap.getOrDefault("name", null);
+        if(carrier != null) {
+            String extractedData = carrier.getExtractedData();
 
-        // check matching description like EUR
-        if(extractedDescription != null && extractedDescription.length() > 0) {
-            for(var descCorrelation : descCorrelations) {
-                var correctDesc = descCorrelation.getWsCurrencyName();
-                if(compare(extractedDescription, correctDesc)) {
-                    return true;
+            // check matching description like EUR
+            if (extractedData != null && extractedData.length() > 0) {
+                for (var corr : descCorrelations) {
+                    var correctDesc = corr.getWsCurrencyName();
+                    if (compare(extractedData, correctDesc)) {
+                        return notYetExtracted(corr);
+                    }
                 }
             }
         }
@@ -86,10 +84,10 @@ public class TableExchangeExtraction extends TableExtraction {
 
     @Override
     protected void setCorrectValuesFromSelection(Map<String, InformationCarrier> carrierMap, ElementSelection selection) {
-        var descCarrier = carrierMap.getOrDefault("bezeichnung", new InformationCarrier(date, ColumnDatatype.TEXT));
+        var descCarrier = carrierMap.getOrDefault("name", new InformationCarrier(date, ColumnDatatype.TEXT, "name"));
 
         descCarrier.setExtractedData(selection.getDescription());
 
-        carrierMap.put("bezeichnung", descCarrier);
+        carrierMap.put("name", descCarrier);
     }
 }
