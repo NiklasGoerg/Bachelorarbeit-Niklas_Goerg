@@ -48,8 +48,7 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     private boolean doLoginRoutine() {
-        loadLoginPage();
-
+        if(!loadLoginPage()) return false;
         if(!acceptCookies()) return false;
         if(!hideCookies()) return false;
         if(!fillLoginInformation()) return false;
@@ -68,7 +67,7 @@ public class WebsiteScraper extends WebsiteHandler {
 
     private void delayRandom() {
         int randTime = ThreadLocalRandom.current().nextInt(minIntraSiteDelay, maxIntraSiteDelay + 1);
-        addToLog("INFO: Warte "+randTime+"ms");
+        addToLog("INFO:\tWarte "+randTime+"ms");
 
         try {
             Thread.sleep(randTime);
@@ -83,13 +82,16 @@ public class WebsiteScraper extends WebsiteHandler {
         if(usesLogin()) {
             // returns false if error at login
             if (!doLoginRoutine()) {
-                addToLog("FEHLER: Login nicht korrekt durchgeführt. Abbruch der Bearbeitung.");
+                addToLog("ERR:\t\tLogin nicht korrekt durchgeführt. Abbruch der Bearbeitung.");
                 return;
             }
         }
 
         for(WebsiteElement element : website.getWebsiteElements()) {
-            loadPage(element.getInformationUrl());
+            if(!loadPage(element.getInformationUrl())) {
+                addToLog("ERR:\t\tSeite "+element.getInformationUrl()+" konnte nicht aufgerufen werden." );
+                continue;
+            }
 
             var multiplicityType = element.getMultiplicityType();
             var contentType = element.getContentType();

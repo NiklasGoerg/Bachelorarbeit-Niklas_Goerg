@@ -27,6 +27,8 @@ public abstract class WebsiteHandler {
     private WebDriverWait wait;
     private final SimpleStringProperty logText;
 
+    private int uniqueElementId = 0;
+
     public WebsiteHandler(Website website) {
         this.website = website;
         headless = true;
@@ -64,8 +66,8 @@ public abstract class WebsiteHandler {
         wait = new WebDriverWait(driver, Duration.ofSeconds(waitForWsElementSec));
     }
 
-    protected void loadLoginPage() {
-        loadPage(website.getUrl());
+    protected boolean loadLoginPage() {
+        return loadPage(website.getUrl());
     }
 
     protected boolean acceptCookies() {
@@ -77,7 +79,7 @@ public abstract class WebsiteHandler {
         if (element == null) return false;
 
         clickElement(element);
-        addToLog("INFO: Cookies akzeptiert");
+        addToLog("INFO:\tCookies akzeptiert");
         return true;
     }
 
@@ -91,11 +93,11 @@ public abstract class WebsiteHandler {
         if (banner != null) {
             js.executeScript("(arguments[0]).remove()", banner);
         } else {
-            addToLog("WARNUNG: Cookiebanner nicht gefunden");
+            addToLog("WARN:\tCookiebanner nicht gefunden");
             return false;
         }
 
-        addToLog("INFO: Cookiebanner ausgeblendet");
+        addToLog("INFO:\tCookiebanner ausgeblendet");
         return true;
     }
 
@@ -109,7 +111,7 @@ public abstract class WebsiteHandler {
         if (password == null) return false;
         setText(password, website.getPassword());
 
-        addToLog("INFO: Login Informationen ausgefüllt");
+        addToLog("INFO:\tLogin Informationen ausgefüllt");
         return true;
     }
 
@@ -128,7 +130,7 @@ public abstract class WebsiteHandler {
         if (loginButton == null) return false;
         clickElement(loginButton);
 
-        addToLog("INFO: Login erfolgreich");
+        addToLog("INFO:\tLogin erfolgreich");
         return true;
     }
 
@@ -142,7 +144,7 @@ public abstract class WebsiteHandler {
 
         if (type == IdentType.URL) {
             driver.get(website.getLogoutIdent());
-            addToLog("INFO: Logout erfolgreich");
+            addToLog("INFO:\tLogout erfolgreich");
             return true;
         }
 
@@ -150,19 +152,30 @@ public abstract class WebsiteHandler {
         if (logoutButton == null) return false;
         clickElement(logoutButton);
 
-        addToLog("INFO: Logout erfolgreich");
+        addToLog("INFO:\tLogout erfolgreich");
         return true;
     }
 
-    protected void loadPage(String url) {
-        driver.get(url);
+    protected boolean loadPage(String url) {
+        // reset ids for a new page
+        uniqueElementId = 0;
+
+        try {
+            driver.get(url);
+        } catch (WebDriverException e) {
+            System.out.println(e.getMessage()+" <-> "+e.getCause());
+            return false;
+        }
+
         waitLoadEvent();
 
         // called separately in tester
         if (website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
                 && !(this instanceof WebsiteTester)) hideCookies();
 
-        addToLog("INFO: " + url + " geladen");
+
+        addToLog("INFO:\t" + url + " geladen");
+        return true;
     }
 
     private void waitLoadEvent() {
@@ -182,9 +195,9 @@ public abstract class WebsiteHandler {
         return null;
     }
 
-    public WebElementInContext extractFrameElementFromRoot(IdentType type, String identifier) {
+    public WebElementInContext extractFrameElementFromContext(IdentType type, String identifier, WebElementInContext context) {
         // a frame element containing the selenium element and iframe/context information
-        var elements = extractAllFramesFromContext(type, identifier, null);
+        var elements = extractAllFramesFromContext(type, identifier,  context);
         if (elements != null && elements.size() > 0) return elements.get(0);
         return null;
     }
@@ -195,69 +208,95 @@ public abstract class WebsiteHandler {
     }
 
     /**
-     * @param webElementInContext null uses the driver context
+     * @param parent null uses the driver context
      */
-    public List<WebElementInContext> extractAllFramesFromContext(IdentType type, String identifier, WebElementInContext webElementInContext) {
+    public List<WebElementInContext> extractAllFramesFromContext(IdentType type, String ident, WebElementInContext parent) {
 
-        SearchContext context = driver;
+        int parentId = 0;
         WebElement frame = null;
+        SearchContext searchContext = driver;
+        String identifier = ident;
 
-        if(webElementInContext != null) {
-            context = webElementInContext.get();
-            frame = webElementInContext.getFrame();
-            checkIdentifier(type, identifier);
-            switchToFrame(webElementInContext.getFrame());
-        } else {
-            switchToFrame(null);
+        // switches to the parents frame and changes the xpath if used
+        if(parent != null) {
+            frame = parent.getFrame();
+            searchContext = parent.get();
+            parentId = parent.getId();
+            identifier = enhancedIdentifier(type, identifier, parentId);
         }
 
-        // search elements in root
-        var webElements = findElementsRelative(context, type, identifier);
+        switchToFrame(frame);
 
-        if (webElements != null && webElements.size() > 0) return webToFrameList(webElements, frame, context);
+        try {
+            // search elements in root
+            var webElements = findElementsRelative(searchContext, type, identifier);
+            if (webElements != null && webElements.size() > 0) return toContextList(webElements, frame, parentId);
 
-        // search in sub iframes recursively
-        List<WebElementInContext> webElementInContexts = recursiveSearch(context, type, identifier, context.findElements(By.tagName("iframe")), 0);
-        if (webElementInContexts != null) return webElementInContexts;
 
-        addToLog("FEHLER: Keine Elemente unter '" + identifier + "' gefunden");
+            // search in sub iframes recursively
+            List<WebElementInContext> webElementInContexts = recursiveSearch(searchContext, type, identifier,
+                    searchContext.findElements(By.tagName("iframe")), 0, parentId);
+            if (webElementInContexts != null) return webElementInContexts;
+
+            addToLog("ERR:\t\tKeine Elemente unter '" + identifier + "' gefunden");
+
+
+        } catch (InvalidSelectorException e) {
+            e.printStackTrace();
+            addToLog("ERR:\t\tInvalider Identifizierer vom Typ "+type+" '"+identifier+"'");
+        }
+
         return null;
     }
 
-    private List<WebElementInContext> webToFrameList(List<WebElement> webElements, WebElement frame, SearchContext context) {
+    private List<WebElementInContext> toContextList(List<WebElement> webElements, WebElement frame, int parentId) {
         List<WebElementInContext> webElementInContexts = new ArrayList<>();
-        for (WebElement element : webElements) {
-            webElementInContexts.add(new WebElementInContext(element, frame, context));
+
+        for (var element : webElements) {
+            uniqueElementId++;
+            webElementInContexts.add(new WebElementInContext(element, frame, uniqueElementId, parentId));
+            setUniqueId(element, uniqueElementId); // sets the id inside the html code
+
         }
         return webElementInContexts;
     }
 
-    private List<WebElement> findElementsRelative(SearchContext context, IdentType type, String identifier) {
+    private List<WebElement> findElementsRelative(SearchContext context, IdentType type, String identifier) throws InvalidSelectorException {
         List<WebElement> elements;
-        try {
-            switch (type) {
-                case ID -> elements = context.findElements(By.id(identifier));
-                case XPATH -> elements = context.findElements(By.xpath(identifier));
-                case CSS -> elements = context.findElements(By.cssSelector(identifier));
-                case TAG -> elements = context.findElements(By.tagName(identifier));
-                default -> elements = null;
-            }
-        } catch (InvalidSelectorException e) {
-            addToLog("FEHLER: Invalider Identifizierer '"+identifier+"'");
-            return null;
+        switch (type) {
+            case ID -> elements = context.findElements(By.id(identifier));
+            case XPATH -> elements = context.findElements(By.xpath(identifier));
+            case CSS -> elements = context.findElements(By.cssSelector(identifier));
+            case TAG -> elements = context.findElements(By.tagName(identifier));
+            default -> elements = null;
         }
         return elements;
     }
 
-    private String checkIdentifier(IdentType type, String identifier) {
-        if(type == IdentType.XPATH && !identifier.startsWith("./") && !identifier.startsWith("self")) {
-            addToLog("WARNUNG: Potentiell fehlgeformter relativer XPath '"+identifier+"'. Relative Pfade beginnen meist mit .// bzw. self::node()/");
+    private void setUniqueId(WebElement element, int id) {
+        if(element == null) return;
+        js.executeScript("arguments[0].setAttribute('wms', "+id+")", element);
+
+    }
+
+    // creates an absolute xpath based on the id priorly set
+    private String enhancedIdentifier(IdentType type, String identifier, int parenId) {
+        if(type == IdentType.XPATH) {
+            checkRelativeXPath(identifier);
+            return "//*[@wms=" + parenId + "]" + identifier;
         }
         return identifier;
     }
 
+    private void checkRelativeXPath(String identifier) {
+        if(!identifier.startsWith("/")) {
+            addToLog("WARN:\tPotentiell fehlgeformter XPath '"+identifier+"'. Ein Unterpfad sollt mit / oder // beginnen.");
+        }
+    }
+
+
     private List<WebElementInContext> recursiveSearch(SearchContext context, IdentType type, String identifier,
-                                                      List<WebElement> iframes, int depth) {
+                                                      List<WebElement> iframes, int depth, int parentId) throws InvalidSelectorException {
         // nothing found in max depth. return
         if (depth >= IFRAME_SEARCH_DEPTH) return null;
 
@@ -272,11 +311,11 @@ public abstract class WebsiteHandler {
 
             // found something
             if(webElements != null && webElements.size() > 0) {
-                return webToFrameList(webElements, frame, context);
+                return toContextList(webElements, frame, parentId);
             }
 
             // found nothing, search again in the sub-frames inside this frame
-            webElementInContexts = recursiveSearch(context, type, identifier, driver.findElements(By.tagName("iframe")), depth + 1);
+            webElementInContexts = recursiveSearch(context, type, identifier, driver.findElements(By.tagName("iframe")), depth + 1, parentId);
             if (webElementInContexts != null) return webElementInContexts;
 
             driver.switchTo().parentFrame();
@@ -286,27 +325,31 @@ public abstract class WebsiteHandler {
 
     // only call in respective frame
     private void setText(WebElement element, String text) {
+        if(element == null) return;
         element.sendKeys(text);
     }
 
     // only call in respective frame
     private void submit(WebElement element) {
+        if(element == null) return;
         element.submit();
     }
 
     // only call in respective frame
     private void clickElement(WebElement element) {
+        if(element == null) return;
+
         try {
             element.click();
         } catch (ElementClickInterceptedException e) {
-            addToLog("INFO: Verdeckter Button erkannt");
+            addToLog("INFO:\tVerdeckter Button erkannt");
             js.executeScript("arguments[0].click()", element);
         }
     }
 
     protected void quit() {
         if (driver != null) {
-            addToLog("INFO: Browser wurde beendet");
+            addToLog("INFO:\tBrowser wurde beendet");
             driver.quit();
             driver = null;
         }

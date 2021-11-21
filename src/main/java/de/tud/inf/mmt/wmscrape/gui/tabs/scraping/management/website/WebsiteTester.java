@@ -22,7 +22,7 @@ public class WebsiteTester extends WebsiteHandler {
                 if(website.getUsernameIdentType() == IdentType.DEAKTIVIERT) {step = 8; return false;}
             }
             case 1 -> {
-                loadLoginPage();
+                if (!loadLoginPage()) {step = 8; return false;}
 
                 if(website.getCookieAcceptIdentType() == IdentType.DEAKTIVIERT) {
                     if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
