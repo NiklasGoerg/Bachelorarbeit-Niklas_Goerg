@@ -1,6 +1,5 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -49,7 +48,7 @@ public class TableCourseOrStockExtraction extends TableExtraction {
             try {
                 statement.setString(2, isin);
             } catch (SQLException e) {
-                log("FEHLER: Setzen der ISIN '"+isin+"' fehlgeschlagen für "+selection.getDescription());
+                log("ERR:\t\tSetzen der ISIN '"+isin+"' fehlgeschlagen für "+selection.getDescription());
                 e.printStackTrace();
             }
         }
@@ -71,83 +70,26 @@ public class TableCourseOrStockExtraction extends TableExtraction {
             if(corr.getDbColName().equals("name") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
         }
 
-        log("FEHLER: Weder ISIN, WKN noch Namen angegeben für "+element.getInformationUrl());
+        log("ERR:\t\tWeder ISIN, WKN noch Namen angegeben für "+element.getInformationUrl());
         return false;
     }
 
-    protected boolean matches(List<ElementDescCorrelation> descCorrelations, Map<String, InformationCarrier> carrierMap) {
-
-        String extractedData;
-
+    protected boolean matches(ElementDescCorrelation correlation, Map<String, InformationCarrier> carrierMap) {
         // correct in e.g. correctIsin means the mapped value fits
         // like ABCD in database has a mapping to 1234 and the extracted value has 1234
         // this would be a match
 
-
-        var carrier = carrierMap.getOrDefault("isin", null);
-        if(carrier != null) {
-            extractedData = carrier.getExtractedData();
-
-            // check matching isin
-            if (extractedData != null && extractedData.length() > 0) {
-                for (var corr : descCorrelations) {
-                    var correctIsin = corr.getWsIsin();
-                    if (compare(extractedData, correctIsin)) {
-                        return notYetExtracted(corr);
-                    }
-                }
-            }
-        }
-
-
-        carrier = carrierMap.getOrDefault("wkn", null);
-        if(carrier != null) {
-            extractedData = carrier.getExtractedData();
-
-            // check matching wkn
-            if (extractedData != null && extractedData.length() > 0) {
-                for (var corr : descCorrelations) {
-                    var correctWkn = corr.getWsWkn();
-                    if (compare(extractedData, correctWkn)) {
-                        return notYetExtracted(corr);
-                    }
-                }
-            }
-        }
-
-
-        carrier = carrierMap.getOrDefault("name", null);
-        if(carrier != null) {
-            extractedData = carrier.getExtractedData();
-
-            // check matching description
-            if (extractedData != null && extractedData.length() > 0) {
-                for (var corr : descCorrelations) {
-                    var correctDescription = corr.getWsDescription();
-                    if (compare(extractedData, correctDescription)) {
-                        return notYetExtracted(corr);
-                    }
-                }
-            }
-        }
-
-        return false;
+        if(compare(carrierMap.getOrDefault("isin", null), correlation.getWsIsin())) return true;
+        if(compare(carrierMap.getOrDefault("wkn", null), correlation.getWsWkn())) return true;
+        return compare(carrierMap.getOrDefault("name", null), correlation.getWsDescription());
     }
 
     @Override
-    protected void setCorrectValuesFromSelection(Map<String, InformationCarrier> carrierMap, ElementSelection selection) {
-        var isinCarrier = carrierMap.getOrDefault("isin", new InformationCarrier(date, ColumnDatatype.TEXT, "isin"));
-        var wknCarrier = carrierMap.getOrDefault("wkn", new InformationCarrier(date, ColumnDatatype.TEXT, "wkn"));
-        var descCarrier = carrierMap.getOrDefault("name", new InformationCarrier(date, ColumnDatatype.TEXT,"name"));
+    protected void correctCarrierValues(Map<String, InformationCarrier> carrierMap, ElementSelection selection) {
+        for(InformationCarrier carrier : carrierMap.values()) {
+            carrier.setIsin(selection.getIsin());
+        }
 
-        isinCarrier.setExtractedData(selection.getIsin());
-        wknCarrier.setExtractedData(selection.getWkn());
-        descCarrier.setExtractedData(selection.getDescription());
-
-        // TODO necessary?
-        carrierMap.put("isin", isinCarrier);
-        carrierMap.put("wkn", wknCarrier);
-        carrierMap.put("name", descCarrier);
     }
 
 }

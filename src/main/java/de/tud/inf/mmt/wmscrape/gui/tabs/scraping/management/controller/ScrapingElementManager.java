@@ -35,12 +35,12 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_DEACTIVATED;
+import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_TABLE;
 
 public abstract class ScrapingElementManager {
 
     private final static String[] EXCHANGE_COLS = {"name", "kurs"};
-    private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_DEACTIVATED);
+    private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_TABLE);
 
     @Autowired
     private StockRepository stockRepository;
@@ -146,7 +146,7 @@ public abstract class ScrapingElementManager {
         // lazy evaluation
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
 
-        prepareCorrelationTable(table);
+        prepareIdentCorrelationTable(table);
 
         var type = websiteElement.getContentType();
         if(type == ContentType.AKTIENKURS) {
@@ -158,7 +158,7 @@ public abstract class ScrapingElementManager {
         }
     }
 
-    private void prepareCorrelationTable(TableView<ElementIdentCorrelation> table) {
+    private void prepareIdentCorrelationTable(TableView<ElementIdentCorrelation> table) {
 
         TableColumn<ElementIdentCorrelation, String> nameColumn = new TableColumn<>("Datenelement");
         TableColumn<ElementIdentCorrelation, String> typeColumn = new TableColumn<>("DB Datentyp");

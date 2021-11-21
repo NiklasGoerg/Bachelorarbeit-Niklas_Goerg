@@ -1,6 +1,5 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -59,35 +58,16 @@ public class TableExchangeExtraction extends TableExtraction {
             if(corr.getDbColName().equals("name") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
         }
 
-        log("FEHLER: Wechselkursname nicht angegeben für "+element.getInformationUrl());
+        log("ERR:\t\tWechselkursname nicht angegeben für "+element.getInformationUrl());
         return false;
     }
 
-    protected boolean matches(List<ElementDescCorrelation> descCorrelations, Map<String, InformationCarrier> carrierMap) {
-
-        var carrier = carrierMap.getOrDefault("name", null);
-        if(carrier != null) {
-            String extractedData = carrier.getExtractedData();
-
-            // check matching description like EUR
-            if (extractedData != null && extractedData.length() > 0) {
-                for (var corr : descCorrelations) {
-                    var correctDesc = corr.getWsCurrencyName();
-                    if (compare(extractedData, correctDesc)) {
-                        return notYetExtracted(corr);
-                    }
-                }
-            }
-        }
-        return false;
+    protected boolean matches(ElementDescCorrelation correlation, Map<String, InformationCarrier> carrierMap) {
+        return compare(carrierMap.getOrDefault("name", null), correlation.getWsDescription());
     }
 
     @Override
-    protected void setCorrectValuesFromSelection(Map<String, InformationCarrier> carrierMap, ElementSelection selection) {
-        var descCarrier = carrierMap.getOrDefault("name", new InformationCarrier(date, ColumnDatatype.TEXT, "name"));
+    protected void correctCarrierValues(Map<String, InformationCarrier> carrierMap, ElementSelection selection) {
 
-        descCarrier.setExtractedData(selection.getDescription());
-
-        carrierMap.put("name", descCarrier);
     }
 }

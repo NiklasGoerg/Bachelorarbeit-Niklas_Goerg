@@ -27,17 +27,19 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
 
     protected abstract void updateStatements(Map<String, PreparedStatement> statements, ElementSelection selection);
 
-    protected abstract boolean matches(List<ElementDescCorrelation> descCorrelations, Map<String, InformationCarrier> carrierMap);
+    protected abstract boolean matches(ElementDescCorrelation descCorrelation, Map<String, InformationCarrier> carrierMap);
 
-    protected abstract void setCorrectValuesFromSelection(Map<String, InformationCarrier> carrierMap, ElementSelection selection);
+    protected abstract void correctCarrierValues(Map<String, InformationCarrier> carrierMap, ElementSelection selection);
 
     public void extract(WebsiteElement element) {
+        List<ElementDescCorrelation> descriptionCorrelations  = element.getElementDescCorrelations();
+        List<ElementSelection> elementSelections = element.getElementSelections();
+        Set<String> doNotSave = new HashSet<>(Arrays.asList(doNotSaveColumns));
         Map<String, InformationCarrier> preparedCarrierMap = new HashMap<>();
         InformationCarrier informationCarrier;
         preparedStatements = new HashMap<>();
-        PreparedStatement statement;
         List<WebElementInContext> rows;
-        Set<String> doNotSave = new HashSet<>(Arrays.asList(doNotSaveColumns));
+        PreparedStatement statement;
 
 
         // e.g. stock/course needs isin or wkn or the name
@@ -60,7 +62,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
         // get the table
         WebElementInContext table = getTable(element);
         if(table == null) {
-            log("FEHLER: Tabelle für "+element.getInformationUrl()+" nicht gefunden.");
+            log("ERR:\t\tTabelle für "+element.getInformationUrl()+" nicht gefunden.");
             return;
         }
 
@@ -68,59 +70,84 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
         rows = getRows(table);
 
         if(rows == null || rows.size() == 0) {
-            log("FEHLER: Tabelle für "+element.getInformationUrl()+" enhält keine Zeilen (<tr>)");
+            log("ERR:\t\tTabelle für "+element.getInformationUrl()+" enhält keine Zeilen (<tr>)");
             return;
         }
-
-
-        for (var selection : element.getElementSelections()) {
-            if(selection == null || !selection.isSelected()) continue;
-
-            // add/update the sql statement information
-            // e.g. setting the isin or exchange name
-            updateStatements(preparedStatements, selection);
-
-            // update the carrier information
-            // also isin/currency
-            for(InformationCarrier correlation : preparedCarrierMap.values()) {
-                // TODO necessary?
-                correlation.setExtractedData(null);
-                correlation.setIsin(selection.getIsin());
-            }
-
-            // search each row for a matching stock/exchange
-            for(var row : rows) {
-
-                // looks for the information inside one row
-                // adds it to the corresponding carriers
-                searchInsideRow(preparedCarrierMap, row);
-
-                // checks if selection with its description correlation exists
-                // that fits the extracted data
-                if(matches(element.getElementDescCorrelations(), preparedCarrierMap)) {
-
-                    // set the correct values from the db like isin/wkn/description
-                    // e.g. a matching wkn has a false isin
-                    // the isin hast to be corrected in the carrier
-                    setCorrectValuesFromSelection(preparedCarrierMap, selection);
-
-                    // sets the actual data to the prepared statements
-                    // adds them to the statement batch
-                    for(var carrier : preparedCarrierMap.values()) {
-                        statement = preparedStatements.getOrDefault(carrier.getDbColName(), null);
-                        if(statement != null) {
-                            fillStatement(1, statement, carrier.getExtractedData(), carrier.getDatatype());
-                        }
-                    }
-                }
-            }
+        
+        // search each row for a matching stock/exchange
+        for(var row : rows) {
+            // looks for the information inside one row
+            // adds it to the corresponding carriers
+            searchInsideRow(preparedCarrierMap, row);
+            processSelectionsForRow(elementSelections, descriptionCorrelations, preparedCarrierMap);
+            resetCarriers(preparedCarrierMap);
         }
         storeInDb();
+
+        logNoMatch(elementSelections);
     }
 
+    private void logNoMatch(List<ElementSelection> selections) {
+        for (var s : selections) {
+            if(s.isSelected() && !s.wasExtracted()) {
+                log("WARN: Kein Treffer gefunden für "+s.getDescription());
+            }
+        }
+    }
+
+    private void processSelectionsForRow(List<ElementSelection> selections, List<ElementDescCorrelation> descCorrelations,
+                                         Map<String, InformationCarrier> carrierMap) {
+        
+        for (var selection : selections) {
+            if(selection == null || !selection.isSelected()) continue;
+
+            // checks if selection with its description correlation exists
+            // that fits the extracted data
+            if(matches(selection.getElementDescCorrelation(), carrierMap)) {
+
+                // another row matches a selection
+                if(selection.wasExtracted()) {
+                    log("ERR:\t\tFür '"+selection.getDescription()+"' wurden bereits Daten aus der Tabelle " +
+                            "importiert. Element wird Ignoriert.");
+                }
+
+                // add/update the sql statement information
+                // e.g. setting the isin or exchange name
+                updateStatements(preparedStatements, selection);
+
+                // set the correct values from the db like isin/wkn/description
+                // e.g. a matching wkn has a false isin
+                // the isin hast to be corrected in the carrier
+                correctCarrierValues(carrierMap, selection);
+
+                // sets the actual data to the prepared statements
+                // adds them to the statement batch
+                setStatementExtractedData(carrierMap);
+                
+                selection.isExtracted();
+                log("\nINFO: Treffer für "+selection.getDescription()+"\n");
+                return;
+            }
+        }
+
+        log("\nINFO: Kein Treffer.\n");
+    }
+
+    private void resetCarriers(Map<String, InformationCarrier> carriers) {
+        carriers.values().forEach(c -> c.setExtractedData(null));
+    }
+
+    private void setStatementExtractedData(Map<String, InformationCarrier> carrierMap) {
+        for(var carrier : carrierMap.values()) {
+            var statement = preparedStatements.getOrDefault(carrier.getDbColName(), null);
+            if(statement != null) {
+                fillStatement(1, statement, carrier.getExtractedData(), carrier.getDatatype());
+            }
+        }
+    }
 
     private WebElementInContext getTable(WebsiteElement websiteElement) {
-        WebElementInContext element = scraper.extractFrameElementFromRoot(websiteElement.getTableIdenType(), websiteElement.getTableIdent());
+        WebElementInContext element = scraper.extractFrameElementFromContext(websiteElement.getTableIdenType(), websiteElement.getTableIdent(), null);
 
         if(element == null) return null;
 
@@ -129,9 +156,11 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
     }
 
     private List<WebElementInContext> getRows(WebElementInContext table) {
-        List<WebElementInContext> elements = scraper.extractAllFramesFromContext(IdentType.XPATH, ".//tr", table);
+        List<WebElementInContext> elements;
 
-        if(scraper.isHeadless() || elements == null) return elements;
+        elements = scraper.extractAllFramesFromContext(IdentType.XPATH, "//tr[not(th)][not(ancestor::thead)]", table);
+
+        if(scraper.isHeadless() || elements == null || elements.size() == 0) return elements;
 
         int i=1;
         for(WebElementInContext element : elements) {
@@ -155,7 +184,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
             data = getTextData(row, carrier);
 
             if (data.equals("")) {
-                log("FEHLER: Keine Daten enthalten für "+carrier.getDbColName()+" unter "+carrier.getIdentifier());
+                log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter "+carrier.getIdentifier());
             }
 
             data = processData(carrier, data);
@@ -166,31 +195,24 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
         }
     }
 
-    protected boolean compare(String websiteData, String dbData) {
-        if (websiteData != null && websiteData.length() > 0) {
-            if (dbData.equals(websiteData)) {
-                // matched
-                return true;
-            } else if (dbData.contains(websiteData)) {
-                // found inside but no direct match
-                partialMatchLog(dbData, websiteData);
-                return false;
+    protected boolean compare(InformationCarrier carrier, String dbData) {
+        if (carrier != null ) {
+            var websiteData = carrier.getExtractedData();
+            if (websiteData != null && websiteData.length() > 0) {
+                if (dbData.equals(websiteData)) {
+                    // matched
+                    return true;
+                } else if (dbData.contains(websiteData)) {
+                    // found inside but no direct match
+                    partialMatchLog(dbData, websiteData);
+                }
             }
         }
         return false;
     }
 
     protected void partialMatchLog(String extracted, String field) {
-        log("FEHLER: "+field+" stimmt nicht direkt mit "+extracted+" überein. Die Auswahl-Regex sollte angepasst werden");
+        log("ERR:\t\t"+field+" stimmt nicht direkt mit '"+extracted+"' überein. Die Auswahl-Regex oder Beschreibung sollte angepasst werden");
     }
 
-    protected boolean notYetExtracted(ElementDescCorrelation correlation) {
-        if (correlation.isAlreadyExtracted()) {
-            log("FEHLER: Für '"+correlation.getElementSelection().getDescription()+ "' wurden bereits Daten aus der Tabelle importiert. Element wird Ignoriert.");
-            return false;
-        } else {
-            correlation.setAlreadyExtracted();
-            return true;
-        }
-    }
 }

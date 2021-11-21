@@ -46,7 +46,7 @@ public class DbTransactionManager {
                 statements.put(column.getName(), stockDataDbManager.getPreparedStatement(column.getName(), connection));
             } catch (SQLException e) {
                 e.printStackTrace();
-                importTabManager.addToLog("FEHLER: Erstellung des Statements fehlgeschlagen. Spalte: '"
+                importTabManager.addToLog("ERR:\t\tErstellung des Statements fehlgeschlagen. Spalte: '"
                         + column.getName() + "' Datentyp '" + column.getColumnDatatype() + "' _CAUSE_ " + e.getCause());
                 return null;
             }
@@ -67,7 +67,7 @@ public class DbTransactionManager {
                 statements.put(colName, getPreparedTransactionStatement(colName, connection));
             } catch (SQLException e) {
                 e.printStackTrace();
-                importTabManager.addToLog("FEHLER: Erstellung des Statements fehlgeschlagen. Spalte: '"
+                importTabManager.addToLog("ERR:\t\tErstellung des Statements fehlgeschlagen. Spalte: '"
                         + colName + "' Datentyp '" + type + "' _CAUSE_ " + e.getCause());
                 return null;
             }
@@ -91,7 +91,7 @@ public class DbTransactionManager {
             connection.close();
         } catch (SQLException e) {
             silentError = true;
-            importTabManager.addToLog("FEHLER: " + e.getMessage() + " _CAUSE_ " + e.getCause());
+            importTabManager.addToLog("ERR:\t\t" + e.getMessage() + " _CAUSE_ " + e.getCause());
         }
         return silentError;
     }
@@ -112,12 +112,12 @@ public class DbTransactionManager {
             statement.addBatch();
         } catch (SQLException e) {
             e.printStackTrace();
-            importTabManager.addToLog("FEHLER: Bei dem Setzen der Statementwerte sind Fehler aufgetreten: "
+            importTabManager.addToLog("ERR:\t\tBei dem Setzen der Statementwerte sind Fehler aufgetreten: "
                     + e.getMessage() + " _ CAUSE_ " + e.getCause());
             return false;
         } catch (NumberFormatException | DateTimeParseException e) {
             e.printStackTrace();
-            importTabManager.addToLog("FEHLER: Bei dem Parsen des Wertes '" + data + "' in das Format "
+            importTabManager.addToLog("ERR:\t\tBei dem Parsen des Wertes '" + data + "' in das Format "
                     + datatype.name() + " ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
             return false;
         }
@@ -142,12 +142,12 @@ public class DbTransactionManager {
             statement.addBatch();
         } catch (SQLException e) {
             e.printStackTrace();
-            importTabManager.addToLog("FEHLER: Bei dem Setzen der Statementwerte sind Fehler aufgetreten: "
+            importTabManager.addToLog("ERR:\t\tBei dem Setzen der Statementwerte sind Fehler aufgetreten: "
                     + e.getMessage() + " _ CAUSE_ " + e.getCause());
             return false;
         } catch (NumberFormatException | DateTimeParseException e) {
             e.printStackTrace();
-            importTabManager.addToLog("FEHLER: Bei dem Parsen des Wertes '" + data + "' in das Format "
+            importTabManager.addToLog("ERR:\t\tBei dem Parsen des Wertes '" + data + "' in das Format "
                     + datatype.name() + " ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
             return false;
         }

@@ -62,12 +62,6 @@ public class ExistingUserLoginController {
 
         Validator<String> emptyPassword = Validator.createEmptyValidator("Es muss ein Passwort angegeben werden!");
         passwordValidation.registerValidator(passwordField, true, emptyPassword);
-
-        //passwordValidation.setErrorDecorationEnabled(false);
-
-//        Validator<String> uniqueName = (c, val) -> {
-//            return new ValidationResult().addErrorIf(c, "The name must not contain xyzyy", val.contains("xyz"));
-//        };
     }
 
 

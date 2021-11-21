@@ -39,6 +39,7 @@ public class ScrapingScrapeTabController {
     @FXML
     @Transactional
     public void handleStartButton() {
+        logText.set("");
         Optional<Website> website = fresh();
 
         if(website.isEmpty()) return;

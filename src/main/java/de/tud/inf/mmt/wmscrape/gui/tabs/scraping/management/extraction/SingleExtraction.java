@@ -34,7 +34,7 @@ public abstract class SingleExtraction extends GeneralExtraction implements Extr
                 data = scraper.findText(carrier.getIdentType(), carrier.getIdentifier(), carrier.getDbColName());
 
                 if(data.equals("")) {
-                    log("FEHLER: Keine Daten enthalten in "+ident);
+                    log("ERR:\t\tKeine Daten enthalten in "+ident);
                 }
 
                 data = processData(carrier, data);

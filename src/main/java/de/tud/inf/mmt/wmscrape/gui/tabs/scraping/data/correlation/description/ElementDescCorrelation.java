@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-public class ElementDescCorrelation {
+public class  ElementDescCorrelation {
 
     @Id
     private int id;
@@ -47,11 +47,6 @@ public class ElementDescCorrelation {
     @Transient
     private boolean isChanged = false;
 
-
-    // used in table extraction to check for duplicates
-    @Transient
-    private boolean alreadyExtracted = false;
-
     public ElementDescCorrelation() {
         initListener();
     }
@@ -62,7 +57,7 @@ public class ElementDescCorrelation {
 
         // initial state is to show the same values as in the db
         this._wsDescription = elementSelection.getDescription();
-        this._wsCurrencyName = elementSelection.getDescription();
+        this._wsCurrencyName = elementSelection.getDescription(); // also set for course/stock but it's useless
         this._wsIsin = elementSelection.getIsin();
         this._wsWkn = elementSelection.getWkn();
         setPropertiesFromPersistence();
@@ -137,14 +132,6 @@ public class ElementDescCorrelation {
         this.websiteElement = websiteElement;
     }
 
-    public boolean isAlreadyExtracted() {
-        return alreadyExtracted;
-    }
-
-    public void setAlreadyExtracted() {
-        this.alreadyExtracted = true;
-    }
-
     @PostLoad
     private void setPropertiesFromPersistence() {
         wsDescription.set(_wsDescription);
@@ -170,19 +157,19 @@ public class ElementDescCorrelation {
     private void initListener() {
         wsDescription.addListener((o, ov, nv) -> {
             isChanged = true;
-            _wsDescription = nv;
+            _wsDescription = nv.trim();
         });
         wsIsin.addListener((o, ov, nv ) -> {
             isChanged = true;
-            _wsIsin = nv;
+            _wsIsin = nv.trim();
         });
         wsCurrencyName.addListener((o, ov, nv ) -> {
             isChanged = true;
-            _wsCurrencyName = nv;
+            _wsCurrencyName = nv.trim();
         });
         wsWkn.addListener((o, ov, nv) -> {
             isChanged = true;
-            _wsWkn = nv;
+            _wsWkn = nv.trim();
         });
     }
 }

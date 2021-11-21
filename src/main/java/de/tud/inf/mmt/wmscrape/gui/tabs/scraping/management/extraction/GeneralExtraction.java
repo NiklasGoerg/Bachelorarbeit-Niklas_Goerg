@@ -34,10 +34,10 @@ public abstract class GeneralExtraction {
     protected abstract InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection);
 
     protected String processData(InformationCarrier carrier, String data) {
-        log("INFO: Daten gefunden '"+ data +"'");
+        log("INFO:\tDaten gefunden für "+carrier.getDbColName()+":\t'"+ data.replace("\n", "\\n") +"'");
         data = regexFilter(carrier.getRegexFilter(), data);
         data = sanitize(data, carrier.getDatatype());
-        log("INFO: Daten bereinigt '"+ data +"'");
+        log("INFO:\tDaten bereinigt für "+carrier.getDbColName()+":\t'"+ data.replace("\n", "\\n") +"'");
         return data;
     }
 
@@ -65,15 +65,16 @@ public abstract class GeneralExtraction {
             if (matcher.find()) return matcher.group(0);
         } catch (PatternSyntaxException e) {
             e.printStackTrace();
-            log("FEHLER: Regex '"+regex+"' ist fehlerhaft und kann nicht angewandt werden.");
+            log("ERR:\t\tRegex '"+regex+"' ist fehlerhaft und kann nicht angewandt werden.");
         }
-        return null;
+        return "";
     }
 
     protected String regexFilter(String regex, String text) {
         if (regex!= null && !regex.trim().equals("")) {
-            var tmp =  findFirst(regex, text);
-            log("INFO: Regex angewandt. '"+tmp+"' aus '"+text+"' extrahiert.");
+            var tmp = findFirst(regex, text);
+            log("INFO:\tRegex angewandt. '"+removeNewLine(tmp)+
+                    "' aus '"+removeNewLine(text)+"' extrahiert.");
             return tmp;
         }
         return text;
@@ -84,7 +85,7 @@ public abstract class GeneralExtraction {
         // matches every date format
         String match = findFirst("(\\d{4}|\\d{1,2}|\\d)[^0-9]{1,3}\\d{1,2}[^0-9]{1,3}(\\d{4}|\\d{1,2}|\\d)", text);
 
-        if (match == null) return "";
+        if (match == null || match.equals("")) return "";
 
         String[] sub = getDateSubstrings(match);
 
@@ -179,12 +180,13 @@ public abstract class GeneralExtraction {
         for (String format : DATE_FORMATS) {
             try {
                 LocalDate dataToDate = LocalDate.from(DateTimeFormatter.ofPattern(format).parse(date));
-                log("INFO: Datum "+date+" mit Format "+format+" geparsed.");
+                log("INFO:\tDatum "+date+" mit Format "+format+" geparsed.");
                 return Date.valueOf(dataToDate);
             } catch (DateTimeParseException e) {
-                log("FEHLER: Datum "+date+" parsen mit Format "+format+ " nicht möglich.");
+                log("ERR:\t\tDatum "+date+" parsen mit Format "+format+ " nicht möglich.");
             }
         }
+        log("FEHLER :\tKein passendes Datumsformat gefunden für "+date);
         return null;
     }
 
@@ -218,7 +220,7 @@ public abstract class GeneralExtraction {
             default -> valid = true;
         }
 
-        if(!valid) log("FEHLER: Der Datentyp "+datatype+" passt nicht zu den Daten '"+data+"'");
+        if(!valid) log("ERR:\t\tDer Datentyp "+datatype+" passt nicht zu den Daten '"+data+"'");
 
         return valid;
     }
@@ -229,10 +231,10 @@ public abstract class GeneralExtraction {
             statement.addBatch();
         } catch (SQLException e) {
             e.printStackTrace();
-            log("FEHLER: SQL Statement:"+e.getMessage()+" <-> "+e.getCause());
+            log("ERR:\t\tSQL Statement:"+e.getMessage()+" <-> "+e.getCause());
         } catch (NumberFormatException | DateTimeParseException e) {
             e.printStackTrace();
-            log("FEHLER: Bei dem Parsen des Wertes '"+data+"' in das Format "+datatype.name()+
+            log("ERR:\t\tBei dem Parsen des Wertes '"+data+"' in das Format "+datatype.name()+
                     ". "+e.getMessage()+" <-> "+e.getCause());
         }
     }
@@ -243,7 +245,7 @@ public abstract class GeneralExtraction {
                 statement.executeBatch();
                 statement.close();
             } catch (SQLException e) {
-                log("FEHLER: SQL Statements konnten nicht ausgeführt werden. "+e.getMessage());
+                log("ERR:\t\tSQL Statements konnten nicht ausgeführt werden. "+e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -255,7 +257,12 @@ public abstract class GeneralExtraction {
 
     protected void handleSqlException(InformationCarrier carrier, SQLException e) {
         e.printStackTrace();
-        log("FEHLER: SQL-Statement Erstellung. Spalte '"+ carrier.getDbColName() +"' der Tabelle "+ carrier.getDbColName()
+        log("ERR:\t\tSQL-Statement Erstellung. Spalte '"+ carrier.getDbColName() +"' der Tabelle "+ carrier.getDbColName()
                 +". "+ e.getMessage()+" <-> "+ e.getCause());
+    }
+
+    private String removeNewLine(String text) {
+        if(text == null) return null;
+        return text.replace("\n","\\n");
     }
 }

@@ -180,7 +180,7 @@ public class ParsingManager {
                     try {
                         switch (evaluator.evaluateInCell(cell).getCellType()) {
                             case STRING:
-                                value = cell.getStringCellValue().trim();
+                                value = cell.getStringCellValue();
                                 break;
                             case NUMERIC:
                                 if (DateUtil.isCellDateFormatted(cell)) {
@@ -211,7 +211,7 @@ public class ParsingManager {
                         value = "ERROR: Evaluationsfehler: " + cellError[cellError.length - 1];
                         evalFault = true;
                     }
-                    excelData.get(rowNumber).add(value);
+                    excelData.get(rowNumber).add(value.trim());
                 }
             }
         }

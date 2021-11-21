@@ -49,6 +49,11 @@ public class ElementSelection {
     @Transient
     private boolean isChanged = false;
 
+    // used in table extraction to ignore already extracted selection
+    @Transient
+    private boolean wasExtracted = false;
+
+
     public ElementSelection() {}
 
     public ElementSelection(WebsiteElement websiteElement, Stock stock) {
@@ -119,6 +124,14 @@ public class ElementSelection {
 
     public void setElementDescCorrelation(ElementDescCorrelation elementDescCorrelation) {
         this.elementDescCorrelation = elementDescCorrelation;
+    }
+
+    public boolean wasExtracted() {
+        return wasExtracted;
+    }
+
+    public void isExtracted() {
+        this.wasExtracted = true;
     }
 
     @PostLoad

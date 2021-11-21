@@ -90,7 +90,7 @@ public class ExtractionManager {
 
             // skip rows if not selected
             if (!(selected.get(row).get())) {
-                //addToLog("INFO: Stammdaten von Zeile: " + (row+OFFSET) + " ist nicht markiert.");
+                //addToLog("INFO:\tStammdaten von Zeile: " + (row+OFFSET) + " ist nicht markiert.");
                 continue;
             }
 
@@ -103,7 +103,7 @@ public class ExtractionManager {
             String isin = rowData.get(isinCol);
             if (isin == null || isin.isBlank() || isin.length() >= 50) {
                 silentError = true;
-                importTabManager.addToLog("FEHLER: Isin der Zeile " + (row+OFFSET) + " leer oder länger als 50 Zeichen. ->'" + isin + "'");
+                importTabManager.addToLog("ERR:\t\tIsin der Zeile " + (row+OFFSET) + " leer oder länger als 50 Zeichen. ->'" + isin + "'");
                 continue;
             }
 
@@ -113,7 +113,7 @@ public class ExtractionManager {
             String wkn = rowData.get(wknCol);
             if (wkn == null || wkn.isBlank()) {
                 silentError = true;
-                importTabManager.addToLog("FEHLER: Wkn der Zeile " + (row+OFFSET) + " leer. ->'" + wkn + "'");
+                importTabManager.addToLog("ERR:\t\tWkn der Zeile " + (row+OFFSET) + " leer. ->'" + wkn + "'");
                 continue;
             }
 
@@ -129,7 +129,7 @@ public class ExtractionManager {
 
                 // -1 is default and can't be set another way meaning it's not set
                 if (correlationColNumber == -1) {
-                    //addToLog("INFO: Die Spalte '" + dbColName +"' hat keine Zuordnung.");
+                    //addToLog("INFO:\tDie Spalte '" + dbColName +"' hat keine Zuordnung.");
                     colData = null;
                 } else {
                     colData = rowData.get(correlationColNumber);
@@ -207,7 +207,7 @@ public class ExtractionManager {
 
             String depotName = rowData.get(depotNameCol);
             if (depotName == null || depotName.isBlank() || depotName.length() >= 50) {
-                importTabManager.addToLog("FEHLER: Depotname der Zeile " + (row+OFFSET) + " fehlerhaft oder leer. Wert: '"
+                importTabManager.addToLog("ERR:\t\tDepotname der Zeile " + (row+OFFSET) + " fehlerhaft oder leer. Wert: '"
                         + depotName + "' ");
                 silentError = true;
                 continue;
@@ -215,14 +215,14 @@ public class ExtractionManager {
 
             String isin = rowData.get(isinCol);
             if (isin == null || isin.isBlank() || isin.length() >= 50) {
-                importTabManager.addToLog("FEHLER: Isin der Zeile " + (row+OFFSET) + " fehlerhaft, leer oder länger als 50 Zeichen. Wert: '" + isin + "'");
+                importTabManager.addToLog("ERR:\t\tIsin der Zeile " + (row+OFFSET) + " fehlerhaft, leer oder länger als 50 Zeichen. Wert: '" + isin + "'");
                 silentError = true;
                 continue;
             }
 
             String date = rowData.get(dateCol);
             if (notMatchingDataType(ColumnDatatype.DATE, date)) {
-                importTabManager.addToLog("FEHLER: Transaktionsdatum '" + date + "' der Zeile " + (row+OFFSET) + " ist fehlerhaft.");
+                importTabManager.addToLog("ERR:\t\tTransaktionsdatum '" + date + "' der Zeile " + (row+OFFSET) + " ist fehlerhaft.");
                 silentError = true;
                 continue;
             }
@@ -232,7 +232,7 @@ public class ExtractionManager {
             // stocks are created beforehand
             var stock = stockRepository.findByIsin(isin);
             if (stock.isEmpty()) {
-                importTabManager.addToLog("FEHLER: Das passende Wertpapier zur Transaktion aus Zeile " + (row+OFFSET) +
+                importTabManager.addToLog("ERR:\t\tDas passende Wertpapier zur Transaktion aus Zeile " + (row+OFFSET) +
                         " konnte nicht gefunden werden. Angegebene Isin: '" + isin + "'");
                 silentError = true;
                 continue;
@@ -242,7 +242,7 @@ public class ExtractionManager {
             Depot depot = depotRepository.findByName(depotName).orElse(null);
 
             if (depot == null) {
-                importTabManager.addToLog("INFO: Erstelle Depot mit dem Namen: " + depotName);
+                importTabManager.addToLog("INFO:\tErstelle Depot mit dem Namen: " + depotName);
                 depot = new Depot(depotName);
                 depotRepository.save(depot);
             }
@@ -264,7 +264,7 @@ public class ExtractionManager {
 
                 // -1 is default and can't be set another way meaning it's not set
                 if (correlationColNumber == -1) {
-                    //addToLog("INFO: Die Spalte '" + dbColName +"' hat keine Zuordnung.");
+                    //addToLog("INFO:\tDie Spalte '" + dbColName +"' hat keine Zuordnung.");
                     colData = null;
                 } else {
                     colData = rowData.get(correlationColNumber);
@@ -275,7 +275,7 @@ public class ExtractionManager {
                 ColumnDatatype colDatatype = correlation.getDbColDataType();
 
                 if (notMatchingDataType(colDatatype, colData)) {
-                    importTabManager.addToLog("FEHLER: Der Wert der Zelle in der Zeile: " + row + " Spalte: '"
+                    importTabManager.addToLog("ERR:\t\tDer Wert der Zelle in der Zeile: " + row + " Spalte: '"
                             + correlation.getExcelColTitle() + "' hat nicht den passenden Datentyp für '"
                             + dbColName + "' vom Typ '" + colDatatype + "'. Wert: '" + colData + "'");
                     silentError = true;
