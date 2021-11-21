@@ -14,7 +14,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -29,7 +32,7 @@ public abstract class GeneralExtraction {
     protected WebsiteScraper scraper;
     protected Date date;
 
-    /* make sure that the to be inserted value is the first attribute in the statement */
+    // make sure that the to be inserted value is the first attribute in the statement
     protected abstract PreparedStatement prepareStatement(Connection connection, InformationCarrier carrier);
     protected abstract InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection);
 
@@ -209,7 +212,7 @@ public abstract class GeneralExtraction {
         }
     }
 
-    protected boolean isValid(String data, ColumnDatatype datatype) {
+    protected boolean isValid(String data, ColumnDatatype datatype, String colName) {
         if(datatype == null) return false;
 
         boolean valid;
@@ -220,7 +223,7 @@ public abstract class GeneralExtraction {
             default -> valid = true;
         }
 
-        if(!valid) log("ERR:\t\tDer Datentyp "+datatype+" passt nicht zu den Daten '"+data+"'");
+        if(!valid) log("ERR:\t\tUnpassender Datentyp "+datatype+" für '"+data+"' des Elements "+colName);
 
         return valid;
     }
@@ -264,5 +267,20 @@ public abstract class GeneralExtraction {
     private String removeNewLine(String text) {
         if(text == null) return null;
         return text.replace("\n","\\n");
+    }
+
+    // check in non-headless mode because of the text hints added in the browser
+    // these hints are extracted too if done twice or more
+    protected boolean duplicateIdentifiers(List<ElementIdentCorrelation> correlations) {
+        if(scraper.isHeadless()) return false;
+        Set<String> identifiers = new HashSet<>();
+        for(var corr : correlations) {
+            if(!identifiers.add(corr.getIdentification())) {
+                log("ERR:\t\tIdentifizierungs-Duplikat erkannt. Nur im headless Modus erlaubt. "
+                        +corr.getDbTableName()+" -> "+corr.getIdentification());
+                return true;
+            }
+        }
+        return false;
     }
 }

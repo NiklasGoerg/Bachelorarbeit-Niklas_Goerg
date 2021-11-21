@@ -88,15 +88,17 @@ public class WebsiteScraper extends WebsiteHandler {
         }
 
         for(WebsiteElement element : website.getWebsiteElements()) {
+            if(element.getWebsite() == null || element.getInformationUrl() == null || element.getInformationUrl().isBlank()) {
+                addToLog("ERR:\t\tKeine Webseite oder URl angegeben für: "+element.getDescription());
+                continue;
+            }
+
             if(!loadPage(element.getInformationUrl())) {
                 addToLog("ERR:\t\tSeite "+element.getInformationUrl()+" konnte nicht aufgerufen werden." );
                 continue;
             }
 
-            var multiplicityType = element.getMultiplicityType();
-            var contentType = element.getContentType();
-
-            processWebsiteElement(element, multiplicityType, contentType);
+            processWebsiteElement(element, element.getMultiplicityType(), element.getContentType());
 
             delayRandom();
         }

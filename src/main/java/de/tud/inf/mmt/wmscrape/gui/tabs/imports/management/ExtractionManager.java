@@ -141,14 +141,14 @@ public class ExtractionManager {
 
                 if (datatype == null) {
                     silentError = true;
-                    importTabManager.addToLog("Fehler: Der Datenbankspalte " + dbColName
+                    importTabManager.addToLog("ERR:\t\tDer Datenbankspalte " + dbColName
                             + " ist kein Datentyp zugeordnet.");
                     continue;
                 }
 
                 if (notMatchingDataType(datatype, colData)) {
                     silentError = true;
-                    importTabManager.addToLog("Fehler: Der Datentyp der Zeile " + (row+OFFSET) + " in der Spalte '" + correlation.getExcelColTitle() +
+                    importTabManager.addToLog("ERR:\t\tDer Datentyp der Zeile " + (row+OFFSET) + " in der Spalte '" + correlation.getExcelColTitle() +
                             "', stimmt nicht mit dem der Datenbankspalte " + dbColName + " vom Typ " + datatype.name() +
                             " überein. Zellendaten: '" + colData + "'");
                     continue;
@@ -160,7 +160,7 @@ public class ExtractionManager {
 
                 if (statement == null) {
                     silentError = true;
-                    importTabManager.addToLog("Fehler: Sql-Statment für die Spalte '" + correlation.getExcelColTitle() +
+                    importTabManager.addToLog("ERR:\t\tSql-Statment für die Spalte '" + correlation.getExcelColTitle() +
                             "' nicht gefunden");
                     continue;
                 }
@@ -286,7 +286,7 @@ public class ExtractionManager {
 
                 if (statement == null) {
                     silentError = true;
-                    importTabManager.addToLog("Fehler: Sql-Statment für die Spalte '" + correlation.getExcelColTitle() +
+                    importTabManager.addToLog("ERR:\t\tSql-Statment für die Spalte '" + correlation.getExcelColTitle() +
                             "' nicht gefunden");
                     continue;
                 }
