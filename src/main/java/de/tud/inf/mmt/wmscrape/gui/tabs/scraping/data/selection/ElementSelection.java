@@ -137,8 +137,8 @@ public class ElementSelection {
     @PostLoad
     private void setPropertiesFromPersistence() {
         selected.set(_selected);
-        if(stock != null) isin = stock.getIsin();
-        if(stock != null) wkn = stock.getWkn();
+        if(stock != null && stock.getIsin() != null) isin = stock.getIsin();
+        if(stock != null && stock.getWkn() != null) wkn = stock.getWkn();
         initListener();
     }
 

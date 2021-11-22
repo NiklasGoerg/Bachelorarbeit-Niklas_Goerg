@@ -12,10 +12,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -163,7 +160,7 @@ public class DbTransactionManager {
                 statement.setDate(number, Date.valueOf(dataToDate));
             }
             case TEXT -> statement.setString(number, data);
-            case INT ->
+            case INTEGER ->
                     // casting double to int to remove trailing zeros because of
                     // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
                     statement.setInt(number, (int) Double.parseDouble(data));
@@ -173,12 +170,12 @@ public class DbTransactionManager {
         }
     }
 
-    private void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int number) throws SQLException {
+    private void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int index) throws SQLException {
         switch (datatype) {
-            case DATE -> statement.setDate(number, null);
-            case TEXT -> statement.setString(number, null);
-            case INT -> statement.setInt(number, 0);
-            case DOUBLE -> statement.setDouble(number, 0);
+            case DATE -> statement.setNull(index, Types.DATE);
+            case TEXT -> statement.setNull(index, Types.VARCHAR);
+            case INTEGER -> statement.setNull(index, Types.INTEGER);
+            case DOUBLE -> statement.setNull(index, Types.DOUBLE);
             default -> {
             }
         }

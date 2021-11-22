@@ -7,10 +7,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -74,7 +71,7 @@ public abstract class GeneralExtraction {
     }
 
     protected String regexFilter(String regex, String text) {
-        if (regex!= null && !regex.trim().equals("")) {
+        if (regex!= null && !regex.trim().isBlank()) {
             var tmp = findFirst(regex, text);
             log("INFO:\tRegex angewandt. '"+removeNewLine(tmp)+
                     "' aus '"+removeNewLine(text)+"' extrahiert.");
@@ -88,7 +85,7 @@ public abstract class GeneralExtraction {
         // matches every date format
         String match = findFirst("(\\d{4}|\\d{1,2}|\\d)[^0-9]{1,3}\\d{1,2}[^0-9]{1,3}(\\d{4}|\\d{1,2}|\\d)", text);
 
-        if (match == null || match.equals("")) return "";
+        if (match == null || match.isBlank()) return "";
 
         String[] sub = getDateSubstrings(match);
 
@@ -155,7 +152,7 @@ public abstract class GeneralExtraction {
     }
 
     protected void fillByDataType(int index, ColumnDatatype datatype, PreparedStatement statement, String data) throws SQLException {
-        if (data == null || data.equals("")) {
+        if (data == null || data.isBlank()) {
             fillNullByDataType(index, datatype, statement);
             return;
         }
@@ -163,17 +160,17 @@ public abstract class GeneralExtraction {
         switch (datatype) {
             case DATE -> statement.setDate(index, getDateFromString(data));
             case TEXT -> statement.setString(index, data);
-            case INT -> statement.setInt(index, (int) Double.parseDouble(data));
+            case INTEGER -> statement.setInt(index, (int) Double.parseDouble(data));
             case DOUBLE -> statement.setDouble(index, Double.parseDouble(data));
         }
     }
 
     protected void fillNullByDataType(int index, ColumnDatatype datatype, PreparedStatement statement) throws SQLException {
         switch (datatype) {
-            case DATE -> statement.setDate(index, null);
-            case TEXT -> statement.setString(index, null);
-            case INT -> statement.setInt(index, 0);
-            case DOUBLE -> statement.setDouble(index, 0);
+            case DATE -> statement.setNull(index, Types.DATE);
+            case TEXT -> statement.setNull(index, Types.VARCHAR);
+            case INTEGER -> statement.setNull(index, Types.INTEGER);
+            case DOUBLE -> statement.setNull(index, Types.DOUBLE);
         }
     }
 
@@ -197,7 +194,7 @@ public abstract class GeneralExtraction {
         if(data == null) return "";
 
         switch (datatype) {
-            case INT, DOUBLE -> {
+            case INTEGER, DOUBLE -> {
                 return findFirst("([-+])?[0-9]+(([.,])?[0-9]+)?", data).replace(",",".");
             }
             case DATE -> {
@@ -218,7 +215,7 @@ public abstract class GeneralExtraction {
         boolean valid;
 
         switch (datatype) {
-            case INT, DOUBLE -> valid =  data.matches("^[\\-+]?[0-9]+([.,]?[0-9]+)?$");
+            case INTEGER, DOUBLE -> valid =  data.matches("^[\\-+]?[0-9]+([.,]?[0-9]+)?$");
             case DATE -> valid = data.matches("^(\\d{1,2}|\\d{4})-\\d{1,2}-(\\d{1,2}|\\d{4})$");
             default -> valid = true;
         }
@@ -276,7 +273,7 @@ public abstract class GeneralExtraction {
         Set<String> identifiers = new HashSet<>();
         for(var corr : correlations) {
             if(!identifiers.add(corr.getIdentification())) {
-                log("ERR:\t\tIdentifizierungs-Duplikat erkannt. Nur im headless Modus erlaubt. "
+                log("ERR:\t\tIdentifizierungs-Duplikat erkannt. Das ist nur im headless Modus erlaubt. "
                         +corr.getDbTableName()+" -> "+corr.getIdentification());
                 return true;
             }

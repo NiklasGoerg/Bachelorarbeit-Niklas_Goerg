@@ -45,7 +45,7 @@ public class StockDataDbManager extends DynamicDbManger{
         initColumn("wkn", ColumnDatatype.TEXT);
         initColumn("name", ColumnDatatype.TEXT);
         initColumn("typ", ColumnDatatype.TEXT);
-        initColumn("gruppen_id", ColumnDatatype.INT);
+        initColumn("gruppen_id", ColumnDatatype.INTEGER);
     }
 
     private boolean initColumn(String name, ColumnDatatype datatype) {

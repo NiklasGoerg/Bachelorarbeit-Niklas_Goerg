@@ -308,7 +308,7 @@ public class ExtractionManager {
         } else if (colData == null) {
             // null is valid in order to override values that may be set in the wrong column
             return false;
-        } else if (colDatatype == ColumnDatatype.INT && colData.matches("^[\\-+]?[0-9]+(\\.0{5})?$")) {
+        } else if (colDatatype == ColumnDatatype.INTEGER && colData.matches("^[\\-+]?[0-9]+(\\.0{5})?$")) {
             // normal format would be "^-?[0-9]+$" but because of
             // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
             // 5 zeros are added to int

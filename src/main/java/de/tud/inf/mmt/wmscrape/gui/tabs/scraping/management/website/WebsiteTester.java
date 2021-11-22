@@ -18,7 +18,7 @@ public class WebsiteTester extends WebsiteHandler {
 
         switch (step) {
             case 0 -> {
-                startBrowser();
+                if(!startBrowser()) {step = 8; return false;}
                 if(website.getUsernameIdentType() == IdentType.DEAKTIVIERT) {step = 8; return false;}
             }
             case 1 -> {

@@ -36,7 +36,7 @@ public class SingleExchangeExtraction extends SingleExtraction{
 
     @Override
     protected InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection) {
-        carrier.setDbColName(correlation.getDbColName());
+        carrier.setDbColName(selection.getDescription());
         carrier.setDbTableName(correlation.getDbTableName());
         return carrier;
     }

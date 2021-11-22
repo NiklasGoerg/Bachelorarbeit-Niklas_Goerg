@@ -53,17 +53,23 @@ public abstract class WebsiteHandler {
         return driver;
     }
 
-    protected void startBrowser() {
-        FirefoxBinary firefoxBinary = new FirefoxBinary();
-        FirefoxOptions options = new FirefoxOptions();
-        options.setBinary(firefoxBinary);
-        options.setLogLevel(FirefoxDriverLogLevel.ERROR);
+    protected boolean startBrowser() {
+        try {
+            FirefoxBinary firefoxBinary = new FirefoxBinary();
+            FirefoxOptions options = new FirefoxOptions();
+            options.setBinary(firefoxBinary);
+            options.setLogLevel(FirefoxDriverLogLevel.ERROR);
 
-        if (headless) options.setHeadless(true);
+            if (headless) options.setHeadless(true);
 
-        driver = new FirefoxDriver(options);
-        js = (JavascriptExecutor) driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(waitForWsElementSec));
+            driver = new FirefoxDriver(options);
+            js = (JavascriptExecutor) driver;
+            wait = new WebDriverWait(driver, Duration.ofSeconds(waitForWsElementSec));
+            return true;
+        } catch (SessionNotCreatedException e) {
+            addToLog("ERR:\t\t Selenium konnte nicht gestartet werden.\n\n"+e.getMessage()+"\n\n"+e.getCause()+"\n\n");
+            return false;
+        }
     }
 
     protected boolean loadLoginPage() {

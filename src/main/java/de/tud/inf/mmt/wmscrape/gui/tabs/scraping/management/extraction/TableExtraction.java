@@ -93,7 +93,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
     private void logNoMatch(List<ElementSelection> selections) {
         for (var s : selections) {
             if(s.isSelected() && !s.wasExtracted()) {
-                log("WARN: Kein Treffer gefunden für "+s.getDescription());
+                log("WARN:\tKein Treffer gefunden für "+s.getDescription());
             }
         }
     }
@@ -128,12 +128,12 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
                 setStatementExtractedData(carrierMap);
                 
                 selection.isExtracted();
-                log("\nINFO: Treffer für "+selection.getDescription()+"\n");
+                log("\nINFO:\tTreffer für "+selection.getDescription()+"\n");
                 return;
             }
         }
 
-        log("\nINFO: Kein Treffer.\n");
+        log("\nINFO:\tKein Treffer.\n");
     }
 
     private void resetCarriers(Map<String, InformationCarrier> carriers) {
@@ -186,7 +186,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
 
             data = getTextData(row, carrier);
 
-            if (data.equals("")) {
+            if (data.isBlank()) {
                 log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter '"+carrier.getIdentifier()+"'");
             }
 
@@ -215,7 +215,7 @@ public abstract class TableExtraction extends GeneralExtraction implements Extra
     }
 
     protected void partialMatchLog(String extracted, String field) {
-        log("ERR:\t\t"+field+" stimmt nicht direkt mit '"+extracted+"' überein. Die Auswahl-Regex oder Beschreibung sollte angepasst werden");
+        log("ERR:\t\t"+field+" stimmt nicht direkt mit '"+extracted+"' überein. Die Auswahl-Regex oder Bezeichnung sollte angepasst werden");
     }
 
 }

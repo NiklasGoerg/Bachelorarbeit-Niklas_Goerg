@@ -63,14 +63,14 @@ public class TableCourseOrStockExtraction extends TableExtraction {
 
     @Override
     protected boolean validIdentCorrelations(WebsiteElement element, List<ElementIdentCorrelation> correlations) {
-
+        // check that at least one of them is not deactivated
         for(var corr : correlations) {
             if(corr.getDbColName().equals("isin") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
             if(corr.getDbColName().equals("wkn") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
             if(corr.getDbColName().equals("name") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
         }
 
-        log("ERR:\t\tWeder ISIN, WKN noch Namen angegeben für "+element.getInformationUrl());
+        log("ERR:\t\tWeder ISIN, WKN noch Namen aktiv für "+element.getDescription());
         return false;
     }
 

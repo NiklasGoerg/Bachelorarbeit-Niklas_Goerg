@@ -203,7 +203,7 @@ public class ImportTabController {
             case -5:
                 // titles not unique
                 createAlert("Titel nicht einzigartig!",
-                        "Die Titelzeile enthält Elemente mit gleichen Namen.",
+                        "Die Titelzeile enthält Elemente mit gleichen Namen. Mehr Informationen im Log",
                         Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -6:

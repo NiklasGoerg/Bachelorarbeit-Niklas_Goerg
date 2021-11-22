@@ -64,8 +64,21 @@ public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
 
     @Transactional
     public void saveSingleCourseOrStockSettings(WebsiteElement websiteElement) {
+        saveSingleSettings(websiteElement,
+                singleCourseOrStockSubController.getSelections(),
+                singleCourseOrStockSubController.getDbCorrelations());
+    }
 
-        for (ElementSelection selection : singleCourseOrStockSubController.getSelections()) {
+    @Transactional
+    public void saveSingleExchangeSettings(WebsiteElement websiteElement) {
+        saveSingleSettings(websiteElement,
+                singleExchangeSubController.getExchangeSelections(),
+                singleExchangeSubController.getElementCorrelations());
+
+    }
+
+    public void saveSingleSettings(WebsiteElement element, List<ElementSelection> selections, List<ElementIdentCorrelation> correlations) {
+        for (var selection : selections) {
             if(selection.isChanged()) elementSelectionRepository.save(selection);
         }
 
@@ -73,28 +86,11 @@ public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
         elementSelectionRepository.deleteAllBy_selected(false);
 
 
-        for (ElementIdentCorrelation correlation : singleCourseOrStockSubController.getDbCorrelations()) {
+        for (ElementIdentCorrelation correlation : correlations) {
             if(correlation.isChanged()) elementIdentCorrelationRepository.save(correlation);
         }
 
-        websiteElementRepository.save(websiteElement );
-    }
-
-    public void saveSingleExchangeSettings(WebsiteElement websiteElement) {
-
-        for (var selection : singleExchangeSubController.getExchangeSelections()) {
-            if(selection.isChanged()) {
-                elementSelectionRepository.save(selection);
-            }
-        }
-
-        for (var correlation : singleExchangeSubController.getElementCorrelations()) {
-            if(correlation.isChanged()) {
-                elementIdentCorrelationRepository.save(correlation);
-            }
-        }
-
-        websiteElementRepository.save(websiteElement);
+        websiteElementRepository.save(element);
     }
 
 

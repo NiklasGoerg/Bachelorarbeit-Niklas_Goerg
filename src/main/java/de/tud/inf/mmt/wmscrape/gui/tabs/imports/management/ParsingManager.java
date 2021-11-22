@@ -357,13 +357,14 @@ public class ParsingManager {
 
     private boolean titlesAreUnique(Map<Integer, String> titlesLoadedExcel) {
         Set<String> set = new HashSet<>();
-        for (String each : titlesLoadedExcel.values()) {
-            if (!set.add(each)) {
-                System.out.println(each);
-                return false;
+        var unique = true;
+        for (String title : titlesLoadedExcel.values()) {
+            if (!set.add(title)) {
+                importTabManager.addToLog("ERR:\t\t Titel mehrfach vorhanden: "+title);
+                unique = false;
             }
         }
-        return true;
+        return unique;
     }
 
     private Map<Integer, SimpleBooleanProperty> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData, int selectionColNr, boolean removeUnselected) {

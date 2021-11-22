@@ -77,7 +77,7 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     public void processWebsite() {
-        startBrowser();
+        if(!startBrowser()) return;
 
         if(usesLogin()) {
             // returns false if error at login
@@ -97,9 +97,11 @@ public class WebsiteScraper extends WebsiteHandler {
                 addToLog("ERR:\t\tSeite "+element.getInformationUrl()+" konnte nicht aufgerufen werden." );
                 continue;
             }
+            addToLog("\n");
 
             processWebsiteElement(element, element.getMultiplicityType(), element.getContentType());
 
+            addToLog("\n");
             delayRandom();
         }
         logout();

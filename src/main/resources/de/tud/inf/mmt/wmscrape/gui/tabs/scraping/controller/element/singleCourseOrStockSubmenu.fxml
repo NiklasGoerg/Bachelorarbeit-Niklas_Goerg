@@ -34,7 +34,7 @@
                   </Label>
                </children>
             </HBox>
-            <TableView fx:id="columnCorrelationTable" editable="true" layoutX="5.0" layoutY="28.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="28.0" />
+            <TableView fx:id="columnCorrelationTable" editable="true" layoutX="5.0" layoutY="28.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="28.0" />
          </children>
       </AnchorPane>
    </items>

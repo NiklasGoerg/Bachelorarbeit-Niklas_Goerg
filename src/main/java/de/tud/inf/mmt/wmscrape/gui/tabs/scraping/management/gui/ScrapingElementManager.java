@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,6 +41,7 @@ import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.ID
 public abstract class ScrapingElementManager {
 
     private final static String[] EXCHANGE_COLS = {"name", "kurs"};
+    private final static String[] HIDDEN_SINGLE_STOCK = {"isin"};
     private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_TABLE);
 
     @Autowired
@@ -206,7 +208,9 @@ public abstract class ScrapingElementManager {
         ArrayList<String> addedStockColumns = new ArrayList<>();
 
         // don't need isin, it's defined in selection nor datum
-        if(multiplicityType == MultiplicityType.EINZELWERT) addedStockColumns.add("isin");
+        if(multiplicityType == MultiplicityType.EINZELWERT) {
+            addedStockColumns.addAll(List.of(HIDDEN_SINGLE_STOCK));
+        }
         addedStockColumns.add("datum");
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {

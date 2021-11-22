@@ -140,7 +140,7 @@ public abstract class DynamicDbManger {
 
             return switch (type) {
                 case 91 -> ColumnDatatype.DATE;
-                case 4 -> ColumnDatatype.INT;
+                case 4 -> ColumnDatatype.INTEGER;
 //                case 2014 -> ColumnDatatype.DATETIME;
                 case 93, 8 -> ColumnDatatype.DOUBLE;
                 default -> ColumnDatatype.TEXT;

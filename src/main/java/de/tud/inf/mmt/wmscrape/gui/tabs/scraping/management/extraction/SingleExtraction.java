@@ -2,7 +2,6 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -32,24 +31,27 @@ public abstract class SingleExtraction extends GeneralExtraction implements Extr
             if(!selection.isSelected()) continue;
 
             for (var ident : identCorrelations) {
-                if(ident.getIdentType() == IdentType.DEAKTIVIERT) continue;
+                //if(ident.getIdentType() == IdentType.DEAKTIVIERT) continue;
 
                 carrier = prepareCarrier(ident, selection);
 
                 data = scraper.findText(carrier.getIdentType(), carrier.getIdentifier(), carrier.getDbColName());
 
-                if(data.equals("")) {
-                    log("ERR:\t\tKeine Daten enthalten für "+ident);
+                if(data.isBlank()) {
+                    log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter '"+ident+"'");
                 }
 
                 data = processData(carrier, data);
 
-                if(isValid(data, ident.getColumnDatatype(), ident.getDbColName())) {
-                    statement = prepareStatement(connection, carrier);
-                    if (statement != null) {
-                        preparedStatements.put(carrier.getDbColName(), statement);
-                        fillStatement(1, statement, data, ident.getColumnDatatype());
-                    }
+                // override invalid / blank data
+                if(!isValid(data, ident.getColumnDatatype(), ident.getDbColName())) {
+                    carrier.setExtractedData(null);
+                }
+
+                statement = prepareStatement(connection, carrier);
+                if (statement != null) {
+                    preparedStatements.put(carrier.getDbColName(), statement);
+                    fillStatement(1, statement, data, ident.getColumnDatatype());
                 }
             }
             break;
