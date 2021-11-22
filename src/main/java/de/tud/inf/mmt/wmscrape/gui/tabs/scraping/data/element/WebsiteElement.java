@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebRepresentation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class WebsiteElement {
+public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     @Id
     @GeneratedValue
     private int id;
@@ -135,6 +136,12 @@ public class WebsiteElement {
 
     public void removeElementSelection(ElementSelection elementSelection) {
         elementSelections.remove(elementSelection);
+    }
+
+    @Override
+    public List<WebRepresentation<?>> getChildren() {
+        return new ArrayList<>();
+        //throw new IllegalStateException("no children");
     }
 
     @Override

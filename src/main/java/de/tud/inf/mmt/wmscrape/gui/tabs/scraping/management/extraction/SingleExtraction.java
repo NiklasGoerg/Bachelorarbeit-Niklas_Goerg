@@ -11,7 +11,7 @@ import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class SingleExtraction extends GeneralExtraction implements Extraction {
+public abstract class SingleExtraction extends ExtractionGeneral implements Extraction {
 
     protected SingleExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         super(connection, logText, scraper, date);

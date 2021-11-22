@@ -5,7 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTableManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ElementManagerTable;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
@@ -28,7 +28,7 @@ public class TableSubController extends SingleCourseOrStockSubController{
     private WebsiteElement websiteElement;
 
     @Autowired
-    private ScrapingTableManager scrapingTableManager;
+    private ElementManagerTable scrapingTableManager;
 
     @FXML
     @Override

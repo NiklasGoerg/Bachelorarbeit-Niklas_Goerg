@@ -5,7 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingCourseAndExchangeManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ElementManagerCourseAndExchange;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
@@ -23,7 +23,7 @@ public class SingleCourseOrStockSubController {
     @Autowired
     protected ScrapingElementsTabController scrapingElementsTabController;
     @Autowired
-    protected ScrapingCourseAndExchangeManager manager;
+    protected ElementManagerCourseAndExchange manager;
 
     @FXML
     protected void initialize() {

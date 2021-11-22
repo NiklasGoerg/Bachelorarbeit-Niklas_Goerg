@@ -7,9 +7,9 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchan
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingCourseAndExchangeManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ElementManagerCourseAndExchange;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTableManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ElementManagerTable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -36,9 +36,9 @@ public class ScrapingElementsTabController {
     @Autowired
     private ScrapingTabManager scrapingTabManager;
     @Autowired
-    private ScrapingTableManager scrapingTableManager;
+    private ElementManagerTable scrapingTableManager;
     @Autowired
-    private ScrapingCourseAndExchangeManager scrapingCourseAndExchangeManager;
+    private ElementManagerCourseAndExchange scrapingCourseAndExchangeManager;
     @Autowired
     private PrimaryTabManagement primaryTabManagement;
     @Autowired

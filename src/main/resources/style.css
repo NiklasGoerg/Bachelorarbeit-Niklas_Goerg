@@ -35,3 +35,7 @@ tooltip.bad-input {
 .text-input:readonly {
     -fx-background-color: #c4c4c4;
 }
+
+.spinner .text-input:readonly {
+    -fx-background-color: transparent;
+}

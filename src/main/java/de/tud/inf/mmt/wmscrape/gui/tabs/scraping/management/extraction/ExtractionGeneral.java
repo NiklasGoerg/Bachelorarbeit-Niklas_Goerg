@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public abstract class GeneralExtraction {
+public abstract class ExtractionGeneral {
 
     private static final String[] DATE_FORMATS = {"dd-MM-yyyy", "dd-MM-yy", "MM-dd-yyyy", "MM-dd-yy", "yy-MM-dd"};
 
@@ -49,7 +49,7 @@ public abstract class GeneralExtraction {
         return extendCarrier(new InformationCarrier(date, datatype, identType, identification, regex), correlation, selection);
     }
 
-    protected GeneralExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
+    protected ExtractionGeneral(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         this.connection = connection;
         this.logText = logText;
         this.scraper = scraper;

@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 
 import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_TABLE;
 
-public abstract class ScrapingElementManager {
+public abstract class ElementManager {
 
     private final static String[] EXCHANGE_COLS = {"name", "kurs"};
     private final static String[] HIDDEN_SINGLE_STOCK = {"isin"};

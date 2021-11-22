@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -145,11 +146,11 @@
                                     <Label text="Titelzeilen Nummer" />
                                  </children>
                               </HBox>
-                              <TextField fx:id="titleRowNrField" prefWidth="300.0">
+                              <Spinner fx:id="titleRowSpinner" prefWidth="300.0">
                                  <HBox.margin>
                                     <Insets left="10.0" />
                                  </HBox.margin>
-                              </TextField>
+                              </Spinner>
                            </children>
                            <VBox.margin>
                               <Insets left="15.0" top="5.0" />

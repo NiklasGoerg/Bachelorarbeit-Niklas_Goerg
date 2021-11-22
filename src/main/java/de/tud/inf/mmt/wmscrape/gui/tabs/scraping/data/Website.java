@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class Website {
+public class Website extends WebRepresentation<WebsiteElement>{
 
     @Id
     @GeneratedValue
@@ -58,8 +58,7 @@ public class Website {
     @OneToMany(mappedBy = "website", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<WebsiteElement> websiteElements = new ArrayList<>();
 
-    public Website() {
-    }
+    public Website() {}
 
     public Website(String description) {
         this.description = description;
@@ -198,6 +197,12 @@ public class Website {
     }
 
     public List<WebsiteElement> getWebsiteElements() {
+        return websiteElements;
+    }
+
+
+    @Override
+    public List<WebsiteElement> getChildren() {
         return websiteElements;
     }
 

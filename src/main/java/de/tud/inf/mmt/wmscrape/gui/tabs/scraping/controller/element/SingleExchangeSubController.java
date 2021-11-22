@@ -5,7 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingCourseAndExchangeManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ElementManagerCourseAndExchange;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
@@ -32,7 +32,7 @@ public class SingleExchangeSubController {
     @Autowired
     protected ScrapingElementsTabController scrapingElementsTabController;
     @Autowired
-    protected ScrapingCourseAndExchangeManager manager;
+    protected ElementManagerCourseAndExchange manager;
 
     protected List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
 

@@ -6,7 +6,6 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManager;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -27,7 +26,7 @@ public class ImportTabController {
     @FXML private ListView<ExcelSheet> excelSheetList;
     @FXML private TextField pathField;
     @FXML private PasswordField passwordField;
-    @FXML private TextField titleRowNrField;
+    @FXML private Spinner<Integer> titleRowSpinner;
     @FXML private TextField selectionColTitleField;
     @FXML private TextField depotColTitleField;
     @FXML private TableView<ObservableList<String>> sheetPreviewTable;
@@ -49,7 +48,6 @@ public class ImportTabController {
 
     @Autowired
     private StockDataColumnRepository stockDataColumnRepository;
-    private static ObservableList<ExcelCorrelation> stockDataTableColumns = FXCollections.observableArrayList();
 
     private TextArea logTextArea = new TextArea();
     private SimpleStringProperty logText;
@@ -67,7 +65,7 @@ public class ImportTabController {
                 (ov, oldSheet, newSheet) -> loadSpecificExcel(newSheet));
 
         pathField.textProperty().addListener((o,ov,nv) -> validPath());
-        titleRowNrField.textProperty().addListener((o,ov,nv) -> validTitleColNr());
+        titleRowSpinner.valueProperty().addListener((o, ov, nv) -> validTitleColNr());
         selectionColTitleField.textProperty().addListener((o,ov,nv) -> emptyValidator(selectionColTitleField));
         depotColTitleField.textProperty().addListener((o,ov,nv) -> emptyValidator(depotColTitleField));
 
@@ -76,7 +74,7 @@ public class ImportTabController {
         logTextArea.setPrefSize(350,400);
         logTextArea.textProperty().bind(logText);
         importTabManager.passLogText(logText);
-
+        titleRowSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1,1));
         excelSheetList.getSelectionModel().selectFirst();
     }
 
@@ -126,7 +124,7 @@ public class ImportTabController {
 
         excelSheet.setPath(pathField.getText());
         excelSheet.setPassword(passwordField.getText());
-        excelSheet.setTitleRow(Integer.parseInt(titleRowNrField.getText()));
+        excelSheet.setTitleRow(titleRowSpinner.getValue());
         excelSheet.setSelectionColTitle(selectionColTitleField.getText());
         excelSheet.setDepotColTitle(depotColTitleField.getText());
 
@@ -338,7 +336,7 @@ public class ImportTabController {
     private void clearFields() {
         pathField.clear();
         passwordField.clear();
-        titleRowNrField.clear();
+        titleRowSpinner.getValueFactory().setValue(1);
         selectionColTitleField.clear();
         sheetPreviewTable.getItems().clear();
         stockDataCorrelationTable.getItems().clear();
@@ -356,7 +354,7 @@ public class ImportTabController {
 
         pathField.setText(excelSheet.getPath());
         passwordField.setText(excelSheet.getPassword());
-        titleRowNrField.setText(String.valueOf(excelSheet.getTitleRow()));
+        titleRowSpinner.getValueFactory().setValue(excelSheet.getTitleRow());
         selectionColTitleField.setText(excelSheet.getSelectionColTitle());
         depotColTitleField.setText(excelSheet.getDepotColTitle());
 
@@ -378,7 +376,7 @@ public class ImportTabController {
     }
 
     private boolean validTitleColNr() {
-        return emptyValidator(titleRowNrField) && numberValidator(titleRowNrField);
+        return titleRowSpinner.getValue() != null && titleRowSpinner.getValue() > 0;
     }
 
     private boolean isValidInput() {

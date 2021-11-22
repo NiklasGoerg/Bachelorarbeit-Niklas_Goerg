@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
+public class ElementManagerCourseAndExchange extends ElementManager {
 
     @Autowired
     private SingleExchangeSubController singleExchangeSubController;
@@ -96,11 +96,11 @@ public class ScrapingCourseAndExchangeManager extends ScrapingElementManager {
 
     @Override
     protected void removeElementDescCorrelation(ElementSelection value) {
-        throw new IllegalCallerException("This Method is only implemented in "+ScrapingTableManager.class);
+        throw new IllegalCallerException("This Method is only implemented in "+ ElementManagerTable.class);
     }
 
     @Override
     protected void addNewElementDescCorrelation(ElementSelection value) {
-        throw new IllegalCallerException("This Method is only implemented in "+ScrapingTableManager.class);
+        throw new IllegalCallerException("This Method is only implemented in "+ ElementManagerTable.class);
     }
 }

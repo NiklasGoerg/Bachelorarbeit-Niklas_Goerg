@@ -94,7 +94,7 @@ public class WebsiteScraper extends WebsiteHandler {
             }
 
             if(!loadPage(element.getInformationUrl())) {
-                addToLog("ERR:\t\tSeite "+element.getInformationUrl()+" konnte nicht aufgerufen werden." );
+                addToLog("ERR:\t\tErfolgloser Zugriff "+element.getInformationUrl());
                 continue;
             }
             addToLog("\n");

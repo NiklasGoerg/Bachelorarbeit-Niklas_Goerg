@@ -14,7 +14,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.*;
 
-public abstract class TableExtraction extends GeneralExtraction implements Extraction {
+public abstract class TableExtraction extends ExtractionGeneral implements Extraction {
 
     private final static String[] doNotSaveColumns = {"isin", "wkn", "name"};
 
