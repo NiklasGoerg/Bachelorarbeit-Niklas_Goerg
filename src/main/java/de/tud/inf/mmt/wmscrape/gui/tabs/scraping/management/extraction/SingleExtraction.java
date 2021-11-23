@@ -4,6 +4,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -17,7 +18,7 @@ public abstract class SingleExtraction extends ExtractionGeneral implements Extr
         super(connection, logText, scraper, date);
     }
 
-    public void extract(WebsiteElement element) {
+    public void extract(WebsiteElement element, Task<Void> task) {
         List<ElementIdentCorrelation> identCorrelations = element.getElementIdentCorrelations();
         InformationCarrier carrier;
         preparedStatements = new HashMap<>();
@@ -30,8 +31,11 @@ public abstract class SingleExtraction extends ExtractionGeneral implements Extr
         for (var selection : element.getElementSelections()) {
             if(!selection.isSelected()) continue;
 
+            if(task.isCancelled()) return;
+
             for (var ident : identCorrelations) {
                 //if(ident.getIdentType() == IdentType.DEAKTIVIERT) continue;
+                if(task.isCancelled()) return;
 
                 carrier = prepareCarrier(ident, selection);
 

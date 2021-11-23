@@ -100,7 +100,7 @@ public class ParsingManager {
             e.printStackTrace();
         }
 
-        if (excelSheetRows.size() == 0) return -3;
+        if (excelSheetRows.isEmpty()) return -3;
 
         removeEmptyRows(excelSheetRows);
 

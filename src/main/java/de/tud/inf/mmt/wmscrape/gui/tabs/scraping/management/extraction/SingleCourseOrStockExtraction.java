@@ -12,12 +12,14 @@ import java.sql.SQLException;
 
 public class SingleCourseOrStockExtraction extends SingleExtraction {
 
-    public SingleCourseOrStockExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
+    public SingleCourseOrStockExtraction(Connection connection, SimpleStringProperty logText,
+                                         WebsiteScraper scraper, Date date) {
         super(connection, logText, scraper, date);
     }
 
     @Override
-    protected InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection) {
+    protected InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation,
+                                               ElementSelection selection) {
         carrier.setDbColName(correlation.getDbColName());
         carrier.setDbTableName(correlation.getDbTableName());
         carrier.setIsin(selection.getIsin());

@@ -3,6 +3,8 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
+import org.apache.poi.ss.formula.eval.NotImplementedFunctionException;
 
 public class WebsiteTester extends WebsiteHandler {
 
@@ -68,7 +70,16 @@ public class WebsiteTester extends WebsiteHandler {
         return step;
     }
 
-    public void cancel() {
+
+    @Override
+    public boolean cancel() {
+        // super.cancel(); use when called as service
         quit();
+        return true;
+    }
+
+    @Override
+    protected Task<Void> createTask() {
+        throw new NotImplementedFunctionException("WebsiteTester can't be run as a service.");
     }
 }

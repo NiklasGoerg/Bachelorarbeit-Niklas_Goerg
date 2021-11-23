@@ -141,7 +141,6 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     @Override
     public List<WebRepresentation<?>> getChildren() {
         return new ArrayList<>();
-        //throw new IllegalStateException("no children");
     }
 
     @Override

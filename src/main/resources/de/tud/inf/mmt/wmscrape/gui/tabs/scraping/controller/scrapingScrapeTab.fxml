@@ -133,7 +133,7 @@
                               </HBox>
                               <HBox alignment="BOTTOM_CENTER" layoutX="10.0" layoutY="52.0">
                                  <children>
-                                    <Button mnemonicParsing="false" onAction="#handleStartButton" prefHeight="35.0" prefWidth="330.0" text="Abbruch" />
+                                    <Button mnemonicParsing="false" onAction="#handleAbortButton" prefHeight="35.0" prefWidth="330.0" text="Abbruch" />
                                  </children>
                               </HBox>
                               <HBox alignment="BOTTOM_CENTER" layoutX="10.0" layoutY="94.0">

@@ -19,7 +19,7 @@ import java.util.Objects;
 @Component
 public class GuiApplication extends Application {
 
-    @Override
+        @Override
         public void init() {}
 
         @Override

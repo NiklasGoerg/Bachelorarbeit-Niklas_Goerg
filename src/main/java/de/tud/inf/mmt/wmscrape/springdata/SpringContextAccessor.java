@@ -11,7 +11,7 @@ public class SpringContextAccessor implements ApplicationContextAware {
     private static ApplicationContext context;
 
     public static <T extends Object> T getBean(Class<T> beanClass) {
-        if (context != null && context.containsBean(String.valueOf(beanClass))) {
+        if (context != null) {
             return context.getBean(beanClass);
         }
         return null;
@@ -19,6 +19,6 @@ public class SpringContextAccessor implements ApplicationContextAware {
 
     @Override
     public void setApplicationContext(ApplicationContext context) throws BeansException {
-        SpringContextAccessor.context = context;
+        this.context = context;
     }
 }

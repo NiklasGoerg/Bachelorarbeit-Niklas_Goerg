@@ -1,27 +1,35 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 
 import de.tud.inf.mmt.wmscrape.WMScrape;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebRepresentation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteTree;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElementRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -30,7 +38,16 @@ public class ScrapingTabManager {
     @Autowired
     private WebsiteRepository websiteRepository;
     @Autowired
-    protected WebsiteElementRepository websiteElementRepository;
+    private WebsiteElementRepository websiteElementRepository;
+    @Autowired
+    private AutowireCapableBeanFactory beanFactory;
+    @Autowired
+    private DataSource dataSource;
+    private WebsiteScraper scrapingService;
+    private Connection dbConnection;
+
+
+    private static final List<Worker.State> RUNNING_STATES = new ArrayList<>(Arrays.asList(Worker.State.RUNNING, Worker.State.SCHEDULED));
 
     public Website createNewWebsite(String description) {
         Website website = new Website(description);
@@ -113,8 +130,81 @@ public class ScrapingTabManager {
         choiceBox.setValue(newElement.getWebsite());
     }
 
-    protected WebsiteElement getFreshWebsiteElement(WebsiteElement staleElement) {
+    private WebsiteElement getFreshWebsiteElement(WebsiteElement staleElement) {
         return websiteElementRepository.getById(staleElement.getId());
     }
 
+    @Transactional
+    public TreeView<WebRepresentation<?>> initSelectionTree(
+            ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems) {
+        var websites = getWebsites();
+        return (new WebsiteTree(websites, checkedItems)).getTreeView();
+    }
+
+
+    /*
+
+    This is where the transition from the fui to the scraper happens
+
+     */
+    public void startScrape(double minIntra, double maxIntra, double waitElement, boolean pauseAfterElement,
+                            SimpleStringProperty logText, Boolean headless,
+                            ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems) {
+
+        if(scrapingService != null) {
+            //if (RUNNING_STATES.contains(scrapingService.stateProperty().get())) return;
+            cancelScrape();
+        }
+
+        if(!updateDbConnection()) return;
+
+
+        scrapingService = new WebsiteScraper(logText, headless, dbConnection, pauseAfterElement);
+        beanFactory.autowireBean(scrapingService);
+
+
+        scrapingService.setMinIntraSiteDelay(minIntra);
+        scrapingService.setMaxIntraSiteDelay(maxIntra);
+        scrapingService.setWaitForWsElementSec(waitElement);
+        scrapingService.resetData(checkedItems);
+
+        logText.set("");
+        scrapingService.start();
+    }
+
+    public void cancelScrape() {
+        if(scrapingService != null) {
+            scrapingService.cancel();
+            scrapingService.quit();
+            scrapingService = null;
+        }
+    }
+
+    public void continueScrape(double minIntra, double maxIntra, double waitElement, boolean pauseElement) {
+
+        if(scrapingService != null) {
+            if (scrapingService.stateProperty().get() == Worker.State.SUCCEEDED) {
+                scrapingService.setMinIntraSiteDelay(minIntra);
+                scrapingService.setMaxIntraSiteDelay(maxIntra);
+                scrapingService.setWaitForWsElementSec(waitElement);
+                scrapingService.setPauseAfterElement(pauseElement);
+                // continues where it stopped
+                scrapingService.restart();
+            } else if(scrapingService.stateProperty().get() != Worker.State.RUNNING) {
+                cancelScrape();
+            }
+        }
+    }
+
+    private boolean updateDbConnection(){
+        try {
+            if(dbConnection == null || dbConnection.isClosed()) {
+                dbConnection = dataSource.getConnection();
+            }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

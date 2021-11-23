@@ -8,6 +8,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import org.apache.poi.ss.formula.eval.NotImplementedFunctionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,11 +97,11 @@ public class ElementManagerCourseAndExchange extends ElementManager {
 
     @Override
     protected void removeElementDescCorrelation(ElementSelection value) {
-        throw new IllegalCallerException("This Method is only implemented in "+ ElementManagerTable.class);
+        throw new NotImplementedFunctionException("This Method is only implemented in "+ ElementManagerTable.class);
     }
 
     @Override
     protected void addNewElementDescCorrelation(ElementSelection value) {
-        throw new IllegalCallerException("This Method is only implemented in "+ ElementManagerTable.class);
+        throw new NotImplementedFunctionException("This Method is only implemented in "+ ElementManagerTable.class);
     }
 }

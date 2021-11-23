@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.sql.*;
@@ -252,7 +253,8 @@ public abstract class ExtractionGeneral {
     }
 
     protected void log(String line) {
-        logText.set(this.logText.getValue() +"\n" + line);
+        // not doing this would we be a problem due to the multithreaded execution
+        Platform.runLater(() -> logText.set(this.logText.getValue() +"\n" + line));
     }
 
     protected void handleSqlException(InformationCarrier carrier, SQLException e) {

@@ -2,7 +2,9 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Service;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -14,18 +16,18 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class WebsiteHandler {
+public abstract class WebsiteHandler extends Service<Void> {
 
     public static final int IFRAME_SEARCH_DEPTH = 3;
 
-    protected final Website website;
     protected final boolean headless;
-    protected WebDriver driver;
-    protected JavascriptExecutor js;
-
-    private int waitForWsElementSec = 5;
-    private WebDriverWait wait;
     private final SimpleStringProperty logText;
+
+    protected Website website;
+    private FirefoxDriver driver;
+    private long waitForWsElementSec = 5;
+    private WebDriverWait wait;
+    protected JavascriptExecutor js;
 
     private int uniqueElementId = 0;
 
@@ -35,19 +37,24 @@ public abstract class WebsiteHandler {
         this.logText = new SimpleStringProperty();
     }
 
-    public WebsiteHandler(Website website, SimpleStringProperty logText, Boolean headless) {
-        this.website = website;
+    protected WebsiteHandler(SimpleStringProperty logText, Boolean headless) {
         this.headless = headless;
         this.logText = logText;
+    }
+
+    public WebsiteHandler(Website website, SimpleStringProperty logText, Boolean headless) {
+        this(logText, headless);
+        this.website = website;
     }
 
     public boolean isHeadless() {
         return headless;
     }
 
-    public void setWaitForWsElementSec(int waitForWsElementSec) {
-        this.waitForWsElementSec = waitForWsElementSec;
+    public void setWaitForWsElementSec(double waitForWsElementSec) {
+        this.waitForWsElementSec = (long) waitForWsElementSec;
     }
+
 
     protected WebDriver getDriver() {
         return driver;
@@ -55,6 +62,11 @@ public abstract class WebsiteHandler {
 
     protected boolean startBrowser() {
         try {
+            if(driver != null && browserIsOpen()) {
+                addToLog("INFO:\tBrowser noch geöffnet. Setze fort.");
+                return true;
+            }
+
             FirefoxBinary firefoxBinary = new FirefoxBinary();
             FirefoxOptions options = new FirefoxOptions();
             options.setBinary(firefoxBinary);
@@ -64,10 +76,20 @@ public abstract class WebsiteHandler {
 
             driver = new FirefoxDriver(options);
             js = (JavascriptExecutor) driver;
-            wait = new WebDriverWait(driver, Duration.ofSeconds(waitForWsElementSec));
+            wait = new WebDriverWait(driver, Duration.ofMillis(waitForWsElementSec*1000));
             return true;
         } catch (SessionNotCreatedException e) {
             addToLog("ERR:\t\t Selenium konnte nicht gestartet werden.\n\n"+e.getMessage()+"\n\n"+e.getCause()+"\n\n");
+            return false;
+        }
+    }
+
+    // thanks selenium for not providing information
+    protected boolean browserIsOpen() {
+        try{
+            driver.getTitle();
+            return true;
+        } catch(Exception e) {
             return false;
         }
     }
@@ -155,7 +177,10 @@ public abstract class WebsiteHandler {
         }
 
         WebElement logoutButton = extractElementFromRoot(type, website.getLogoutIdent());
-        if (logoutButton == null) return false;
+        if (logoutButton == null) {
+            addToLog("ERR:\t\tLogout fehlgeschlagen");
+            return false;
+        }
         clickElement(logoutButton);
 
         addToLog("INFO:\tLogout erfolgreich");
@@ -354,15 +379,20 @@ public abstract class WebsiteHandler {
     }
 
     protected void quit() {
-        if (driver != null) {
-            addToLog("INFO:\tBrowser wurde beendet");
-            driver.quit();
-            driver = null;
+        try {
+            if (driver != null) {
+                addToLog("INFO:\tBrowser wurde beendet");
+                driver.quit();
+                driver = null;
+            }
+        } catch (NoSuchSessionException e) {
+            e.printStackTrace();
         }
     }
 
     protected void addToLog(String line) {
-        logText.set(this.logText.getValue() + "\n" + line);
+        // not doing this would we be a problem due to the multithreaded execution
+        Platform.runLater(() -> logText.set(this.logText.getValue() + "\n" + line));
     }
 
 }

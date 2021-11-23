@@ -261,7 +261,7 @@ public class ImportTabController {
     private void importExcel() {
         logText.set("");
 
-        if (transactionCorrelationTable.getItems().size() == 0 || stockDataCorrelationTable.getItems().size() == 0) {
+        if (transactionCorrelationTable.getItems().isEmpty() || stockDataCorrelationTable.getItems().size() == 0) {
             createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
                     Alert.AlertType.INFORMATION, ButtonType.OK, true);
             return;

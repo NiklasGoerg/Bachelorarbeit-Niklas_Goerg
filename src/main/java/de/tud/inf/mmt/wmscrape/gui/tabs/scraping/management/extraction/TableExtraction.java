@@ -8,6 +8,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebElementInContext;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -31,10 +32,10 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
 
     protected abstract void correctCarrierValues(Map<String, InformationCarrier> carrierMap, ElementSelection selection);
 
-    public void extract(WebsiteElement element) {
-        List<ElementDescCorrelation> descriptionCorrelations  = element.getElementDescCorrelations();
-        List<ElementIdentCorrelation> identCorrelations = element.getElementIdentCorrelations();
-        List<ElementSelection> elementSelections = element.getElementSelections();
+    public void extract(WebsiteElement element, Task<Void> task) {
+        var descriptionCorrelations  = element.getElementDescCorrelations();
+        var identCorrelations = element.getElementIdentCorrelations();
+        var elementSelections = element.getElementSelections();
         Set<String> doNotSave = new HashSet<>(Arrays.asList(doNotSaveColumns));
         Map<String, InformationCarrier> preparedCarrierMap = new HashMap<>();
         InformationCarrier informationCarrier;
@@ -50,6 +51,8 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         if(duplicateIdentifiers(identCorrelations)) return;
 
         for (var correlation : identCorrelations) {
+            if(task.isCancelled()) return;
+
             // create an information carrier with the basic information
             informationCarrier = prepareCarrier(correlation, null);
             preparedCarrierMap.put(correlation.getDbColName(), informationCarrier);
@@ -72,7 +75,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         // get rows
         rows = getRows(table);
 
-        if(rows == null || rows.size() == 0) {
+        if(rows == null || rows.isEmpty()) {
             log("ERR:\t\tTabelle für "+element.getInformationUrl()+" enhält keine Zeilen (<tr>)");
             return;
         }
@@ -81,6 +84,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         for(var row : rows) {
             // looks for the information inside one row
             // adds it to the corresponding carriers
+            if(task.isCancelled()) return;
             searchInsideRow(preparedCarrierMap, row);
             processSelectionsForRow(elementSelections, descriptionCorrelations, preparedCarrierMap);
             resetCarriers(preparedCarrierMap);
@@ -163,7 +167,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
 
         elements = scraper.extractAllFramesFromContext(IdentType.XPATH, "//tr[not(th)][not(ancestor::thead)]", table);
 
-        if(scraper.isHeadless() || elements == null || elements.size() == 0) return elements;
+        if(scraper.isHeadless() || elements == null || elements.isEmpty()) return elements;
 
         int i=1;
         for(WebElementInContext element : elements) {
