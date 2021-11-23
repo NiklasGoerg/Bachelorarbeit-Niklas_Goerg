@@ -14,6 +14,7 @@ import javafx.concurrent.Task;
 import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.lang.NonNull;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -30,28 +31,33 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class WebsiteScraper extends WebsiteHandler {
 
+    // only possible due to beanFactory.autowireBean(scrapingService);
+    @Autowired
+    ConfigurableApplicationContext context;
+    @Autowired
+    private WebsiteElementRepository repository;
 
-
-    private long minIntraSiteDelay = 5000;
-    private long maxIntraSiteDelay = 10000;
+    private double minIntraSiteDelay = 4000;
+    private double maxIntraSiteDelay = 6000;
     private final Connection dbConnection;
     private final Extraction singleCourseOrStockExtraction;
     private final Extraction singleExchangeExtraction;
     private final Extraction tableExchangeExtraction;
     private final Extraction tableCourseOrStockExtraction;
 
-    // only possible due to beanFactory.autowireBean(scrapingService);
-    @Autowired
-    ConfigurableApplicationContext context;
-    @Autowired
-    private WebsiteElementRepository repository;
     private Map<Website, List<WebsiteElement>> selectedFromTree;
     private Map<Website, Double> progressElementMax;
     private Map<Website, Double> progressElementCurrent;
     private boolean loggedInToWebsite = false;
     private double progressWsMax = 0.0001;
-    private double progressWsCurrent = 0.0001;
+    private double progressWsCurrent = 0;
     private boolean pauseAfterElement;
+
+    // using my own progress for website because the updateProgress method lags the ui
+    private final SimpleDoubleProperty websiteProgress = new SimpleDoubleProperty(0);
+    private final SimpleDoubleProperty singleElementProgress = new SimpleDoubleProperty(0);
+    private final SimpleDoubleProperty elementSelectionProgress = new SimpleDoubleProperty(0);
+    private final SimpleDoubleProperty waitProgress = new SimpleDoubleProperty(0);
 
     public WebsiteScraper(SimpleStringProperty logText, Boolean headless, Connection dbConnection, boolean pauseAfterElement) {
         super(logText, headless);
@@ -66,15 +72,31 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     public void setMinIntraSiteDelay(double minIntraSiteDelay) {
-        this.minIntraSiteDelay = (long) minIntraSiteDelay*1000;
+        this.minIntraSiteDelay = minIntraSiteDelay*1000;
     }
 
     public void setMaxIntraSiteDelay(double maxIntraSiteDelay) {
-        this.maxIntraSiteDelay = (long) maxIntraSiteDelay*1000;
+        this.maxIntraSiteDelay = maxIntraSiteDelay*1000;
     }
 
     public void setPauseAfterElement(boolean pauseAfterElement) {
         this.pauseAfterElement = pauseAfterElement;
+    }
+
+    public SimpleDoubleProperty websiteProgressProperty() {
+        return websiteProgress;
+    }
+
+    public SimpleDoubleProperty singleElementProgressProperty() {
+        return singleElementProgress;
+    }
+
+    public SimpleDoubleProperty elementSelectionProgressProperty() {
+        return elementSelectionProgress;
+    }
+
+    public SimpleDoubleProperty waitProgressProperty() {
+        return waitProgress;
     }
 
     private boolean doLoginRoutine() {
@@ -97,14 +119,22 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     private void delayRandom() {
-        long randTime = ThreadLocalRandom.current().nextLong(minIntraSiteDelay, maxIntraSiteDelay + 1);
-        addToLog("INFO:\tWarte "+randTime+"ms");
+        if(!headless) return;
 
+        double randTime = ThreadLocalRandom.current().nextDouble(minIntraSiteDelay, maxIntraSiteDelay + 1);
+        addToLog("INFO:\tWarte "+(Math.round((randTime/1000)*100.0)/100.0)+"s");
+
+        double i=0;
         try {
-            Thread.sleep(randTime);
+            while (i* 150 < randTime) {
+                i++;
+                Thread.sleep(150L);
+                waitProgress.set((i*150)/randTime);
+            }
         } catch (InterruptedException e) {
-            //e.printStackTrace();
+            // catch threat interrupt
         }
+        waitProgress.setValue(0);
     }
 
     @Override
@@ -117,41 +147,6 @@ public class WebsiteScraper extends WebsiteHandler {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    private WebsiteElement getFreshElement(WebsiteElement stale) {
-        return repository.findById(stale.getId()).orElse(null);
-    }
-
-    private void processWebsiteElement(WebsiteElement element, MultiplicityType multiplicityType,
-                                       ContentType contentType, Task<Void> task) {
-
-        context.getBean(TransactionTemplate.class).execute(new TransactionCallbackWithoutResult() {
-            // have to create a session by my own because this is an unmanaged object
-            // otherwise no hibernate proxy is created
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-
-                // have to re-fetch every element because the ones in the list have no proxy assigned anymore
-                // should not be that worse considering the wait time between page loads
-                WebsiteElement freshElement  = getFreshElement(element);
-
-                switch (multiplicityType) {
-                    case TABELLE -> {
-                        switch (contentType) {
-                            case AKTIENKURS, STAMMDATEN -> tableCourseOrStockExtraction.extract(freshElement, task);
-                            case WECHSELKURS -> tableExchangeExtraction.extract(freshElement, task);
-                        }
-                    }
-                    case EINZELWERT -> {
-                        switch (contentType) {
-                            case AKTIENKURS, STAMMDATEN -> singleCourseOrStockExtraction.extract(freshElement, task);
-                            case WECHSELKURS -> singleExchangeExtraction.extract(freshElement, task);
-                        }
-                    }
-                }
-            }
-        });
     }
 
     public String findText(IdentType type, String identifier, String highlightText) {
@@ -180,25 +175,28 @@ public class WebsiteScraper extends WebsiteHandler {
     public void highlightElement(WebElement element, String text) {
         if(headless || element == null) return;
 
-        js.executeScript("arguments[0].setAttribute('style', 'border:2px solid #c95c55;')", element);
+        try {
+            driver.executeScript("arguments[0].setAttribute('style', 'border:2px solid #c95c55;')", element);
 
-        if(text != null) {
-            js.executeScript("var d = document.createElement('div');" +
-                    "d.setAttribute('style','position:relative;display:inline-block;');" +
-                    "var s = document.createElement('span');" +
-                    "s.setAttribute('style','background-color:#c95c55;color:white;position:absolute;bottom:125%;left:50%;padding:0 5px;');" +
-                    "var t = document.createTextNode('" + text + "');" +
-                    "s.appendChild(t);" +
-                    "d.appendChild(s);" +
-                    "arguments[0].appendChild(d);", element);
+            if (text != null) {
+                driver.executeScript("var d = document.createElement('div');" +
+                        "d.setAttribute('style','position:relative;display:inline-block;');" +
+                        "var s = document.createElement('span');" +
+                        "s.setAttribute('style','background-color:#c95c55;color:white;position:absolute;bottom:125%;left:50%;padding:0 5px;');" +
+                        "var t = document.createTextNode('" + text + "');" +
+                        "s.appendChild(t);" +
+                        "d.appendChild(s);" +
+                        "arguments[0].appendChild(d);", element);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage()+" "+ e.getCause());
         }
     }
 
-
-
-    public void resetData(Map<Website, ObservableList<WebsiteElement>> selectedElements) {
+    public void resetTaskData(Map<Website, ObservableList<WebsiteElement>> selectedElements) {
         // making a shallow copy to not touch the treeView
         Map<Website, List<WebsiteElement>> dereferenced = new HashMap<>();
+        // resetting progress
         progressElementMax = new HashMap<>();
         progressElementCurrent = new HashMap<>();
 
@@ -207,23 +205,29 @@ public class WebsiteScraper extends WebsiteHandler {
             progressElementCurrent.put(key, 0.0);
             progressElementMax.put(key, (double) selectedElements.get(key).size());
         }
+
         selectedFromTree = dereferenced;
 
         website = null;
         loggedInToWebsite = false;
 
-        progressWsMax = selectedFromTree.size()+0.0001;
-        progressWsCurrent = 0.0001;
+        progressWsMax = selectedFromTree.size();
+        progressWsCurrent = 0;
+        websiteProgress.set(0);
+        singleElementProgress.set(0);
+        elementSelectionProgress.set(0);
+    }
+
+    private WebsiteElement getFreshElement(WebsiteElement stale) {
+        return repository.findById(stale.getId()).orElse(null);
     }
 
     // if not set get any
     public void updateWebsite() {
         if (website == null && selectedFromTree != null && selectedFromTree.keySet().iterator().hasNext()) {
-            // make sure to remove used website keys later
-
             if(loggedInToWebsite) logout();
-            website = selectedFromTree.keySet().iterator().next();
             loggedInToWebsite = false;
+            website = selectedFromTree.keySet().iterator().next();
         }
     }
 
@@ -244,27 +248,23 @@ public class WebsiteScraper extends WebsiteHandler {
         return selectedFromTree.get(website).get(0);
     }
 
-    public void removeFinishedWebsite(Website finishedWs) {
+    public void removeFinishedWebsite() {
         if(selectedFromTree != null) {
-            selectedFromTree.remove(finishedWs);
+            selectedFromTree.remove(website);
         }
 
-        if(loggedInToWebsite && finishedWs != null) logout();
+        if(loggedInToWebsite && website != null) logout();
+
         loggedInToWebsite = false;
         website = null;
+        progressWsCurrent++;
     }
 
-    public void removeFinishedElement(Website website, WebsiteElement element) {
+    public void removeFinishedElement(WebsiteElement element) {
         if(selectedFromTree == null || !selectedFromTree.containsKey(website)) return;
-
         selectedFromTree.get(website).remove(element);
-        if(selectedFromTree.get(website).isEmpty()) {
-            removeFinishedWebsite(website);
-        }
+        progressElementCurrent.put(website, progressElementCurrent.get(website)+ 1);
     }
-
-    private final SimpleDoubleProperty singleElementProgress = new SimpleDoubleProperty(0);
-    private final SimpleDoubleProperty elementSelectionProgress = new SimpleDoubleProperty(0);
 
     @Override
     public Task<Void> createTask() {
@@ -272,132 +272,148 @@ public class WebsiteScraper extends WebsiteHandler {
             @Override
             public Void call() {
 
-                if(selectedFromTree == null || selectedFromTree.isEmpty()) {
-                    quit();
-                    return null;
-                }
+                if(isEmptyTask()) return null;
 
                 updateWebsite();
 
-                // no website left -> done
                 while (website != null && !this.isCancelled()) {
 
                     // do log in routine
-                    // check everytime due to the resume option
+                    // check everytime due to the pause/resume option
                     if (!loggedInToWebsite || !browserIsOpen()) {
-                        // error on starting the browser
-                        if (!startBrowser()) {
-                            removeFinishedWebsite(website);
-                            updateWebsite();
-                            updateProgress(progressWsCurrent / progressWsMax, 1);
-                            progressWsCurrent++;
-                            continue;
-                        }
+                        if (!startBrowser()) return null;
+
                         // returns false if error at login
-                        if (!doLoginRoutine()) {
-                            addToLog("ERR:\t\tLogin nicht korrekt durchgeführt. Abbruch der Bearbeitung.");
-                            removeFinishedWebsite(website);
-                            updateWebsite();
-                            updateProgress(progressWsCurrent / progressWsMax, 1);
-                            progressWsCurrent++;
+                        if (logInError()) {
+                            websiteProgress.set(progressWsCurrent / progressWsMax);
                             continue;
                         }
                         loggedInToWebsite = true;
-
-                        // get next element and extract
                     }
 
-                    if(!selectedFromTree.containsKey(website)) {
-                        updateWebsite();
-                        continue;
-                    }
+                    double maxElementProgress = progressElementMax.get(website);
+                    double currentElementProgress = progressElementCurrent.get(website);
 
-                    double currentElementProgress = progressElementMax.get(website);
-                    double maxElementProgress = progressElementCurrent.get(website);
-
-                    singleElementProgress.set(currentElementProgress);
+                    singleElementProgress.set(currentElementProgress/maxElementProgress);
 
                     WebsiteElement element = getElement();
+
                     while (element != null && !this.isCancelled()) {
 
-                        if (element.getWebsite() == null || element.getInformationUrl() == null || element.getInformationUrl().isBlank()) {
-                            addToLog("ERR:\t\tKeine Webseite oder URl angegeben für: " + element.getDescription());
-                            removeFinishedElement(website, element);
+                        if (missingWebsiteSettings(element) || noPageLoadSuccess(element)) {
                             element = getElement();
                             singleElementProgress.set(currentElementProgress/maxElementProgress);
-                            progressElementCurrent.put(website, progressElementMax.get(website)+ 1);
-                            continue;
-                        } if (!loadPage(element.getInformationUrl())) {
-                            addToLog("ERR:\t\tErfolgloser Zugriff " + element.getInformationUrl());
-                            removeFinishedElement(website, element);
-                            element = getElement();
-                            singleElementProgress.set(currentElementProgress/maxElementProgress);
-                            progressElementCurrent.put(website, progressElementMax.get(website)+ 1);
                             continue;
                         }
-                        addToLog("\n");
 
                         // the main action does happen here
+                        addToLog("\n");
                         processWebsiteElement(element, element.getMultiplicityType(), element.getContentType(), this);
-
-
                         addToLog("\n");
                         delayRandom();
 
-                        // takes care of the websites too
-                        removeFinishedElement(website, element);
+                        removeFinishedElement(element);
+                        singleElementProgress.set(progressElementCurrent.get(website)/maxElementProgress);
                         element = getElement();
-                        progressElementCurrent.put(website, progressElementMax.get(website)+ 1);
-                        singleElementProgress.set(currentElementProgress/maxElementProgress);
 
                         // stop execution
-                        if (pauseAfterElement) return null;//this.cancel();//return null;
+                        if (pauseAfterElement) return null;
                     }
 
-                    removeFinishedWebsite(website);
+                    removeFinishedWebsite();
                     updateWebsite();
-                    updateProgress(progressWsCurrent / progressWsMax, 1);
-                    progressWsCurrent++;
+                    websiteProgress.set(progressWsCurrent / progressWsMax);
                 }
 
-                if(selectedFromTree.size() == 0) quit();
-
+                if(selectedFromTree.isEmpty()) quit();
                 return null;
             }
         };
 
-        this.exceptionProperty().addListener((o, ov, nv) ->  {
-            if(nv != null) {
-                Exception e = (Exception) nv;
-                System.out.println(e.getMessage()+"  "+e.getCause());
-            }
-        });
+        addExceptionListener(task);
 
         return task;
     }
 
-    @Override
-    public void start() {
-        System.out.println("start");
-        super.start();
-
-    }
-
-    @Override
-    public void restart() {
-        System.out.println("restart");
-        super.restart();
-    }
-
-    @Override
-    public boolean cancel() {
-        super.cancel();
-        System.out.println("cancel");
+    private boolean isEmptyTask() {
+        if(selectedFromTree == null || selectedFromTree.isEmpty()) {
+            quit();
+            return true;
+        }
         return false;
     }
 
-    @Override protected void succeeded() {
-        super.succeeded();
-        System.out.println("success");
+    private boolean missingWebsiteSettings(WebsiteElement element) {
+        if (element.getWebsite() == null || element.getInformationUrl() == null || element.getInformationUrl().isBlank()) {
+            addToLog("ERR:\t\tKeine Webseite oder URl angegeben für " + element.getDescription());
+            removeFinishedElement(element);
+            updateWebsite();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean noPageLoadSuccess(WebsiteElement element) {
+        if (!loadPage(element.getInformationUrl())) {
+            addToLog("ERR:\t\tErfolgloser Zugriff auf " + element.getInformationUrl());
+            removeFinishedElement(element);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean logInError() {
+        if(!doLoginRoutine()) {
+            addToLog("ERR:\t\tLogin nicht korrekt durchgeführt für " + website.getUrl());
+            removeFinishedWebsite();
+            return true;
+        }
+        return false;
+    }
+
+    private void addExceptionListener(Task<Void> task) {
+        task.exceptionProperty().addListener((o, ov, nv) ->  {
+            if(nv != null) {
+                Exception e = (Exception) nv;
+                System.out.println(e.getMessage()+" "+e.getCause());
+            }
+        });
+    }
+
+    private void processWebsiteElement(WebsiteElement element, MultiplicityType multiplicityType,
+                                       ContentType contentType, Task<Void> task) {
+
+        context.getBean(TransactionTemplate.class).execute(new TransactionCallbackWithoutResult() {
+            // have to create a session by my own because this is an unmanaged object
+            // otherwise no hibernate proxy is created
+            @Override
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
+
+                // have to re-fetch every element because the ones in the list have no proxy assigned anymore
+                // should not be that worse considering the wait time between page loads
+                WebsiteElement freshElement  = getFreshElement(element);
+
+                switch (multiplicityType) {
+                    case TABELLE -> {
+                        switch (contentType) {
+                            case AKTIENKURS, STAMMDATEN -> tableCourseOrStockExtraction.extract(
+                                    freshElement, task, elementSelectionProgress);
+
+                            case WECHSELKURS -> tableExchangeExtraction.extract(
+                                    freshElement, task, elementSelectionProgress);
+                        }
+                    }
+                    case EINZELWERT -> {
+                        switch (contentType) {
+                            case AKTIENKURS, STAMMDATEN -> singleCourseOrStockExtraction.extract(
+                                    freshElement, task, elementSelectionProgress);
+
+                            case WECHSELKURS -> singleExchangeExtraction.extract(
+                                    freshElement, task, elementSelectionProgress);
+                        }
+                    }
+                }
+            }
+        });
     }
 }

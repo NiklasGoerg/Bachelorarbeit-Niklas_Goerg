@@ -80,6 +80,7 @@ public class WebsiteTester extends WebsiteHandler {
 
     @Override
     protected Task<Void> createTask() {
+        // maybe create a service if necessary
         throw new NotImplementedFunctionException("WebsiteTester can't be run as a service.");
     }
 }

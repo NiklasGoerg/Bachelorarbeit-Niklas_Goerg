@@ -7,6 +7,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebElementInContext;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 
@@ -32,7 +33,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
 
     protected abstract void correctCarrierValues(Map<String, InformationCarrier> carrierMap, ElementSelection selection);
 
-    public void extract(WebsiteElement element, Task<Void> task) {
+    public void extract(WebsiteElement element, Task<Void> task, SimpleDoubleProperty progress) {
         var descriptionCorrelations  = element.getElementDescCorrelations();
         var identCorrelations = element.getElementIdentCorrelations();
         var elementSelections = element.getElementSelections();
@@ -42,6 +43,8 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         preparedStatements = new HashMap<>();
         List<WebElementInContext> rows;
         PreparedStatement statement;
+        double currentProgress;
+        double maxProgress;
 
 
         // e.g. stock/course needs isin or wkn or the name
@@ -79,6 +82,9 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             log("ERR:\t\tTabelle für "+element.getInformationUrl()+" enhält keine Zeilen (<tr>)");
             return;
         }
+
+        currentProgress = 0;
+        maxProgress = rows.size();
         
         // search each row for a matching stock/exchange
         for(var row : rows) {
@@ -86,8 +92,11 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             // adds it to the corresponding carriers
             if(task.isCancelled()) return;
             searchInsideRow(preparedCarrierMap, row);
-            processSelectionsForRow(elementSelections, descriptionCorrelations, preparedCarrierMap);
+            processSelectionsForRow(elementSelections, preparedCarrierMap);
             resetCarriers(preparedCarrierMap);
+
+            currentProgress++;
+            progress.set(currentProgress/maxProgress);
         }
         storeInDb();
 
@@ -102,7 +111,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         }
     }
 
-    private void processSelectionsForRow(List<ElementSelection> selections, List<ElementDescCorrelation> descCorrelations,
+    private void processSelectionsForRow(List<ElementSelection> selections,
                                          Map<String, InformationCarrier> carrierMap) {
         
         for (var selection : selections) {

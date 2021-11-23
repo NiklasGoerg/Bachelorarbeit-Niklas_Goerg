@@ -1,8 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 
@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
-import java.util.List;
 
 public abstract class SingleExtraction extends ExtractionGeneral implements Extraction {
 
@@ -18,27 +17,34 @@ public abstract class SingleExtraction extends ExtractionGeneral implements Extr
         super(connection, logText, scraper, date);
     }
 
-    public void extract(WebsiteElement element, Task<Void> task) {
-        List<ElementIdentCorrelation> identCorrelations = element.getElementIdentCorrelations();
+    public void extract(WebsiteElement element, Task<Void> task, SimpleDoubleProperty progress) {
+        var identCorrelations = element.getElementIdentCorrelations();
+        var elementSelections = element.getElementSelections();
         InformationCarrier carrier;
         preparedStatements = new HashMap<>();
         PreparedStatement statement;
         String data;
 
+        double currentProgress = -1;
+        double maxProgress = elementSelections.size();
+
         if(duplicateIdentifiers(identCorrelations)) return;
 
         // it's a list but due to ui restraints containing only one selection
-        for (var selection : element.getElementSelections()) {
-            if(!selection.isSelected()) continue;
-
+        for (var selection : elementSelections) {
             if(task.isCancelled()) return;
 
+            if(!selection.isSelected()) continue;
+
             for (var ident : identCorrelations) {
+                // enable to not ovveride existing values with null if deactivated
                 //if(ident.getIdentType() == IdentType.DEAKTIVIERT) continue;
                 if(task.isCancelled()) return;
 
-                carrier = prepareCarrier(ident, selection);
+                currentProgress++;
+                progress.set(currentProgress/maxProgress);
 
+                carrier = prepareCarrier(ident, selection);
                 data = scraper.findText(carrier.getIdentType(), carrier.getIdentifier(), carrier.getDbColName());
 
                 if(data.isBlank()) {
@@ -60,6 +66,8 @@ public abstract class SingleExtraction extends ExtractionGeneral implements Extr
             }
             break;
         }
+        progress.set(1);
+
         storeInDb();
     }
 }

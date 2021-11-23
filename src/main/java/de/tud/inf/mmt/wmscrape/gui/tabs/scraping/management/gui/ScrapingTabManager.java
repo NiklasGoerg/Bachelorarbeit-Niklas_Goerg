@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -45,9 +44,6 @@ public class ScrapingTabManager {
     private DataSource dataSource;
     private WebsiteScraper scrapingService;
     private Connection dbConnection;
-
-
-    private static final List<Worker.State> RUNNING_STATES = new ArrayList<>(Arrays.asList(Worker.State.RUNNING, Worker.State.SCHEDULED));
 
     public Website createNewWebsite(String description) {
         Website website = new Website(description);
@@ -144,31 +140,33 @@ public class ScrapingTabManager {
 
     /*
 
-    This is where the transition from the fui to the scraper happens
+    This is where the transition from the ui to the scraper happens
 
      */
+
     public void startScrape(double minIntra, double maxIntra, double waitElement, boolean pauseAfterElement,
                             SimpleStringProperty logText, Boolean headless,
                             ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems) {
 
         if(scrapingService != null) {
-            //if (RUNNING_STATES.contains(scrapingService.stateProperty().get())) return;
-            cancelScrape();
+            if(scrapingService.stateProperty().get() == Worker.State.RUNNING) return;
+            else cancelScrape();
         }
 
         if(!updateDbConnection()) return;
 
-
         scrapingService = new WebsiteScraper(logText, headless, dbConnection, pauseAfterElement);
+        // injecting the application context
         beanFactory.autowireBean(scrapingService);
-
 
         scrapingService.setMinIntraSiteDelay(minIntra);
         scrapingService.setMaxIntraSiteDelay(maxIntra);
         scrapingService.setWaitForWsElementSec(waitElement);
-        scrapingService.resetData(checkedItems);
+        scrapingService.resetTaskData(checkedItems);
 
         logText.set("");
+
+        // dispatch
         scrapingService.start();
     }
 
@@ -206,5 +204,16 @@ public class ScrapingTabManager {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void bindProgressBars(ProgressBar websites, ProgressBar elements, ProgressBar selections, ProgressIndicator waitProgress) {
+        if(scrapingService == null) return;
+
+        // unidirectional wont let me reset the bars if done
+        websites.progressProperty().bindBidirectional(scrapingService.websiteProgressProperty());
+        elements.progressProperty().bindBidirectional(scrapingService.singleElementProgressProperty());
+        selections.progressProperty().bindBidirectional(scrapingService.elementSelectionProgressProperty());
+        waitProgress.progressProperty().bindBidirectional(scrapingService.waitProgressProperty());
+
     }
 }

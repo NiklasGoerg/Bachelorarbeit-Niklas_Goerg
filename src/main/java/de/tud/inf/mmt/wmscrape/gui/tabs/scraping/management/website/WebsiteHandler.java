@@ -24,18 +24,12 @@ public abstract class WebsiteHandler extends Service<Void> {
     private final SimpleStringProperty logText;
 
     protected Website website;
-    private FirefoxDriver driver;
+    protected FirefoxDriver driver;
     private long waitForWsElementSec = 5;
     private WebDriverWait wait;
     protected JavascriptExecutor js;
 
     private int uniqueElementId = 0;
-
-    public WebsiteHandler(Website website) {
-        this.website = website;
-        headless = true;
-        this.logText = new SimpleStringProperty();
-    }
 
     protected WebsiteHandler(SimpleStringProperty logText, Boolean headless) {
         this.headless = headless;
@@ -70,12 +64,11 @@ public abstract class WebsiteHandler extends Service<Void> {
             FirefoxBinary firefoxBinary = new FirefoxBinary();
             FirefoxOptions options = new FirefoxOptions();
             options.setBinary(firefoxBinary);
-            options.setLogLevel(FirefoxDriverLogLevel.ERROR);
+            options.setLogLevel(FirefoxDriverLogLevel.FATAL);
 
             if (headless) options.setHeadless(true);
 
             driver = new FirefoxDriver(options);
-            js = (JavascriptExecutor) driver;
             wait = new WebDriverWait(driver, Duration.ofMillis(waitForWsElementSec*1000));
             return true;
         } catch (SessionNotCreatedException e) {
@@ -119,7 +112,13 @@ public abstract class WebsiteHandler extends Service<Void> {
 
         WebElement banner = extractElementFromRoot(type, identifier);
         if (banner != null) {
-            js.executeScript("(arguments[0]).remove()", banner);
+
+            try {
+                driver.executeScript("(arguments[0]).remove()", banner);
+            } catch (Exception e) {
+                System.out.println(e.getMessage()+" "+ e.getCause());
+            }
+
         } else {
             addToLog("WARN:\tCookiebanner nicht gefunden");
             return false;
@@ -210,7 +209,11 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     private void waitLoadEvent() {
-        wait.until(webDriver -> js.executeScript("return document.readyState").equals("complete"));
+        try {
+            wait.until(webDriver -> driver.executeScript("return document.readyState").equals("complete"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage()+" "+ e.getCause());
+        }
     }
 
     public WebElement extractElementFromRoot(IdentType type, String identifier) {
@@ -267,10 +270,10 @@ public abstract class WebsiteHandler extends Service<Void> {
             // search in sub iframes recursively
             List<WebElementInContext> webElementInContexts = recursiveSearch(searchContext, type, identifier,
                     searchContext.findElements(By.tagName("iframe")), 0, parentId);
+
+
             if (webElementInContexts != null) return webElementInContexts;
-
             addToLog("ERR:\t\tKeine Elemente unter '" + identifier + "' gefunden");
-
 
         } catch (InvalidSelectorException e) {
             e.printStackTrace();
@@ -306,7 +309,11 @@ public abstract class WebsiteHandler extends Service<Void> {
 
     private void setUniqueId(WebElement element, int id) {
         if(element == null) return;
-        js.executeScript("arguments[0].setAttribute('wms', "+id+")", element);
+        try {
+            driver.executeScript("arguments[0].setAttribute('wms', "+id+")", element);
+        } catch (Exception e) {
+            System.out.println(e.getMessage()+" "+ e.getCause());
+        }
 
     }
 
@@ -374,7 +381,9 @@ public abstract class WebsiteHandler extends Service<Void> {
             element.click();
         } catch (ElementClickInterceptedException e) {
             addToLog("INFO:\tVerdeckter Button erkannt");
-            js.executeScript("arguments[0].click()", element);
+            driver.executeScript("arguments[0].click()", element);
+        } catch (Exception e) {
+            System.out.println(e.getMessage()+" "+ e.getCause());
         }
     }
 
@@ -385,8 +394,8 @@ public abstract class WebsiteHandler extends Service<Void> {
                 driver.quit();
                 driver = null;
             }
-        } catch (NoSuchSessionException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println(e.getMessage()+" "+e.getCause());
         }
     }
 

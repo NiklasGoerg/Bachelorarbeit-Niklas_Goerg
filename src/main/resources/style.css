@@ -39,3 +39,7 @@ tooltip.bad-input {
 .spinner .text-input:readonly {
     -fx-background-color: transparent;
 }
+
+.progress-indicator .percentage {
+   -fx-fill:null;
+}
