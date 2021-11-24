@@ -102,13 +102,12 @@ public class WebsiteScraper extends WebsiteHandler {
     private boolean doLoginRoutine() {
         if(!usesLogin()) return true;
         if(!loadLoginPage()) return false;
+        delayRandom();
         if(!acceptCookies()) return false;
         if(!hideCookies()) return false;
-        if(!fillLoginInformation()) return false;
-
         delayRandom();
+        if(!fillLoginInformation()) return false;
         if(!login()) return false;
-
         delayRandom();
         return true;
     }
@@ -119,8 +118,6 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     private void delayRandom() {
-        if(!headless) return;
-
         double randTime = ThreadLocalRandom.current().nextDouble(minIntraSiteDelay, maxIntraSiteDelay + 1);
         addToLog("INFO:\tWarte "+(Math.round((randTime/1000)*100.0)/100.0)+"s");
 
@@ -225,7 +222,6 @@ public class WebsiteScraper extends WebsiteHandler {
     // if not set get any
     public void updateWebsite() {
         if (website == null && selectedFromTree != null && selectedFromTree.keySet().iterator().hasNext()) {
-            if(loggedInToWebsite) logout();
             loggedInToWebsite = false;
             website = selectedFromTree.keySet().iterator().next();
         }
@@ -310,7 +306,7 @@ public class WebsiteScraper extends WebsiteHandler {
                         addToLog("\n");
                         processWebsiteElement(element, element.getMultiplicityType(), element.getContentType(), this);
                         addToLog("\n");
-                        delayRandom();
+                        if(headless) delayRandom();
 
                         removeFinishedElement(element);
                         singleElementProgress.set(progressElementCurrent.get(website)/maxElementProgress);
@@ -389,8 +385,8 @@ public class WebsiteScraper extends WebsiteHandler {
             @Override
             protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
-                // have to re-fetch every element because the ones in the list have no proxy assigned anymore
-                // should not be that worse considering the wait time between page loads
+                // have to re-fetch the element because the ones in the list have no proxy assigned
+                // should not be that bad considering the wait time between page loads
                 WebsiteElement freshElement  = getFreshElement(element);
 
                 switch (multiplicityType) {

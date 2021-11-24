@@ -100,6 +100,7 @@ public abstract class WebsiteHandler extends Service<Void> {
         if (element == null) return false;
 
         clickElement(element);
+        waitLoadEvent();
         addToLog("INFO:\tCookies akzeptiert");
         return true;
     }
@@ -148,6 +149,7 @@ public abstract class WebsiteHandler extends Service<Void> {
             if(password != null) {
                 // submit like pressing enter
                 submit(password);
+                waitLoadEvent();
                 return true;
             }
             return false;
@@ -156,12 +158,15 @@ public abstract class WebsiteHandler extends Service<Void> {
         WebElement loginButton = extractElementFromRoot(website.getLoginButtonIdentType(), website.getLoginButtonIdent());
         if (loginButton == null) return false;
         clickElement(loginButton);
+        waitLoadEvent();
 
         addToLog("INFO:\tLogin erfolgreich");
         return true;
     }
 
     protected boolean logout() {
+        if(website == null) return false;
+
         IdentType type = website.getLogoutIdentType();
         if (type == IdentType.DEAKTIVIERT) return true;
 
@@ -171,6 +176,7 @@ public abstract class WebsiteHandler extends Service<Void> {
 
         if (type == IdentType.URL) {
             driver.get(website.getLogoutIdent());
+            waitLoadEvent();
             addToLog("INFO:\tLogout erfolgreich");
             return true;
         }
@@ -180,7 +186,9 @@ public abstract class WebsiteHandler extends Service<Void> {
             addToLog("ERR:\t\tLogout fehlgeschlagen");
             return false;
         }
+
         clickElement(logoutButton);
+        waitLoadEvent();
 
         addToLog("INFO:\tLogout erfolgreich");
         return true;
@@ -208,7 +216,7 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
-    private void waitLoadEvent() {
+    protected void waitLoadEvent() {
         try {
             wait.until(webDriver -> driver.executeScript("return document.readyState").equals("complete"));
         } catch (Exception e) {
@@ -390,12 +398,12 @@ public abstract class WebsiteHandler extends Service<Void> {
     protected void quit() {
         try {
             if (driver != null) {
-                addToLog("INFO:\tBrowser wurde beendet");
                 driver.quit();
                 driver = null;
+                addToLog("INFO:\tBrowser wurde beendet");
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage()+" "+e.getCause());
+            addToLog("ERR:\t\t Fehler beim Schließen des Browsers.\n\n"+e.getMessage()+"\n\n"+e.getCause()+"\n\n");
         }
     }
 
