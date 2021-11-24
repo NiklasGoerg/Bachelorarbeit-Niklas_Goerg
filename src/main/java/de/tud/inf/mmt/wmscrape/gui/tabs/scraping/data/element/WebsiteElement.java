@@ -12,6 +12,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
@@ -146,5 +147,13 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     @Override
     public String toString() {
         return this.description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof WebsiteElement)) return false;
+        WebsiteElement that = (WebsiteElement) o;
+        return id == that.id && Objects.equals(description, that.description) && Objects.equals(informationUrl, that.informationUrl) && contentType == that.contentType && multiplicityType == that.multiplicityType && Objects.equals(tableIdent, that.tableIdent) && tableIdenType == that.tableIdenType;
     }
 }

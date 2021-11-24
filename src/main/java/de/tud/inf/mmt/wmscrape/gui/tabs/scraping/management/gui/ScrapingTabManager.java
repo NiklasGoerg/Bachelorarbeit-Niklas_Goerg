@@ -118,7 +118,7 @@ public class ScrapingTabManager {
     }
 
     @Transactional
-    public void resetElement(TextField urlField, ChoiceBox<Website> choiceBox, WebsiteElement oldElement) {
+    public void resetElementRepresentation(TextField urlField, ChoiceBox<Website> choiceBox, WebsiteElement oldElement) {
         var newElement = getFreshWebsiteElement(oldElement);
         oldElement.setTableIdent(newElement.getTableIdent());
         oldElement.setTableIdenType(newElement.getTableIdenType());
@@ -131,7 +131,7 @@ public class ScrapingTabManager {
     }
 
     @Transactional
-    public TreeView<WebRepresentation<?>> initSelectionTree(
+    public TreeView<WebRepresentation<?>> createSelectionTree(
             ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems) {
         var websites = getWebsites();
         return (new WebsiteTree(websites, checkedItems)).getTreeView();
@@ -173,6 +173,7 @@ public class ScrapingTabManager {
     public void cancelScrape() {
         if(scrapingService != null) {
             scrapingService.cancel();
+            // closing db connection inside
             scrapingService.quit();
             scrapingService = null;
         }

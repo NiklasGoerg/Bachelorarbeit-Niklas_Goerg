@@ -22,7 +22,14 @@ public class ScrapingTabController {
     private void initialize() throws IOException {
         Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingScrapeTab.fxml", scrapingScrapeTabController);
         Tab tab = new Tab("Scrapen" , parent);
+
+        tab.selectedProperty().addListener((o,ov,nv) -> {
+            if(nv) {
+                scrapingScrapeTabController.updateSelectionTree();
+            }
+        });
         scrapingSubTabPane.getTabs().add(tab);
+
 
         parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingWebsitesTab.fxml", scrapingWebsiteTabController);
         tab = new Tab("Webseiten" , parent);
@@ -30,8 +37,11 @@ public class ScrapingTabController {
 
         parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingElementsTab.fxml", scrapingElementsTabController);
         tab = new Tab("Elemente" , parent);
+
         tab.selectedProperty().addListener((o,ov,nv) -> {
-            if(nv) scrapingElementsTabController.updateWebsiteChoiceBox();
+            if(nv) {
+                scrapingElementsTabController.refresh();
+            }
         });
         scrapingSubTabPane.getTabs().add(tab);
     }

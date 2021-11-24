@@ -403,7 +403,7 @@ public abstract class WebsiteHandler extends Service<Void> {
                 addToLog("INFO:\tBrowser wurde beendet");
             }
         } catch (Exception e) {
-            addToLog("ERR:\t\t Fehler beim Schließen des Browsers.\n\n"+e.getMessage()+"\n\n"+e.getCause()+"\n\n");
+            addToLog("ERR:\t\tFehler beim Schließen des Browsers.\n\n"+e.getMessage()+"\n\n"+e.getCause()+"\n\n");
         }
     }
 

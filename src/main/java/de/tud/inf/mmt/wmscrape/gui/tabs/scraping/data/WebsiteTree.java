@@ -9,9 +9,8 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 // used to create the selection tree inside the scraping tab
 
@@ -59,7 +58,20 @@ public class WebsiteTree {
         CheckBoxTreeItem<WebRepresentation<?>> item = new CheckBoxTreeItem<>(object);
         item.selectedProperty().addListener((o, ov, nv) -> updateSelected(nv, object));
         item.setExpanded(true);
-        item.getChildren().addAll(object.getChildren().stream().map(this::createItem).collect(toList()));
+
+
+        List<CheckBoxTreeItem<WebRepresentation<?>>> list = new ArrayList<>();
+        for (WebRepresentation<?> webRepresentation : object.getChildren()) {
+
+            // hide empty websites
+            if(webRepresentation instanceof Website && webRepresentation.getChildren().isEmpty()) continue;
+
+            CheckBoxTreeItem<WebRepresentation<?>> webRepresentationCheckBoxTreeItem = createItem(webRepresentation);
+            list.add(webRepresentationCheckBoxTreeItem);
+        }
+        item.getChildren().addAll(list);
+
+
         return item;
     }
 

@@ -18,24 +18,24 @@ public class  ElementDescCorrelation {
     @JoinColumn(name = "id", referencedColumnName = "id")
     private ElementSelection elementSelection;
 
-    @Column(name = "wsDescription")
+    @Column(name = "wsDescription", columnDefinition = "TEXT")
     private String _wsDescription;
     @Transient
     private final SimpleStringProperty wsDescription = new SimpleStringProperty();
 
     // only for stock/course
-    @Column(name = "wsIsin")
+    @Column(name = "wsIsin", columnDefinition = "TEXT")
     private String _wsIsin;
     @Transient
     private final SimpleStringProperty wsIsin = new SimpleStringProperty();
 
-    @Column(name = "wsWkn")
+    @Column(name = "wsWkn", columnDefinition = "TEXT")
     private String _wsWkn;
     @Transient
     private final SimpleStringProperty wsWkn = new SimpleStringProperty();
 
     // only for currency exchange correlation
-    @Column(name = "wsCurrencyName")
+    @Column(name = "wsCurrencyName", columnDefinition = "TEXT")
     private String _wsCurrencyName;
     @Transient
     private final SimpleStringProperty wsCurrencyName = new SimpleStringProperty();

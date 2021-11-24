@@ -52,7 +52,8 @@ public class ScrapingElementsTabController {
 
     private ObservableList<WebsiteElement> elementObservableList;
     private final ObservableList<Website> websiteObservableList = FXCollections.observableList(new ArrayList<>());
-    private static final BorderPane noSelectionReplacement = new BorderPane(new Label("Wählen Sie ein Element aus oder erstellen Sie ein neues (unten links)"));
+    private static final BorderPane noSelectionReplacement = new BorderPane(new Label(
+            "Wählen Sie ein Element aus oder erstellen Sie ein neues (unten links)"));
 
     private boolean inlineValidation = false;
 
@@ -142,7 +143,7 @@ public class ScrapingElementsTabController {
         inlineValidation = false;
         setRightPanelBoxVisible(true);
 
-        scrapingTabManager.resetElement(urlField, websiteChoiceBox, staleElement);
+        scrapingTabManager.resetElementRepresentation(urlField, websiteChoiceBox, staleElement);
 
         switch (staleElement.getMultiplicityType()) {
             case EINZELWERT -> {
@@ -165,9 +166,17 @@ public class ScrapingElementsTabController {
         websiteObservableList.addAll(scrapingTabManager.getWebsites());
     }
 
-    public void updateWebsiteChoiceBox() {
+    public void refresh() {
+        WebsiteElement selected = getSelectedElement();
         reloadWebsiteList();
-        websiteChoiceBox.setItems(websiteObservableList);
+        reloadElementList();
+
+        if(selected != null && elementList.getItems().contains(selected)) {
+            scrapingTabManager.resetElementRepresentation(urlField, websiteChoiceBox, selected);
+            elementList.getSelectionModel().select(selected);
+        } else {
+            elementList.getSelectionModel().selectFirst();
+        }
     }
 
     public void selectElement(WebsiteElement element) {

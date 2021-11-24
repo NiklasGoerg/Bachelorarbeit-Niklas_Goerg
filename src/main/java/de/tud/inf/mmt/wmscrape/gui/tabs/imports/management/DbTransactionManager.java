@@ -174,8 +174,15 @@ public class DbTransactionManager {
         switch (datatype) {
             case DATE -> statement.setNull(index, Types.DATE);
             case TEXT -> statement.setNull(index, Types.VARCHAR);
+            case INTEGER -> statement.setInt(index, 0);
+            case DOUBLE -> statement.setDouble(index, 0);
+            /*  enable if handling for primitive data-types exists
+                otherwise: null field --into-> primitive -> error
+            case DATE -> statement.setNull(index, Types.DATE);
+            case TEXT -> statement.setNull(index, Types.VARCHAR);
             case INTEGER -> statement.setNull(index, Types.INTEGER);
             case DOUBLE -> statement.setNull(index, Types.DOUBLE);
+             */
             default -> {
             }
         }

@@ -1,6 +1,5 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebRepresentation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
@@ -35,6 +34,7 @@ public class ScrapingScrapeTabController {
     @FXML private ProgressBar selectionProgress;
     @FXML private ProgressIndicator waitProgress;
     @FXML private Button continueButton;
+    @FXML private Button startButton;
 
     private final ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems = FXCollections.observableMap(new HashMap<>());
     private static SimpleStringProperty logText;
@@ -62,19 +62,27 @@ public class ScrapingScrapeTabController {
 
         waitProgress.progressProperty().addListener((o, ov, nv) -> waitProgress.setVisible(nv.doubleValue() > 0));
 
-        makeContinueVisible(false);
-        elementProgress.progressProperty().addListener((o,ov,nv) -> {
-            if(nv.doubleValue() > 0.1) {
-                makeContinueVisible(true);
-            }
+        makeStartVisible(true);
+        selectionProgress.progressProperty().addListener((o,ov,nv) -> {
+            if(nv.doubleValue() > 0.1) { makeStartVisible(false);}
         });
 
-        websiteProgress.progressProperty().addListener((o,ov,nv) -> {if(allDone()) makeContinueVisible(false); });
+        makeContinueVisible(false);
+        elementProgress.progressProperty().addListener((o,ov,nv) -> {
+            if(nv.doubleValue() > 0.1) { makeContinueVisible(true);}
+        });
+
+        websiteProgress.progressProperty().addListener((o,ov,nv) -> {
+            if(allDone()) {
+                makeContinueVisible(false);
+                makeStartVisible(true);
+            } });
 
         waitSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 50, 5, 0.25));
         headlessCheckBox.setSelected(false);
         pauseCheckBox.setSelected(true);
-        borderPane.setCenter(getSelectionTree());
+        //filling the tree here
+        updateSelectionTree();
 
         headlessCheckBox.selectedProperty().addListener((o,ov,nv) -> {
             if(nv) pauseCheckBox.setSelected(false);
@@ -113,10 +121,11 @@ public class ScrapingScrapeTabController {
         resetProgressBars();
     }
 
-    private TreeView<WebRepresentation<?>> getSelectionTree() {
-        var tree = scrapingTabManager.initSelectionTree(checkedItems);
+    public void updateSelectionTree() {
+        //borderPane.getChildren().clear();
+        var tree = scrapingTabManager.createSelectionTree(checkedItems);
         tree.setPadding(new Insets(15,1,1,1));
-        return tree;
+        borderPane.setCenter(tree);
     }
 
     private boolean allDone() {
@@ -129,6 +138,7 @@ public class ScrapingScrapeTabController {
         elementProgress.setProgress(0);
         selectionProgress.setProgress(0);
         makeContinueVisible(false);
+        makeStartVisible(true);
     }
 
     private void makeContinueVisible(boolean b){
@@ -138,6 +148,16 @@ public class ScrapingScrapeTabController {
         } else {
             continueButton.setVisible(false);
             continueButton.setManaged(false);
+        }
+    }
+
+    private void makeStartVisible(boolean b){
+        if(b) {
+            startButton.setVisible(true);
+            startButton.setManaged(true);
+        } else {
+            startButton.setVisible(false);
+            startButton.setManaged(false);
         }
     }
 }

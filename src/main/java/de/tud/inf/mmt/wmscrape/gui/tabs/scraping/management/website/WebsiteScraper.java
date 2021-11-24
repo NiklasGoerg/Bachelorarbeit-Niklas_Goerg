@@ -306,7 +306,8 @@ public class WebsiteScraper extends WebsiteHandler {
                         addToLog("\n");
                         processWebsiteElement(element, element.getMultiplicityType(), element.getContentType(), this);
                         addToLog("\n");
-                        if(headless) delayRandom();
+                        //if(headless)
+                        delayRandom();
 
                         removeFinishedElement(element);
                         singleElementProgress.set(progressElementCurrent.get(website)/maxElementProgress);

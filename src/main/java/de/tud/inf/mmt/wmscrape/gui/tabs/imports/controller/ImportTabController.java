@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -41,6 +42,8 @@ public class ImportTabController {
     private NewExcelPopupController newExcelPopupController;
     @Autowired
     private ImportTabManager importTabManager;
+    @Autowired
+    private ScrapingElementsTabController elementsTabController;
 
     private ObservableList<ExcelSheet> excelSheetObservableList;
     private boolean inlineValidation = false;
@@ -207,17 +210,17 @@ public class ImportTabController {
             case -6:
                 // Selection column not found
                 createAlert("Übernahmespalte nicht gefunden!",
-                        "In der Zeile "+(excelSheet.getTitleRow()+1)+" " +
+                        "In der Zeile "+excelSheet.getTitleRow()+" " +
                         "existiert keine Spalte mit dem Namen '" +
-                        excelSheet.getSelectionColTitle() + "'.",
+                        excelSheet.getSelectionColTitle() + "'",
                         Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -7:
                 // Selection column not found
                 createAlert("Depotspalte nicht gefunden!",
-                        "In der Zeile "+(excelSheet.getTitleRow()+1)+" " +
+                        "In der Zeile "+excelSheet.getTitleRow()+" " +
                                 "existiert keine Spalte mit dem Namen '" +
-                                excelSheet.getDepotColTitle() + "'.",
+                                excelSheet.getDepotColTitle() + "'",
                         Alert.AlertType.ERROR, ButtonType.OK, true);
                 return;
             case -8:
@@ -255,8 +258,6 @@ public class ImportTabController {
         transactionCorrelationTable.refresh();
     }
 
-
-
     @FXML
     private void importExcel() {
         logText.set("");
@@ -288,6 +289,9 @@ public class ImportTabController {
                     "Eine Fehlerbeschreibung zur Id: '" + result + "' existiert nicht",
                     Alert.AlertType.ERROR, ButtonType.OK, true);
         }
+
+        // add new stocks to the list etc
+        elementsTabController.refresh();
     }
 
     @FXML
@@ -331,16 +335,6 @@ public class ImportTabController {
     public void reloadExcelList() {
         excelSheetObservableList.clear();
         excelSheetObservableList.addAll(importTabManager.getExcelSheets());
-    }
-
-    private void clearFields() {
-        pathField.clear();
-        passwordField.clear();
-        titleRowSpinner.getValueFactory().setValue(1);
-        selectionColTitleField.clear();
-        sheetPreviewTable.getItems().clear();
-        stockDataCorrelationTable.getItems().clear();
-        transactionCorrelationTable.getItems().clear();
     }
 
     private void loadSpecificExcel(ExcelSheet excelSheet) {

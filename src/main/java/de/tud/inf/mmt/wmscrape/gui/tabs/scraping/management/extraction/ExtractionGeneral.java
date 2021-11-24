@@ -35,10 +35,10 @@ public abstract class ExtractionGeneral {
     protected abstract InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection);
 
     protected String processData(InformationCarrier carrier, String data) {
-        log("INFO:\tDaten gefunden für "+carrier.getDbColName()+":\t'"+ data.replace("\n", "\\n") +"'");
+        log("INFO:\tDaten gefunden für "+carrier.getDbColName()+":\t\t'"+ data.replace("\n", "\\n") +"'");
         data = regexFilter(carrier.getRegexFilter(), data);
         data = sanitize(data, carrier.getDatatype());
-        log("INFO:\tDaten bereinigt für "+carrier.getDbColName()+":\t'"+ data.replace("\n", "\\n") +"'");
+        log("INFO:\tDaten bereinigt für "+carrier.getDbColName()+":\t\t'"+ data.replace("\n", "\\n") +"'");
         return data;
     }
 
@@ -170,8 +170,8 @@ public abstract class ExtractionGeneral {
         switch (datatype) {
             case DATE -> statement.setNull(index, Types.DATE);
             case TEXT -> statement.setNull(index, Types.VARCHAR);
-            case INTEGER -> statement.setNull(index, Types.INTEGER);
-            case DOUBLE -> statement.setNull(index, Types.DOUBLE);
+            case INTEGER -> statement.setInt(index, 0);
+            case DOUBLE -> statement.setDouble(index, 0);
         }
     }
 

@@ -134,6 +134,7 @@ public class ElementManagerTable extends ElementManager {
                 elementDescCorrelationRepository.save(correlation);
             }
         }
+        elementDescCorrelationRepository.flush();
 
         for (var selection : tableSubController.getSelections()) {
             if(selection.isChanged()) {
@@ -141,7 +142,6 @@ public class ElementManagerTable extends ElementManager {
             }
         }
 
-        elementDescCorrelationRepository.flush();
         elementSelectionRepository.flush();
 
         for (var identCorrelation : tableSubController.getDbCorrelations()) {
@@ -150,6 +150,7 @@ public class ElementManagerTable extends ElementManager {
             }
         }
 
+        elementDescCorrelationRepository.flush();
         elementSelectionRepository.deleteAllBy_selected(false);
         websiteElementRepository.save(websiteElement);
     }
