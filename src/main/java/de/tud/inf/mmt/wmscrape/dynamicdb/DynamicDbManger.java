@@ -7,7 +7,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Optional;
 
-@SuppressWarnings("rawtypes")
 public abstract class DynamicDbManger {
     @Autowired
     DataSource dataSource;
@@ -34,15 +33,17 @@ public abstract class DynamicDbManger {
         return columns;
     }
 
-    @SuppressWarnings( "unchecked" )
-    public <T extends DynamicDbRepository> boolean addColumnIfNotExists(String tableName, T repository , DbTableColumn column) {
+
+    public <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> void addColumnIfNotExists(
+            String tableName, T repository , DbTableColumn column) {
+
         if(column == null || column.getColumnDatatype() == null || column.getName() == null) {
-            return false;
+            return;
         }
 
         try {
             if (columnExists(column.getName(), tableName)) {
-                return false;
+                return;
             }
 
             Connection connection = dataSource.getConnection();
@@ -58,21 +59,19 @@ public abstract class DynamicDbManger {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return;
         }
 
         if(repository.findByName(column.getName()).isEmpty()) {
             repository.save(column);
         }
 
-        return true;
     }
 
-    @SuppressWarnings( "unchecked" )
-    protected <T extends DynamicDbRepository> boolean removeColumn(String columnName, String tableName, T repository) {
+    protected <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> void removeAbstractColumn(String columnName, String tableName, T repository) {
         try {
             if (!columnExists(columnName, tableName)) {
-                return false;
+                return;
             }
 
             Connection connection = dataSource.getConnection();
@@ -86,13 +85,11 @@ public abstract class DynamicDbManger {
             pst.close();
             connection.close();
 
-            Optional column = repository.findByName(columnName);
+            Optional<? extends DbTableColumn> column = repository.findByName(columnName);
             column.ifPresent(repository::delete);
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
-        return true;
     }
 
     public boolean columnExists(String columnName, String tableName){
@@ -151,7 +148,7 @@ public abstract class DynamicDbManger {
         return null;
     }
 
-    public boolean tableExists(String tableName) {
+    public boolean tableDoesNotExist(String tableName) {
         try {
             Connection connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
@@ -162,19 +159,19 @@ public abstract class DynamicDbManger {
                 if (name.equals(tableName)) {
                     statement.close();
                     connection.close();
-                    return true;
+                    return false;
                 }
             }
             statement.close();
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return true;
         }
-        return false;
+        return true;
     }
 
-    public boolean initializeTable(String statementOrder) {
+    public void initializeTable(String statementOrder) {
         try {
             Connection connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
@@ -183,9 +180,7 @@ public abstract class DynamicDbManger {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
-        return true;
     }
 
     public Connection getConnection() {
@@ -197,5 +192,5 @@ public abstract class DynamicDbManger {
         }
     }
 
-    public abstract void removeColumn(String columnName);
+    protected abstract void removeColumn(String colName);
 }

@@ -32,7 +32,7 @@ public class ExistingUserLoginController {
             return;
         }
 
-        boolean success = false;
+        boolean success;
 
         try {
             success = LoginManager.loginExistingUser(usernameField.getText(), passwordField.getText(), usernameField);

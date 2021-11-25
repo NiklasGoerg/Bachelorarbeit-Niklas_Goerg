@@ -31,7 +31,7 @@ public class StockDataDbManager extends DynamicDbManger{
         // the stock data table is not managed by spring
         // and has to be initialized by myself
 
-        if (!tableExists(TABLE_NAME)) {
+        if (tableDoesNotExist(TABLE_NAME)) {
             initializeTable("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         }
 
@@ -56,8 +56,8 @@ public class StockDataDbManager extends DynamicDbManger{
         initColumn("Std_Datum", ColumnDatatype.DATE);
     }
 
-    private boolean initColumn(String name, ColumnDatatype datatype) {
-        return addColumnIfNotExists(TABLE_NAME, stockDataColumnRepository, new StockDataDbTableColumn(name, datatype));
+    private void initColumn(String name, ColumnDatatype datatype) {
+        addColumnIfNotExists(TABLE_NAME, stockDataColumnRepository, new StockDataDbTableColumn(name, datatype));
     }
 
     public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
@@ -66,12 +66,11 @@ public class StockDataDbManager extends DynamicDbManger{
         return connection.prepareStatement(sql);
     }
 
-    @Override
     public void removeColumn(String columnName) {
         Optional<StockDataDbTableColumn> column = stockDataColumnRepository.findByName(columnName);
         if(column.isPresent()) {
-            column.get().setExcelCorrelations(new ArrayList<>());
-            super.removeColumn(column.get().getName(), TABLE_NAME, stockDataColumnRepository);
+            column.get().setExcelCorrelations(null);
+            super.removeAbstractColumn(column.get().getName(), TABLE_NAME, stockDataColumnRepository);
         }
     }
 }

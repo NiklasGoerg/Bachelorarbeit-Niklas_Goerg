@@ -25,7 +25,7 @@ public class CourseDataDbManager extends DynamicDbManger{
         // the course data table is not managed by spring
         // and has to be initialized by myself
 
-        if (!tableExists(TABLE_NAME)) {
+        if (tableDoesNotExist(TABLE_NAME)) {
             initializeTable("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         }
 
@@ -50,16 +50,15 @@ public class CourseDataDbManager extends DynamicDbManger{
         initColumn("datum_interessant", ColumnDatatype.DATE);
     }
 
-    private boolean initColumn(String name, ColumnDatatype columnDatatype) {
-        return addColumnIfNotExists(TABLE_NAME, courseDataColumnRepository, new CourseDataDbTableColumn(name, columnDatatype));
+    private void initColumn(String name, ColumnDatatype columnDatatype) {
+        addColumnIfNotExists(TABLE_NAME, courseDataColumnRepository, new CourseDataDbTableColumn(name, columnDatatype));
     }
 
-    @Override
     public void removeColumn(String columnName) {
         Optional<CourseDataDbTableColumn> column = courseDataColumnRepository.findByName(columnName);
         if(column.isPresent()) {
-            column.get().setElementIdentCorrelations(new ArrayList<>());
-            super.removeColumn(column.get().getName(), TABLE_NAME, courseDataColumnRepository);
+            column.get().setElementIdentCorrelations(null);
+            super.removeAbstractColumn(column.get().getName(), TABLE_NAME, courseDataColumnRepository);
         }
     }
 }

@@ -21,7 +21,7 @@ public class ExchangeDataDbManager extends DynamicDbManger{
         // the exchange data table is not managed by spring
         // and has to be initialized by myself
 
-        if (!tableExists(TABLE_NAME)) {
+        if (tableDoesNotExist(TABLE_NAME)) {
             initializeTable("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (datum DATE PRIMARY KEY);");
         }
 
@@ -45,17 +45,16 @@ public class ExchangeDataDbManager extends DynamicDbManger{
         initColumn("cny");
     }
 
-    private boolean initColumn(String name) {
-        return addColumnIfNotExists(TABLE_NAME, exchangeDataColumnRepository, new ExchangeDataDbTableColumn(name, ColumnDatatype.DOUBLE));
+    private void initColumn(String name) {
+        addColumnIfNotExists(TABLE_NAME, exchangeDataColumnRepository, new ExchangeDataDbTableColumn(name, ColumnDatatype.DOUBLE));
     }
 
 
-    @Override
     public void removeColumn(String columnName) {
         Optional<ExchangeDataDbTableColumn> column = exchangeDataColumnRepository.findByName(columnName);
         if(column.isPresent()) {
-            column.get().setElementSelections(new ArrayList<>());
-            super.removeColumn(column.get().getName(), TABLE_NAME, exchangeDataColumnRepository);
+            column.get().setElementSelections(null);
+            removeAbstractColumn(column.get().getName(), TABLE_NAME, exchangeDataColumnRepository);
         }
     }
 

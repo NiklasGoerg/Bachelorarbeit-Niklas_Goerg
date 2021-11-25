@@ -31,7 +31,6 @@ public class TransactionDataDbManager extends DynamicDbManger{
         }
     }
 
-    @Override
     public void removeColumn(String columnName) {
         throw new NotImplementedFunctionException("This table is managed by spring");
     }
