@@ -2,23 +2,24 @@ package de.tud.inf.mmt.wmscrape.dynamicdb.stock;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbManger;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class StockDataDbManager extends DynamicDbManger{
 
     public static final String TABLE_NAME = "stammdaten";
-    public static final ArrayList<String> RESERVED_COLUMNS = new ArrayList<>(Arrays.asList("datum","isin"));
-    public static final ArrayList<String> COLUMN_ORDER = new ArrayList<>(Arrays.asList("datum","isin","wkn","name","typ","gruppe"));
+    public static final List<String> RESERVED_COLUMNS = List.of("datum","isin");
+    public static final List<String> COLUMN_ORDER = List.of("datum","isin","wkn","name","typ");
 
     @Autowired
     StockDataColumnRepository stockDataColumnRepository;
@@ -46,44 +47,17 @@ public class StockDataDbManager extends DynamicDbManger{
             }
         }
 
-        initColumn("wkn", ColumnDatatype.TEXT);
-        initColumn("name", ColumnDatatype.TEXT);
-        initColumn("typ", ColumnDatatype.TEXT);
+
+        // todo remove
+        initColumn("url_1", ColumnDatatype.TEXT);
+        initColumn("url_2", ColumnDatatype.TEXT);
+        initColumn("kurs", ColumnDatatype.DOUBLE);
         initColumn("gruppe", ColumnDatatype.INTEGER);
+        initColumn("Std_Datum", ColumnDatatype.DATE);
     }
 
     private boolean initColumn(String name, ColumnDatatype datatype) {
         return addColumnIfNotExists(TABLE_NAME, stockDataColumnRepository, new StockDataDbTableColumn(name, datatype));
-    }
-
-
-    public void createMissingStocks() {
-
-        Statement statement;
-        try {
-            Connection connection = getConnection();
-            statement = connection.createStatement();
-            // isin, wkn, name columns are created at start if not existing
-            ResultSet resultSet = statement.executeQuery("SELECT isin, wkn, name, gruppe, typ FROM "+TABLE_NAME+";");
-
-            while (resultSet.next()) {
-                String isin = resultSet.getString("isin");
-
-                if(stockRepository.findByIsin(isin).isEmpty()) {
-                    Stock stock = new Stock(isin,
-                            resultSet.getString("wkn"),
-                            resultSet.getString("name"),
-                            resultSet.getInt("gruppe"),
-                            resultSet.getString("typ"));
-                    stockRepository.save(stock);
-                }
-            }
-
-            statement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {

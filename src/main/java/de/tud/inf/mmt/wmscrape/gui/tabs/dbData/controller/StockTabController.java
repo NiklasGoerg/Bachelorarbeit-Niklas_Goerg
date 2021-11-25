@@ -22,59 +22,38 @@ public class StockTabController {
 
     private ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
     private final ObservableList<CustomRow> changedRows = FXCollections.observableArrayList();
+    private Stock lastViewed;
 
     @FXML
     private void initialize() {
         stockDataTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         stockAndCourseTabManager.prepareStockSelectionTable(stockSelectionTable);
         reloadSelectionTable();
-        stockSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> onStockSelection(nv));
+        stockSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
+            if(nv != null) onStockSelection(nv);
+        });
         reloadAllDataRows();
     }
 
     @FXML
     private void showAll() {
+        stockDataTableView.getColumns().clear();
         allRows = stockAndCourseTabManager.updateStockTable(stockDataTableView);
         stockDataTableView.getItems().clear();
         stockDataTableView.getItems().addAll(allRows);
         addRowChangeListeners();
     }
 
-    private void onStockSelection(Stock stock) {
-        stockDataTableView.getItems().clear();
-        var rows= stockAndCourseTabManager.getRowsFromStockSelection(stock, allRows);
-        stockDataTableView.getItems().addAll(rows);
-        addRowChangeListeners();
-    }
-
     @FXML
-    private void reloadAllDataRows() {
-        allRows = stockAndCourseTabManager.updateStockTable(stockDataTableView);
-        redoSelection();
-    }
-
-    private void reloadSelectionTable() {
-        stockAndCourseTabManager.updateStockSelectionTable(stockSelectionTable);
-        redoSelection();
-    }
-
-    @FXML
-    private void redoSelection() {
-        var current = stockSelectionTable.getSelectionModel().getSelectedItem();
-        if(current != null) onStockSelection(current);
-        else stockSelectionTable.getSelectionModel().selectFirst();
-    }
-
-    private void addRowChangeListeners() {
-        changedRows.clear();
-        for(CustomRow row : allRows) {
-            row.isChangedProperty().addListener((o,ov,nv) -> changedRows.add(row));
-        }
+    public void resetAll() {
+        reloadSelectionTable();
+        reloadAllDataRows();
     }
 
     @FXML
     private void saveChanges() {
         stockAndCourseTabManager.saveChangedRows(changedRows);
+        stockAndCourseTabManager.saveStockListChanges(stockSelectionTable.getItems());
         // TODO sucess alert
     }
 
@@ -98,5 +77,38 @@ public class StockTabController {
         stockAndCourseTabManager.deleteRows(selectionRows, true);
         reloadAllDataRows();
         // todo success alert
+    }
+
+
+    private void onStockSelection(Stock stock) {
+        lastViewed = stock;
+        stockDataTableView.getItems().clear();
+        var rows= stockAndCourseTabManager.getRowsFromStockSelection(stock, allRows);
+        stockDataTableView.getItems().addAll(rows);
+        addRowChangeListeners();
+    }
+
+    private void reloadAllDataRows() {
+        stockDataTableView.getColumns().clear();
+        stockDataTableView.getItems().clear();
+        allRows = stockAndCourseTabManager.updateStockTable(stockDataTableView);
+        redoSelection();
+    }
+
+    private void reloadSelectionTable() {
+        stockSelectionTable.getItems().clear();
+        stockAndCourseTabManager.updateStockSelectionTable(stockSelectionTable);
+    }
+
+    private void redoSelection() {
+        if(lastViewed != null) stockSelectionTable.getSelectionModel().select(lastViewed);
+        else stockSelectionTable.getSelectionModel().selectFirst();
+    }
+
+    private void addRowChangeListeners() {
+        changedRows.clear();
+        for(CustomRow row : allRows) {
+            row.isChangedProperty().addListener((o,ov,nv) -> changedRows.add(row));
+        }
     }
 }

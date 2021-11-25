@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller.StockTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManager;
@@ -44,6 +45,8 @@ public class ImportTabController {
     private ImportTabManager importTabManager;
     @Autowired
     private ScrapingElementsTabController elementsTabController;
+    @Autowired
+    private StockTabController stockTabController;
 
     private ObservableList<ExcelSheet> excelSheetObservableList;
     private boolean inlineValidation = false;
@@ -292,6 +295,7 @@ public class ImportTabController {
 
         // add new stocks to the list etc
         elementsTabController.refresh();
+        stockTabController.resetAll();
     }
 
     @FXML
@@ -378,6 +382,7 @@ public class ImportTabController {
         boolean valid = validPath();
         valid &= validTitleColNr();
         valid &= emptyValidator(selectionColTitleField);
+        valid &= emptyValidator(depotColTitleField);
         return valid;
     }
 

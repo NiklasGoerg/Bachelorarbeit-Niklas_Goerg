@@ -2,7 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotTransaction;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
-import org.apache.poi.ss.formula.eval.NotImplementedFunctionException;
+import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,16 +16,12 @@ public class Stock {
     @Id
     @Column(length = 50)
     private String isin;
-    private String wkn;
-
-    @Column(columnDefinition = "TEXT")
-    private String name;
-
+    @Column(name = "wkn")
+    private String _wkn;
+    @Column(name = "name",columnDefinition = "TEXT")
+    private String _name;
     @Column(name = "typ")
-    private String stockType;
-
-    @Column(name = "gruppenId")
-    private int group;
+    private String _stockType;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<DepotTransaction> depotTransactions = new ArrayList<>();
@@ -33,19 +29,24 @@ public class Stock {
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementSelection> elementSelections = new ArrayList<>();
 
-    public Stock() {
-    }
+    @Transient
+    private final SimpleStringProperty wkn = new SimpleStringProperty();
+    @Transient
+    private final SimpleStringProperty name = new SimpleStringProperty();
+    @Transient
+    private final SimpleStringProperty stockType = new SimpleStringProperty();
+    @Transient
+    private boolean isChanged = false;
 
-    public Stock(String isin, String wkn, String name, int group, String stockType) {
-        this.isin = isin;
-        this.wkn = wkn;
-        this.name = name;
-        this.group = group;
-        this.stockType = stockType;
-    }
 
-    public Stock(String isin) {
+    public Stock() {}
+
+    public Stock(String isin, String wkn, String name, String stockType) {
         this.isin = isin;
+        this._wkn = wkn;
+        this._name = name;
+        this._stockType = stockType;
+        initListener();
     }
 
     public String getIsin() {
@@ -57,37 +58,39 @@ public class Stock {
     }
 
     public String getWkn() {
+        return wkn.get();
+    }
+
+    public SimpleStringProperty wknProperty() {
         return wkn;
     }
 
     public void setWkn(String wkn) {
-        this.wkn = wkn;
+        this.wkn.set(wkn);
     }
 
     public String getName() {
+        return name.get();
+    }
+
+    public SimpleStringProperty nameProperty() {
         return name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name.set(name);
     }
 
     public String getStockType() {
+        return stockType.get();
+    }
+
+    public SimpleStringProperty stockTypeProperty() {
         return stockType;
     }
 
     public void setStockType(String stockType) {
-        throw new NotImplementedFunctionException("Die Stammdatenansicht muss aufgrund der " +
-                "Editierbarkeit vorher angepasst werden, damit es nicht zu inkonsistenzen kommt");
-    }
-
-    public int getGroup() {
-        return group;
-    }
-
-    public void setGroup(int group) {
-        throw new NotImplementedFunctionException("Die Stammdatenansicht muss aufgrund der " +
-                "Editierbarkeit vorher angepasst werden, damit es nicht zu inkonsistenzen kommt");
+        this.stockType.set(stockType);
     }
 
     public List<DepotTransaction> getDepotTransactions() {
@@ -111,6 +114,31 @@ public class Stock {
         if (this == o) return true;
         if (!(o instanceof Stock)) return false;
         Stock stock = (Stock) o;
-        return group == stock.group && Objects.equals(isin, stock.isin) && Objects.equals(wkn, stock.wkn) && Objects.equals(name, stock.name) && Objects.equals(stockType, stock.stockType);
+        return Objects.equals(isin, stock.isin);
     }
+
+    @PostLoad
+    private void setPropertiesFromPersistence() {
+        name.set(_name);
+        wkn.set(_wkn);
+        stockType.set(_stockType);
+        initListener();
+    }
+
+    private void initListener() {
+        wkn.addListener((o,ov,nv) -> {
+            isChanged = true;
+            _wkn = nv.trim();
+        });
+        name.addListener((o,ov,nv) -> {
+            isChanged = true;
+            _name = nv.trim();
+        });
+        stockType.addListener((o,ov,nv) -> {
+            isChanged = true;
+            _stockType = nv.trim();
+        });
+
+    }
+
 }

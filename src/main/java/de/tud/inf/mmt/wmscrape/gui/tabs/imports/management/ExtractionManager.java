@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
@@ -16,12 +17,15 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 @Lazy
 public class ExtractionManager {
     // POI: index 0, EXCEL Index: 1
     private final static int OFFSET = 1;
+    private static final List<String> ignoreInStockData = List.of("isin", "wkn", "name", "typ");
+
     @Autowired
     private ImportTabManager importTabManager;
     @Autowired
@@ -53,7 +57,7 @@ public class ExtractionManager {
         }
 
         // create stocks if not existing based on prior imported stock data
-        stockDataDbManager.createMissingStocks();
+        createMissingStocks();
 
         int transactionExtractionResult = extractTransactionData();
 
@@ -68,6 +72,8 @@ public class ExtractionManager {
         return 0;
     }
 
+    private final HashMap<String, HashMap<String, String>> potentialNewStocks = new HashMap<>();
+
     private int extractStockData() {
 
         importTabManager.addToLog("##### Start Stammdaten-Import #####\n");
@@ -76,6 +82,7 @@ public class ExtractionManager {
         boolean silentError = false;
         Connection connection = stockDataDbManager.getConnection();
         HashMap<String, PreparedStatement> statements = dbTransactionManager.createStockDataStatements(connection);
+        potentialNewStocks.clear();
 
         var excelSheetRows = parsingManager.getExcelSheetRows();
         var stockColumnRelations = correlationManager.getStockColumnRelations();
@@ -107,22 +114,9 @@ public class ExtractionManager {
                 continue;
             }
 
-            int wknCol = getColNrByName("wkn", stockColumnRelations);
-
-            // check if wkn valid
-            String wkn = rowData.get(wknCol);
-            if (wkn == null || wkn.isBlank()) {
-                silentError = true;
-                importTabManager.addToLog("ERR:\t\tWkn der Zeile " + (row+OFFSET) + " leer. ->'" + wkn + "'");
-                continue;
-            }
-
             // pick one column per relation from row
             for (ExcelCorrelation correlation : stockColumnRelations) {
                 String dbColName = correlation.getDbColTitle();
-
-                // continue bcs the key value is not inserted with a prepared statement
-                if (dbColName.equals("isin")) continue;
 
                 int correlationColNumber = correlation.getExcelColNumber();
                 String colData;
@@ -134,6 +128,16 @@ public class ExtractionManager {
                 } else {
                     colData = rowData.get(correlationColNumber);
                     if (colData.isBlank()) colData = null;
+                }
+
+
+                // continue bcs the key value is not inserted with a prepared statement
+                if (ignoreInStockData.contains(dbColName)) {
+                    HashMap<String,String> newStocksData;
+                    newStocksData = potentialNewStocks.getOrDefault(isin, new HashMap<>());
+                    newStocksData.put(dbColName, colData);
+                    potentialNewStocks.put(isin,newStocksData);
+                    continue;
                 }
 
 
@@ -343,4 +347,18 @@ public class ExtractionManager {
         if (getColNrByName("transaktionstyp", correlationManager.getTransactionColumnRelations()) == -1) return false;
         return getColNrByName("depot_name", correlationManager.getTransactionColumnRelations()) != -1;
     }
+
+    private void createMissingStocks() {
+        for(var ks : potentialNewStocks.entrySet()) {
+            if(stockRepository.findByIsin(ks.getKey()).isEmpty()) {
+                Stock stock = new Stock(ks.getKey(),
+                ks.getValue().getOrDefault("wkn",null),
+                ks.getValue().getOrDefault("name",null),
+                ks.getValue().getOrDefault("typ",null));
+
+                stockRepository.save(stock);
+            }
+        }
+    }
+
 }

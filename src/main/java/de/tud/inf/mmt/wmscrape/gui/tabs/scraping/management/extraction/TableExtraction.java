@@ -18,7 +18,7 @@ import java.util.*;
 
 public abstract class TableExtraction extends ExtractionGeneral implements Extraction {
 
-    private final static String[] doNotSaveColumns = {"isin", "wkn", "name"};
+    private final static List<String> doNotSaveColumns = List.of("isin", "wkn", "name", "typ");
 
     protected TableExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         super(connection, logText, scraper, date);
@@ -37,7 +37,6 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         var descriptionCorrelations  = element.getElementDescCorrelations();
         var identCorrelations = element.getElementIdentCorrelations();
         var elementSelections = element.getElementSelections();
-        Set<String> doNotSave = new HashSet<>(Arrays.asList(doNotSaveColumns));
         Map<String, InformationCarrier> preparedCarrierMap = new HashMap<>();
         InformationCarrier informationCarrier;
         preparedStatements = new HashMap<>();
@@ -63,7 +62,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             // create a sql statement with the basic information
             // row names stay the same
             statement = prepareStatement(connection, informationCarrier);
-            if (statement != null && !doNotSave.contains(correlation.getDbColName())) {
+            if (statement != null && !doNotSaveColumns.contains(correlation.getDbColName())) {
                 preparedStatements.put(correlation.getDbColName(), statement);
             }
         }

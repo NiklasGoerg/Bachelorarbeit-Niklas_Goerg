@@ -47,9 +47,7 @@ public class  ElementDescCorrelation {
     @Transient
     private boolean isChanged = false;
 
-    public ElementDescCorrelation() {
-        initListener();
-    }
+    public ElementDescCorrelation() {}
 
     public ElementDescCorrelation(ElementSelection elementSelection, WebsiteElement websiteElement) {
         this.elementSelection = elementSelection;

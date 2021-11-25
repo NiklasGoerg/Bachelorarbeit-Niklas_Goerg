@@ -42,6 +42,7 @@ public abstract class ElementManager {
 
     private final static String[] EXCHANGE_COLS = {"name", "kurs"};
     private final static String[] HIDDEN_SINGLE_STOCK = {"isin"};
+    private final static String[] EXTRA_STOCK = {"wkn","name"};
     private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_TABLE);
 
     @Autowired
@@ -211,13 +212,24 @@ public abstract class ElementManager {
         if(multiplicityType == MultiplicityType.EINZELWERT) {
             addedStockColumns.addAll(List.of(HIDDEN_SINGLE_STOCK));
         }
+        // don't need that. today's date is taken
         addedStockColumns.add("datum");
 
+        // already saved idents
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
             stockCorrelations.add(elementIdentCorrelation);
             addedStockColumns.add(elementIdentCorrelation.getDbColName());
         }
 
+        // idents that have no representation in the stock data table because they are from the stock table
+        for(String column : List.of(EXTRA_STOCK)) {
+            if(!addedStockColumns.contains(column)) {
+                addedStockColumns.add(column);
+                stockCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, column));
+            }
+        }
+
+        // idents representing columns without data assigned atm
         for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
             if(!addedStockColumns.contains(column.getName())) {
                 addedStockColumns.add(column.getName());
@@ -244,13 +256,11 @@ public abstract class ElementManager {
 
         if(multiplicityType == MultiplicityType.TABELLE) {
             // add these for scraping identification purposes
-            if (!addedStockColumns.contains("wkn")) {
-                addedStockColumns.add("wkn");
-                courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, "wkn"));
-            }
-            if (!addedStockColumns.contains("name")) {
-                addedStockColumns.add("name");
-                courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, "name"));
+            for(String column : List.of(EXTRA_STOCK)) {
+                if(!addedStockColumns.contains(column)) {
+                    addedStockColumns.add(column);
+                    courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, column));
+                }
             }
         }
 

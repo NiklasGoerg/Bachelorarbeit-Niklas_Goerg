@@ -151,7 +151,9 @@ public class DbTransactionManager {
         return true;
     }
 
-    private void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data) throws SQLException {
+    private void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data)
+            throws SQLException, NumberFormatException, DateTimeParseException {
+
         switch (datatype) {
             case DATE -> {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

@@ -39,28 +39,35 @@ public class StockAndCourseTabManager {
     public void prepareStockSelectionTable(TableView<Stock> table) {
         TableColumn<Stock, String> nameCol =  new TableColumn<>("Name");
         TableColumn<Stock, String> isinCol =  new TableColumn<>("ISIN");
+        TableColumn<Stock, String> wknCol =  new TableColumn<>("WKN");
+        TableColumn<Stock, String> typCol =  new TableColumn<>("typ");
 
-        nameCol.prefWidthProperty().bind(table.widthProperty().multiply(0.75));
-        isinCol.prefWidthProperty().bind(table.widthProperty().multiply(0.25));
-
-        nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
+        nameCol.setCellValueFactory(param -> param.getValue().nameProperty());
         isinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIsin()));
+        wknCol.setCellValueFactory(param -> param.getValue().wknProperty());
+        typCol.setCellValueFactory(param -> param.getValue().stockTypeProperty());
 
-        table.getColumns().add(nameCol);
+        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        wknCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        typCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        nameCol.setEditable(true);
+        isinCol.setEditable(false);
+        wknCol.setEditable(true);
+        typCol.setEditable(true);
+
         table.getColumns().add(isinCol);
+        table.getColumns().add(nameCol);
+        table.getColumns().add(wknCol);
+        table.getColumns().add(typCol);
     }
 
     public void updateStockSelectionTable(TableView<Stock> table) {
-        table.getItems().clear();
         table.getItems().addAll(stockRepository.findAll());
     }
 
-    private List<String> special = new ArrayList<>(Arrays.asList("datum","isin"));
 
     public ObservableList<CustomRow> updateStockTable(TableView<CustomRow> table) {
-        table.getColumns().clear();
-        table.getItems().clear();
-
         List<? extends DbTableColumn> dbTableColumns = getTableColumns(columnRepository);
         prepareTable(table, dbTableColumns, StockDataDbManager.RESERVED_COLUMNS, StockDataDbManager.COLUMN_ORDER);
         return getAllRows(StockDataDbManager.TABLE_NAME,dbTableColumns);
@@ -84,6 +91,7 @@ public class StockAndCourseTabManager {
             tableColumn.setCellValueFactory(param -> param.getValue().getCells().get(colName).textDataProperty());
             tableColumn.setCellFactory(TextFieldTableCell.forTableColumn());
             setComparator(tableColumn, datatype);
+            tableColumn.setPrefWidth(150);
 
             if(reserved.contains(colName)) tableColumn.setEditable(false);
 
@@ -146,12 +154,12 @@ public class StockAndCourseTabManager {
     }
 
     public ObservableList<CustomRow> getRowsFromStockSelection(Stock stock, ObservableList<CustomRow> rows) {
-        String stockName = stock.getName();
+        String stockIsin = stock.getIsin();
 
         ObservableList<CustomRow> objects = FXCollections.observableArrayList();
         for (CustomRow row : rows) {
-            if(row.getCells().containsKey("name")) {
-                if (row.getCells().get("name").textDataProperty().get().equals(stockName)) {
+            if(row.getCells().containsKey("isin")) {
+                if (row.getCells().get("isin").textDataProperty().get().equals(stockIsin)) {
                     objects.add(row);
                 }
             }
@@ -202,6 +210,10 @@ public class StockAndCourseTabManager {
             e.printStackTrace();
             closeConnection(connection);
         }
+    }
+
+    public void saveStockListChanges(ObservableList<Stock> stocks) {
+        stockRepository.saveAllAndFlush(stocks);
     }
 
     private void closeConnection(Connection connection) {

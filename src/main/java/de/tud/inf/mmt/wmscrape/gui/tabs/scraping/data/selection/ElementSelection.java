@@ -69,7 +69,7 @@ public class ElementSelection {
         //this.description = exchangeDataDbTableColumn.getName();
         this.websiteElement = websiteElement;
         this.exchangeDataDbTableColumn = exchangeDataDbTableColumn;
-        initListener();
+        setPropertiesFromPersistence();
     }
 
     public int getId() {

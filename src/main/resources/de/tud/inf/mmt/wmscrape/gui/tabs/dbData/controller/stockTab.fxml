@@ -11,9 +11,9 @@
    <center>
       <SplitPane dividerPositions="0.22" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="653.0" prefWidth="1337.0">
         <items>
-            <BorderPane maxWidth="550.0" minWidth="165.0" prefWidth="200.0">
+            <BorderPane minWidth="165.0" prefWidth="200.0">
                <center>
-                  <TableView fx:id="stockSelectionTable" BorderPane.alignment="CENTER" />
+                  <TableView fx:id="stockSelectionTable" editable="true" BorderPane.alignment="CENTER" />
                </center>
             </BorderPane>
             <TableView fx:id="stockDataTableView" editable="true" tableMenuButtonVisible="true" />
@@ -32,7 +32,7 @@
             <Button mnemonicParsing="false" prefHeight="20.0" text="Spalten anpassen" />
           <Button mnemonicParsing="false" prefHeight="20.0" text="Wertpapier anlegen" />
             <Button mnemonicParsing="false" onAction="#saveChanges" text="Speichern" />
-            <Button mnemonicParsing="false" onAction="#reloadAllDataRows" text="Zurücksetzen" />
+            <Button mnemonicParsing="false" onAction="#resetAll" text="Zurücksetzen" />
             <Button mnemonicParsing="false" onAction="#showAll" text="Alles anzeigen" />
         </items>
          <BorderPane.margin>

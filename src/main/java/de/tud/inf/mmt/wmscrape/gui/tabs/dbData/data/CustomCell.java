@@ -56,8 +56,8 @@ public class CustomCell {
                 String[] split = n.replaceAll("[^0-9\\-]","").split("-");
                 if(!n.trim().matches("^\\d{4}-\\d{2}-\\d{2}$")
                         || split.length < 3
-                        || Integer.parseInt(split[2]) > 12
-                        || Integer.parseInt(split[1]) > 31) {
+                        || Integer.parseInt(split[1]) > 12
+                        || Integer.parseInt(split[2]) > 31) {
                     textData.set(o);
                 } else textData.set(n.trim());
             }

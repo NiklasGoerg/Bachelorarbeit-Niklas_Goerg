@@ -165,11 +165,11 @@ public class ElementIdentCorrelation {
         });
         identification.addListener((o, ov, nv ) -> {
             isChanged = true;
-            _identification = nv;
+            _identification = nv.trim();
         });
         regex.addListener((o, ov, nv ) -> {
             isChanged = true;
-            _regex = nv;
+            _regex = nv.trim();
         });
     }
 }
