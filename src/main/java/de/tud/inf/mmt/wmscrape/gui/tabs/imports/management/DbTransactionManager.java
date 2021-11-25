@@ -73,8 +73,8 @@ public class DbTransactionManager {
     }
 
     public PreparedStatement getPreparedTransactionStatement(String dbColName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO "+ TransactionDataDbManager.TABLE_NAME +" (depot_id, transaktions_datum, wertpapier_isin, " + dbColName + ") VALUES(?,?,?,?) " +
-                "ON DUPLICATE KEY UPDATE " + dbColName + "=VALUES(" + dbColName + ");";
+        String sql = "INSERT INTO `"+ TransactionDataDbManager.TABLE_NAME +"` (depot_id, transaktions_datum, wertpapier_isin, `" + dbColName + "`) VALUES(?,?,?,?) " +
+                "ON DUPLICATE KEY UPDATE `" + dbColName + "`=VALUES(`" + dbColName + "`);";
         return connection.prepareStatement(sql);
     }
 

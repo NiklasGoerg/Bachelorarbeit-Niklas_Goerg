@@ -160,7 +160,7 @@ public class ScrapingElementsTabController {
         elementObservableList.addAll(scrapingTabManager.getElements());
     }
 
-    public void reloadWebsiteList() {
+    private void reloadWebsiteList() {
         websiteObservableList.clear();
         websiteObservableList.addAll(scrapingTabManager.getWebsites());
     }

@@ -34,12 +34,6 @@ public class  ElementDescCorrelation {
     @Transient
     private final SimpleStringProperty wsWkn = new SimpleStringProperty();
 
-    // only for currency exchange correlation
-    @Column(name = "wsCurrencyName", columnDefinition = "TEXT")
-    private String _wsCurrencyName;
-    @Transient
-    private final SimpleStringProperty wsCurrencyName = new SimpleStringProperty();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "websiteElementId", referencedColumnName = "id")
     private WebsiteElement websiteElement;
@@ -55,7 +49,6 @@ public class  ElementDescCorrelation {
 
         // initial state is to show the same values as in the db
         this._wsDescription = elementSelection.getDescription();
-        this._wsCurrencyName = elementSelection.getDescription(); // also set for course/stock but it's useless
         this._wsIsin = elementSelection.getIsin();
         this._wsWkn = elementSelection.getWkn();
         setPropertiesFromPersistence();
@@ -82,10 +75,6 @@ public class  ElementDescCorrelation {
         return wsDescription;
     }
 
-    public void setWsDescription(String wsDescription) {
-        this.wsDescription.set(wsDescription);
-    }
-
     public String getWsIsin() {
         return wsIsin.get();
     }
@@ -94,32 +83,12 @@ public class  ElementDescCorrelation {
         return wsIsin;
     }
 
-    public void setWsIsin(String wsIsin) {
-        this.wsIsin.set(wsIsin);
-    }
-
     public String getWsWkn() {
         return wsWkn.get();
     }
 
     public SimpleStringProperty wsWknProperty() {
         return wsWkn;
-    }
-
-    public void setWsWkn(String wsWkn) {
-        this.wsWkn.set(wsWkn);
-    }
-
-    public String getWsCurrencyName() {
-        return wsCurrencyName.get();
-    }
-
-    public SimpleStringProperty wsCurrencyNameProperty() {
-        return wsCurrencyName;
-    }
-
-    public void setWsCurrencyName(String wsCurrencyName) {
-        this.wsCurrencyName.set(wsCurrencyName);
     }
 
     public WebsiteElement getWebsiteElement() {
@@ -134,7 +103,6 @@ public class  ElementDescCorrelation {
     private void setPropertiesFromPersistence() {
         wsDescription.set(_wsDescription);
         wsIsin.set(_wsIsin);
-        wsCurrencyName.set(_wsCurrencyName);
         wsWkn.set(_wsWkn);
         initListener();
     }
@@ -149,7 +117,7 @@ public class  ElementDescCorrelation {
         if (!(o instanceof ElementDescCorrelation)) return false;
         ElementDescCorrelation that;
         that = (ElementDescCorrelation) o;
-        return Objects.equals(elementSelection, that.elementSelection) && Objects.equals(_wsDescription,that._wsDescription) && Objects.equals(_wsIsin,that._wsIsin) && Objects.equals(_wsWkn,that._wsWkn) && Objects.equals(_wsCurrencyName, that._wsCurrencyName);
+        return Objects.equals(elementSelection, that.elementSelection) && Objects.equals(_wsDescription,that._wsDescription) && Objects.equals(_wsIsin,that._wsIsin) && Objects.equals(_wsWkn,that._wsWkn);
     }
 
     private void initListener() {
@@ -160,10 +128,6 @@ public class  ElementDescCorrelation {
         wsIsin.addListener((o, ov, nv ) -> {
             isChanged = true;
             _wsIsin = nv.trim();
-        });
-        wsCurrencyName.addListener((o, ov, nv ) -> {
-            isChanged = true;
-            _wsCurrencyName = nv.trim();
         });
         wsWkn.addListener((o, ov, nv) -> {
             isChanged = true;

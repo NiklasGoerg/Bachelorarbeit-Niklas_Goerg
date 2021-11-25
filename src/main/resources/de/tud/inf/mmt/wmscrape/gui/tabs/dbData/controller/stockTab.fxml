@@ -26,7 +26,7 @@
    <top>
       <ToolBar nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
         <items>
-            <Button mnemonicParsing="false" text="Wertpapier löschen" />
+            <Button mnemonicParsing="false" onAction="#deleteSelectedStock" text="Wertpapier löschen" />
             <Button mnemonicParsing="false" onAction="#deleteAllInTable" prefHeight="20.0" text="Tabelleninhalte löschen" />
             <Button mnemonicParsing="false" onAction="#deleteRows" text="Zeilen löschen" />
             <Button mnemonicParsing="false" prefHeight="20.0" text="Spalten anpassen" />

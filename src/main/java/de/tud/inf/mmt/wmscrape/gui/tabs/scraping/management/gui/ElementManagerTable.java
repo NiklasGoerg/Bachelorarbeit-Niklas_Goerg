@@ -82,7 +82,7 @@ public class ElementManagerTable extends ElementManager {
         dbDescriptionCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getElementSelection().getDescription()));
 
         // representation
-        wsDescriptionCol.setCellValueFactory(param -> param.getValue().wsCurrencyNameProperty());
+        wsDescriptionCol.setCellValueFactory(param -> param.getValue().wsDescriptionProperty());
         textFieldCellFactory(wsDescriptionCol);
 
 

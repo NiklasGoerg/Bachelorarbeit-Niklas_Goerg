@@ -3,6 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.CustomRow;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.management.StockAndCourseTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,10 +20,13 @@ public class StockTabController {
 
     @Autowired
     private StockAndCourseTabManager stockAndCourseTabManager;
+    @Autowired
+    ScrapingElementsTabController scrapingElementsTabController;
 
     private ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
     private final ObservableList<CustomRow> changedRows = FXCollections.observableArrayList();
     private Stock lastViewed;
+    private boolean viewEverything = false;
 
     @FXML
     private void initialize() {
@@ -42,6 +46,7 @@ public class StockTabController {
         stockDataTableView.getItems().clear();
         stockDataTableView.getItems().addAll(allRows);
         addRowChangeListeners();
+        viewEverything = true;
     }
 
     @FXML
@@ -54,6 +59,7 @@ public class StockTabController {
     private void saveChanges() {
         stockAndCourseTabManager.saveChangedRows(changedRows);
         stockAndCourseTabManager.saveStockListChanges(stockSelectionTable.getItems());
+        scrapingElementsTabController.refresh();
         // TODO sucess alert
     }
 
@@ -63,8 +69,10 @@ public class StockTabController {
         // todo alert request confirm
         var selection = stockDataTableView.getSelectionModel().getSelectedItems();
         if(selection == null) return;
+        var tmp = viewEverything;
         stockAndCourseTabManager.deleteRows(selection, false);
         reloadAllDataRows();
+        if(tmp) showAll();
         // todo success alert
     }
 
@@ -79,6 +87,17 @@ public class StockTabController {
         // todo success alert
     }
 
+    @FXML
+    private void deleteSelectedStock() {
+        // todo alert request confirm
+        var selected = stockSelectionTable.getSelectionModel().getSelectedItem();
+        if( selected == null) return;
+        stockAndCourseTabManager.deleteStock(selected);
+        scrapingElementsTabController.refresh();
+        stockSelectionTable.getSelectionModel().selectFirst();
+        resetAll();
+        // todo success alert
+    }
 
     private void onStockSelection(Stock stock) {
         lastViewed = stock;

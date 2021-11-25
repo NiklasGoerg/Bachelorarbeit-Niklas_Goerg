@@ -227,8 +227,8 @@ public class StockAndCourseTabManager {
     }
 
     private PreparedStatement prepareStatements(String colName, Connection connection) throws SQLException{
-        String sql = "INSERT INTO "+StockDataDbManager.TABLE_NAME+" ("+colName+
-                ", datum, isin) VALUES(?,?,?) ON DUPLICATE KEY UPDATE "+colName+"=VALUES("+colName+");";
+        String sql = "INSERT INTO `"+StockDataDbManager.TABLE_NAME+"` (`"+colName+
+                "`, datum, isin) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `"+colName+"`=VALUES("+colName+");";
         return connection.prepareStatement(sql);
     }
 
@@ -326,11 +326,15 @@ public class StockAndCourseTabManager {
 
     // todo abstract
     private PreparedStatement prepareDeleteSelectionStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement("DELETE FROM "+StockDataDbManager.TABLE_NAME+" WHERE isin=? and datum=?");
+        return connection.prepareStatement("DELETE FROM `"+StockDataDbManager.TABLE_NAME+"` WHERE isin=? and datum=?");
     }
 
     private PreparedStatement prepareDeleteAllStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement("DELETE FROM "+StockDataDbManager.TABLE_NAME+" WHERE isin=?");
+        return connection.prepareStatement("DELETE FROM `"+StockDataDbManager.TABLE_NAME+"` WHERE isin=?");
+    }
+
+    public void deleteStock(Stock stock) {
+        stockRepository.delete(stock);
     }
 
 }

@@ -25,8 +25,8 @@ public class TableExchangeExtraction extends TableExtraction {
     protected PreparedStatement prepareStatement(Connection connection, InformationCarrier carrier) {
         String dbColName = carrier.getDbColName();
 
-        String sql = "INSERT INTO "+carrier.getDbTableName()+" (" + dbColName + ", datum) VALUES(?,?) ON DUPLICATE KEY UPDATE " +
-                dbColName + "=VALUES(" + dbColName + ");";
+        String sql = "INSERT INTO `"+carrier.getDbTableName()+"` (`" + dbColName + "`, datum) VALUES(?,?) ON DUPLICATE KEY UPDATE `" +
+                dbColName + "`=VALUES(`" + dbColName + "`);";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
