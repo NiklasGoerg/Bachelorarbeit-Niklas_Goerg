@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data;
+package de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

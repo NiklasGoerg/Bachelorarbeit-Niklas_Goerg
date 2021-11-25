@@ -86,7 +86,11 @@ public class NewUserLoginController {
         alert.showAndWait();
 
         if(returnInformation > 0) {
-            LoginManager.loginExistingUser(newUsernameField.getText(), newPasswordField.getText(), rootUsernameField);
+            try {
+                LoginManager.loginExistingUser(newUsernameField.getText(), newPasswordField.getText(), rootUsernameField);
+            } catch (Exception e) {
+                LoginManager.programErrorAlert(e, newUsernameField);
+            }
         }
     }
 

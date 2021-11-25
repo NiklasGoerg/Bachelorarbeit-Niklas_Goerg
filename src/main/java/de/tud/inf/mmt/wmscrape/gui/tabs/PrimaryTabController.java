@@ -1,9 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs;
 
-import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller.DbDataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;
+import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -32,6 +33,8 @@ public class PrimaryTabController {
     private ScrapingTabController scrapingTabController;
     @Autowired
     private PrimaryTabManagement primaryTabManagement;
+    @Autowired
+    private DbDataTabController dbDataTabController;
 
     @FXML
     private void initialize() throws IOException {
@@ -43,6 +46,10 @@ public class PrimaryTabController {
 
         parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);
         tab = new Tab("Scraping" , parent);
+        primaryTabPane.getTabs().add(tab);
+
+        parent = primaryTabManagement.loadTabFxml("gui/tabs/dbData/controller/dbDataTab.fxml", dbDataTabController);
+        tab = new Tab("Daten" , parent);
         primaryTabPane.getTabs().add(tab);
     }
 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller.StockTabController">
+   <center>
+      <SplitPane dividerPositions="0.22" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="653.0" prefWidth="1337.0">
+        <items>
+            <BorderPane maxWidth="550.0" minWidth="165.0" prefWidth="200.0">
+               <center>
+                  <TableView fx:id="stockSelectionTable" BorderPane.alignment="CENTER" />
+               </center>
+            </BorderPane>
+            <TableView fx:id="stockDataTableView" editable="true" tableMenuButtonVisible="true" />
+        </items>
+         <padding>
+            <Insets bottom="3.0" />
+         </padding>
+      </SplitPane>
+   </center>
+   <top>
+      <ToolBar nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
+        <items>
+            <Button mnemonicParsing="false" text="Wertpapier löschen" />
+            <Button mnemonicParsing="false" onAction="#deleteAllInTable" prefHeight="20.0" text="Tabelleninhalte löschen" />
+            <Button mnemonicParsing="false" onAction="#deleteRows" text="Zeilen löschen" />
+            <Button mnemonicParsing="false" prefHeight="20.0" text="Spalten anpassen" />
+          <Button mnemonicParsing="false" prefHeight="20.0" text="Wertpapier anlegen" />
+            <Button mnemonicParsing="false" onAction="#saveChanges" text="Speichern" />
+            <Button mnemonicParsing="false" onAction="#reloadAllDataRows" text="Zurücksetzen" />
+            <Button mnemonicParsing="false" onAction="#showAll" text="Alles anzeigen" />
+        </items>
+         <BorderPane.margin>
+            <Insets right="-3.0" top="3.0" />
+         </BorderPane.margin>
+      </ToolBar>
+   </top>
+</BorderPane>

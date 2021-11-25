@@ -26,6 +26,7 @@ public class ScrapingTabController {
         tab.selectedProperty().addListener((o,ov,nv) -> {
             if(nv) {
                 scrapingScrapeTabController.updateSelectionTree();
+                scrapingScrapeTabController.resetProgressBars();
             }
         });
         scrapingSubTabPane.getTabs().add(tab);

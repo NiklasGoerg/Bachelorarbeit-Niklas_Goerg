@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TabPane?>
+
+
+<TabPane id="verticalTabPane" fx:id="dataSubTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="80.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller.DbDataTabController" />

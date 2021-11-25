@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -15,6 +15,8 @@ public class ElementSelection {
     @Id
     @GeneratedValue
     private int id;
+
+    @Transient
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -57,14 +59,14 @@ public class ElementSelection {
     public ElementSelection() {}
 
     public ElementSelection(WebsiteElement websiteElement, Stock stock) {
-        this.description = stock.getName();
+        //this.description = stock.getName();
         this.websiteElement = websiteElement;
         this.stock = stock;
         setPropertiesFromPersistence();
     }
 
     public ElementSelection(WebsiteElement websiteElement, ExchangeDataDbTableColumn exchangeDataDbTableColumn) {
-        this.description = exchangeDataDbTableColumn.getName();
+        //this.description = exchangeDataDbTableColumn.getName();
         this.websiteElement = websiteElement;
         this.exchangeDataDbTableColumn = exchangeDataDbTableColumn;
         initListener();
@@ -110,10 +112,6 @@ public class ElementSelection {
         return stock;
     }
 
-    public ExchangeDataDbTableColumn getExchangeDataDbTableColumn() {
-        return exchangeDataDbTableColumn;
-    }
-
     public boolean isChanged() {
         return isChanged;
     }
@@ -137,8 +135,13 @@ public class ElementSelection {
     @PostLoad
     private void setPropertiesFromPersistence() {
         selected.set(_selected);
-        if(stock != null && stock.getIsin() != null) isin = stock.getIsin();
-        if(stock != null && stock.getWkn() != null) wkn = stock.getWkn();
+        if(stock != null) {
+            isin = stock.getIsin();
+            wkn = stock.getWkn();
+            description = stock.getName();
+        } else if(exchangeDataDbTableColumn != null) {
+            description = exchangeDataDbTableColumn.getName();
+        }
         initListener();
     }
 

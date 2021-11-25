@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Controller
@@ -51,7 +50,7 @@ public class ScrapingElementsTabController {
     private TableSubController tableSubController;
 
     private ObservableList<WebsiteElement> elementObservableList;
-    private final ObservableList<Website> websiteObservableList = FXCollections.observableList(new ArrayList<>());
+    private final ObservableList<Website> websiteObservableList = FXCollections.observableArrayList();
     private static final BorderPane noSelectionReplacement = new BorderPane(new Label(
             "Wählen Sie ein Element aus oder erstellen Sie ein neues (unten links)"));
 

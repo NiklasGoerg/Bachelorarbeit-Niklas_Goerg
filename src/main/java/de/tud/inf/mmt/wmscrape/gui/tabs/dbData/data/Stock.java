@@ -1,7 +1,8 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data;
+package de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotTransaction;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
+import org.apache.poi.ss.formula.eval.NotImplementedFunctionException;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class Stock {
     private String stockType;
 
     @Column(name = "gruppenId")
-    private int groupId;
+    private int group;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<DepotTransaction> depotTransactions = new ArrayList<>();
@@ -35,11 +36,11 @@ public class Stock {
     public Stock() {
     }
 
-    public Stock(String isin, String wkn, String name, int groupId, String stockType) {
+    public Stock(String isin, String wkn, String name, int group, String stockType) {
         this.isin = isin;
         this.wkn = wkn;
         this.name = name;
-        this.groupId = groupId;
+        this.group = group;
         this.stockType = stockType;
     }
 
@@ -76,15 +77,17 @@ public class Stock {
     }
 
     public void setStockType(String stockType) {
-        this.stockType = stockType;
+        throw new NotImplementedFunctionException("Die Stammdatenansicht muss aufgrund der " +
+                "Editierbarkeit vorher angepasst werden, damit es nicht zu inkonsistenzen kommt");
     }
 
-    public int getGroupId() {
-        return groupId;
+    public int getGroup() {
+        return group;
     }
 
-    public void setGroupId(int groupId) {
-        this.groupId = groupId;
+    public void setGroup(int group) {
+        throw new NotImplementedFunctionException("Die Stammdatenansicht muss aufgrund der " +
+                "Editierbarkeit vorher angepasst werden, damit es nicht zu inkonsistenzen kommt");
     }
 
     public List<DepotTransaction> getDepotTransactions() {
@@ -106,8 +109,8 @@ public class Stock {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Stock)) return false;
         Stock stock = (Stock) o;
-        return Objects.equals(isin, stock.isin);
+        return group == stock.group && Objects.equals(isin, stock.isin) && Objects.equals(wkn, stock.wkn) && Objects.equals(name, stock.name) && Objects.equals(stockType, stock.stockType);
     }
 }

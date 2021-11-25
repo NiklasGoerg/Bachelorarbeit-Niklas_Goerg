@@ -5,6 +5,8 @@ import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -95,7 +97,7 @@ public class LoginManager {
         }
     }
 
-    public static boolean loginExistingUser(String username, String password, Control control) {
+    public static boolean loginExistingUser(String username, String password, Control control) throws Exception{
         String springUsername = username.trim().replace(" ", "_");
         String springConnectionPath = formSpringConnectionPath(springUsername, SpringIndependentData.getPropertyConnectionPath());
 
@@ -117,13 +119,7 @@ public class LoginManager {
         fxmlLoader.setControllerFactory(aClass -> applicationContext.getBean(aClass));
         Parent parent;
 
-        try {
-            parent = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-            //System.out.println(e.getMessage());
-            return false;
-        }
+        parent = fxmlLoader.load();
 
         Stage window = (Stage) control.getScene().getWindow();
         window.getScene().setRoot(parent);
@@ -283,6 +279,17 @@ public class LoginManager {
     public static String formSpringConnectionPath(String username, String propertyPath) {
         String removedTrailingSlash = propertyPath.replaceAll("/$", "");
         return "jdbc:" + removedTrailingSlash + "/" + username.replace(" ", "_") + "_USER_DB";
+    }
+
+
+    public static void programErrorAlert(Exception e, Control control) {
+        e.printStackTrace();
+        Alert alert = new Alert(Alert.AlertType.ERROR,
+                "Fehler bei dem Starten des Programms!\n"+e.getCause(), ButtonType.CLOSE);
+        alert.setHeaderText("Programmfehler");
+        alert.setX(control.getScene().getWindow().getX()+(control.getScene().getWindow().getWidth()/2)-200);
+        alert.setY(control.getScene().getWindow().getY()+(control.getScene().getWindow().getHeight()/2)-200);
+        alert.showAndWait();
     }
  }
 

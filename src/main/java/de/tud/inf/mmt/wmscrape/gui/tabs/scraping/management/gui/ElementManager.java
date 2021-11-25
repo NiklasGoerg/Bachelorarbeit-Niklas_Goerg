@@ -7,8 +7,8 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbTableColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data.StockRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -313,7 +313,7 @@ public abstract class ElementManager {
 
         for(ElementSelection elementSelection : websiteElement.getElementSelections()) {
             stockSelections.add(elementSelection);
-            addedStockSelection.add(elementSelection.getExchangeDataDbTableColumn().getName());
+            addedStockSelection.add(elementSelection.getDescription());
         }
 
         for(ExchangeDataDbTableColumn column : exchangeDataColumnRepository.findAll()) {

@@ -14,8 +14,6 @@ import javafx.scene.layout.BorderPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import java.util.HashMap;
-
 @Controller
 public class ScrapingScrapeTabController {
 
@@ -36,7 +34,7 @@ public class ScrapingScrapeTabController {
     @FXML private Button continueButton;
     @FXML private Button startButton;
 
-    private final ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems = FXCollections.observableMap(new HashMap<>());
+    private final ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems = FXCollections.observableHashMap();
     private static SimpleStringProperty logText;
 
     @FXML
@@ -132,7 +130,7 @@ public class ScrapingScrapeTabController {
         return websiteProgress.getProgress() >= 1 && elementProgress.getProgress() >= 1 && selectionProgress.getProgress() >= 1;
     }
 
-    private void resetProgressBars() {
+    public void resetProgressBars() {
         waitProgress.setProgress(0);
         websiteProgress.setProgress(0);
         elementProgress.setProgress(0);

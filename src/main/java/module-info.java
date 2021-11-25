@@ -67,8 +67,8 @@ module de.tud.inf.mmt.wmscrape {
     opens de.tud.inf.mmt.wmscrape.dynamicdb.exchange;
     exports de.tud.inf.mmt.wmscrape.dynamicdb.stock;
     opens de.tud.inf.mmt.wmscrape.dynamicdb.stock;
-    exports de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data;
-    opens de.tud.inf.mmt.wmscrape.gui.tabs.datatab.data;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description to spring.beans;
     opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description to javafx.base, javafx.fxml, org.hibernate.orm.core, spring.core;
     exports de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification to spring.beans;
@@ -81,4 +81,9 @@ module de.tud.inf.mmt.wmscrape {
     opens de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction to javafx.fxml, org.hibernate.orm.core, spring.core;
     opens de.tud.inf.mmt.wmscrape.dynamicdb.transaction to spring.core, org.hibernate.orm.core;
     exports de.tud.inf.mmt.wmscrape.dynamicdb.transaction to spring.beans;
+
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller to spring.core, javafx.fxml;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller to spring.beans;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.dbData.management to spring.beans;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.dbData.management to spring.core;
 }

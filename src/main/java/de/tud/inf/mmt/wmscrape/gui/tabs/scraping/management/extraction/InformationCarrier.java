@@ -22,19 +22,6 @@ public class InformationCarrier {
 
     private String extractedData = null;
 
-
-    // only use for non-existing critical elements
-    // extracted data has to be overridden
-    public InformationCarrier(Date date, ColumnDatatype datatype, String dbColName) {
-        this.date = date;
-        this.datatype = datatype;
-        this.dbColName = dbColName;
-        this.identType = null;
-        this.identifier = null;
-        this.regexFilter = null;
-    }
-
-
     public InformationCarrier(Date date, ColumnDatatype datatype, IdentType identType, String identifier, String regexFilter) {
         this.date = date;
         this.datatype = datatype;

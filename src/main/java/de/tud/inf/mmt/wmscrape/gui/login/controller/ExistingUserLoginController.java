@@ -32,7 +32,15 @@ public class ExistingUserLoginController {
             return;
         }
 
-        boolean success = LoginManager.loginExistingUser(usernameField.getText(), passwordField.getText(), usernameField);
+        boolean success = false;
+
+        try {
+            success = LoginManager.loginExistingUser(usernameField.getText(), passwordField.getText(), usernameField);
+        } catch (Exception e) {
+            LoginManager.programErrorAlert(e, usernameField);
+            return;
+        }
+
 
         if (!success) {
             Alert alert = new Alert(Alert.AlertType.ERROR,
