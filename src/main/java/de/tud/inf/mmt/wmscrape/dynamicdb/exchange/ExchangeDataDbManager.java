@@ -22,33 +22,37 @@ public class ExchangeDataDbManager extends DynamicDbManger{
         // and has to be initialized by myself
 
         if (tableDoesNotExist(TABLE_NAME)) {
-            initializeTable("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (datum DATE PRIMARY KEY);");
+            initializeTable("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (datum DATE PRIMARY KEY);");
         }
 
-        ArrayList<String> columnNames = new ArrayList<>();
+        // the column names where a representation in db_table_column_exists
+        ArrayList<String> representedColumns = new ArrayList<>();
         for(ExchangeDataDbTableColumn column : exchangeDataColumnRepository.findAll()) {
-            columnNames.add(column.getName());
+            representedColumns.add(column.getName());
         }
 
         for(String colName : getColumns(TABLE_NAME)) {
-            if(!columnNames.contains(colName)) {
+            if(!representedColumns.contains(colName)) {
+                // add new representation
                 ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
-                exchangeDataColumnRepository.save(new ExchangeDataDbTableColumn(colName, datatype));
+                exchangeDataColumnRepository.saveAndFlush(new ExchangeDataDbTableColumn(colName, datatype));
+            } else  {
+                // representation exists
+                representedColumns.remove(colName);
             }
         }
 
-        initColumn("eur");
-        initColumn("usd");
-        initColumn("gbp");
-        initColumn("jpy");
-        initColumn("cad");
-        initColumn("cny");
-    }
+        // removing references that do not exist anymore
+        removeRepresentation(representedColumns, exchangeDataColumnRepository);
 
-    private void initColumn(String name) {
-        addColumnIfNotExists(TABLE_NAME, exchangeDataColumnRepository, new ExchangeDataDbTableColumn(name, ColumnDatatype.DOUBLE));
-    }
 
+        addColumn("eur", ColumnDatatype.DOUBLE);
+        addColumn("usd", ColumnDatatype.DOUBLE);
+        addColumn("gbp", ColumnDatatype.DOUBLE);
+        addColumn("jpy", ColumnDatatype.DOUBLE);
+        addColumn("cad", ColumnDatatype.DOUBLE);
+        addColumn("cny", ColumnDatatype.DOUBLE);
+    }
 
     public void removeColumn(String columnName) {
         Optional<ExchangeDataDbTableColumn> column = exchangeDataColumnRepository.findByName(columnName);
@@ -58,4 +62,8 @@ public class ExchangeDataDbManager extends DynamicDbManger{
         }
     }
 
+    @Override
+    protected void addColumn(String colName, ColumnDatatype datatype) {
+        addColumnIfNotExists(TABLE_NAME, exchangeDataColumnRepository, new ExchangeDataDbTableColumn(colName, datatype));
+    }
 }

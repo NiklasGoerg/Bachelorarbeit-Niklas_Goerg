@@ -7,15 +7,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class CourseDataDbManager extends DynamicDbManger{
 
     public static final String TABLE_NAME = "kursdaten";
-    public static final Map<String, ColumnDatatype> colNameToDataType = new HashMap<>();
 
     @Autowired
     CourseDataColumnRepository courseDataColumnRepository;
@@ -26,32 +23,36 @@ public class CourseDataDbManager extends DynamicDbManger{
         // and has to be initialized by myself
 
         if (tableDoesNotExist(TABLE_NAME)) {
-            initializeTable("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+            initializeTable("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         }
 
-        ArrayList<String> columnNames = new ArrayList<>();
+        // the column names where a representation in db_table_column_exists
+        ArrayList<String> representedColumns = new ArrayList<>();
         for(CourseDataDbTableColumn column : courseDataColumnRepository.findAll()) {
-            columnNames.add(column.getName());
-            colNameToDataType.put(column.getName(), column.getColumnDatatype());
+            representedColumns.add(column.getName());
         }
+
 
         for(String colName : getColumns(TABLE_NAME)) {
-            if(!columnNames.contains(colName)) {
+            // add new representation
+            if(!representedColumns.contains(colName)) {
                 ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
-                colNameToDataType.put(colName, datatype);
-                courseDataColumnRepository.save(new CourseDataDbTableColumn(colName, datatype));
+                courseDataColumnRepository.saveAndFlush(new CourseDataDbTableColumn(colName, datatype));
+            } else {
+                // representation exists
+                representedColumns.remove(colName);
             }
         }
 
-        initColumn("kurs_in_eur", ColumnDatatype.DOUBLE);
-        initColumn("volumen", ColumnDatatype.DOUBLE);
-        initColumn("tages_hoch", ColumnDatatype.DOUBLE);
-        initColumn("tages_tief", ColumnDatatype.DOUBLE);
-        initColumn("datum_interessant", ColumnDatatype.DATE);
-    }
+        // removing references that do not exist anymore
+        removeRepresentation(representedColumns, courseDataColumnRepository);
 
-    private void initColumn(String name, ColumnDatatype columnDatatype) {
-        addColumnIfNotExists(TABLE_NAME, courseDataColumnRepository, new CourseDataDbTableColumn(name, columnDatatype));
+
+        addColumn("kurs_in_eur", ColumnDatatype.DOUBLE);
+        addColumn("volumen", ColumnDatatype.DOUBLE);
+        addColumn("tages_hoch", ColumnDatatype.DOUBLE);
+        addColumn("tages_tief", ColumnDatatype.DOUBLE);
+        addColumn("datum_interessant", ColumnDatatype.DATE);
     }
 
     public void removeColumn(String columnName) {
@@ -60,5 +61,10 @@ public class CourseDataDbManager extends DynamicDbManger{
             column.get().setElementIdentCorrelations(null);
             super.removeAbstractColumn(column.get().getName(), TABLE_NAME, courseDataColumnRepository);
         }
+    }
+
+    @Override
+    protected void addColumn(String colName, ColumnDatatype datatype) {
+        addColumnIfNotExists(TABLE_NAME, courseDataColumnRepository, new CourseDataDbTableColumn(colName, datatype));
     }
 }

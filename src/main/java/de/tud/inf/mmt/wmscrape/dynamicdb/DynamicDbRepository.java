@@ -10,6 +10,7 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface DynamicDbRepository<TableColumn, ID> extends JpaRepository<TableColumn, ID>, QueryByExampleExecutor<TableColumn> {
     Optional<TableColumn> findByName(String name);
+    void deleteByName(String name);
     <T extends DbTableColumn> void delete(T dbTableColumn);
     <T extends DbTableColumn> void save(T entity);
 }

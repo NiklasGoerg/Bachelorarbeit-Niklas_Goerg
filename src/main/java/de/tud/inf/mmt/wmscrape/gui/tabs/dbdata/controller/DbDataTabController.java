@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller;
+package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import javafx.fxml.FXML;
@@ -18,7 +18,7 @@ public class DbDataTabController {
 
     @FXML
     private void initialize() throws IOException {
-        Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/dbData/controller/stockTab.fxml", stockTabController);
+        Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/dbdata/controller/stockTab.fxml", stockTabController);
         Tab tab = new Tab("Stamm", parent);
         dataSubTabPane.getTabs().add(tab);
     }

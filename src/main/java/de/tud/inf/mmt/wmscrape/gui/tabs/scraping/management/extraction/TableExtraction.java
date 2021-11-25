@@ -213,7 +213,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
     protected boolean compare(InformationCarrier carrier, String dbData) {
         if (carrier != null ) {
             var websiteData = carrier.getExtractedData();
-            if (websiteData != null && websiteData.length() > 0) {
+            if (websiteData != null && !websiteData.isBlank() && !dbData.isBlank()) {
                 if (dbData.equals(websiteData)) {
                     // matched
                     return true;

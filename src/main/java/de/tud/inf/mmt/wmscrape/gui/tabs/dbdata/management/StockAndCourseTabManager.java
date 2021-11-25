@@ -1,19 +1,21 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.dbData.management;
+package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.CustomCell;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.CustomRow;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.StockRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,8 @@ public class StockAndCourseTabManager {
     private StockDataColumnRepository columnRepository;
     @Autowired
     private StockRepository stockRepository;
+    @Autowired
+    private StockDataColumnRepository stockDataColumnRepository;
     @Autowired
     private DataSource dataSource;
 
@@ -337,4 +341,21 @@ public class StockAndCourseTabManager {
         stockRepository.delete(stock);
     }
 
+    public void createStock(String isin, String wkn, String name, String type) {
+        if(isin == null || isin.isBlank()) return;
+        stockRepository.saveAndFlush(new Stock(isin, wkn, name, type));
+    }
+
+    public List<StockDataDbTableColumn> getStockColumns() {
+        return stockDataColumnRepository.findAll();
+    }
+
+    public Tooltip createTooltip(String text) {
+        Tooltip tooltip = new Tooltip();
+        tooltip.setText(text);
+        tooltip.setOpacity(.9);
+        tooltip.setAutoFix(true);
+        tooltip.setStyle(".bad-input");
+        return tooltip;
+    }
 }

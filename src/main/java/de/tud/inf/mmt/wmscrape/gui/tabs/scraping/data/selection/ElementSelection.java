@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import javafx.beans.property.SimpleBooleanProperty;

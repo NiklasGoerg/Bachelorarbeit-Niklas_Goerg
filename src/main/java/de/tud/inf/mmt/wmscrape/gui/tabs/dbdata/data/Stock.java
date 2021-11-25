@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data;
+package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotTransaction;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;

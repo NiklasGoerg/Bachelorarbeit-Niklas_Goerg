@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data;
+package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data;
 
 import javafx.beans.property.SimpleBooleanProperty;
 

@@ -42,4 +42,9 @@ public abstract class DbTableColumn {
     }
 
     public abstract String getTableName();
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

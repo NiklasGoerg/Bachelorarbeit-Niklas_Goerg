@@ -18,20 +18,33 @@ public class TransactionDataDbManager extends DynamicDbManger{
 
     @PostConstruct
     private void initTransactionData() {
-        ArrayList<String> columnNames = new ArrayList<>();
+
+        // the column names where a representation in db_table_column_exists
+        ArrayList<String> representedColumns = new ArrayList<>();
         for(TransactionDataDbTableColumn column : transactionDataColumnRepository.findAll()) {
-            columnNames.add(column.getName());
+            representedColumns.add(column.getName());
         }
 
         for(String colName : getColumns(TABLE_NAME)) {
-            if(!columnNames.contains(colName)) {
+            if(!representedColumns.contains(colName)) {
                 ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
-                transactionDataColumnRepository.save(new TransactionDataDbTableColumn(colName, datatype));
+                transactionDataColumnRepository.saveAndFlush(new TransactionDataDbTableColumn(colName, datatype));
+            } else {
+                // representation exists
+                representedColumns.remove(colName);
             }
         }
+
+        // removing references that do not exist anymore
+        removeRepresentation(representedColumns, transactionDataColumnRepository);
     }
 
     public void removeColumn(String columnName) {
+        throw new NotImplementedFunctionException("This table is managed by spring");
+    }
+
+    @Override
+    protected void addColumn(String colName, ColumnDatatype datatype) {
         throw new NotImplementedFunctionException("This table is managed by spring");
     }
 

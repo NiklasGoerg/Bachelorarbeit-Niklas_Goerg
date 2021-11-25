@@ -150,12 +150,7 @@ public class ScrapingScrapeTabController {
     }
 
     private void makeStartVisible(boolean b){
-        if(b) {
-            startButton.setVisible(true);
-            startButton.setManaged(true);
-        } else {
-            startButton.setVisible(false);
-            startButton.setManaged(false);
-        }
+        startButton.setVisible(b);
+        startButton.setManaged(b);
     }
 }

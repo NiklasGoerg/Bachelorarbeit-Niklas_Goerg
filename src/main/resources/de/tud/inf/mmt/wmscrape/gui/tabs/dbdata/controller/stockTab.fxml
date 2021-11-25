@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<BorderPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.StockTabController">
+   <top>
+      <ToolBar nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
+        <items>
+            <Button mnemonicParsing="false" onAction="#handleDeleteStockButton" text="Wertpapier löschen" />
+            <Button mnemonicParsing="false" onAction="#handleDeleteAllInTableButton" prefHeight="20.0" text="Tabelleninhalte löschen" />
+            <Button mnemonicParsing="false" onAction="#handleDeleteRowsButton" text="Zeilen löschen" />
+            <Button mnemonicParsing="false" onAction="#handleColumnModificationButton" prefHeight="20.0" text="Spalten anpassen" />
+          <Button mnemonicParsing="false" onAction="#handleNewStockButton" prefHeight="20.0" text="Wertpapier anlegen" />
+            <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern" />
+            <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
+            <Button mnemonicParsing="false" onAction="#handleShowAllButton" text="Alles anzeigen" />
+        </items>
+         <BorderPane.margin>
+            <Insets right="-3.0" top="3.0" />
+         </BorderPane.margin>
+      </ToolBar>
+   </top>
+   <center>
+      <GridPane prefHeight="653.0" prefWidth="1337.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints fillHeight="false" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <SplitPane dividerPositions="0.22" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+              <items>
+                  <BorderPane minWidth="165.0" prefWidth="200.0">
+                     <center>
+                        <TableView fx:id="stockSelectionTable" editable="true" BorderPane.alignment="CENTER" />
+                     </center>
+                  </BorderPane>
+                  <TableView fx:id="stockDataTableView" editable="true" tableMenuButtonVisible="true" />
+              </items>
+            </SplitPane>
+            <GridPane fx:id="columnSubmenuPane" alignment="CENTER" prefHeight="50.0" GridPane.vgrow="SOMETIMES">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="NEVER" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="0.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
+              </rowConstraints>
+               <children>
+                  <HBox alignment="CENTER" GridPane.vgrow="SOMETIMES">
+                     <children>
+                        <ComboBox fx:id="columnDeletionComboBox" prefWidth="250.0" />
+                        <Button minWidth="80.0" mnemonicParsing="false" onAction="#handleRemoveColumnButton" text="Entfernen">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" GridPane.columnIndex="2" GridPane.vgrow="SOMETIMES">
+                     <children>
+                        <TextField fx:id="columnNameField" minWidth="70.0" prefWidth="250.0" />
+                        <ChoiceBox fx:id="columnDatatypeChoiceBox" minWidth="50.0" prefWidth="150.0">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </ChoiceBox>
+                        <Button minWidth="80.0" mnemonicParsing="false" onAction="#handleAddColumnButton" prefWidth="100.0" text="Hinzufügen">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <Separator orientation="VERTICAL" GridPane.columnIndex="1" />
+               </children>
+            </GridPane>
+         </children>
+         <padding>
+            <Insets bottom="3.0" />
+         </padding>
+      </GridPane>
+   </center>
+</BorderPane>

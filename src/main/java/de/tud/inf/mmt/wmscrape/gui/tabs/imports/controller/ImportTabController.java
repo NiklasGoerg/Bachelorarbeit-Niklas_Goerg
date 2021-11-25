@@ -2,7 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller.StockTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.StockTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManager;
@@ -295,7 +295,7 @@ public class ImportTabController {
 
         // add new stocks to the list etc
         elementsTabController.refresh();
-        stockTabController.resetAll();
+        stockTabController.handleResetButton();
     }
 
     @FXML

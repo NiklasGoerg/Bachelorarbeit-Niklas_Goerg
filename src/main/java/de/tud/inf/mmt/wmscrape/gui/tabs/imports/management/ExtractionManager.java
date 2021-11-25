@@ -2,8 +2,8 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.StockRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;

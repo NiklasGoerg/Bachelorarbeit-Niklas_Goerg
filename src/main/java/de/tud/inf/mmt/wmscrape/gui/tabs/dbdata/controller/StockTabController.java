@@ -1,14 +1,18 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller;
+package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.CustomRow;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.data.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.management.StockAndCourseTabManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.StockAndCourseTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -18,10 +22,23 @@ public class StockTabController {
     @FXML private TableView<Stock> stockSelectionTable;
     @FXML private TableView<CustomRow> stockDataTableView;
 
+    // column modification sub menu
+    @FXML private GridPane columnSubmenuPane;
+    @FXML private ChoiceBox<ColumnDatatype> columnDatatypeChoiceBox;
+    @FXML private ComboBox<DbTableColumn> columnDeletionComboBox;
+    @FXML private TextField columnNameField;
+
     @Autowired
     private StockAndCourseTabManager stockAndCourseTabManager;
     @Autowired
     ScrapingElementsTabController scrapingElementsTabController;
+    @Autowired
+    NewStockPopupController newStockPopupController;
+    @Autowired
+    PrimaryTabManagement primaryTabManagement;
+    @Autowired
+    StockDataDbManager stockDataDbManager;
+
 
     private ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
     private final ObservableList<CustomRow> changedRows = FXCollections.observableArrayList();
@@ -30,6 +47,14 @@ public class StockTabController {
 
     @FXML
     private void initialize() {
+        showSubMenu(false);
+        columnDatatypeChoiceBox.getItems().setAll(ColumnDatatype.values());
+        columnDatatypeChoiceBox.setValue(ColumnDatatype.TEXT);
+
+        updateCollumChoiceBox();
+        columnDeletionComboBox.setValue(null);
+
+
         stockDataTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         stockAndCourseTabManager.prepareStockSelectionTable(stockSelectionTable);
         reloadSelectionTable();
@@ -40,7 +65,7 @@ public class StockTabController {
     }
 
     @FXML
-    private void showAll() {
+    private void handleShowAllButton() {
         stockDataTableView.getColumns().clear();
         allRows = stockAndCourseTabManager.updateStockTable(stockDataTableView);
         stockDataTableView.getItems().clear();
@@ -50,13 +75,13 @@ public class StockTabController {
     }
 
     @FXML
-    public void resetAll() {
+    public void handleResetButton() {
         reloadSelectionTable();
         reloadAllDataRows();
     }
 
     @FXML
-    private void saveChanges() {
+    private void handleSaveButton() {
         stockAndCourseTabManager.saveChangedRows(changedRows);
         stockAndCourseTabManager.saveStockListChanges(stockSelectionTable.getItems());
         scrapingElementsTabController.refresh();
@@ -65,19 +90,19 @@ public class StockTabController {
 
 
     @FXML
-    private void deleteRows() {
+    private void handleDeleteRowsButton() {
         // todo alert request confirm
         var selection = stockDataTableView.getSelectionModel().getSelectedItems();
         if(selection == null) return;
         var tmp = viewEverything;
         stockAndCourseTabManager.deleteRows(selection, false);
         reloadAllDataRows();
-        if(tmp) showAll();
+        if(tmp) handleShowAllButton();
         // todo success alert
     }
 
     @FXML
-    private void deleteAllInTable() {
+    private void handleDeleteAllInTableButton() {
         // todo alert request confirm
         var selected = stockSelectionTable.getSelectionModel().getSelectedItem();
         if( selected == null || allRows == null || allRows.isEmpty()) return;
@@ -88,16 +113,31 @@ public class StockTabController {
     }
 
     @FXML
-    private void deleteSelectedStock() {
+    private void handleDeleteStockButton() {
         // todo alert request confirm
         var selected = stockSelectionTable.getSelectionModel().getSelectedItem();
         if( selected == null) return;
         stockAndCourseTabManager.deleteStock(selected);
         scrapingElementsTabController.refresh();
         stockSelectionTable.getSelectionModel().selectFirst();
-        resetAll();
+        handleResetButton();
         // todo success alert
     }
+
+    @FXML
+    private void handleNewStockButton() {
+        primaryTabManagement.loadFxml(
+                "gui/tabs/dbdata/controller/newStockPopup.fxml",
+                "Wertpapier anlegen",
+                stockSelectionTable,
+                true, newStockPopupController);
+    }
+
+    @FXML
+    private void handleColumnModificationButton() {
+        showSubMenu(!columnSubmenuPane.isVisible());
+    }
+
 
     private void onStockSelection(Stock stock) {
         lastViewed = stock;
@@ -129,5 +169,37 @@ public class StockTabController {
         for(CustomRow row : allRows) {
             row.isChangedProperty().addListener((o,ov,nv) -> changedRows.add(row));
         }
+    }
+
+    private void showSubMenu(boolean show) {
+        if(show) columnSubmenuPane.setMaxHeight(50);
+        else columnSubmenuPane.setMaxHeight(0);
+
+        columnSubmenuPane.setVisible(show);
+        columnSubmenuPane.setManaged(show);
+    }
+
+    private void updateCollumChoiceBox() {
+        columnDeletionComboBox.getItems().clear();
+        columnDeletionComboBox.getItems().add(null);
+        columnDeletionComboBox.getItems().addAll(stockAndCourseTabManager.getStockColumns());
+    }
+
+    @FXML
+    private void handleAddColumnButton() {
+        // todo validation
+        stockDataDbManager.addColumn(columnNameField.getText(), columnDatatypeChoiceBox.getValue());
+        updateCollumChoiceBox();
+        reloadAllDataRows();
+    }
+
+    @FXML
+    private void handleRemoveColumnButton() {
+        // todo validation
+        // todo alert request confirm
+        stockDataDbManager.removeColumn(columnDeletionComboBox.getSelectionModel().getSelectedItem().getName());
+        reloadAllDataRows();
+        updateCollumChoiceBox();
+        // todo success alert
     }
 }

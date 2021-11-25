@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
-import org.controlsfx.validation.ValidationSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -18,8 +17,6 @@ public class NewExcelPopupController {
     private ImportTabManager importTabManager;
     @Autowired
     private ImportTabController importTabController;
-
-    ValidationSupport dbPathValidation = new ValidationSupport();
 
     @FXML
     private void initialize() {

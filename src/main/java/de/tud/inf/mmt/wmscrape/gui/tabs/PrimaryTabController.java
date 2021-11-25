@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs;
 
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbData.controller.DbDataTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DbDataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
@@ -48,7 +48,7 @@ public class PrimaryTabController {
         tab = new Tab("Scraping" , parent);
         primaryTabPane.getTabs().add(tab);
 
-        parent = primaryTabManagement.loadTabFxml("gui/tabs/dbData/controller/dbDataTab.fxml", dbDataTabController);
+        parent = primaryTabManagement.loadTabFxml("gui/tabs/dbdata/controller/dbDataTab.fxml", dbDataTabController);
         tab = new Tab("Daten" , parent);
         primaryTabPane.getTabs().add(tab);
     }

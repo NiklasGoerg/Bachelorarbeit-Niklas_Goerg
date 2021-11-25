@@ -1,21 +1,29 @@
 package de.tud.inf.mmt.wmscrape.dynamicdb;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public abstract class DynamicDbManger {
     @Autowired
     DataSource dataSource;
+    @Autowired
+    TransactionTemplate transactionTemplate;
 
     public ArrayList<String> getColumns(String tableName) {
         ArrayList<String> columns = new ArrayList<>();
 
+        Connection connection =null;
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             PreparedStatement pst = connection.prepareStatement("SELECT column_name FROM information_schema.columns WHERE table_name = ?;");
             pst.setString(1, tableName);
             ResultSet results = pst.executeQuery();
@@ -28,25 +36,27 @@ public abstract class DynamicDbManger {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            closeConnection(connection);
         }
 
         return columns;
     }
 
 
-    public <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> void addColumnIfNotExists(
+    protected  <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> void addColumnIfNotExists(
             String tableName, T repository , DbTableColumn column) {
 
         if(column == null || column.getColumnDatatype() == null || column.getName() == null) {
             return;
         }
 
+        Connection connection =null;
         try {
             if (columnExists(column.getName(), tableName)) {
                 return;
             }
 
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             PreparedStatement pst = connection.prepareStatement("SET @table := ?, @col := ?, @type := ?;");
             pst.setString(1, tableName);
             pst.setString(2, column.getName());
@@ -59,6 +69,7 @@ public abstract class DynamicDbManger {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            closeConnection(connection);
             return;
         }
 
@@ -69,12 +80,21 @@ public abstract class DynamicDbManger {
     }
 
     protected <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> void removeAbstractColumn(String columnName, String tableName, T repository) {
+
+        Optional<? extends DbTableColumn> column = repository.findByName(columnName);
+        column.ifPresent(repository::delete);
+
+        Connection connection = null;
         try {
             if (!columnExists(columnName, tableName)) {
                 return;
             }
 
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
+//            Statement statement = connection.createStatement();
+//            statement.execute("ALTER TABLE `"+tableName+"` DROP COLUMN `"+columnName+"`");
+//            statement.close();
+
             PreparedStatement pst = connection.prepareStatement("SET @table := ?, @col := ?;");
             pst.setString(1, tableName);
             pst.setString(2, columnName);
@@ -84,17 +104,17 @@ public abstract class DynamicDbManger {
             pst.execute("EXECUTE stmt;");
             pst.close();
             connection.close();
-
-            Optional<? extends DbTableColumn> column = repository.findByName(columnName);
-            column.ifPresent(repository::delete);
         } catch (SQLException e) {
             e.printStackTrace();
+            closeConnection(connection);
         }
     }
 
     public boolean columnExists(String columnName, String tableName){
+        Connection connection = null;
+
         try {
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
             PreparedStatement pst = connection.prepareStatement("SELECT column_name FROM information_schema.columns WHERE table_name = ?;");
             pst.setString(1, tableName);
             ResultSet results = pst.executeQuery();
@@ -108,8 +128,9 @@ public abstract class DynamicDbManger {
             }
             pst.close();
             connection.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            closeConnection(connection);
             return true;
         }
         return false;
@@ -118,9 +139,10 @@ public abstract class DynamicDbManger {
     public ColumnDatatype getColumnDataType(String columnName, String tableName){
         //https://www.tutorialspoint.com/java-resultsetmetadata-getcolumntype-method-with-example
 
+        Connection connection = null;
         try {
 
-            Connection connection = dataSource.getConnection();
+            connection = dataSource.getConnection();
 
 
             PreparedStatement pst = connection.prepareStatement("SET @table := ?, @col := ?;");
@@ -144,6 +166,7 @@ public abstract class DynamicDbManger {
             };
         } catch (SQLException e) {
             e.printStackTrace();
+            closeConnection(connection);
         }
         return null;
     }
@@ -192,5 +215,24 @@ public abstract class DynamicDbManger {
         }
     }
 
+    private void closeConnection(Connection connection) {
+        try {
+            if(connection == null || connection.isClosed()) return;
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected <T extends  DynamicDbRepository<? extends DbTableColumn, Integer>> void removeRepresentation(List<String> names, T repository) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
+                names.forEach(repository::deleteByName);
+            }
+        });
+    }
+
     protected abstract void removeColumn(String colName);
+    protected abstract void addColumn(String colName, ColumnDatatype datatype);
 }
