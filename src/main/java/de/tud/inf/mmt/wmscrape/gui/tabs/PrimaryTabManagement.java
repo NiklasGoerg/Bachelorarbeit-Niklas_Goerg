@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Control;
+import javafx.scene.control.Tooltip;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.springframework.stereotype.Service;
@@ -48,5 +49,14 @@ public class PrimaryTabManagement {
 
         }
         stage.setTitle(stageTitle);
+    }
+
+    public static Tooltip createTooltip(String text) {
+        Tooltip tooltip = new Tooltip();
+        tooltip.setText(text);
+        tooltip.setOpacity(.9);
+        tooltip.setAutoFix(true);
+        tooltip.setStyle(".bad-input");
+        return tooltip;
     }
 }

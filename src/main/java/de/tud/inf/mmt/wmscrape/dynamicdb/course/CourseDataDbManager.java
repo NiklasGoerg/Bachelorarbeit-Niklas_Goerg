@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Optional;
 
 @Service
 public class CourseDataDbManager extends DynamicDbManger{
@@ -37,6 +36,7 @@ public class CourseDataDbManager extends DynamicDbManger{
             // add new representation
             if(!representedColumns.contains(colName)) {
                 ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
+                if(datatype == null) continue;
                 courseDataColumnRepository.saveAndFlush(new CourseDataDbTableColumn(colName, datatype));
             } else {
                 // representation exists
@@ -55,12 +55,9 @@ public class CourseDataDbManager extends DynamicDbManger{
         addColumn("datum_interessant", ColumnDatatype.DATE);
     }
 
-    public void removeColumn(String columnName) {
-        Optional<CourseDataDbTableColumn> column = courseDataColumnRepository.findByName(columnName);
-        if(column.isPresent()) {
-            column.get().setElementIdentCorrelations(null);
-            super.removeAbstractColumn(column.get().getName(), TABLE_NAME, courseDataColumnRepository);
-        }
+    @Override
+    public boolean removeColumn(String columnName) {
+        return removeAbstractColumn(columnName, TABLE_NAME, courseDataColumnRepository);
     }
 
     @Override

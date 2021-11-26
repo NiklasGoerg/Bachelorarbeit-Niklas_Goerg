@@ -101,7 +101,7 @@ public class ImportTabController {
         if(excelSheet == null) {
             createAlert("Keine Excel zum löschen ausgewählt!",
                     "Wählen Sie eine Konfiguration aus der Liste aus um diese zu löschen.",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                    Alert.AlertType.ERROR);
             return;
         }
 
@@ -172,7 +172,7 @@ public class ImportTabController {
         if(!importTabManager.sheetExists(excelSheet)) {
             createAlert("Datei nicht gefunden!",
                     "Unter dem angegebenen Pfad wurde keine gültige Datei gefunden.",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                    Alert.AlertType.ERROR);
             return;
         }
 
@@ -184,31 +184,31 @@ public class ImportTabController {
                 // wrong password
                 createAlert("Falsches Passwort!",
                         "Das angegebene Passwort ist falsch. Speichern Sie bevor Sie die Vorschau laden.",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                        Alert.AlertType.ERROR);
                 return;
             case -2:
                 // TitleRowError
                 createAlert("Fehlerhafte Titelzeile!",
                         "Die Titelzeile liegt außerhalb der Begrenzung.",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                        Alert.AlertType.ERROR);
                 return;
             case -3:
                 // no data in sheet
                 createAlert("Keine Daten gefunden!",
                         "Die angegebene Datei enhält keine Daten.",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                        Alert.AlertType.ERROR);
                 return;
             case -4:
                 // no data title row
                 createAlert("Keine Daten gefunden!",
                         "In der angegebenen Titelzeile sind keine Daten.",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                        Alert.AlertType.ERROR);
                 return;
             case -5:
                 // titles not unique
                 createAlert("Titel nicht einzigartig!",
                         "Die Titelzeile enthält Elemente mit gleichen Namen. Mehr Informationen im Log",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                        Alert.AlertType.ERROR);
                 return;
             case -6:
                 // Selection column not found
@@ -216,7 +216,7 @@ public class ImportTabController {
                         "In der Zeile "+excelSheet.getTitleRow()+" " +
                         "existiert keine Spalte mit dem Namen '" +
                         excelSheet.getSelectionColTitle() + "'",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                        Alert.AlertType.ERROR);
                 return;
             case -7:
                 // Selection column not found
@@ -224,7 +224,7 @@ public class ImportTabController {
                         "In der Zeile "+excelSheet.getTitleRow()+" " +
                                 "existiert keine Spalte mit dem Namen '" +
                                 excelSheet.getDepotColTitle() + "'",
-                        Alert.AlertType.ERROR, ButtonType.OK, true);
+                        Alert.AlertType.ERROR);
                 return;
             case -8:
                 // Cell evaluation error
@@ -267,7 +267,7 @@ public class ImportTabController {
 
         if (transactionCorrelationTable.getItems().isEmpty() || stockDataCorrelationTable.getItems().size() == 0) {
             createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
-                    Alert.AlertType.INFORMATION, ButtonType.OK, true);
+                    Alert.AlertType.INFORMATION);
             return;
         }
         int result = importTabManager.startDataExtraction();
@@ -275,22 +275,22 @@ public class ImportTabController {
         switch (result) {
             case 0 -> createAlert("Import abgeschlossen!",
                     "Alle Stammmdaten und Transaktionen wurden importiert.",
-                    Alert.AlertType.INFORMATION, ButtonType.OK, true);
+                    Alert.AlertType.INFORMATION);
             case -1 -> createAlert("Import unvollständig!", "Nicht alle Zellen wurden " +
                             "importiert. Der Log enthält mehr Informationen.",
-                    Alert.AlertType.WARNING, ButtonType.OK, true);
+                    Alert.AlertType.WARNING);
             case -2 -> createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
-                    Alert.AlertType.INFORMATION, ButtonType.OK, true);
+                    Alert.AlertType.INFORMATION);
             case -3 -> createAlert("Zuordnung unvollständig!",
                     "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für " +
                             "Stammdaten:\n isin, wkn\nTransaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                    Alert.AlertType.ERROR);
             case -4 -> createAlert("Fehler bei Sql-Statement erstellung.!",
                     "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                    Alert.AlertType.ERROR);
             default -> createAlert("Fehler mit unbekannter Id!",
                     "Eine Fehlerbeschreibung zur Id: '" + result + "' existiert nicht",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                    Alert.AlertType.ERROR);
         }
 
         // add new stocks to the list etc
@@ -326,7 +326,7 @@ public class ImportTabController {
         if(excelSheet == null) {
             createAlert("Keine Excel ausgewählt!",
                     "Wählen Sie eine Excelkonfiguration aus der Liste aus oder erstellen Sie eine neue, bevor Sie Speichern.",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                    Alert.AlertType.ERROR);
             return true;
         }
         return false;
@@ -410,7 +410,7 @@ public class ImportTabController {
 
         if(!isValid) {
             if(inlineValidation) {
-                input.setTooltip(importTabManager.createTooltip(tooltip));
+                input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
                 input.getStyleClass().add("bad-input");
             }
         }
@@ -433,15 +433,16 @@ public class ImportTabController {
         }
     }
 
-    private void createAlert(String title, String content, Alert.AlertType type, ButtonType buttonType, boolean wait) {
-        Alert alert = new Alert(type, content, buttonType);
+    private void createAlert(String title, String content, Alert.AlertType type) {
+        Alert alert = new Alert(type, content, ButtonType.OK);
         alert.setHeaderText(title);
         setAlertPosition(alert);
-        if(wait) alert.showAndWait();
+        alert.showAndWait();
     }
 
     private void setAlertPosition(Alert alert) {
-        alert.setY(pathField.getScene().getWindow().getY() + (pathField.getScene().getWindow().getHeight() / 2) - 200);
-        alert.setX(pathField.getScene().getWindow().getX() + (pathField.getScene().getWindow().getWidth() / 2) - 200);
+        var window = pathField.getScene().getWindow();
+        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
+        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
     }
 }

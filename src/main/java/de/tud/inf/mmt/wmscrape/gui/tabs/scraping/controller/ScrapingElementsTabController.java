@@ -88,16 +88,17 @@ public class ScrapingElementsTabController {
 
         if(element == null) {
             createAlert("Kein Element zum löschen ausgewählt!",
-                    "Wählen Sie ein Element aus der Liste aus um dieses zu löschen.",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                    "Wählen Sie ein Element aus der Liste aus um dieses zu löschen."
+            );
             return;
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setHeaderText("Einstellungen löschen?");
         alert.setContentText("Bitte bestätigen Sie, dass sie dieses Element löschen möchten.");
-        alert.setX(urlField.getScene().getWindow().getX()+(urlField.getScene().getWindow().getWidth()/2)-200);
-        alert.setY(urlField.getScene().getWindow().getY()+(urlField.getScene().getWindow().getHeight()/2)-200);
+        var window = urlField.getScene().getWindow();
+        alert.setX(window.getX()+(window.getWidth()/2)-200);
+        alert.setY(window.getY()+(window.getHeight()/2)-200);
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -193,8 +194,8 @@ public class ScrapingElementsTabController {
         if(getSelectedElement() == null) {
             createAlert("Kein Element ausgewählt!",
                     "Wählen Sie ein Element aus der Liste aus oder" +
-                            " erstellen Sie ein neues bevor Sie Speichern.",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                            " erstellen Sie ein neues bevor Sie Speichern."
+            );
             return false;
         }
         return true;
@@ -210,12 +211,13 @@ public class ScrapingElementsTabController {
         websiteChoiceBox.setValue(null);
     }
 
-    private void createAlert(String title, String content, Alert.AlertType type, ButtonType buttonType, boolean wait) {
-        Alert alert = new Alert(type, content, buttonType);
+    private void createAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, content, ButtonType.OK);
         alert.setHeaderText(title);
-        alert.setY(urlField.getScene().getWindow().getY() + (urlField.getScene().getWindow().getHeight() / 2) - 200);
-        alert.setX(urlField.getScene().getWindow().getX() + (urlField.getScene().getWindow().getWidth() / 2) - 200);
-        if(wait) alert.showAndWait();
+        var window = urlField.getScene().getWindow();
+        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
+        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
+        alert.showAndWait();
     }
 
     private void loadSingleCourseOrStock() {
@@ -258,7 +260,7 @@ public class ScrapingElementsTabController {
 
         if(!isValid) {
             if(inlineValidation) {
-                input.setTooltip(scrapingTabManager.createTooltip(tooltip));
+                input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
                 input.getStyleClass().add("bad-input");
             }
         }

@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -40,11 +41,12 @@ public class NewExcelPopupController {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Eine leere Exceltabellenbeschreibung wurde angelegt", ButtonType.OK);
         alert.setHeaderText("Excel angelegt!");
-        alert.setY(descriptionField.getScene().getWindow().getY() + (descriptionField.getScene().getWindow().getHeight() / 2) - 200);
-        alert.setX(descriptionField.getScene().getWindow().getX() + (descriptionField.getScene().getWindow().getWidth() / 2) - 200);
+        var window = descriptionField.getScene().getWindow();
+        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
+        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
         alert.showAndWait();
 
-        descriptionField.getScene().getWindow().hide();
+        window.hide();
     }
 
     private boolean isValidDescription() {
@@ -52,7 +54,7 @@ public class NewExcelPopupController {
         descriptionField.setTooltip(null);
 
         if(descriptionField.getText() == null || descriptionField.getText().isBlank()) {
-            descriptionField.setTooltip(importTabManager.createTooltip("Dieses Feld darf nicht leer sein!"));
+            descriptionField.setTooltip(PrimaryTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
             descriptionField.getStyleClass().add("bad-input");
             return false;
         }

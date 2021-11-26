@@ -130,31 +130,31 @@ public class LoginManager {
 
     public static int createUser(String rootUn, String rootPw, String newUn, String newPw) {
         String rootConnectionPath = "jdbc:" + SpringIndependentData.getPropertyConnectionPath();
-        Connection connection = getConnection(rootConnectionPath, rootUn.trim(), rootPw);
-        String newUnWithoutSpaces = newUn.trim().replace(" ", "_");
 
-        if(connection == null) {
-            // can't connect with root
-            return -1;
-        }
-        if (!isRootUser(connection)) {
-            // connected as non-root
-            return -2;
-        }
-        if (userExists(connection, newUnWithoutSpaces)) {
-            // user already exists in the database
-            return -3;
-        }
-        if (userTableExists(connection, newUnWithoutSpaces)) {
-            // user table already exist in the database
-            return -4;
-        } if(!createUserAndDb(connection, newUnWithoutSpaces, newPw)) {
-            // unknown error at creation of table and user
-            return -5;
-        }
+        try (Connection connection = getConnection(rootConnectionPath, rootUn.trim(), rootPw)) {
+            String newUnWithoutSpaces = newUn.trim().replace(" ", "_");
 
-        try {
-            connection.close();
+            if (connection == null) {
+                // can't connect with root
+                return -1;
+            }
+            if (!isRootUser(connection)) {
+                // connected as non-root
+                return -2;
+            }
+            if (userExists(connection, newUnWithoutSpaces)) {
+                // user already exists in the database
+                return -3;
+            }
+            if (userTableExists(connection, newUnWithoutSpaces)) {
+                // user table already exist in the database
+                return -4;
+            }
+            if (!createUserAndDb(connection, newUnWithoutSpaces, newPw)) {
+                // unknown error at creation of table and user
+                return -5;
+            }
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -163,8 +163,7 @@ public class LoginManager {
     }
 
     private static boolean isRootUser(Connection connection) {
-        try {
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             ResultSet results = statement.executeQuery("show databases");
 
             while (results.next()) {
@@ -175,7 +174,6 @@ public class LoginManager {
                 }
             }
 
-            statement.close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return false;
@@ -185,8 +183,7 @@ public class LoginManager {
     }
 
     private static boolean userExists(Connection connection, String newUsername) {
-        try {
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()){
             statement.execute("use mysql");
             ResultSet results = statement.executeQuery("select user from user");
 
@@ -196,7 +193,6 @@ public class LoginManager {
                 }
             }
 
-            statement.close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return true;
@@ -206,8 +202,7 @@ public class LoginManager {
     }
 
     private static boolean userTableExists(Connection connection, String newUsername) {
-        try {
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()){
             ResultSet results = statement.executeQuery("show databases");
 
             while (results.next()) {
@@ -215,7 +210,6 @@ public class LoginManager {
                     return true;
                 }
             }
-            statement.close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return true;
@@ -287,8 +281,9 @@ public class LoginManager {
         Alert alert = new Alert(Alert.AlertType.ERROR,
                 "Fehler bei dem Starten des Programms!\n"+e.getCause(), ButtonType.CLOSE);
         alert.setHeaderText("Programmfehler");
-        alert.setX(control.getScene().getWindow().getX()+(control.getScene().getWindow().getWidth()/2)-200);
-        alert.setY(control.getScene().getWindow().getY()+(control.getScene().getWindow().getHeight()/2)-200);
+        var window = control.getScene().getWindow();
+        alert.setX(window.getX()+(window.getWidth()/2)-200);
+        alert.setY(window.getY()+(window.getHeight()/2)-200);
         alert.showAndWait();
     }
  }

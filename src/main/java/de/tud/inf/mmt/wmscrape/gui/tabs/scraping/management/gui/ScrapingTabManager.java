@@ -89,15 +89,6 @@ public class ScrapingTabManager {
         return websiteElementRepository.findAll();
     }
 
-    public Tooltip createTooltip(String text) {
-        Tooltip tooltip = new Tooltip();
-        tooltip.setText(text);
-        tooltip.setOpacity(.9);
-        tooltip.setAutoFix(true);
-        tooltip.setStyle(".bad-input");
-        return tooltip;
-    }
-
     public void saveWebsite(Website website) {
         websiteRepository.save(website);
     }

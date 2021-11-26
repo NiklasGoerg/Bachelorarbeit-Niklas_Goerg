@@ -21,9 +21,8 @@ public abstract class DynamicDbManger {
     public ArrayList<String> getColumns(String tableName) {
         ArrayList<String> columns = new ArrayList<>();
 
-        Connection connection =null;
-        try {
-            connection = dataSource.getConnection();
+        try (Connection connection = dataSource.getConnection()){
+
             PreparedStatement pst = connection.prepareStatement("SELECT column_name FROM information_schema.columns WHERE table_name = ?;");
             pst.setString(1, tableName);
             ResultSet results = pst.executeQuery();
@@ -33,10 +32,8 @@ public abstract class DynamicDbManger {
             }
 
             pst.close();
-            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            closeConnection(connection);
         }
 
         return columns;
@@ -50,26 +47,15 @@ public abstract class DynamicDbManger {
             return;
         }
 
-        Connection connection =null;
-        try {
-            if (columnExists(column.getName(), tableName)) {
-                return;
-            }
+        try (Connection connection = dataSource.getConnection()) {
+            if (columnExists(column.getName(), tableName)) return;
 
-            connection = dataSource.getConnection();
-            PreparedStatement pst = connection.prepareStatement("SET @table := ?, @col := ?, @type := ?;");
-            pst.setString(1, tableName);
-            pst.setString(2, column.getName());
-            pst.setString(3,  column.getColumnDatatype().name());
-            pst.execute();
-            pst.execute("SET @sql := CONCAT(\"ALTER TABLE \", @table, \" ADD \", @col, \" \", @type, \";\");");
-            pst.execute("PREPARE stmt FROM @sql;");
-            pst.execute("EXECUTE stmt;");
-            pst.close();
-            connection.close();
+            Statement statement = connection.createStatement();
+            statement.execute("ALTER TABLE `"+tableName+"` ADD `"+column.getName()+"` "+column.getColumnDatatype().name());
+            statement.close();
+
         } catch (SQLException e) {
             e.printStackTrace();
-            closeConnection(connection);
             return;
         }
 
@@ -79,42 +65,28 @@ public abstract class DynamicDbManger {
 
     }
 
-    protected <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> void removeAbstractColumn(String columnName, String tableName, T repository) {
+    protected <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> boolean removeAbstractColumn(String columnName, String tableName, T repository) {
 
         Optional<? extends DbTableColumn> column = repository.findByName(columnName);
         column.ifPresent(repository::delete);
 
-        Connection connection = null;
-        try {
-            if (!columnExists(columnName, tableName)) {
-                return;
-            }
+        try (Connection connection = dataSource.getConnection()){
+            if (!columnExists(columnName, tableName)) return true;
 
-            connection = dataSource.getConnection();
-//            Statement statement = connection.createStatement();
-//            statement.execute("ALTER TABLE `"+tableName+"` DROP COLUMN `"+columnName+"`");
-//            statement.close();
+            Statement statement = connection.createStatement();
+            statement.execute("ALTER TABLE `"+tableName+"` DROP COLUMN `"+columnName+"`");
+            statement.close();
 
-            PreparedStatement pst = connection.prepareStatement("SET @table := ?, @col := ?;");
-            pst.setString(1, tableName);
-            pst.setString(2, columnName);
-            pst.execute();
-            pst.execute("SET @sql := CONCAT(\"ALTER TABLE \", @table, \" DROP COLUMN \", @col, \";\");");
-            pst.execute("PREPARE stmt FROM @sql;");
-            pst.execute("EXECUTE stmt;");
-            pst.close();
-            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            closeConnection(connection);
+            return false;
         }
+        return true;
     }
 
     public boolean columnExists(String columnName, String tableName){
-        Connection connection = null;
 
-        try {
-            connection = dataSource.getConnection();
+        try (Connection connection = dataSource.getConnection()){
             PreparedStatement pst = connection.prepareStatement("SELECT column_name FROM information_schema.columns WHERE table_name = ?;");
             pst.setString(1, tableName);
             ResultSet results = pst.executeQuery();
@@ -127,10 +99,8 @@ public abstract class DynamicDbManger {
                 }
             }
             pst.close();
-            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            closeConnection(connection);
             return true;
         }
         return false;
@@ -139,22 +109,14 @@ public abstract class DynamicDbManger {
     public ColumnDatatype getColumnDataType(String columnName, String tableName){
         //https://www.tutorialspoint.com/java-resultsetmetadata-getcolumntype-method-with-example
 
-        Connection connection = null;
-        try {
+        try (Connection connection = dataSource.getConnection()){
 
-            connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery("SELECT `"+columnName+"` FROM `"+tableName+"`");
 
-
-            PreparedStatement pst = connection.prepareStatement("SET @table := ?, @col := ?;");
-            pst.setString(1, tableName);
-            pst.setString(2, columnName);
-            pst.execute();
-            pst.execute("SET @sql := CONCAT(\"SELECT \", @col, \" FROM \", @table, \";\");");
-            pst.execute("PREPARE stmt FROM @sql;");
-            ResultSet results = pst.executeQuery("EXECUTE stmt;");
             int type = results.getMetaData().getColumnType(1);
 
-            pst.close();
+            statement.close();
             connection.close();
 
             return switch (type) {
@@ -166,14 +128,12 @@ public abstract class DynamicDbManger {
             };
         } catch (SQLException e) {
             e.printStackTrace();
-            closeConnection(connection);
         }
         return null;
     }
 
     public boolean tableDoesNotExist(String tableName) {
-        try {
-            Connection connection = dataSource.getConnection();
+        try (Connection connection = dataSource.getConnection()){
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery("SHOW TABLES;");
 
@@ -186,7 +146,6 @@ public abstract class DynamicDbManger {
                 }
             }
             statement.close();
-            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return true;
@@ -215,15 +174,6 @@ public abstract class DynamicDbManger {
         }
     }
 
-    private void closeConnection(Connection connection) {
-        try {
-            if(connection == null || connection.isClosed()) return;
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     protected <T extends  DynamicDbRepository<? extends DbTableColumn, Integer>> void removeRepresentation(List<String> names, T repository) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -233,6 +183,6 @@ public abstract class DynamicDbManger {
         });
     }
 
-    protected abstract void removeColumn(String colName);
+    protected abstract boolean removeColumn(String colName);
     protected abstract void addColumn(String colName, ColumnDatatype datatype);
 }

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Optional;
 
 @Service
 public class ExchangeDataDbManager extends DynamicDbManger{
@@ -35,6 +34,7 @@ public class ExchangeDataDbManager extends DynamicDbManger{
             if(!representedColumns.contains(colName)) {
                 // add new representation
                 ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
+                if(datatype == null) continue;
                 exchangeDataColumnRepository.saveAndFlush(new ExchangeDataDbTableColumn(colName, datatype));
             } else  {
                 // representation exists
@@ -54,12 +54,9 @@ public class ExchangeDataDbManager extends DynamicDbManger{
         addColumn("cny", ColumnDatatype.DOUBLE);
     }
 
-    public void removeColumn(String columnName) {
-        Optional<ExchangeDataDbTableColumn> column = exchangeDataColumnRepository.findByName(columnName);
-        if(column.isPresent()) {
-            column.get().setElementSelections(null);
-            removeAbstractColumn(column.get().getName(), TABLE_NAME, exchangeDataColumnRepository);
-        }
+    @Override
+    public boolean removeColumn(String columnName) {
+        return removeAbstractColumn(columnName, TABLE_NAME, exchangeDataColumnRepository);
     }
 
     @Override

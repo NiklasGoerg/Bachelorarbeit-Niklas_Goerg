@@ -9,7 +9,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
 import org.apache.poi.EncryptedDocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,15 +32,6 @@ public class ImportTabManager {
     private ExcelCorrelationRepository excelCorrelationRepository;
 
     private SimpleStringProperty logText;
-
-    public Tooltip createTooltip(String text) {
-        Tooltip tooltip = new Tooltip();
-        tooltip.setText(text);
-        tooltip.setOpacity(.9);
-        tooltip.setAutoFix(true);
-        tooltip.setStyle(".bad-input");
-        return tooltip;
-    }
 
     public void createNewExcel(String description) {
         excelSheetRepository.save(new ExcelSheet(description));

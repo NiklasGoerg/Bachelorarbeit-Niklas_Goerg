@@ -15,18 +15,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
-import java.sql.Date;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class StockAndCourseTabManager {
@@ -131,8 +130,7 @@ public class StockAndCourseTabManager {
 
         ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
 
-        try {
-            Connection connection = dataSource.getConnection();
+        try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery("SELECT * FROM "+tableName);
 
@@ -148,8 +146,6 @@ public class StockAndCourseTabManager {
             }
 
             statement.close();
-            connection.close();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -173,13 +169,11 @@ public class StockAndCourseTabManager {
 
 
     // todo alert save success
-    public void saveChangedRows(List<CustomRow> rows) {
-        if(rows == null || rows.size() == 0) return;
-        Connection connection = null;
+    public boolean saveChangedRows(List<CustomRow> rows) {
+        if(rows == null || rows.size() == 0) return true;
         HashMap<String, PreparedStatement> statements = new HashMap<>();
 
-        try {
-            connection = dataSource.getConnection();
+        try (Connection connection = dataSource.getConnection()){
 
             for(CustomRow row : rows) {
                 String isin = row.getCells().get("isin").getTextData();
@@ -207,27 +201,16 @@ public class StockAndCourseTabManager {
                 s.executeBatch();
                 s.close();
             }
-            connection.close();
 
         } catch (SQLException | NumberFormatException | DateTimeParseException e) {
-            // todo alert save error
             e.printStackTrace();
-            closeConnection(connection);
+            return false;
         }
+        return true;
     }
 
     public void saveStockListChanges(ObservableList<Stock> stocks) {
         stockRepository.saveAllAndFlush(stocks);
-    }
-
-    private void closeConnection(Connection connection) {
-        if(connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        }
     }
 
     private PreparedStatement prepareStatements(String colName, Connection connection) throws SQLException{
@@ -265,20 +248,17 @@ public class StockAndCourseTabManager {
         }
     }
 
-    // todo error alert
-    public void deleteRows(List<CustomRow> rows, boolean everything) {
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
+    public boolean deleteRows(List<CustomRow> rows, boolean everything) {
+        try (Connection connection = dataSource.getConnection()) {
 
             if(everything) deleteEverything(connection, rows);
             else deleteSelection(connection, rows);
 
-            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            closeConnection(connection);
+            return false;
         }
+        return true;
     }
 
     private void deleteEverything(Connection connection, List<CustomRow> rows) throws SQLException {
@@ -347,15 +327,9 @@ public class StockAndCourseTabManager {
     }
 
     public List<StockDataDbTableColumn> getStockColumns() {
-        return stockDataColumnRepository.findAll();
+        var all = stockDataColumnRepository.findAll();
+        all.removeIf(column -> StockDataDbManager.RESERVED_COLUMNS.contains(column.getName()));
+        return all;
     }
 
-    public Tooltip createTooltip(String text) {
-        Tooltip tooltip = new Tooltip();
-        tooltip.setText(text);
-        tooltip.setOpacity(.9);
-        tooltip.setAutoFix(true);
-        tooltip.setStyle(".bad-input");
-        return tooltip;
-    }
 }

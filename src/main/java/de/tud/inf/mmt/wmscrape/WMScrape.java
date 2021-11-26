@@ -23,6 +23,7 @@ public class WMScrape {
             throw new InvalidPropertyException(WMScrape.class,
                     "webdriver.gecko.driver", "Für dieses Betriebssystem steht keine Geckodriver bereit.");
         }
+        
 
         Application.launch(GuiApplication.class, args);
     }

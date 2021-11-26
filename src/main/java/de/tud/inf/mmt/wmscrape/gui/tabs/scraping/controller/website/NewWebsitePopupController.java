@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingWebsiteTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
@@ -42,12 +43,13 @@ public class NewWebsitePopupController {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Eine leere Webseitenbeschreibung wurde angelegt", ButtonType.OK);
         alert.setHeaderText("Webseite angelegt!");
-        alert.setX(descriptionField.getScene().getWindow().getX()+(descriptionField.getScene().getWindow().getWidth()/2)-200);
-        alert.setY(descriptionField.getScene().getWindow().getY()+(descriptionField.getScene().getWindow().getHeight()/2)-200);
+        var window = descriptionField.getScene().getWindow();
+        alert.setX(window.getX()+(window.getWidth()/2)-200);
+        alert.setY(window.getY()+(window.getHeight()/2)-200);
 
         alert.showAndWait();
 
-        descriptionField.getScene().getWindow().hide();
+        window.hide();
     }
 
     private boolean isValidDescription() {
@@ -55,7 +57,7 @@ public class NewWebsitePopupController {
         descriptionField.setTooltip(null);
 
         if(descriptionField.getText() == null || descriptionField.getText().isBlank()) {
-            descriptionField.setTooltip(scrapingTabManager.createTooltip("Dieses Feld darf nicht leer sein!"));
+            descriptionField.setTooltip(PrimaryTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
             descriptionField.getStyleClass().add("bad-input");
             return false;
         }

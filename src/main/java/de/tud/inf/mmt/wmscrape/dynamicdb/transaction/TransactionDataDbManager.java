@@ -28,6 +28,7 @@ public class TransactionDataDbManager extends DynamicDbManger{
         for(String colName : getColumns(TABLE_NAME)) {
             if(!representedColumns.contains(colName)) {
                 ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
+                if(datatype == null) continue;
                 transactionDataColumnRepository.saveAndFlush(new TransactionDataDbTableColumn(colName, datatype));
             } else {
                 // representation exists
@@ -39,7 +40,8 @@ public class TransactionDataDbManager extends DynamicDbManger{
         removeRepresentation(representedColumns, transactionDataColumnRepository);
     }
 
-    public void removeColumn(String columnName) {
+    @Override
+    public boolean removeColumn(String columnName) {
         throw new NotImplementedFunctionException("This table is managed by spring");
     }
 

@@ -47,6 +47,7 @@ public class StockDataDbManager extends DynamicDbManger{
             if(!representedColumns.contains(colName)) {
                 // add new representation
                 ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
+                if(datatype == null) continue;
                 stockDataColumnRepository.saveAndFlush(new StockDataDbTableColumn(colName, datatype));
             } else {
                 // representation exists
@@ -72,12 +73,9 @@ public class StockDataDbManager extends DynamicDbManger{
         return connection.prepareStatement(sql);
     }
 
-    public void removeColumn(String columnName) {
-//        Optional<StockDataDbTableColumn> column = stockDataColumnRepository.findByName(columnName);
-//        if(column.isPresent()) {
-//            column.get().setExcelCorrelations(null);
-//        }
-        super.removeAbstractColumn(columnName, TABLE_NAME, stockDataColumnRepository);
+    @Override
+    public boolean removeColumn(String columnName) {
+        return removeAbstractColumn(columnName, TABLE_NAME, stockDataColumnRepository);
     }
 
     @Override

@@ -1,9 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -50,11 +51,12 @@ public class NewElementPopupController {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Eine neues Webseiten-Element wurde angelegt", ButtonType.OK);
         alert.setHeaderText("Element angelegt!");
-        alert.setY(descriptionField.getScene().getWindow().getY() + (descriptionField.getScene().getWindow().getHeight() / 2) - 200);
-        alert.setX(descriptionField.getScene().getWindow().getX() + (descriptionField.getScene().getWindow().getWidth() / 2) - 200);
+        var window = descriptionField.getScene().getWindow();
+        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
+        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
         alert.showAndWait();
 
-        descriptionField.getScene().getWindow().hide();
+        window.hide();
 
     }
 
@@ -68,7 +70,7 @@ public class NewElementPopupController {
         descriptionField.setTooltip(null);
 
         if(descriptionField.getText() == null || descriptionField.getText().isBlank()) {
-            descriptionField.setTooltip(scrapingTabManager.createTooltip("Dieses Feld darf nicht leer sein!"));
+            descriptionField.setTooltip(PrimaryTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
             descriptionField.getStyleClass().add("bad-input");
             return false;
         }

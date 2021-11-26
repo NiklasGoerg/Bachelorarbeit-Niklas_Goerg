@@ -40,17 +40,18 @@ public class PrimaryTabController {
     private void initialize() throws IOException {
         currentUserLabel.setText("Aktueller Nutzer: " + SpringIndependentData.getUsername());
 
-        Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/imports/controller/importTab.fxml", importTabController);
-        Tab tab = new Tab("Import" , parent);
+        Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/dbdata/controller/dbDataTab.fxml", dbDataTabController);
+        Tab tab = new Tab("Daten" , parent);
+        primaryTabPane.getTabs().add(tab);
+
+        parent = primaryTabManagement.loadTabFxml("gui/tabs/imports/controller/importTab.fxml", importTabController);
+        tab = new Tab("Import" , parent);
         primaryTabPane.getTabs().add(tab);
 
         parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);
         tab = new Tab("Scraping" , parent);
         primaryTabPane.getTabs().add(tab);
 
-        parent = primaryTabManagement.loadTabFxml("gui/tabs/dbdata/controller/dbDataTab.fxml", dbDataTabController);
-        tab = new Tab("Daten" , parent);
-        primaryTabPane.getTabs().add(tab);
     }
 
     @FXML

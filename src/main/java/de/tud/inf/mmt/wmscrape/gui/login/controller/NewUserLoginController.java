@@ -81,8 +81,9 @@ public class NewUserLoginController {
 
         Alert alert = new Alert(alertType, alertText, ButtonType.OK);
         alert.setHeaderText(alertHeaderText);
-        alert.setX(rootUsernameField.getScene().getWindow().getX()+(rootUsernameField.getScene().getWindow().getWidth()/2)-200);
-        alert.setY(rootUsernameField.getScene().getWindow().getY()+(rootUsernameField.getScene().getWindow().getHeight()/2)-200);
+        var window = rootUsernameField.getScene().getWindow();
+        alert.setX(window.getX()+(window.getWidth()/2)-200);
+        alert.setY(window.getY()+(window.getHeight()/2)-200);
         alert.showAndWait();
 
         if(returnInformation > 0) {

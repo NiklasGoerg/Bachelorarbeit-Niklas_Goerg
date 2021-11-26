@@ -112,8 +112,8 @@ public class ScrapingWebsiteTabController {
 
         if(website == null) {
             createAlert("Keine Webseite zum löschen ausgewählt!",
-                    "Wählen Sie eine Webseite aus der Liste aus um diese zu löschen.",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                    "Wählen Sie eine Webseite aus der Liste aus um diese zu löschen."
+            );
             return;
         }
 
@@ -174,8 +174,8 @@ public class ScrapingWebsiteTabController {
         if(getSelectedWebsite() == null) {
             createAlert("Keine Webseite ausgewählt!",
                     "Wählen Sie eine Webseite aus der Liste aus oder" +
-                            " erstellen Sie eine neue bevor Sie Speichern.",
-                    Alert.AlertType.ERROR, ButtonType.OK, true);
+                            " erstellen Sie eine neue bevor Sie Speichern."
+            );
             return false;
         }
         return true;
@@ -271,11 +271,11 @@ public class ScrapingWebsiteTabController {
         isValidInput();
     }
 
-    private void createAlert(String title, String content, Alert.AlertType type, ButtonType buttonType, boolean wait) {
-        Alert alert = new Alert(type, content, buttonType);
+    private void createAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, content, ButtonType.OK);
         alert.setHeaderText(title);
         setAlertPosition(alert);
-        if(wait) alert.showAndWait();
+        alert.showAndWait();
     }
 
     private boolean isValidInput() {
@@ -325,7 +325,7 @@ public class ScrapingWebsiteTabController {
 
         if(!isValid) {
             if(inlineValidation) {
-                input.setTooltip(scrapingTabManager.createTooltip(tooltip));
+                input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
                 input.getStyleClass().add("bad-input");
             }
         }
@@ -408,8 +408,9 @@ public class ScrapingWebsiteTabController {
     }
 
     private void setAlertPosition(Alert alert) {
-        alert.setY(urlField.getScene().getWindow().getY() + (urlField.getScene().getWindow().getHeight() / 2) - 200);
-        alert.setX(urlField.getScene().getWindow().getX() + (urlField.getScene().getWindow().getWidth() / 2) - 200);
+        var window = urlField.getScene().getWindow();
+        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
+        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
     }
 
 }

@@ -1,9 +1,12 @@
 package de.tud.inf.mmt.wmscrape.gui.login.controller;
 
-import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
+import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import org.controlsfx.validation.Severity;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
@@ -47,8 +50,9 @@ public class ExistingUserLoginController {
                     "Der Verbindungsversuch ist fehlgeschlagen!\n" +
                     "Überprüfen Sie den Pfad sowie Nutzername und Passwort.", ButtonType.OK);
             alert.setHeaderText("Verbindungsfehler");
-            alert.setX(usernameField.getScene().getWindow().getX()+(usernameField.getScene().getWindow().getWidth()/2)-200);
-            alert.setY(usernameField.getScene().getWindow().getY()+(usernameField.getScene().getWindow().getHeight()/2)-200);
+            var window = usernameField.getScene().getWindow();
+            alert.setX(window.getX()+(window.getWidth()/2)-200);
+            alert.setY(window.getY()+(window.getHeight()/2)-200);
             alert.showAndWait();
         }
     }
