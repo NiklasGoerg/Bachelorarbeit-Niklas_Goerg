@@ -170,8 +170,8 @@ public abstract class ExtractionGeneral {
         switch (datatype) {
             case DATE -> statement.setNull(index, Types.DATE);
             case TEXT -> statement.setNull(index, Types.VARCHAR);
-            case INTEGER -> statement.setInt(index, 0);
-            case DOUBLE -> statement.setDouble(index, 0);
+            case INTEGER -> statement.setNull(index, Types.INTEGER);
+            case DOUBLE -> statement.setNull(index, Types.DOUBLE);
         }
     }
 

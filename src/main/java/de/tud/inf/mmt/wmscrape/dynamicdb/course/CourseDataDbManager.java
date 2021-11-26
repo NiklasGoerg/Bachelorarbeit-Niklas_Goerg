@@ -7,11 +7,14 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CourseDataDbManager extends DynamicDbManger{
 
     public static final String TABLE_NAME = "kursdaten";
+    public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin");
+    public static final List<String> COLUMN_ORDER = List.of("datum", "isin");
 
     @Autowired
     CourseDataColumnRepository courseDataColumnRepository;
@@ -45,7 +48,7 @@ public class CourseDataDbManager extends DynamicDbManger{
         }
 
         // removing references that do not exist anymore
-        removeRepresentation(representedColumns, courseDataColumnRepository);
+        removeOldRepresentation(representedColumns, courseDataColumnRepository);
 
 
         addColumn("kurs_in_eur", ColumnDatatype.DOUBLE);
@@ -61,7 +64,22 @@ public class CourseDataDbManager extends DynamicDbManger{
     }
 
     @Override
-    protected void addColumn(String colName, ColumnDatatype datatype) {
+    public void addColumn(String colName, ColumnDatatype datatype) {
         addColumnIfNotExists(TABLE_NAME, courseDataColumnRepository, new CourseDataDbTableColumn(colName, datatype));
+    }
+
+    @Override
+    public String getTableName() {
+        return TABLE_NAME;
+    }
+
+    @Override
+    public List<String> getReservedColumns() {
+        return RESERVED_COLUMNS;
+    }
+
+    @Override
+    public List<String> getColumnOrder() {
+        return COLUMN_ORDER;
     }
 }

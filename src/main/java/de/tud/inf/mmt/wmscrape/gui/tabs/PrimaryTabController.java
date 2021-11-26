@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs;
 
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DbDataTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
@@ -34,13 +34,13 @@ public class PrimaryTabController {
     @Autowired
     private PrimaryTabManagement primaryTabManagement;
     @Autowired
-    private DbDataTabController dbDataTabController;
+    private DataTabController dataTabController;
 
     @FXML
     private void initialize() throws IOException {
         currentUserLabel.setText("Aktueller Nutzer: " + SpringIndependentData.getUsername());
 
-        Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/dbdata/controller/dbDataTab.fxml", dbDataTabController);
+        Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/dbdata/controller/dataTab.fxml", dataTabController);
         Tab tab = new Tab("Daten" , parent);
         primaryTabPane.getTabs().add(tab);
 

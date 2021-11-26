@@ -8,11 +8,15 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TransactionDataDbManager extends DynamicDbManger{
 
     public static final String TABLE_NAME = "depottransaktion";
+    public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin");
+    public static final List<String> COLUMN_ORDER = List.of("datum", "isin");
+
     @Autowired
     TransactionDataColumnRepository transactionDataColumnRepository;
 
@@ -37,17 +41,32 @@ public class TransactionDataDbManager extends DynamicDbManger{
         }
 
         // removing references that do not exist anymore
-        removeRepresentation(representedColumns, transactionDataColumnRepository);
+        removeOldRepresentation(representedColumns, transactionDataColumnRepository);
     }
 
     @Override
     public boolean removeColumn(String columnName) {
-        throw new NotImplementedFunctionException("This table is managed by spring");
+        throw new NotImplementedFunctionException("This table is managed by hibernate");
     }
 
     @Override
-    protected void addColumn(String colName, ColumnDatatype datatype) {
-        throw new NotImplementedFunctionException("This table is managed by spring");
+    public void addColumn(String colName, ColumnDatatype datatype) {
+        throw new NotImplementedFunctionException("This table is managed by hibernate");
+    }
+
+    @Override
+    public String getTableName() {
+        return TABLE_NAME;
+    }
+
+    @Override
+    public List<String> getReservedColumns() {
+        return RESERVED_COLUMNS;
+    }
+
+    @Override
+    public List<String> getColumnOrder() {
+        return COLUMN_ORDER;
     }
 
 }

@@ -14,7 +14,7 @@ import java.util.List;
 public class StockDataDbTableColumn extends DbTableColumn {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockDataTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
+    private final List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
     @OneToMany(mappedBy = "stockDataTableColumn", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ElementIdentCorrelation> elementIdentCorrelations;
@@ -24,18 +24,6 @@ public class StockDataDbTableColumn extends DbTableColumn {
 
     public StockDataDbTableColumn(String name, ColumnDatatype columnDatatype) {
         super(name, columnDatatype);
-    }
-
-    public void setExcelCorrelations(List<ExcelCorrelation> excelCorrelations) {
-        this.excelCorrelations = excelCorrelations;
-    }
-
-    public List<ElementIdentCorrelation> getElementIdentCorrelations() {
-        return elementIdentCorrelations;
-    }
-
-    public void setElementIdentCorrelations(List<ElementIdentCorrelation> elementIdentCorrelations) {
-        this.elementIdentCorrelations = elementIdentCorrelations;
     }
 
     @Override

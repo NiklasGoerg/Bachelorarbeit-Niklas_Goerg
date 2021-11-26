@@ -56,7 +56,7 @@ public class StockDataDbManager extends DynamicDbManger{
         }
 
         // removing references that do not exist anymore
-        removeRepresentation(representedColumns, stockDataColumnRepository);
+        removeOldRepresentation(representedColumns, stockDataColumnRepository);
 
 
         // todo remove
@@ -81,5 +81,20 @@ public class StockDataDbManager extends DynamicDbManger{
     @Override
     public void addColumn(String colName, ColumnDatatype datatype) {
         addColumnIfNotExists(TABLE_NAME, stockDataColumnRepository, new StockDataDbTableColumn(colName, datatype));
+    }
+
+    @Override
+    public String getTableName() {
+        return TABLE_NAME;
+    }
+
+    @Override
+    public List<String> getReservedColumns() {
+        return RESERVED_COLUMNS;
+    }
+
+    @Override
+    public List<String> getColumnOrder() {
+        return COLUMN_ORDER;
     }
 }

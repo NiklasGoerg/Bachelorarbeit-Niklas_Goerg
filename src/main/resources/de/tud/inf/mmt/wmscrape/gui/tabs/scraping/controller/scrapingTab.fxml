@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
 
 
-<TabPane id="verticalTabPane" fx:id="scrapingSubTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="80.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController" />
+<BorderPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController">
+   <center>
+      <TabPane id="verticalTabPane" fx:id="scrapingSubTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="80.0" tabMinWidth="100.0">
+         <BorderPane.margin>
+            <Insets top="-7.0" />
+         </BorderPane.margin>
+         <padding>
+            <Insets left="-5.0" />
+         </padding>
+      </TabPane>
+   </center>
+</BorderPane>

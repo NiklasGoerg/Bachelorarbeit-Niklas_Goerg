@@ -18,18 +18,17 @@ tooltip.bad-input {
     -fx-box-border: transparent;*/
  }
 
-#verticalTabPane {
-    -fx-padding: -3 0 -3 -5px;
-}
-
-#verticalTabPane *.tab-label {
-    -fx-rotate: 90;
-}
 
 .tab-pane > .tab-header-area > .headers-region > .tab:selected {
     /* https://gist.github.com/maxd/63691840fc372f22f470 */
     -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-background;
     -fx-background-insets: 0 1 1 0, 1 2 1 1, 2 3 1 2;
+}
+
+
+
+.tab-pane:left *.tab-label {
+    -fx-rotate: 90;
 }
 
 .text-input:readonly {

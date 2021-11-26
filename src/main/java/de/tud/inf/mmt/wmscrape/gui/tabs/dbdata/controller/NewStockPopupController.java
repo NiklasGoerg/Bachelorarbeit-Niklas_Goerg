@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.StockAndCourseTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.StockDataManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -18,13 +18,13 @@ public class NewStockPopupController {
     @FXML private TextField typeField;
 
     @Autowired
-    private StockAndCourseTabManager manager;
+    private StockDataManager manager;
     @Autowired
-    private StockTabController tabController;
+    private DataTabController tabController;
     @Autowired
     private ScrapingElementsTabController elementsTabController;
     @Autowired
-    private StockTabController stockTabController;
+    private DataTabController dataTabController;
     
     @FXML
     private void initialize() {

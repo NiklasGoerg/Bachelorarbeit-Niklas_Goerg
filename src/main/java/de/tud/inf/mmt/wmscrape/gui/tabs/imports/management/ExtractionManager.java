@@ -174,7 +174,7 @@ public class ExtractionManager {
 
         }
 
-        dbTransactionManager.executeStatements(connection, statements);
+        silentError &= dbTransactionManager.executeStatements(connection, statements);
         importTabManager.addToLog("\n##### Ende Stammdaten-Import #####\n");
 
         if (silentError) return -1;
@@ -211,7 +211,7 @@ public class ExtractionManager {
 
             String depotName = rowData.get(depotNameCol);
             if (depotName == null || depotName.isBlank() || depotName.length() >= 50) {
-                importTabManager.addToLog("ERR:\t\tDepotname der Zeile " + (row+OFFSET) + " fehlerhaft oder leer. Wert: '"
+                importTabManager.addToLog("ERR:\t\tDepotname der Zeile "+(row+OFFSET)+" fehlerhaft oder leer. Wert: '"
                         + depotName + "' ");
                 silentError = true;
                 continue;
@@ -219,14 +219,15 @@ public class ExtractionManager {
 
             String isin = rowData.get(isinCol);
             if (isin == null || isin.isBlank() || isin.length() >= 50) {
-                importTabManager.addToLog("ERR:\t\tIsin der Zeile " + (row+OFFSET) + " fehlerhaft, leer oder länger als 50 Zeichen. Wert: '" + isin + "'");
+                importTabManager.addToLog("ERR:\t\tIsin der Zeile "+(row+OFFSET)+
+                        " fehlerhaft, leer oder länger als 50 Zeichen. Wert: '"+isin+"'");
                 silentError = true;
                 continue;
             }
 
             String date = rowData.get(dateCol);
-            if (notMatchingDataType(ColumnDatatype.DATE, date)) {
-                importTabManager.addToLog("ERR:\t\tTransaktionsdatum '" + date + "' der Zeile " + (row+OFFSET) + " ist fehlerhaft.");
+            if (date == null || date.isBlank() || notMatchingDataType(ColumnDatatype.DATE, date)) {
+                importTabManager.addToLog("ERR:\t\tTransaktionsdatum '"+date+"' der Zeile "+(row+OFFSET)+" ist fehlerhaft oder leer.");
                 silentError = true;
                 continue;
             }
@@ -299,7 +300,7 @@ public class ExtractionManager {
             }
         }
 
-        dbTransactionManager.executeStatements(connection, statements);
+        silentError &= dbTransactionManager.executeStatements(connection, statements);
 
         importTabManager.addToLog("\n##### Ende Transaktions Import #####\n");
         if (silentError) return -1;

@@ -13,7 +13,7 @@ import java.util.List;
 public class TransactionDataDbTableColumn extends DbTableColumn {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "transactionDataTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
+    private final List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
 
     public TransactionDataDbTableColumn() {}

@@ -10,7 +10,7 @@
 
 <AnchorPane prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabController">
    <children>
-      <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-3.0" AnchorPane.topAnchor="0.0">
         <items>
             <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogoutButton" text="Logout" />
         </items>

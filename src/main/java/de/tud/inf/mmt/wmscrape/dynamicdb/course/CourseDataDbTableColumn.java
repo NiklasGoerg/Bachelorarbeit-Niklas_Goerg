@@ -20,15 +20,7 @@ public class CourseDataDbTableColumn extends DbTableColumn {
 
 
     @OneToMany(mappedBy = "courseDataDbTableColumn", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
-
-    public List<ElementIdentCorrelation> getElementIdentCorrelations() {
-        return elementIdentCorrelations;
-    }
-
-    public void setElementIdentCorrelations(List<ElementIdentCorrelation> elementIdentCorrelations) {
-        this.elementIdentCorrelations = elementIdentCorrelations;
-    }
+    private final List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
 
     @Override
     public String getTableName() {

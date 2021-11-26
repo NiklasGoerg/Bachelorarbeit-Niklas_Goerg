@@ -262,6 +262,9 @@
                </children>
             </AnchorPane>
          </items>
+         <BorderPane.margin>
+            <Insets bottom="-4.0" top="-3.0" />
+         </BorderPane.margin>
       </SplitPane>
    </center>
    <top>

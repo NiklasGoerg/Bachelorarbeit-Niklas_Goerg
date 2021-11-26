@@ -65,7 +65,8 @@ public abstract class DynamicDbManger {
 
     }
 
-    protected <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> boolean removeAbstractColumn(String columnName, String tableName, T repository) {
+    protected <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> boolean removeAbstractColumn(
+            String columnName, String tableName, T repository) {
 
         Optional<? extends DbTableColumn> column = repository.findByName(columnName);
         column.ifPresent(repository::delete);
@@ -174,7 +175,7 @@ public abstract class DynamicDbManger {
         }
     }
 
-    protected <T extends  DynamicDbRepository<? extends DbTableColumn, Integer>> void removeRepresentation(List<String> names, T repository) {
+    protected <T extends  DynamicDbRepository<? extends DbTableColumn, Integer>> void removeOldRepresentation(List<String> names, T repository) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
@@ -183,6 +184,9 @@ public abstract class DynamicDbManger {
         });
     }
 
-    protected abstract boolean removeColumn(String colName);
-    protected abstract void addColumn(String colName, ColumnDatatype datatype);
+    public abstract boolean removeColumn(String colName);
+    public abstract void addColumn(String colName, ColumnDatatype datatype);
+    public abstract String getTableName();
+    public abstract List<String> getReservedColumns();
+    public abstract List<String> getColumnOrder();
 }

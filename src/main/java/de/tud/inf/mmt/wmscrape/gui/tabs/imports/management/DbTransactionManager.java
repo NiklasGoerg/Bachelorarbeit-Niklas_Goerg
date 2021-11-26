@@ -79,7 +79,6 @@ public class DbTransactionManager {
     }
 
     public boolean executeStatements(Connection connection, HashMap<String, PreparedStatement> statements) {
-        boolean silentError = false;
         try {
             for (PreparedStatement statement : statements.values()) {
                 statement.executeBatch();
@@ -87,10 +86,10 @@ public class DbTransactionManager {
             }
             connection.close();
         } catch (SQLException e) {
-            silentError = true;
             importTabManager.addToLog("ERR:\t\t" + e.getMessage() + " _CAUSE_ " + e.getCause());
+            return false;
         }
-        return silentError;
+        return true;
     }
 
     public boolean fillStockStatementAddToBatch(String isin, Date date, PreparedStatement statement,
@@ -101,7 +100,7 @@ public class DbTransactionManager {
             statement.setDate(2, date);
 
             if (data == null) {
-                fillNullByDataType(datatype, statement, 3);
+                fillNullByDataType(datatype, statement, 3, true);
             } else {
                 fillByDataType(datatype, statement, 3, data);
             }
@@ -131,7 +130,7 @@ public class DbTransactionManager {
             statement.setString(3, isin);
 
             if (data == null) {
-                fillNullByDataType(datatype, statement, 4);
+                fillNullByDataType(datatype, statement, 4, false);
             } else {
                 fillByDataType(datatype, statement, 4, data);
             }
@@ -172,19 +171,23 @@ public class DbTransactionManager {
         }
     }
 
-    private void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int index) throws SQLException {
+    private void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int index, boolean physicalNull)
+            throws SQLException {
+
+        // setting number values to 0 instead of null because otherwise I would have to use
+        // Integer inside the Transaction Object to allow Null values
+
         switch (datatype) {
             case DATE -> statement.setNull(index, Types.DATE);
             case TEXT -> statement.setNull(index, Types.VARCHAR);
-            case INTEGER -> statement.setInt(index, 0);
-            case DOUBLE -> statement.setDouble(index, 0);
-            /*  enable if handling for primitive data-types exists
-                otherwise: null field --into-> primitive -> error
-            case DATE -> statement.setNull(index, Types.DATE);
-            case TEXT -> statement.setNull(index, Types.VARCHAR);
-            case INTEGER -> statement.setNull(index, Types.INTEGER);
-            case DOUBLE -> statement.setNull(index, Types.DOUBLE);
-             */
+            case INTEGER -> {
+                if(physicalNull) statement.setNull(index, Types.INTEGER);
+                else statement.setInt(index, 0);
+            }
+            case DOUBLE -> {
+                if(physicalNull) statement.setNull(index, Types.DOUBLE);
+                else statement.setDouble(index, 0);
+            }
             default -> {
             }
         }

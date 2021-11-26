@@ -16,11 +16,11 @@ public class Stock {
     @Id
     @Column(length = 50)
     private String isin;
-    @Column(name = "wkn")
+    @Column(name = "wkn",columnDefinition = "TEXT")
     private String _wkn;
     @Column(name = "name",columnDefinition = "TEXT")
     private String _name;
-    @Column(name = "typ")
+    @Column(name = "typ",columnDefinition = "TEXT")
     private String _stockType;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)

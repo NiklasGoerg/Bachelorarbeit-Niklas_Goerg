@@ -13,16 +13,12 @@ import java.util.List;
 public class ExchangeDataDbTableColumn extends DbTableColumn {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "exchangeDataDbTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ElementSelection> elementSelections = new ArrayList<>();
+    private final List<ElementSelection> elementSelections = new ArrayList<>();
 
     public ExchangeDataDbTableColumn() {}
 
     public ExchangeDataDbTableColumn(String name, ColumnDatatype columnDatatype) {
         super(name, columnDatatype);
-    }
-
-    public void setElementSelections(List<ElementSelection> elementSelections) {
-        this.elementSelections = elementSelections;
     }
 
     @Override
