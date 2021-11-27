@@ -1,12 +1,12 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataDbManager;
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -23,11 +23,11 @@ import java.util.HashMap;
 @Lazy
 public class DbTransactionManager {
     @Autowired
-    private StockDataColumnRepository stockDataColumnRepository;
+    private StockColumnRepository stockColumnRepository;
     @Autowired
-    private TransactionDataColumnRepository transactionDataColumnRepository;
+    private TransactionColumnRepository transactionColumnRepository;
     @Autowired
-    private StockDataDbManager stockDataDbManager;
+    private StockTableManager stockDataDbManager;
     @Autowired
     private ImportTabManager importTabManager;
     @Autowired
@@ -38,7 +38,7 @@ public class DbTransactionManager {
 
         // prepare a statement for each column
 
-        for (StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
+        for (StockColumn column : stockColumnRepository.findAll()) {
             try {
                 statements.put(column.getName(), stockDataDbManager.getPreparedStatement(column.getName(), connection));
             } catch (SQLException e) {
@@ -56,7 +56,7 @@ public class DbTransactionManager {
 
         // prepare a statement for each column
 
-        for (TransactionDataDbTableColumn column : transactionDataColumnRepository.findAll()) {
+        for (TransactionColumn column : transactionColumnRepository.findAll()) {
             ColumnDatatype type = column.getColumnDatatype();
             String colName = column.getName();
 
@@ -73,7 +73,7 @@ public class DbTransactionManager {
     }
 
     public PreparedStatement getPreparedTransactionStatement(String dbColName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO `"+ TransactionDataDbManager.TABLE_NAME +"` (depot_id, transaktions_datum, wertpapier_isin, `" + dbColName + "`) VALUES(?,?,?,?) " +
+        String sql = "INSERT INTO `"+ TransactionTableManager.TABLE_NAME +"` (depot_id, transaktions_datum, wertpapier_isin, `" + dbColName + "`) VALUES(?,?,?,?) " +
                 "ON DUPLICATE KEY UPDATE `" + dbColName + "`=VALUES(`" + dbColName + "`);";
         return connection.prepareStatement(sql);
     }

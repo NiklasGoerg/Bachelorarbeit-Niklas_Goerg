@@ -10,20 +10,20 @@ import java.util.List;
 
 @Entity
 @DiscriminatorValue("C")
-public class CourseDataDbTableColumn extends DbTableColumn {
+public class CourseColumn extends DbTableColumn {
 
-    public CourseDataDbTableColumn() {}
+    public CourseColumn() {}
 
-    public CourseDataDbTableColumn(String name, ColumnDatatype columnDatatype) {
+    public CourseColumn(String name, ColumnDatatype columnDatatype) {
             super(name, columnDatatype);
     }
 
 
-    @OneToMany(mappedBy = "courseDataDbTableColumn", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "courseColumn", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
 
     @Override
     public String getTableName() {
-        return CourseDataDbManager.TABLE_NAME;
+        return CourseTableManager.TABLE_NAME;
     }
 }

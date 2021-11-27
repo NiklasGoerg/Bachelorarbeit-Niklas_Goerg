@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
@@ -53,7 +53,7 @@ public class ImportTabController {
     private static final BorderPane noSelectionReplacement = new BorderPane(new Label("Wählen Sie eine Excelkonfiguration aus oder erstellen Sie eine neue (unten links)"));
 
     @Autowired
-    private StockDataColumnRepository stockDataColumnRepository;
+    private StockColumnRepository stockColumnRepository;
 
     private TextArea logTextArea = new TextArea();
     private SimpleStringProperty logText;

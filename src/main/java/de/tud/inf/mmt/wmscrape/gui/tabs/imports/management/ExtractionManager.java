@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
@@ -31,7 +31,7 @@ public class ExtractionManager {
     @Autowired
     private DbTransactionManager dbTransactionManager;
     @Autowired
-    private StockDataDbManager stockDataDbManager;
+    private StockTableManager stockDataDbManager;
     @Autowired
     private ParsingManager parsingManager;
     @Autowired

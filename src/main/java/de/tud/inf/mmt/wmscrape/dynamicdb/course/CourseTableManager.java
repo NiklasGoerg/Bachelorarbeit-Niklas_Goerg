@@ -1,23 +1,22 @@
 package de.tud.inf.mmt.wmscrape.dynamicdb.course;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbManger;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class CourseDataDbManager extends DynamicDbManger{
+public class CourseTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "kursdaten";
     public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin");
     public static final List<String> COLUMN_ORDER = List.of("datum", "isin");
 
     @Autowired
-    CourseDataColumnRepository courseDataColumnRepository;
+    CourseColumnRepository courseColumnRepository;
 
     @PostConstruct
     private void initCourseData() {
@@ -28,28 +27,7 @@ public class CourseDataDbManager extends DynamicDbManger{
             initializeTable("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         }
 
-        // the column names where a representation in db_table_column_exists
-        ArrayList<String> representedColumns = new ArrayList<>();
-        for(CourseDataDbTableColumn column : courseDataColumnRepository.findAll()) {
-            representedColumns.add(column.getName());
-        }
-
-
-        for(String colName : getColumns(TABLE_NAME)) {
-            // add new representation
-            if(!representedColumns.contains(colName)) {
-                ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
-                if(datatype == null) continue;
-                courseDataColumnRepository.saveAndFlush(new CourseDataDbTableColumn(colName, datatype));
-            } else {
-                // representation exists
-                representedColumns.remove(colName);
-            }
-        }
-
-        // removing references that do not exist anymore
-        removeOldRepresentation(representedColumns, courseDataColumnRepository);
-
+        initTableColumns(courseColumnRepository, TABLE_NAME);
 
         addColumn("kurs_in_eur", ColumnDatatype.DOUBLE);
         addColumn("volumen", ColumnDatatype.DOUBLE);
@@ -60,12 +38,12 @@ public class CourseDataDbManager extends DynamicDbManger{
 
     @Override
     public boolean removeColumn(String columnName) {
-        return removeAbstractColumn(columnName, TABLE_NAME, courseDataColumnRepository);
+        return removeAbstractColumn(columnName, TABLE_NAME, courseColumnRepository);
     }
 
     @Override
     public void addColumn(String colName, ColumnDatatype datatype) {
-        addColumnIfNotExists(TABLE_NAME, courseDataColumnRepository, new CourseDataDbTableColumn(colName, datatype));
+        addColumnIfNotExists(TABLE_NAME, courseColumnRepository, new CourseColumn(colName, datatype));
     }
 
     @Override
@@ -81,5 +59,10 @@ public class CourseDataDbManager extends DynamicDbManger{
     @Override
     public List<String> getColumnOrder() {
         return COLUMN_ORDER;
+    }
+
+    @Override
+    protected void saveNewInRepository(String colName, ColumnDatatype datatype) {
+        courseColumnRepository.saveAndFlush(new CourseColumn(colName, datatype));
     }
 }

@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -43,7 +43,7 @@ public class ElementSelection {
     // optional, only exchange
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exchangeDataDbTableColumnId", referencedColumnName = "id")
-    private ExchangeDataDbTableColumn exchangeDataDbTableColumn;
+    private ExchangeColumn exchangeColumn;
 
     @OneToOne(mappedBy = "elementSelection", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private ElementDescCorrelation elementDescCorrelation;
@@ -65,10 +65,10 @@ public class ElementSelection {
         setPropertiesFromPersistence();
     }
 
-    public ElementSelection(WebsiteElement websiteElement, ExchangeDataDbTableColumn exchangeDataDbTableColumn) {
-        //this.description = exchangeDataDbTableColumn.getName();
+    public ElementSelection(WebsiteElement websiteElement, ExchangeColumn exchangeColumn) {
+        //this.description = exchangeColumn.getName();
         this.websiteElement = websiteElement;
-        this.exchangeDataDbTableColumn = exchangeDataDbTableColumn;
+        this.exchangeColumn = exchangeColumn;
         setPropertiesFromPersistence();
     }
 
@@ -139,8 +139,8 @@ public class ElementSelection {
             isin = stock.getIsin();
             wkn = stock.getWkn();
             description = stock.getName();
-        } else if(exchangeDataDbTableColumn != null) {
-            description = exchangeDataDbTableColumn.getName();
+        } else if(exchangeColumn != null) {
+            description = exchangeColumn.getName();
         }
         initListener();
     }

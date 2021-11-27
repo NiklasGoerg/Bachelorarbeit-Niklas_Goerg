@@ -1,8 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +18,13 @@ import java.util.Map;
 public class ExchangeDataManager extends DataManager {
 
     @Autowired
-    ExchangeDataDbManager exchangeDataDbManager;
+    ExchangeTableManager exchangeTableManager;
     @Autowired
-    ExchangeDataColumnRepository exchangeDataColumnRepository;
+    ExchangeColumnRepository exchangeColumnRepository;
 
     @Override
     protected PreparedStatement prepareUpdateStatements(String colName, Connection connection) throws SQLException{
-        String sql = "INSERT INTO `"+dynamicDbManger.getTableName()+"` (`"+colName+
+        String sql = "INSERT INTO `"+ dbTableManger.getTableName()+"` (`"+colName+
                 "`, datum) VALUES(?,?) ON DUPLICATE KEY UPDATE `"+colName+"`=VALUES("+colName+");";
         return connection.prepareStatement(sql);
     }
@@ -51,12 +51,12 @@ public class ExchangeDataManager extends DataManager {
 
     @Override
     protected PreparedStatement prepareDeleteSelectionStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement("DELETE FROM `"+dynamicDbManger.getTableName()+"` WHERE datum=?");
+        return connection.prepareStatement("DELETE FROM `"+ dbTableManger.getTableName()+"` WHERE datum=?");
     }
 
     @Override
     protected PreparedStatement prepareDeleteAllStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement("DELETE FROM `"+dynamicDbManger.getTableName()+"`");
+        return connection.prepareStatement("DELETE FROM `"+ dbTableManger.getTableName()+"`");
     }
 
     @Override
@@ -78,8 +78,8 @@ public class ExchangeDataManager extends DataManager {
 
     @Override
     protected void setColumnRepositoryAndManager() {
-        dynamicDbRepository = exchangeDataColumnRepository;
-        dynamicDbManger = exchangeDataDbManager;
+        dbTableColumnRepository = exchangeColumnRepository;
+        dbTableManger = exchangeTableManager;
     }
 
 }

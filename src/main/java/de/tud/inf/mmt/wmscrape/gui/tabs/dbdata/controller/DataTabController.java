@@ -24,25 +24,19 @@ import java.util.Optional;
 @Controller
 public class DataTabController {
 
-    @Autowired
-    private NewStockPopupController newStockPopupController;
-    @Autowired
-    private PrimaryTabManagement primaryTabManagement;
-    @Autowired
-    private ScrapingElementsTabController scrapingElementsTabController;
-    @Autowired
-    private CourseDataManager courseDataManager;
-    @Autowired
-    private StockDataManager stockDataManager;
-    @Autowired
-    private ExchangeDataManager exchangeDataManager;
+    @Autowired private NewStockPopupController newStockPopupController;
+    @Autowired private PrimaryTabManagement primaryTabManagement;
+    @Autowired private ScrapingElementsTabController scrapingElementsTabController;
+    @Autowired private CourseDataManager courseDataManager;
+    @Autowired private StockDataManager stockDataManager;
+    @Autowired private ExchangeDataManager exchangeDataManager;
 
-    @FXML protected TableView<Stock> stockSelectionTable;
-    @FXML protected TableView<CustomRow> customRowTableView;
-    @FXML protected GridPane columnSubmenuPane;
-    @FXML protected ChoiceBox<ColumnDatatype> columnDatatypeChoiceBox;
-    @FXML protected ComboBox<DbTableColumn> columnDeletionComboBox;
-    @FXML protected TextField newColumnNameField;
+    @FXML private TableView<Stock> stockSelectionTable;
+    @FXML private TableView<CustomRow> customRowTableView;
+    @FXML private GridPane columnSubmenuPane;
+    @FXML private ChoiceBox<ColumnDatatype> columnDatatypeChoiceBox;
+    @FXML private ComboBox<DbTableColumn> columnDeletionComboBox;
+    @FXML private TextField newColumnNameField;
     @FXML private Tab stockTab;
     @FXML private Tab courseTab;
     @FXML private Tab exchangeTab;
@@ -51,18 +45,17 @@ public class DataTabController {
     @FXML private MenuItem deleteStockMenuItem;
     @FXML private BorderPane stockSelectionPane;
 
-    protected final ObservableList<CustomRow> changedRows = FXCollections.observableArrayList();
-    protected ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
-    protected Stock lastViewed;
-    protected boolean viewEverything = false;
-
+    private final ObservableList<CustomRow> changedRows = FXCollections.observableArrayList();
+    private ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
+    private Stock lastViewed;
+    private boolean viewEverything = false;
 
     // initializing with stock data
-    protected DataManager tabManager = stockDataManager;
+    private DataManager tabManager = stockDataManager;
 
 
     @FXML
-    protected void initialize() {
+    private void initialize() {
         tabManager = stockDataManager;
 
         showSubMenu(false);
@@ -78,64 +71,16 @@ public class DataTabController {
 
         tabManager.prepareStockSelectionTable(stockSelectionTable);
         reloadSelectionTable();
+
         stockSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
             if(nv != null) onStockSelection(nv);
         });
+
         reloadAllDataRows();
         handleViewEverythingButton();
         registerTabChangeListener();
     }
 
-
-    private void registerTabChangeListener() {
-        sectionTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
-
-            if(nv != null) {
-                if(nv.equals(stockTab)) {
-                    tabManager = stockDataManager;
-                    hideNonStockRelated(false);
-                } else if (nv.equals(courseTab)) {
-                    tabManager = courseDataManager;
-                    hideNonStockRelated(false);
-                } else if(nv.equals(exchangeTab)) {
-                    tabManager = exchangeDataManager;
-                    hideNonStockRelated(true);
-                    handleViewEverythingButton();
-                }
-
-                updateColumnComboBox();
-                handleResetButton();
-            }
-        });
-    }
-
-    private void hideNonStockRelated(boolean hide) {
-        createStockMenuItem.setVisible(!hide);
-        deleteStockMenuItem.setVisible(!hide);
-        hideSelectionTable(hide);
-    }
-
-    private void hideSelectionTable(boolean hide) {
-        if(hide) {
-            stockSelectionPane.setMinWidth(0);
-            stockSelectionPane.setMaxWidth(0);
-        } else {
-            stockSelectionPane.setMinWidth(165);
-            stockSelectionPane.setMaxWidth(Double.MAX_VALUE);
-        }
-    }
-
-    protected void reloadSelectionTable() {
-        stockSelectionTable.getItems().clear();
-        tabManager.updateStockSelectionTable(stockSelectionTable);
-        redoSelection();
-    }
-
-    protected void updateColumnComboBox() {
-        columnDeletionComboBox.getItems().clear();
-        columnDeletionComboBox.getItems().add(null);
-        columnDeletionComboBox.getItems().addAll(tabManager.getDbTableColumns());
-    }
 
     @FXML
     private void handleNewStockButton() {
@@ -177,23 +122,6 @@ public class DataTabController {
                 Alert.AlertType.INFORMATION, true, ButtonType.OK);
     }
 
-    protected void showSubMenu(boolean show) {
-        if(show) {
-            newColumnNameField.clear();
-            removeBadStyle();
-            columnSubmenuPane.setMaxHeight(50);
-        }
-        else columnSubmenuPane.setMaxHeight(0);
-
-        columnSubmenuPane.setVisible(show);
-        columnSubmenuPane.setManaged(show);
-    }
-
-    protected void removeBadStyle() {
-        newColumnNameField.getStyleClass().remove("bad-input");
-        newColumnNameField.setTooltip(null);
-    }
-
     @FXML
     private void handleViewEverythingButton() {
         customRowTableView.getColumns().clear();
@@ -202,90 +130,6 @@ public class DataTabController {
         customRowTableView.getItems().addAll(allRows);
         addRowChangeListeners();
         viewEverything = true;
-    }
-
-    protected void onStockSelection(Stock stock) {
-        lastViewed = stock;
-        viewEverything = false;
-        customRowTableView.getItems().clear();
-        var rows= tabManager.getStockRowsBySelection(stock, allRows);
-        customRowTableView.getItems().addAll(rows);
-        addRowChangeListeners();
-    }
-
-    protected void reloadAllDataRows() {
-        customRowTableView.getColumns().clear();
-        customRowTableView.getItems().clear();
-        allRows = tabManager.updateDataTable(customRowTableView);
-        redoSelection();
-        changedRows.clear();
-    }
-
-    protected void redoSelection() {
-        if(viewEverything) {
-            handleViewEverythingButton();
-        } else if (lastViewed != null && stockSelectionTable.getItems().contains(lastViewed)) {
-            onStockSelection(lastViewed);
-        } else stockSelectionTable.getSelectionModel().selectFirst();
-    }
-
-    private void addRowChangeListeners() {
-        changedRows.clear();
-        for(CustomRow row : allRows) {
-            row.isChangedProperty().addListener((o,ov,nv) -> changedRows.add(row));
-        }
-    }
-
-    protected Alert createAlert(String title, String content, Alert.AlertType type, boolean wait, ButtonType... buttonType) {
-        Alert alert = new Alert(type, content, buttonType);
-        alert.setHeaderText(title);
-        setAlertPosition(alert);
-        if(wait) alert.showAndWait();
-        return alert;
-    }
-
-    private void setAlertPosition(Alert alert) {
-        var window = customRowTableView.getScene().getWindow();
-        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
-        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
-    }
-
-    protected boolean wrongResponse(Alert alert) {
-        Optional<ButtonType> result = alert.showAndWait();
-        return result.isEmpty() || !result.get().equals(ButtonType.YES);
-    }
-
-    protected Alert confirmationAlert(String title, String msg) {
-        return createAlert(title, msg,
-                Alert.AlertType.CONFIRMATION, false, ButtonType.NO, ButtonType.YES);
-    }
-
-    protected void messageOnSuccess(boolean success, String successTitle, String successMsg, String failTitle, String failMsg) {
-        if (success) {
-            createAlert(successTitle, successMsg, Alert.AlertType.INFORMATION, true, ButtonType.OK);
-        } else {
-            createAlert(failTitle, failMsg, Alert.AlertType.ERROR, true, ButtonType.CLOSE);
-        }
-    }
-
-    protected boolean isValidName(String text) {
-        removeBadStyle();
-
-        if(text == null || text.isBlank()) {
-            return badTooltip("Dieses Feld darf nicht leer sein!");
-        } else if (text.length()>=64) {
-            return badTooltip("Die maximale Länge eines Spaltennamens ist 64 Zeichen.");
-        } else if (!text.matches("^[a-zA-Z0-9üä][a-zA-Z0-9_\\-+äöüß]*$")) {
-            return badTooltip("Der Name enthält unzulässige Symbole. Nur a-z,0-9,ä,ö,ü,ß,-,+,_, sind erlaubt.");
-        }
-
-        return true;
-    }
-
-    private boolean badTooltip(String message) {
-        newColumnNameField.setTooltip(PrimaryTabManagement.createTooltip(message));
-        newColumnNameField.getStyleClass().add("bad-input");
-        return false;
     }
 
     @FXML
@@ -377,5 +221,159 @@ public class DataTabController {
                 "Die Spalte mit dem Namen "+ colName +" wurde gelöscht.",
                 "Löschen nicht erfolgreich!",
                 "Die Spalte "+colName+" wurde nicht gelöscht.");
+    }
+
+
+    private void showSubMenu(boolean show) {
+        if(show) {
+            newColumnNameField.clear();
+            removeBadStyle();
+            columnSubmenuPane.setMaxHeight(50);
+        }
+        else columnSubmenuPane.setMaxHeight(0);
+
+        columnSubmenuPane.setVisible(show);
+        columnSubmenuPane.setManaged(show);
+    }
+
+
+
+    private void registerTabChangeListener() {
+        sectionTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
+
+            if(nv != null) {
+                if(nv.equals(stockTab)) {
+                    tabManager = stockDataManager;
+                    hideNonStockRelated(false);
+                } else if (nv.equals(courseTab)) {
+                    tabManager = courseDataManager;
+                    hideNonStockRelated(false);
+                } else if(nv.equals(exchangeTab)) {
+                    tabManager = exchangeDataManager;
+                    hideNonStockRelated(true);
+                    handleViewEverythingButton();
+                }
+
+                updateColumnComboBox();
+                handleResetButton();
+            }
+        });
+    }
+
+    private void reloadSelectionTable() {
+        stockSelectionTable.getItems().clear();
+        tabManager.updateStockSelectionTable(stockSelectionTable);
+        redoSelection();
+    }
+
+    private void updateColumnComboBox() {
+        columnDeletionComboBox.getItems().clear();
+        columnDeletionComboBox.getItems().add(null);
+        columnDeletionComboBox.getItems().addAll(tabManager.getDbTableColumns());
+    }
+
+    private void onStockSelection(Stock stock) {
+        lastViewed = stock;
+        viewEverything = false;
+        customRowTableView.getItems().clear();
+        var rows= tabManager.getStockRowsBySelection(stock, allRows);
+        customRowTableView.getItems().addAll(rows);
+        addRowChangeListeners();
+    }
+
+    private void reloadAllDataRows() {
+        customRowTableView.getColumns().clear();
+        customRowTableView.getItems().clear();
+        allRows = tabManager.updateDataTable(customRowTableView);
+        redoSelection();
+        changedRows.clear();
+    }
+
+    private void redoSelection() {
+        if(viewEverything) {
+            handleViewEverythingButton();
+        } else if (lastViewed != null && stockSelectionTable.getItems().contains(lastViewed)) {
+            onStockSelection(lastViewed);
+        } else stockSelectionTable.getSelectionModel().selectFirst();
+    }
+
+    private void addRowChangeListeners() {
+        changedRows.clear();
+        for(CustomRow row : allRows) {
+            row.isChangedProperty().addListener((o,ov,nv) -> changedRows.add(row));
+        }
+    }
+
+    private Alert createAlert(String title, String content, Alert.AlertType type, boolean wait, ButtonType... buttonType) {
+        Alert alert = new Alert(type, content, buttonType);
+        alert.setHeaderText(title);
+        setAlertPosition(alert);
+        if(wait) alert.showAndWait();
+        return alert;
+    }
+
+    private void setAlertPosition(Alert alert) {
+        var window = customRowTableView.getScene().getWindow();
+        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
+        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
+    }
+
+    private boolean wrongResponse(Alert alert) {
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isEmpty() || !result.get().equals(ButtonType.YES);
+    }
+
+    private Alert confirmationAlert(String title, String msg) {
+        return createAlert(title, msg,
+                Alert.AlertType.CONFIRMATION, false, ButtonType.NO, ButtonType.YES);
+    }
+
+    private void messageOnSuccess(boolean success, String successTitle, String successMsg, String failTitle, String failMsg) {
+        if (success) {
+            createAlert(successTitle, successMsg, Alert.AlertType.INFORMATION, true, ButtonType.OK);
+        } else {
+            createAlert(failTitle, failMsg, Alert.AlertType.ERROR, true, ButtonType.CLOSE);
+        }
+    }
+
+    private void hideNonStockRelated(boolean hide) {
+        createStockMenuItem.setVisible(!hide);
+        deleteStockMenuItem.setVisible(!hide);
+        hideSelectionTable(hide);
+    }
+
+    private void hideSelectionTable(boolean hide) {
+        if(hide) {
+            stockSelectionPane.setMinWidth(0);
+            stockSelectionPane.setMaxWidth(0);
+        } else {
+            stockSelectionPane.setMinWidth(165);
+            stockSelectionPane.setMaxWidth(Double.MAX_VALUE);
+        }
+    }
+
+    private boolean isValidName(String text) {
+        removeBadStyle();
+
+        if(text == null || text.isBlank()) {
+            return badTooltip("Dieses Feld darf nicht leer sein!");
+        } else if (text.length()>=64) {
+            return badTooltip("Die maximale Länge eines Spaltennamens ist 64 Zeichen.");
+        } else if (!text.matches("^[a-zA-Z0-9üä][a-zA-Z0-9_\\-+äöüß]*$")) {
+            return badTooltip("Der Name enthält unzulässige Symbole. Nur a-z,0-9,ä,ö,ü,ß,-,+,_, sind erlaubt.");
+        }
+
+        return true;
+    }
+
+    private void removeBadStyle() {
+        newColumnNameField.getStyleClass().remove("bad-input");
+        newColumnNameField.setTooltip(null);
+    }
+
+    private boolean badTooltip(String message) {
+        newColumnNameField.setTooltip(PrimaryTabManagement.createTooltip(message));
+        newColumnNameField.getStyleClass().add("bad-input");
+        return false;
     }
 }

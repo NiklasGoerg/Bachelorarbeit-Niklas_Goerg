@@ -1,8 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.data;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumn;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -36,12 +36,12 @@ public class ExcelCorrelation {
     private ExcelSheet excelSheet;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="stockDataTableColumnId", referencedColumnName="id")
-    private StockDataDbTableColumn stockDataTableColumn;
+    @JoinColumn(name="stockColumnId", referencedColumnName="id")
+    private StockColumn stockColumn;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transactionDataTableColumnId", referencedColumnName="id")
-    private TransactionDataDbTableColumn transactionDataTableColumn;
+    @JoinColumn(name = "transactionColumnId", referencedColumnName="id")
+    private TransactionColumn transactionColumn;
 
     public ExcelCorrelation() {
         excelColNumber.set(_excelColNumber);
@@ -54,18 +54,18 @@ public class ExcelCorrelation {
         this.excelSheet = excelSheet;
     }
 
-    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, StockDataDbTableColumn column) {
+    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, StockColumn column) {
         this(correlationType, excelSheet);
         this.dbColType = column.getColumnDatatype();
         this.dbColTitle = column.getName();
-        this.stockDataTableColumn = column;
+        this.stockColumn = column;
     }
 
-    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, TransactionDataDbTableColumn column) {
+    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, TransactionColumn column) {
         this(correlationType, excelSheet);
         this.dbColType = column.getColumnDatatype();
         this.dbColTitle = column.getName();
-        this.transactionDataTableColumn = column;
+        this.transactionColumn = column;
     }
 
     public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, ColumnDatatype columnDatatype, String colName) {

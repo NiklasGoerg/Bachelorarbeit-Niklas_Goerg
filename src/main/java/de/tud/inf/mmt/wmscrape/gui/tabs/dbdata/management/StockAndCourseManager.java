@@ -15,7 +15,7 @@ public abstract class StockAndCourseManager extends DataManager {
 
     @Override
     protected PreparedStatement prepareUpdateStatements(String colName, Connection connection) throws SQLException{
-        String sql = "INSERT INTO `"+dynamicDbManger.getTableName()+"` (`"+colName+
+        String sql = "INSERT INTO `"+ dbTableManger.getTableName()+"` (`"+colName+
                 "`, datum, isin) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `"+colName+"`=VALUES("+colName+");";
         return connection.prepareStatement(sql);
     }
@@ -44,12 +44,12 @@ public abstract class StockAndCourseManager extends DataManager {
 
     @Override
     protected PreparedStatement prepareDeleteSelectionStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement("DELETE FROM `"+dynamicDbManger.getTableName()+"` WHERE isin=? and datum=?");
+        return connection.prepareStatement("DELETE FROM `"+ dbTableManger.getTableName()+"` WHERE isin=? and datum=?");
     }
 
     @Override
     protected PreparedStatement prepareDeleteAllStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement("DELETE FROM `"+dynamicDbManger.getTableName()+"` WHERE isin=?");
+        return connection.prepareStatement("DELETE FROM `"+ dbTableManger.getTableName()+"` WHERE isin=?");
     }
 
 

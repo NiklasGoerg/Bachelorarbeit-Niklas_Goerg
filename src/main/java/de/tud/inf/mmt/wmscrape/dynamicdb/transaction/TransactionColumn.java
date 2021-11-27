@@ -10,21 +10,21 @@ import java.util.List;
 
 @Entity
 @DiscriminatorValue("T")
-public class TransactionDataDbTableColumn extends DbTableColumn {
+public class TransactionColumn extends DbTableColumn {
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "transactionDataTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "transactionColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
 
-    public TransactionDataDbTableColumn() {}
+    public TransactionColumn() {}
 
-    public TransactionDataDbTableColumn(String name, ColumnDatatype columnDatatype) {
+    public TransactionColumn(String name, ColumnDatatype columnDatatype) {
         super(name, columnDatatype);
     }
 
 
     @Override
     public String getTableName() {
-        return TransactionDataDbManager.TABLE_NAME;
+        return TransactionTableManager.TABLE_NAME;
     }
 }

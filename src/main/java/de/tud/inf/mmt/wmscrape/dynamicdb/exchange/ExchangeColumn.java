@@ -10,19 +10,19 @@ import java.util.List;
 
 @Entity
 @DiscriminatorValue("E")
-public class ExchangeDataDbTableColumn extends DbTableColumn {
+public class ExchangeColumn extends DbTableColumn {
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "exchangeDataDbTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "exchangeColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<ElementSelection> elementSelections = new ArrayList<>();
 
-    public ExchangeDataDbTableColumn() {}
+    public ExchangeColumn() {}
 
-    public ExchangeDataDbTableColumn(String name, ColumnDatatype columnDatatype) {
+    public ExchangeColumn(String name, ColumnDatatype columnDatatype) {
         super(name, columnDatatype);
     }
 
     @Override
     public String getTableName() {
-        return ExchangeDataDbManager.TABLE_NAME;
+        return ExchangeTableManager.TABLE_NAME;
     }
 }

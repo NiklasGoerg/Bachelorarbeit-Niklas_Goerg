@@ -1,10 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbManager;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbManager;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import javafx.beans.property.SimpleStringProperty;
@@ -39,13 +39,13 @@ public class ElementIdentCorrelation {
 
     // optional for stock correlations
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stockDataTableColumnId", referencedColumnName = "id")
-    private StockDataDbTableColumn stockDataTableColumn;
+    @JoinColumn(name = "stockColumnId", referencedColumnName = "id")
+    private StockColumn stockColumn;
 
     // optional for course correlations
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseDataDbTableColumnId", referencedColumnName = "id")
-    private CourseDataDbTableColumn courseDataDbTableColumn;
+    @JoinColumn(name = "courseColumnId", referencedColumnName = "id")
+    private CourseColumn courseColumn;
 
     // redundant but saves fetching from the database
     private ColumnDatatype columnDatatype;
@@ -72,34 +72,34 @@ public class ElementIdentCorrelation {
         initListener();
     }
 
-    public ElementIdentCorrelation(WebsiteElement websiteElement, StockDataDbTableColumn stockDataTableColumn) {
+    public ElementIdentCorrelation(WebsiteElement websiteElement, StockColumn stockColumn) {
         this(websiteElement);
-        this.stockDataTableColumn = stockDataTableColumn;
-        this.columnDatatype = stockDataTableColumn.getColumnDatatype();
-        this.dbColName = stockDataTableColumn.getName();
-        this.dbTableName = stockDataTableColumn.getTableName();
+        this.stockColumn = stockColumn;
+        this.columnDatatype = stockColumn.getColumnDatatype();
+        this.dbColName = stockColumn.getName();
+        this.dbTableName = stockColumn.getTableName();
     }
 
-    public ElementIdentCorrelation(WebsiteElement websiteElement, CourseDataDbTableColumn courseDataDbTableColumn) {
+    public ElementIdentCorrelation(WebsiteElement websiteElement, CourseColumn courseColumn) {
         this(websiteElement);
-        this.courseDataDbTableColumn = courseDataDbTableColumn;
-        this.columnDatatype = courseDataDbTableColumn.getColumnDatatype();
-        this.dbColName = courseDataDbTableColumn.getName();
-        this.dbTableName = courseDataDbTableColumn.getTableName();
+        this.courseColumn = courseColumn;
+        this.columnDatatype = courseColumn.getColumnDatatype();
+        this.dbColName = courseColumn.getName();
+        this.dbTableName = courseColumn.getTableName();
     }
 
     public ElementIdentCorrelation(WebsiteElement websiteElement, String exchangeFieldName) {
         this(websiteElement);
         this.dbColName = exchangeFieldName;
         this.columnDatatype = ColumnDatatype.DOUBLE;
-        this.dbTableName = ExchangeDataDbManager.TABLE_NAME;
+        this.dbTableName = ExchangeTableManager.TABLE_NAME;
     }
 
     public ElementIdentCorrelation(WebsiteElement websiteElement, ColumnDatatype datatype, String colName) {
         this(websiteElement);
         this.dbColName = colName;
         this.columnDatatype = datatype;
-        this.dbTableName = CourseDataDbManager.TABLE_NAME;
+        this.dbTableName = CourseTableManager.TABLE_NAME;
     }
 
     public IdentType getIdentType() {

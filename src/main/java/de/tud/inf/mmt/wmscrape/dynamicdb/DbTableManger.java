@@ -12,13 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class DynamicDbManger {
-    @Autowired
-    DataSource dataSource;
-    @Autowired
-    TransactionTemplate transactionTemplate;
+public abstract class DbTableManger {
+    @Autowired DataSource dataSource;
+    @Autowired TransactionTemplate transactionTemplate;
+
+    public abstract boolean removeColumn(String colName);
+    public abstract void addColumn(String colName, ColumnDatatype datatype);
+    public abstract String getTableName();
+    public abstract List<String> getReservedColumns();
+    public abstract List<String> getColumnOrder();
 
     public ArrayList<String> getColumns(String tableName) {
+        if(tableName == null) return null;
         ArrayList<String> columns = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection()){
@@ -39,8 +44,7 @@ public abstract class DynamicDbManger {
         return columns;
     }
 
-
-    protected  <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> void addColumnIfNotExists(
+    protected  <T extends DbTableColumnRepository<? extends DbTableColumn, Integer>> void addColumnIfNotExists(
             String tableName, T repository , DbTableColumn column) {
 
         if(column == null || column.getColumnDatatype() == null || column.getName() == null) {
@@ -65,8 +69,10 @@ public abstract class DynamicDbManger {
 
     }
 
-    protected <T extends DynamicDbRepository<? extends DbTableColumn, Integer>> boolean removeAbstractColumn(
+    protected <T extends DbTableColumnRepository<? extends DbTableColumn, Integer>> boolean removeAbstractColumn(
             String columnName, String tableName, T repository) {
+
+        if(columnName == null || tableName == null || repository == null) return false;
 
         Optional<? extends DbTableColumn> column = repository.findByName(columnName);
         column.ifPresent(repository::delete);
@@ -86,6 +92,7 @@ public abstract class DynamicDbManger {
     }
 
     public boolean columnExists(String columnName, String tableName){
+        if(columnName == null || tableName == null) return true;
 
         try (Connection connection = dataSource.getConnection()){
             PreparedStatement pst = connection.prepareStatement("SELECT column_name FROM information_schema.columns WHERE table_name = ?;");
@@ -109,6 +116,8 @@ public abstract class DynamicDbManger {
 
     public ColumnDatatype getColumnDataType(String columnName, String tableName){
         //https://www.tutorialspoint.com/java-resultsetmetadata-getcolumntype-method-with-example
+
+        if(columnName == null || tableName == null ) return null;
 
         try (Connection connection = dataSource.getConnection()){
 
@@ -134,6 +143,9 @@ public abstract class DynamicDbManger {
     }
 
     public boolean tableDoesNotExist(String tableName) {
+
+        if(tableName == null) return false;
+
         try (Connection connection = dataSource.getConnection()){
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery("SHOW TABLES;");
@@ -175,18 +187,34 @@ public abstract class DynamicDbManger {
         }
     }
 
-    protected <T extends  DynamicDbRepository<? extends DbTableColumn, Integer>> void removeOldRepresentation(List<String> names, T repository) {
+    protected <T extends DbTableColumnRepository<? extends DbTableColumn, Integer>> void initTableColumns(T repository, String tableName) {
+        // the column names where a representation in db_table_column_exists
+        ArrayList<String> representedColumns = new ArrayList<>();
+        for(DbTableColumn column : repository.findAll()) {
+            representedColumns.add(column.getName());
+        }
+
+        for(String colName : getColumns(tableName)) {
+            if(!representedColumns.contains(colName)) {
+                // add new representation
+                ColumnDatatype datatype = getColumnDataType(colName, tableName);
+                if(datatype == null) continue;
+                saveNewInRepository(colName, datatype);
+            } else  {
+                // representation exists
+                representedColumns.remove(colName);
+            }
+        }
+
+        // removing references that do not exist anymore
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
-                names.forEach(repository::deleteByName);
+                representedColumns.forEach(repository::deleteByName);
             }
         });
     }
 
-    public abstract boolean removeColumn(String colName);
-    public abstract void addColumn(String colName, ColumnDatatype datatype);
-    public abstract String getTableName();
-    public abstract List<String> getReservedColumns();
-    public abstract List<String> getColumnOrder();
+    protected abstract void saveNewInRepository(String colName, ColumnDatatype datatype);
+
 }

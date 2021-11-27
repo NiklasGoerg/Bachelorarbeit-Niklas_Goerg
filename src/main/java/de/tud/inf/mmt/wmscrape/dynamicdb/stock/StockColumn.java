@@ -11,23 +11,23 @@ import java.util.List;
 
 @Entity
 @DiscriminatorValue("S")
-public class StockDataDbTableColumn extends DbTableColumn {
+public class StockColumn extends DbTableColumn {
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockDataTableColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "stockDataTableColumn", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "stockColumn", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ElementIdentCorrelation> elementIdentCorrelations;
 
 
-    public StockDataDbTableColumn() {}
+    public StockColumn() {}
 
-    public StockDataDbTableColumn(String name, ColumnDatatype columnDatatype) {
+    public StockColumn(String name, ColumnDatatype columnDatatype) {
         super(name, columnDatatype);
     }
 
     @Override
     public String getTableName() {
-        return StockDataDbManager.TABLE_NAME;
+        return StockTableManager.TABLE_NAME;
     }
 }

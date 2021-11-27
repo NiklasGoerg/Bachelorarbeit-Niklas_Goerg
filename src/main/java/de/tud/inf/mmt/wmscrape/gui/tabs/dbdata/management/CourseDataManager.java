@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 public class CourseDataManager extends StockAndCourseManager {
 
     @Autowired
-    CourseDataColumnRepository courseDataColumnRepository;
+    CourseColumnRepository courseColumnRepository;
     @Autowired
-    CourseDataDbManager courseDataDbManager;
+    CourseTableManager courseTableManager;
 
     @Override
     protected void setColumnRepositoryAndManager(){
-        dynamicDbRepository = courseDataColumnRepository;
-        dynamicDbManger = courseDataDbManager;
+        dbTableColumnRepository = courseColumnRepository;
+        dbTableManger = courseTableManager;
     }
 }

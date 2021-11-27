@@ -1,12 +1,12 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
@@ -48,11 +48,11 @@ public abstract class ElementManager {
     @Autowired
     private StockRepository stockRepository;
     @Autowired
-    private CourseDataColumnRepository courseDataColumnRepository;
+    private CourseColumnRepository courseColumnRepository;
     @Autowired
-    private StockDataColumnRepository stockDataColumnRepository;
+    private StockColumnRepository stockColumnRepository;
     @Autowired
-    private ExchangeDataColumnRepository exchangeDataColumnRepository;
+    private ExchangeColumnRepository exchangeColumnRepository;
     @Autowired
     protected WebsiteElementRepository websiteElementRepository;
     @Autowired
@@ -230,7 +230,7 @@ public abstract class ElementManager {
         }
 
         // idents representing columns without data assigned atm
-        for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
+        for(StockColumn column : stockColumnRepository.findAll()) {
             if(!addedStockColumns.contains(column.getName())) {
                 addedStockColumns.add(column.getName());
                 stockCorrelations.add(new ElementIdentCorrelation(websiteElement, column));
@@ -265,7 +265,7 @@ public abstract class ElementManager {
         }
 
 
-        for(CourseDataDbTableColumn column : courseDataColumnRepository.findAll()) {
+        for(CourseColumn column : courseColumnRepository.findAll()) {
             if(!addedStockColumns.contains(column.getName())) {
                 addedStockColumns.add(column.getName());
                 courseCorrelations.add(new ElementIdentCorrelation(websiteElement, column));
@@ -326,7 +326,7 @@ public abstract class ElementManager {
             addedStockSelection.add(elementSelection.getDescription());
         }
 
-        for(ExchangeDataDbTableColumn column : exchangeDataColumnRepository.findAll()) {
+        for(ExchangeColumn column : exchangeColumnRepository.findAll()) {
             if(!addedStockSelection.contains(column.getName())) {
                 ElementSelection elementSelection = new ElementSelection(websiteElement, column);
 

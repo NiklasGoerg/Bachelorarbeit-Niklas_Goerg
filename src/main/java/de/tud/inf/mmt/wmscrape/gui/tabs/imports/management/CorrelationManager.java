@@ -1,10 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataDbTableColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionDataDbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.CorrelationType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelationRepository;
@@ -30,9 +30,9 @@ public class CorrelationManager {
     @Autowired
     private ExcelCorrelationRepository excelCorrelationRepository;
     @Autowired
-    private StockDataColumnRepository stockDataColumnRepository;
+    private StockColumnRepository stockColumnRepository;
     @Autowired
-    private TransactionDataColumnRepository transactionDataColumnRepository;
+    private TransactionColumnRepository transactionColumnRepository;
 
     private ObservableList<ExcelCorrelation> stockColumnRelations = FXCollections.observableArrayList();
     private ObservableList<ExcelCorrelation> transactionColumnRelations = FXCollections.observableArrayList();
@@ -83,7 +83,7 @@ public class CorrelationManager {
 
 
         // add correlation for missing stock db columns
-        for (StockDataDbTableColumn stockColumn : stockDataColumnRepository.findAll()) {
+        for (StockColumn stockColumn : stockColumnRepository.findAll()) {
             //datum is set automatically
             String name = stockColumn.getName();
 
@@ -177,7 +177,7 @@ public class CorrelationManager {
         addImportantCorrelations(addedTransDbCols, excelSheet, importantTransactionCorrelations, CorrelationType.TRANSACTION, transactionColumnRelations);
 
 
-        for (TransactionDataDbTableColumn column : transactionDataColumnRepository.findAll()) {
+        for (TransactionColumn column : transactionColumnRepository.findAll()) {
             String name = column.getName();
 
             if (!addedTransDbCols.contains(name)) {

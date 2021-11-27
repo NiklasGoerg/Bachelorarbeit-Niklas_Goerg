@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.dynamicdb.stock;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbManger;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,18 +11,17 @@ import javax.annotation.PostConstruct;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class StockDataDbManager extends DynamicDbManger{
+public class StockTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "stammdaten";
     public static final List<String> RESERVED_COLUMNS = List.of("datum","isin");
     public static final List<String> COLUMN_ORDER = List.of("datum","isin","wkn","name","typ");
 
     @Autowired
-    StockDataColumnRepository stockDataColumnRepository;
+    StockColumnRepository stockColumnRepository;
     @Autowired
     StockRepository stockRepository;
     @Autowired
@@ -37,27 +36,7 @@ public class StockDataDbManager extends DynamicDbManger{
             initializeTable("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
         }
 
-        // the column names where a representation in db_table_column_exists
-        ArrayList<String> representedColumns = new ArrayList<>();
-        for(StockDataDbTableColumn column : stockDataColumnRepository.findAll()) {
-            representedColumns.add(column.getName());
-        }
-
-        for(String colName : getColumns(TABLE_NAME)) {
-            if(!representedColumns.contains(colName)) {
-                // add new representation
-                ColumnDatatype datatype = getColumnDataType(colName, TABLE_NAME);
-                if(datatype == null) continue;
-                stockDataColumnRepository.saveAndFlush(new StockDataDbTableColumn(colName, datatype));
-            } else {
-                // representation exists
-                representedColumns.remove(colName);
-            }
-        }
-
-        // removing references that do not exist anymore
-        removeOldRepresentation(representedColumns, stockDataColumnRepository);
-
+        initTableColumns(stockColumnRepository, TABLE_NAME);
 
         // todo remove
         addColumn("url_1", ColumnDatatype.TEXT);
@@ -75,12 +54,12 @@ public class StockDataDbManager extends DynamicDbManger{
 
     @Override
     public boolean removeColumn(String columnName) {
-        return removeAbstractColumn(columnName, TABLE_NAME, stockDataColumnRepository);
+        return removeAbstractColumn(columnName, TABLE_NAME, stockColumnRepository);
     }
 
     @Override
     public void addColumn(String colName, ColumnDatatype datatype) {
-        addColumnIfNotExists(TABLE_NAME, stockDataColumnRepository, new StockDataDbTableColumn(colName, datatype));
+        addColumnIfNotExists(TABLE_NAME, stockColumnRepository, new StockColumn(colName, datatype));
     }
 
     @Override
@@ -96,5 +75,10 @@ public class StockDataDbManager extends DynamicDbManger{
     @Override
     public List<String> getColumnOrder() {
         return COLUMN_ORDER;
+    }
+
+    @Override
+    protected void saveNewInRepository(String colName, ColumnDatatype datatype) {
+        stockColumnRepository.saveAndFlush(new StockColumn(colName, datatype));
     }
 }

@@ -2,9 +2,9 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbManger;
-import de.tud.inf.mmt.wmscrape.dynamicdb.DynamicDbRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockDataColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
@@ -30,25 +30,32 @@ import java.util.Map;
 public abstract class DataManager {
 
 
-    @Autowired
-    protected StockRepository stockRepository;
+    @Autowired protected DataSource dataSource;
+    @Autowired protected StockRepository stockRepository;
+    @Autowired private StockColumnRepository stockColumnRepository;
 
-
-    protected DynamicDbRepository<? extends DbTableColumn, Integer> dynamicDbRepository;
-    protected DynamicDbManger dynamicDbManger;
-
-
-
-
-    @Autowired
-    protected DataSource dataSource;
-    @Autowired
-    private StockDataColumnRepository stockDataColumnRepository;
-
+    protected DbTableColumnRepository<? extends DbTableColumn, Integer> dbTableColumnRepository;
+    protected DbTableManger dbTableManger;
 
 
     @PostConstruct
     protected abstract void setColumnRepositoryAndManager();
+
+    protected abstract Map<String, String> getKeyInformation(CustomRow row);
+
+    protected abstract void setStatementKeys(CustomCell cell, PreparedStatement stmt ,
+                                             Map<String, String> keys) throws SQLException;
+
+    protected abstract PreparedStatement prepareUpdateStatements(String colName, Connection connection) throws SQLException;
+
+    protected abstract PreparedStatement prepareDeleteAllStatement(Connection connection) throws SQLException ;
+
+    protected abstract PreparedStatement prepareDeleteSelectionStatement(Connection connection) throws SQLException ;
+
+    protected abstract void fillDeleteAllStatement(CustomRow row, PreparedStatement statement) throws SQLException ;
+
+    protected abstract void fillDeleteSelectionStatement(CustomRow row, PreparedStatement statement) throws SQLException ;
+
 
     protected <T extends DbTableColumn> void prepareTable(TableView<CustomRow> table,
                                                           List<T> columns,
@@ -161,15 +168,11 @@ public abstract class DataManager {
         statement.close();
     }
 
-
-
-
     public ObservableList<CustomRow> updateDataTable(TableView<CustomRow> table) {
-        List<? extends DbTableColumn> dbTableColumns = getTableColumns(dynamicDbRepository);
-        prepareTable(table, dbTableColumns, dynamicDbManger.getReservedColumns(), dynamicDbManger.getColumnOrder());
-        return getAllRows(dynamicDbManger.getTableName(), dbTableColumns);
+        List<? extends DbTableColumn> dbTableColumns = getTableColumns(dbTableColumnRepository);
+        prepareTable(table, dbTableColumns, dbTableManger.getReservedColumns(), dbTableManger.getColumnOrder());
+        return getAllRows(dbTableManger.getTableName(), dbTableColumns);
     }
-
 
     public ObservableList<CustomRow> getStockRowsBySelection(Stock stock, ObservableList<CustomRow> rows) {
         String stockIsin = stock.getIsin();
@@ -212,11 +215,9 @@ public abstract class DataManager {
         return allRows;
     }
 
-
-    private  <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns( DynamicDbRepository<T, Integer> repository) {
+    private  <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns( DbTableColumnRepository<T, Integer> repository) {
         return repository.findAll();
     }
-    
 
     public boolean saveChangedRows(List<CustomRow> rows) {
         if(rows == null || rows.size() == 0) return true;
@@ -256,12 +257,6 @@ public abstract class DataManager {
         return true;
     }
 
-
-    protected abstract Map<String, String> getKeyInformation(CustomRow row);
-
-    protected abstract void setStatementKeys(CustomCell cell, PreparedStatement stmt ,
-                                             Map<String, String> keys) throws SQLException;
-
     public void prepareStockSelectionTable(TableView<Stock> table) {
         TableColumn<Stock, String> nameCol =  new TableColumn<>("Name");
         TableColumn<Stock, String> isinCol =  new TableColumn<>("ISIN");
@@ -296,16 +291,6 @@ public abstract class DataManager {
         stockRepository.saveAllAndFlush(stocks);
     }
 
-    protected abstract PreparedStatement prepareUpdateStatements(String colName, Connection connection) throws SQLException;
-
-    protected abstract PreparedStatement prepareDeleteAllStatement(Connection connection) throws SQLException ;
-
-    protected abstract void fillDeleteAllStatement(CustomRow row, PreparedStatement statement) throws SQLException ;
-
-    protected abstract PreparedStatement prepareDeleteSelectionStatement(Connection connection) throws SQLException ;
-
-    protected abstract void fillDeleteSelectionStatement(CustomRow row, PreparedStatement statement) throws SQLException ;
-
     public void deleteStock(Stock stock) {
         stockRepository.delete(stock);
     }
@@ -316,16 +301,16 @@ public abstract class DataManager {
     }
 
     public List<? extends DbTableColumn>  getDbTableColumns() {
-        var all = dynamicDbRepository.findAll();
-        all.removeIf(column -> dynamicDbManger.getReservedColumns().contains(column.getName()));
+        var all = dbTableColumnRepository.findAll();
+        all.removeIf(column -> dbTableManger.getReservedColumns().contains(column.getName()));
         return all;
     }
 
     public void addColumn(String colName, ColumnDatatype datatype) {
-        dynamicDbManger.addColumn(colName, datatype);
+        dbTableManger.addColumn(colName, datatype);
     }
 
     public boolean removeColumn(String colName) {
-        return dynamicDbManger.removeColumn(colName);
+        return dbTableManger.removeColumn(colName);
     }
 }
