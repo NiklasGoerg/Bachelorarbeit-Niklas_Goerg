@@ -31,19 +31,28 @@ public class DataTabController {
     @Autowired private StockDataManager stockDataManager;
     @Autowired private ExchangeDataManager exchangeDataManager;
 
+
     @FXML private TableView<Stock> stockSelectionTable;
     @FXML private TableView<CustomRow> customRowTableView;
-    @FXML private GridPane columnSubmenuPane;
-    @FXML private ChoiceBox<ColumnDatatype> columnDatatypeChoiceBox;
-    @FXML private ComboBox<DbTableColumn> columnDeletionComboBox;
     @FXML private TextField newColumnNameField;
     @FXML private Tab stockTab;
     @FXML private Tab courseTab;
     @FXML private Tab exchangeTab;
     @FXML private TabPane sectionTabPane;
+    @FXML private BorderPane stockSelectionPane;
     @FXML private MenuItem createStockMenuItem;
     @FXML private MenuItem deleteStockMenuItem;
-    @FXML private BorderPane stockSelectionPane;
+
+    @FXML private GridPane columnSubmenuPane;
+    @FXML private ChoiceBox<ColumnDatatype> columnDatatypeChoiceBox;
+    @FXML private ComboBox<DbTableColumn> columnDeletionComboBox;
+
+    @FXML private GridPane stockCreateSubmenuPane;
+    @FXML private TextField newIsinField;
+    @FXML private TextField newWknField;
+    @FXML private TextField newNameField;
+    @FXML private TextField newTypeField;
+
 
     private final ObservableList<CustomRow> changedRows = FXCollections.observableArrayList();
     private ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
@@ -58,7 +67,8 @@ public class DataTabController {
     private void initialize() {
         tabManager = stockDataManager;
 
-        showSubMenu(false);
+        showColumnSubMenu(false);
+        showStockSubMenu(false);
         columnDatatypeChoiceBox.getItems().setAll(ColumnDatatype.values());
         columnDatatypeChoiceBox.setValue(ColumnDatatype.TEXT);
 
@@ -75,26 +85,11 @@ public class DataTabController {
         stockSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
             if(nv != null) onStockSelection(nv);
         });
+        newIsinField.textProperty().addListener(x -> isValidIsin());
 
         reloadAllDataRows();
         handleViewEverythingButton();
         registerTabChangeListener();
-    }
-
-
-    @FXML
-    private void handleNewStockButton() {
-        primaryTabManagement.loadFxml(
-                "gui/tabs/dbdata/controller/newStockPopup.fxml",
-                "Wertpapier anlegen",
-                stockSelectionTable,
-                true, newStockPopupController);
-        reloadSelectionTable();
-    }
-
-    @FXML
-    private void handleColumnModificationButton() {
-        showSubMenu(!columnSubmenuPane.isVisible());
     }
 
     @FXML
@@ -181,6 +176,11 @@ public class DataTabController {
     }
 
     @FXML
+    private void handleColumnModificationButton() {
+        showColumnSubMenu(!columnSubmenuPane.isVisible());
+    }
+
+    @FXML
     private void handleAddColumnButton() {
 
 
@@ -205,6 +205,30 @@ public class DataTabController {
     }
 
     @FXML
+    private void handleStockCreateSubMenuButton() {
+        showStockSubMenu(!stockCreateSubmenuPane.isVisible());
+    }
+
+    @FXML
+    private void handleNewStockButton() {
+
+        if(!isValidIsin()) return;
+
+        boolean success = stockDataManager.createStock(newIsinField.getText(),newWknField.getText(),newNameField.getText(),
+                newTypeField.getText());
+        scrapingElementsTabController.refresh();
+
+        if(success) {
+            createAlert("Wertpapier angelegt!", "Ein neues Wertpapier wurde angelegt.",
+                    Alert.AlertType.INFORMATION, true, ButtonType.OK);
+            reloadSelectionTable();
+        } else  {
+            createAlert("Wertpapier nicht angelegt!", "Kein Wertpapier wurde angelegt.",
+                    Alert.AlertType.ERROR, true, ButtonType.CLOSE);
+        }
+    }
+
+    @FXML
     private void handleRemoveColumnButton() {
         if(columnDeletionComboBox.getSelectionModel().getSelectedItem() == null) return;
 
@@ -223,20 +247,12 @@ public class DataTabController {
                 "Die Spalte "+colName+" wurde nicht gelöscht.");
     }
 
-
-    private void showSubMenu(boolean show) {
-        if(show) {
-            newColumnNameField.clear();
-            removeBadStyle();
-            columnSubmenuPane.setMaxHeight(50);
-        }
-        else columnSubmenuPane.setMaxHeight(0);
-
-        columnSubmenuPane.setVisible(show);
-        columnSubmenuPane.setManaged(show);
+    private void clearNewStockFields() {
+        newIsinField.clear();
+        newWknField.clear();
+        newNameField.clear();
+        newTypeField.clear();
     }
-
-
 
     private void registerTabChangeListener() {
         sectionTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
@@ -340,6 +356,7 @@ public class DataTabController {
         createStockMenuItem.setVisible(!hide);
         deleteStockMenuItem.setVisible(!hide);
         hideSelectionTable(hide);
+        showStockSubMenu(false);
     }
 
     private void hideSelectionTable(boolean hide) {
@@ -375,5 +392,49 @@ public class DataTabController {
         newColumnNameField.setTooltip(PrimaryTabManagement.createTooltip(message));
         newColumnNameField.getStyleClass().add("bad-input");
         return false;
+    }
+
+    private void showColumnSubMenu(boolean show) {
+        if(show) {
+            showStockSubMenu(false);
+            newColumnNameField.clear();
+            removeBadStyle();
+            columnSubmenuPane.setMaxHeight(50);
+        }
+        else columnSubmenuPane.setMaxHeight(0);
+
+        columnSubmenuPane.setVisible(show);
+        columnSubmenuPane.setManaged(show);
+    }
+
+    private void showStockSubMenu(boolean show) {
+        if(show) {
+            showColumnSubMenu(false);
+            clearNewStockFields();
+            removeBadStyle();
+            stockCreateSubmenuPane.setMaxHeight(50);
+        }
+        else stockCreateSubmenuPane.setMaxHeight(0);
+
+        stockCreateSubmenuPane.setVisible(show);
+        stockCreateSubmenuPane.setManaged(show);
+    }
+
+    private boolean isValidIsin() {
+        newIsinField.getStyleClass().remove("bad-input");
+        newIsinField.setTooltip(null);
+
+        String text = newIsinField.getText();
+
+        if(text == null || text.isBlank()) {
+            newIsinField.setTooltip(PrimaryTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
+            newIsinField.getStyleClass().add("bad-input");
+            return false;
+        } else if (text.length()>=50) {
+            newIsinField.setTooltip(PrimaryTabManagement.createTooltip("Die maximale Länge der ISIN beträgt 50 Zeichen."));
+            newIsinField.getStyleClass().add("bad-input");
+        }
+
+        return true;
     }
 }

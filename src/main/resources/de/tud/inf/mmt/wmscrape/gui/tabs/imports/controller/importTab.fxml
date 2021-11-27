@@ -19,11 +19,24 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane fx:id="rootNode" dividerPositions="0.13" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="655.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController">
+<SplitPane fx:id="rootNode" dividerPositions="0.2" prefHeight="655.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController">
   <items>
-    <AnchorPane maxWidth="300.0" prefHeight="653.0" prefWidth="170.0">
+      <GridPane>
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="170.0" prefWidth="170.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints vgrow="NEVER" />
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            <RowConstraints vgrow="NEVER" />
+         </rowConstraints>
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <ListView fx:id="excelSheetList" GridPane.rowIndex="1">
+               <GridPane.margin>
+                  <Insets top="-1.0" />
+               </GridPane.margin>
+            </ListView>
+            <VBox alignment="TOP_CENTER" prefHeight="25.0">
                <children>
                   <Label text="Excelkonfigurationen">
                      <VBox.margin>
@@ -33,15 +46,19 @@
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
-                  <Separator minHeight="-Infinity" minWidth="-Infinity" />
+                  <Separator />
                </children>
             </VBox>
-            <ListView fx:id="excelSheetList" minHeight="-Infinity" minWidth="-Infinity" prefHeight="606.0" prefWidth="165.0" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
-            <Button mnemonicParsing="false" onAction="#handleNewExcelSheetButton" text="Neue Konfiguration" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-         </children></AnchorPane>
-      <GridPane fx:id="rightPanelBox">
+            <AnchorPane GridPane.rowIndex="2">
+               <children>
+                  <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewExcelSheetButton" text="Neue Konfiguration" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+         </children>
+      </GridPane>
+      <GridPane fx:id="rightPanelBox" minWidth="750.0">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints vgrow="SOMETIMES" />

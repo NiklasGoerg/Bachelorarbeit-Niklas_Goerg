@@ -26,10 +26,11 @@ tooltip.bad-input {
 }
 
 
-
+/*
 .tab-pane:left *.tab-label {
     -fx-rotate: 90;
 }
+*/
 
 .text-input:readonly {
     -fx-background-color: #c4c4c4;

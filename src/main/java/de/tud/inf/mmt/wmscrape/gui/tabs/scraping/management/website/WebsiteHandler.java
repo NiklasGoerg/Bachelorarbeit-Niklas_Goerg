@@ -27,7 +27,6 @@ public abstract class WebsiteHandler extends Service<Void> {
     protected FirefoxDriver driver;
     private long waitForWsElementSec = 5;
     private WebDriverWait wait;
-    protected JavascriptExecutor js;
 
     private int uniqueElementId = 0;
 
@@ -150,6 +149,7 @@ public abstract class WebsiteHandler extends Service<Void> {
                 // submit like pressing enter
                 submit(password);
                 waitLoadEvent();
+                addToLog("INFO:\tLogin erfolgreich");
                 return true;
             }
             return false;
@@ -159,7 +159,6 @@ public abstract class WebsiteHandler extends Service<Void> {
         if (loginButton == null) return false;
         clickElement(loginButton);
         waitLoadEvent();
-
         addToLog("INFO:\tLogin erfolgreich");
         return true;
     }

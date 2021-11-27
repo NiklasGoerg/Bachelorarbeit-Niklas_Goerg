@@ -12,7 +12,6 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -20,7 +19,7 @@
   <items>
     <AnchorPane maxWidth="300.0" prefHeight="653.0" prefWidth="170.0">
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="TOP_CENTER" minWidth="0.0" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
                   <Label text="Elemente">
                      <VBox.margin>
@@ -30,13 +29,13 @@
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
-                  <Region prefHeight="200.0" prefWidth="200.0" />
                   <Separator minHeight="-Infinity" minWidth="-Infinity" />
                </children>
             </VBox>
-            <ListView fx:id="elementList" minHeight="-Infinity" minWidth="-Infinity" prefWidth="165.0" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
-            <Button mnemonicParsing="false" onAction="#handleNewElementButton" text="Neues Element" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-         </children></AnchorPane>
+            <ListView fx:id="elementList" minWidth="0.0" prefWidth="165.0" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
+            <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewElementButton" text="Neues Element" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+         </children>
+      </AnchorPane>
       <BorderPane fx:id="rightPanelBox">
          <top>
             <VBox BorderPane.alignment="CENTER">

@@ -31,7 +31,7 @@ public class SingleCourseOrStockExtraction extends SingleExtraction {
     protected PreparedStatement prepareStatement(Connection connection, InformationCarrier carrier) {
         String dbColName = carrier.getDbColName();
 
-        String sql = "INSERT INTO `"+carrier.getDbTableName()+" (`"+dbColName+"`, isin, datum) VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
+        String sql = "INSERT INTO `"+carrier.getDbTableName()+"` (`"+dbColName+"`, isin, datum) VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
                 dbColName+"=VALUES(`"+dbColName+"`);";
 
         try {

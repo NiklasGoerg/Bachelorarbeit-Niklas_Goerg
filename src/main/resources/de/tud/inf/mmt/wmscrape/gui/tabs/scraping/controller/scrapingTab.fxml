@@ -4,10 +4,9 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-
 <BorderPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController">
    <center>
-      <TabPane id="verticalTabPane" fx:id="scrapingSubTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="80.0" tabMinWidth="100.0">
+      <TabPane id="verticalTabPane" fx:id="scrapingSubTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="40.0" tabMinWidth="150.0">
          <BorderPane.margin>
             <Insets top="-7.0" />
          </BorderPane.margin>

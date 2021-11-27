@@ -295,9 +295,12 @@ public abstract class DataManager {
         stockRepository.delete(stock);
     }
 
-    public void createStock(String isin, String wkn, String name, String type) {
-        if(isin == null || isin.isBlank()) return;
+    public boolean createStock(String isin, String wkn, String name, String type) {
+        if(isin == null || isin.isBlank()) return false;
+
+        if(stockRepository.findByIsin(isin).isPresent()) return false;
         stockRepository.saveAndFlush(new Stock(isin, wkn, name, type));
+        return true;
     }
 
     public List<? extends DbTableColumn>  getDbTableColumns() {

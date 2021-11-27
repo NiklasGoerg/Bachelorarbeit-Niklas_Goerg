@@ -47,8 +47,8 @@ public class ScrapingScrapeTabController {
         logText.addListener(x -> logArea.setScrollTop(Double.MAX_VALUE));
         logArea.textProperty().addListener(x -> logArea.setScrollTop(Double.MAX_VALUE));
 
-        delayMinSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(2, 50, 1, 0.5));
-        delayMaxSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(2, 300, 3, 0.5));
+        delayMinSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(2, 50, 5, 0.5));
+        delayMaxSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(2, 300, 7.5, 0.5));
 
         delayMinSpinner.valueProperty().addListener((o,ov,nv) -> {
             if(nv > delayMaxSpinner.getValue()) delayMaxSpinner.getValueFactory().setValue(nv);

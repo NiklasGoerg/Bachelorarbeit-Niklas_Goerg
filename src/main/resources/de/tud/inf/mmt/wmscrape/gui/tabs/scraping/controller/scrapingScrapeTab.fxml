@@ -54,7 +54,7 @@
                                  <children>
                                     <HBox alignment="CENTER_LEFT" prefWidth="185.0">
                                        <children>
-                                          <Label minWidth="50.0" text="Inter Seiten-Delay">
+                                          <Label minWidth="50.0" text="Intra Seiten-Delay">
                                              <padding>
                                                 <Insets left="1.0" />
                                              </padding></Label>

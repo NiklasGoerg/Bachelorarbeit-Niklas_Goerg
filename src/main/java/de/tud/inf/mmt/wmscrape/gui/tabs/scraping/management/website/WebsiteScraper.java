@@ -23,10 +23,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WebsiteScraper extends WebsiteHandler {
@@ -45,7 +42,7 @@ public class WebsiteScraper extends WebsiteHandler {
     private final Extraction tableExchangeExtraction;
     private final Extraction tableCourseOrStockExtraction;
 
-    private Map<Website, List<WebsiteElement>> selectedFromTree;
+    private Map<Website, List<WebsiteElement>> selectedFromMenuTree;
     private Map<Website, Double> progressElementMax;
     private Map<Website, Double> progressElementCurrent;
     private boolean loggedInToWebsite = false;
@@ -53,11 +50,13 @@ public class WebsiteScraper extends WebsiteHandler {
     private double progressWsCurrent = 0;
     private boolean pauseAfterElement;
 
-    // using my own progress for website because the updateProgress method lags the ui
+    // using my own progress for the main task because the updateProgress method lags the ui
     private final SimpleDoubleProperty websiteProgress = new SimpleDoubleProperty(0);
     private final SimpleDoubleProperty singleElementProgress = new SimpleDoubleProperty(0);
     private final SimpleDoubleProperty elementSelectionProgress = new SimpleDoubleProperty(0);
     private final SimpleDoubleProperty waitProgress = new SimpleDoubleProperty(0);
+
+    private final HashMap<String, String> identBuffer = new HashMap<>();
 
     public WebsiteScraper(SimpleStringProperty logText, Boolean headless, Connection dbConnection, boolean pauseAfterElement) {
         super(logText, headless);
@@ -68,7 +67,7 @@ public class WebsiteScraper extends WebsiteHandler {
         tableCourseOrStockExtraction = new TableCourseOrStockExtraction(dbConnection, logText, this, dateToday);
         this.dbConnection = dbConnection;
         this.pauseAfterElement = pauseAfterElement;
-        selectedFromTree = new HashMap<>();
+        selectedFromMenuTree = new HashMap<>();
     }
 
     public void setMinIntraSiteDelay(double minIntraSiteDelay) {
@@ -123,10 +122,10 @@ public class WebsiteScraper extends WebsiteHandler {
 
         double i=0;
         try {
-            while (i* 150 < randTime) {
+            while (i* 300 < randTime) {
                 i++;
-                Thread.sleep(150L);
-                waitProgress.set((i*150)/randTime);
+                Thread.sleep(300L);
+                waitProgress.set((i*300)/randTime);
             }
         } catch (InterruptedException e) {
             // catch threat interrupt
@@ -146,14 +145,17 @@ public class WebsiteScraper extends WebsiteHandler {
         }
     }
 
-    public String findText(IdentType type, String identifier, String highlightText) {
-        return findTextInContext(type, identifier, highlightText, null);
-    }
+    public String findTextInContext(IdentType type, String identifier, String highlightText,
+                                    WebElementInContext webElementInContext) {
 
-    public String findTextInContext(IdentType type, String identifier, String highlightText, WebElementInContext webElementInContext) {
+        // if already visited return
+        // mainly done to not mark elements again
+        String buffered = identBuffer.get(identifier);
+        if(buffered != null) return buffered;
 
         WebElement element;
 
+        // null -> search in root frame
         if(webElementInContext != null) {
             element = extractElementFromContext(type, identifier, webElementInContext);
         } else {
@@ -164,8 +166,14 @@ public class WebsiteScraper extends WebsiteHandler {
 
         // highlight after extraction otherwise the highlight text ist extracted too
         var tmp = element.getText().trim();
+
+        identBuffer.put(identifier, tmp);
         if(!headless) highlightElement(element, highlightText);
         return tmp;
+    }
+
+    public void resetIdentBuffer() {
+        identBuffer.clear();
     }
 
     // has to be called while inside the frame
@@ -203,12 +211,12 @@ public class WebsiteScraper extends WebsiteHandler {
             progressElementMax.put(key, (double) selectedElements.get(key).size());
         }
 
-        selectedFromTree = dereferenced;
+        selectedFromMenuTree = dereferenced;
 
         website = null;
         loggedInToWebsite = false;
 
-        progressWsMax = selectedFromTree.size();
+        progressWsMax = selectedFromMenuTree.size();
         progressWsCurrent = 0;
         websiteProgress.set(0);
         singleElementProgress.set(0);
@@ -221,9 +229,9 @@ public class WebsiteScraper extends WebsiteHandler {
 
     // if not set get any
     public void updateWebsite() {
-        if (website == null && selectedFromTree != null && selectedFromTree.keySet().iterator().hasNext()) {
+        if (website == null && selectedFromMenuTree != null && selectedFromMenuTree.keySet().iterator().hasNext()) {
             loggedInToWebsite = false;
-            website = selectedFromTree.keySet().iterator().next();
+            website = selectedFromMenuTree.keySet().iterator().next();
         }
     }
 
@@ -237,19 +245,22 @@ public class WebsiteScraper extends WebsiteHandler {
             website = getWebsite();
         }
 
-        if(website == null || !selectedFromTree.containsKey(website) || selectedFromTree.get(website).isEmpty()) {
+        if(website == null || !selectedFromMenuTree.containsKey(website) || selectedFromMenuTree.get(website).isEmpty()) {
             return null;
         }
 
-        return selectedFromTree.get(website).get(0);
+        return selectedFromMenuTree.get(website).get(0);
     }
 
     public void removeFinishedWebsite() {
-        if(selectedFromTree != null) {
-            selectedFromTree.remove(website);
+        if(selectedFromMenuTree != null) {
+            selectedFromMenuTree.remove(website);
         }
 
-        if(loggedInToWebsite && website != null) logout();
+        if(loggedInToWebsite && website != null && usesLogin()) {
+            logout();
+            delayRandom();
+        }
 
         loggedInToWebsite = false;
         website = null;
@@ -257,8 +268,15 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     public void removeFinishedElement(WebsiteElement element) {
-        if(selectedFromTree == null || !selectedFromTree.containsKey(website)) return;
-        selectedFromTree.get(website).remove(element);
+        if(selectedFromMenuTree == null || !selectedFromMenuTree.containsKey(website)) return;
+
+        var selected = selectedFromMenuTree.getOrDefault(website, null);
+        if(selected != null) {
+            selected.remove(element);
+            // don't delay at the last element after which the logout delay occours
+            if(selected.size()>0) delayRandom();
+        }
+
         progressElementCurrent.put(website, progressElementCurrent.get(website)+ 1);
     }
 
@@ -282,14 +300,14 @@ public class WebsiteScraper extends WebsiteHandler {
                         // returns false if error at login
                         if (logInError()) {
                             websiteProgress.set(progressWsCurrent / progressWsMax);
-                            continue;
+                            if (isPauseAfterElement()) return null;
+                            else continue;
                         }
                         loggedInToWebsite = true;
                     }
 
                     double maxElementProgress = progressElementMax.get(website);
                     double currentElementProgress = progressElementCurrent.get(website);
-
                     singleElementProgress.set(currentElementProgress/maxElementProgress);
 
                     WebsiteElement element = getElement();
@@ -303,18 +321,14 @@ public class WebsiteScraper extends WebsiteHandler {
                         }
 
                         // the main action does happen here
-                        addToLog("\n");
                         processWebsiteElement(element, element.getMultiplicityType(), element.getContentType(), this);
-                        addToLog("\n");
-                        //if(headless)
-                        delayRandom();
 
                         removeFinishedElement(element);
                         singleElementProgress.set(progressElementCurrent.get(website)/maxElementProgress);
                         element = getElement();
 
                         // stop execution
-                        if (pauseAfterElement) return null;
+                        if (isPauseAfterElement()) return null;
                     }
 
                     removeFinishedWebsite();
@@ -322,7 +336,7 @@ public class WebsiteScraper extends WebsiteHandler {
                     websiteProgress.set(progressWsCurrent / progressWsMax);
                 }
 
-                if(selectedFromTree.isEmpty()) quit();
+                if(selectedFromMenuTree.isEmpty()) quit();
                 return null;
             }
         };
@@ -332,8 +346,16 @@ public class WebsiteScraper extends WebsiteHandler {
         return task;
     }
 
+    private boolean isPauseAfterElement() {
+        if (pauseAfterElement) {
+            addToLog("INFO:\tVorgang pausiert. Weiter klicken zum Fortfahren.");
+            return true;
+        }
+        return false;
+    }
+
     private boolean isEmptyTask() {
-        if(selectedFromTree == null || selectedFromTree.isEmpty()) {
+        if(selectedFromMenuTree == null || selectedFromMenuTree.isEmpty()) {
             quit();
             return true;
         }
@@ -351,6 +373,7 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     private boolean noPageLoadSuccess(WebsiteElement element) {
+        // loading page here
         if (!loadPage(element.getInformationUrl())) {
             addToLog("ERR:\t\tErfolgloser Zugriff auf " + element.getInformationUrl());
             removeFinishedElement(element);
@@ -386,7 +409,7 @@ public class WebsiteScraper extends WebsiteHandler {
             @Override
             protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
 
-                // have to re-fetch the element because the ones in the list have no proxy assigned
+                // have to re-fetch the element because the ones in the list have no proxy assigned.
                 // should not be that bad considering the wait time between page loads
                 WebsiteElement freshElement  = getFreshElement(element);
 

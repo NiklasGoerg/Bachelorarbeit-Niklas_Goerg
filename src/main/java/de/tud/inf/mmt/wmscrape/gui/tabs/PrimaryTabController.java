@@ -41,11 +41,17 @@ public class PrimaryTabController {
         currentUserLabel.setText("Aktueller Nutzer: " + SpringIndependentData.getUsername());
 
         Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/dbdata/controller/dataTab.fxml", dataTabController);
-        Tab tab = new Tab("Daten" , parent);
-        primaryTabPane.getTabs().add(tab);
+        Tab dataTab = new Tab("Daten" , parent);
+        primaryTabPane.getTabs().add(dataTab);
+
+        // can't know when the scraping service finished so refresh on select
+        primaryTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
+            if(nv.equals(dataTab)) dataTabController.handleResetButton();
+        });
+
 
         parent = primaryTabManagement.loadTabFxml("gui/tabs/imports/controller/importTab.fxml", importTabController);
-        tab = new Tab("Import" , parent);
+        Tab tab = new Tab("Import" , parent);
         primaryTabPane.getTabs().add(tab);
 
         parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);

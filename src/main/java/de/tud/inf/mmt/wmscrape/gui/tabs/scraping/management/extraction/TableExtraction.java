@@ -45,12 +45,10 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         double currentProgress;
         double maxProgress;
 
+        logStart(element.getDescription());
 
         // e.g. stock/course needs isin or wkn or the name
         if(!validIdentCorrelations(element, identCorrelations)) return;
-
-        // duplicates on non-headless mode not acceptable
-        if(duplicateIdentifiers(identCorrelations)) return;
 
         for (var correlation : identCorrelations) {
             if(task.isCancelled()) return;
@@ -93,21 +91,37 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             searchInsideRow(preparedCarrierMap, row);
             processSelectionsForRow(elementSelections, preparedCarrierMap);
             resetCarriers(preparedCarrierMap);
-
             currentProgress++;
             progress.set(currentProgress/maxProgress);
+            scraper.resetIdentBuffer();
         }
         storeInDb();
 
-        logNoMatch(elementSelections);
+        logMatches(elementSelections, element.getDescription());
     }
 
-    private void logNoMatch(List<ElementSelection> selections) {
+    private void logMatches(List<ElementSelection> selections, String description) {
+
+        StringBuilder success = new StringBuilder("\n");
+        StringBuilder fail = new StringBuilder("\n");
+
         for (var s : selections) {
-            if(s.isSelected() && !s.wasExtracted()) {
-                log("WARN:\tKein Treffer gefunden für "+s.getDescription());
+            if(s.isSelected()) {
+                if (!s.wasExtracted()){
+                    fail.append("\t\t- ").append(s.getDescription()).append("\n");
+                } else {
+                    success.append("\t\t- ").append(s.getDescription()).append("\n");
+                }
             }
         }
+
+        log("----------------------------------------------------------------------------\n\n" +
+                "INFO:\tExtraktion abgeschlossen für: "+description+" \n\n" +
+                "INFO:\tErfolgreich extrahiert:\n" +
+                success +
+                "\nWARN:\tKeine Treffer für:\n" +
+                fail+
+                "\n----------------------------------------------------------------------------\n");
     }
 
     private void processSelectionsForRow(List<ElementSelection> selections,
@@ -145,7 +159,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             }
         }
 
-        log("\nINFO:\tKein Treffer.\n");
+        log("\nINFO:\tKein Treffer in der Zeile.\n");
     }
 
     private void resetCarriers(Map<String, InformationCarrier> carriers) {
@@ -183,11 +197,6 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             i++;
         }
         return elements;
-    }
-
-    private String getTextData(WebElementInContext element, InformationCarrier carrier) {
-        return scraper.findTextInContext(carrier.getIdentType(), carrier.getIdentifier(),
-                carrier.getDbColName(), element);
     }
 
     private void searchInsideRow(Map<String, InformationCarrier> carrierMap, WebElementInContext row) {
@@ -229,5 +238,4 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
     protected void partialMatchLog(String extracted, String field) {
         log("ERR:\t\t"+field+" stimmt nicht direkt mit '"+extracted+"' überein. Die Auswahl-Regex oder Bezeichnung sollte angepasst werden");
     }
-
 }

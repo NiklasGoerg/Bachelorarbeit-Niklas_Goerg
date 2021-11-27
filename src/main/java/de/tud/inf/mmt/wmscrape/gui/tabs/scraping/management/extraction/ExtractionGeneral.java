@@ -4,18 +4,17 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebElementInContext;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -24,11 +23,19 @@ public abstract class ExtractionGeneral {
 
     private static final String[] DATE_FORMATS = {"dd-MM-yyyy", "dd-MM-yy", "MM-dd-yyyy", "MM-dd-yy", "yy-MM-dd"};
 
-    protected Map<String , PreparedStatement> preparedStatements;
+    protected HashMap<String , PreparedStatement> preparedStatements = new HashMap<>();
+    protected HashMap<String, Integer> waitWithHighlighting = new HashMap<>();
     protected Connection connection;
     protected SimpleStringProperty logText;
     protected WebsiteScraper scraper;
     protected Date date;
+
+    protected ExtractionGeneral(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
+        this.connection = connection;
+        this.logText = logText;
+        this.scraper = scraper;
+        this.date = date;
+    }
 
     // make sure that the to be inserted value is the first attribute in the statement
     protected abstract PreparedStatement prepareStatement(Connection connection, InformationCarrier carrier);
@@ -50,14 +57,7 @@ public abstract class ExtractionGeneral {
         return extendCarrier(new InformationCarrier(date, datatype, identType, identification, regex), correlation, selection);
     }
 
-    protected ExtractionGeneral(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
-        this.connection = connection;
-        this.logText = logText;
-        this.scraper = scraper;
-        this.date = date;
-    }
-
-    protected String findFirst(String regex, String text) {
+    private String findFirst(String regex, String text) {
         try {
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(text);
@@ -71,7 +71,7 @@ public abstract class ExtractionGeneral {
         return "";
     }
 
-    protected String regexFilter(String regex, String text) {
+    private String regexFilter(String regex, String text) {
         if (regex!= null && !regex.trim().isBlank()) {
             var tmp = findFirst(regex, text);
             log("INFO:\tRegex angewandt. '"+removeNewLine(tmp)+
@@ -117,6 +117,32 @@ public abstract class ExtractionGeneral {
         return firstPadding+sub[0] +"-"+ centerPadding+sub[1] +"-"+ lastPadding+sub[2];
     }
 
+    private String getRegularNumber(String data) {
+        // every following digit are cut off at the double->int cast
+
+        // imagine 10.000,023
+        String findings = findFirst("[+-]?([0-9]*[,.]?[0-9])*", data).replace(",",".");
+
+        // parts > 10 000 023
+        List<String> sections = new ArrayList<>();
+        Arrays.stream(findings.split("\\.")).toList().forEach(str ->
+                sections.add(str.replace("[,.]", "")));
+
+
+        // 10 000 023 -> 10000.023
+        if(sections.size() > 1) {
+            StringBuilder sectionString = new StringBuilder("." + sections.get(sections.size()-1));
+
+            // building the number backwards
+            for(int i=sections.size()-2; i>=0; i--) {
+                sectionString.insert(0, sections.get(i));
+            }
+
+            return sectionString.toString();
+        } else return findings;
+
+    }
+
     private void assumeDMOrder(String[] order, int x, int y) {
         // Assume Date Month order
         String tmp;
@@ -152,7 +178,7 @@ public abstract class ExtractionGeneral {
         return sub;
     }
 
-    protected void fillByDataType(int index, ColumnDatatype datatype, PreparedStatement statement, String data) throws SQLException {
+    private void fillByDataType(int index, ColumnDatatype datatype, PreparedStatement statement, String data) throws SQLException {
         if (data == null || data.isBlank()) {
             fillNullByDataType(index, datatype, statement);
             return;
@@ -166,7 +192,7 @@ public abstract class ExtractionGeneral {
         }
     }
 
-    protected void fillNullByDataType(int index, ColumnDatatype datatype, PreparedStatement statement) throws SQLException {
+    private void fillNullByDataType(int index, ColumnDatatype datatype, PreparedStatement statement) throws SQLException {
         switch (datatype) {
             case DATE -> statement.setNull(index, Types.DATE);
             case TEXT -> statement.setNull(index, Types.VARCHAR);
@@ -191,12 +217,12 @@ public abstract class ExtractionGeneral {
         return null;
     }
 
-    protected String sanitize(String data, ColumnDatatype datatype) {
+    private String sanitize(String data, ColumnDatatype datatype) {
         if(data == null) return "";
 
         switch (datatype) {
             case INTEGER, DOUBLE -> {
-                return findFirst("([-+])?[0-9]+(([.,])?[0-9]+)?", data).replace(",",".");
+                return getRegularNumber(data);
             }
             case DATE -> {
                 return getRegularDate(data);
@@ -268,18 +294,16 @@ public abstract class ExtractionGeneral {
         return text.replace("\n","\\n");
     }
 
-    // check in non-headless mode because of the text hints added in the browser
-    // these hints are extracted too if done twice or more
-    protected boolean duplicateIdentifiers(List<ElementIdentCorrelation> correlations) {
-        if(scraper.isHeadless()) return false;
-        Set<String> identifiers = new HashSet<>();
-        for(var corr : correlations) {
-            if(!identifiers.add(corr.getIdentification())) {
-                log("ERR:\t\tIdentifizierungs-Duplikat erkannt. Das ist nur im headless Modus erlaubt. "
-                        +corr.getDbTableName()+" -> "+corr.getIdentification());
-                return true;
-            }
-        }
-        return false;
+    protected String getTextData(WebElementInContext element, InformationCarrier carrier) {
+        return scraper.findTextInContext(
+                carrier.getIdentType(),
+                carrier.getIdentifier(),
+                carrier.getDbColName(),
+                element);
+    }
+
+    protected void logStart(String description) {
+        log("\n----------------------------------------------------------------------------\n\n" +
+                "INFO:\tBeginne Datenextraktion für: "+description+"\n");
     }
 }
