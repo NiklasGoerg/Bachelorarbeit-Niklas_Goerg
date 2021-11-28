@@ -1,13 +1,15 @@
 package de.tud.inf.mmt.wmscrape.gui.login.controller;
 
-import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import org.controlsfx.validation.ValidationSupport;
-import org.controlsfx.validation.Validator;
+import javafx.scene.control.TextInputControl;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 public class ChangeDbPathPopupController {
@@ -15,12 +17,10 @@ public class ChangeDbPathPopupController {
     @FXML private TextField dbPathField;
 
     private Properties properties;
-    ValidationSupport dbPathValidation = new ValidationSupport();
 
     @FXML
     private void initialize() throws IOException {
-        addValidation();
-
+        dbPathField.textProperty().addListener(x -> dbPathValidation());
         properties = new Properties();
         properties.load(new FileInputStream("src/main/resources/user.properties"));
         String lastDbPath = properties.getProperty("last.dbPath", "mysql://localhost/");
@@ -29,7 +29,7 @@ public class ChangeDbPathPopupController {
 
     @FXML
     private void handleConfirmButton() throws IOException {
-        if(!isValidInput()) {
+        if(!dbPathValidation()) {
             return;
         }
 
@@ -45,14 +45,19 @@ public class ChangeDbPathPopupController {
         LoginManager.closeWindow(dbPathField);
     }
 
-    private void addValidation() {
-        Validator<String> emptyPath = Validator.createEmptyValidator("Es muss ein Pfad angegeben werden!");
-        dbPathValidation.registerValidator(dbPathField, emptyPath);
+    private boolean dbPathValidation() {
+        boolean isValid = dbPathField.getText() != null && !dbPathField.getText().isBlank();
+        decorateField(dbPathField, isValid);
+        return isValid;
     }
 
-    private boolean isValidInput() {
-        LoginManager.styleOnValid(dbPathValidation, dbPathField, "bad-input");
+    private void decorateField(TextInputControl input, boolean isValid) {
+        input.getStyleClass().remove("bad-input");
+        input.setTooltip(null);
 
-        return !dbPathValidation.isInvalid();
+        if(!isValid) {
+            input.setTooltip(PrimaryTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
+            input.getStyleClass().add("bad-input");
+        }
     }
 }

@@ -1,27 +1,22 @@
 package de.tud.inf.mmt.wmscrape.gui.login.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import org.controlsfx.validation.Severity;
-import org.controlsfx.validation.ValidationSupport;
-import org.controlsfx.validation.Validator;
+import javafx.scene.control.*;
 
 public class ExistingUserLoginController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
-    ValidationSupport usernameValidation = new ValidationSupport();
-    ValidationSupport passwordValidation = new ValidationSupport();
 
     @FXML
     private void initialize()  {
         LoginManager.loadUserProperties();
-        addValidation();
         usernameField.setText(SpringIndependentData.getUsername());
+
+        usernameField.textProperty().addListener(x -> validUsernameField());
+        passwordField.textProperty().addListener(x -> validPasswordField());
     }
 
     @FXML
@@ -62,28 +57,46 @@ public class ExistingUserLoginController {
         LoginManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml", "Datenbankpfad ändern", usernameField, true);
     }
 
-    private void addValidation() {
 
-        Validator<String> emptyName = Validator.createEmptyValidator("Es muss ein Nutzername angegeben werden!");
-        Validator<String> illegalCharInName = Validator.createRegexValidator(
-                "Der Nutzername enthält nicht zulässige Zeichen!",
-                "^[a-zA-z0-9\\söäüß]*$",
-                Severity.ERROR);
+    private boolean isValidInput() {
+        // evaluate all to highlight all
+        boolean valid = validUsernameField();
+        valid &= validPasswordField();
+        return valid;
+    }
 
-        usernameValidation.registerValidator(usernameField, Validator.combine(illegalCharInName, emptyName));
+    private boolean validUsernameField() {
+        return emptyValidator(usernameField) && usernameValidator(usernameField);
+    }
 
-        Validator<String> emptyPassword = Validator.createEmptyValidator("Es muss ein Passwort angegeben werden!");
-        passwordValidation.registerValidator(passwordField, true, emptyPassword);
+    private boolean validPasswordField() {
+        return emptyValidator(passwordField);
     }
 
 
+    private boolean emptyValidator(TextInputControl input) {
+        boolean isValid = input.getText() != null && !input.getText().isBlank();
+        decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
+        return isValid;
+    }
 
-    private boolean isValidInput() {
+    private boolean usernameValidator(TextInputControl input) {
+        String value = input.getText();
+        if(value==null) return true;
 
-        LoginManager.styleOnValid(usernameValidation, usernameField, "bad-input");
-        LoginManager.styleOnValid(passwordValidation, passwordField, "bad-input");
+        boolean isValid = value.matches("^[a-zA-z0-9\\söäüß]*$");
+        decorateField(input, "Ncht zulässige Zeichen! Nur a-z,0-9,ä,ö,ü,ß sowie Leerzeichen sind erlaubt.", isValid);
+        return isValid;
+    }
 
-        return !usernameValidation.isInvalid() && !passwordValidation.isInvalid();
+    private void decorateField(TextInputControl input, String tooltip, boolean isValid) {
+        input.getStyleClass().remove("bad-input");
+        input.setTooltip(null);
+
+        if(!isValid) {
+            input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
+            input.getStyleClass().add("bad-input");
+        }
     }
 
 }

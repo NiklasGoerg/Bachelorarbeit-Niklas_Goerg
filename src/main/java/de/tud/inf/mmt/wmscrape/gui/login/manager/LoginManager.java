@@ -10,7 +10,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.controlsfx.validation.ValidationSupport;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -43,6 +42,7 @@ public class LoginManager {
             Scene scene = new Scene(parent);
             stage.setScene(scene);
             stage.initModality(Modality.WINDOW_MODAL);
+            stage.getScene().getStylesheets().add("style.css");
             stage.initOwner(control.getScene().getWindow());
             stage.show();
         } else {
@@ -86,14 +86,6 @@ public class LoginManager {
             properties.store( new FileOutputStream("src/main/resources/user.properties"), null);
         } catch (IOException e) {
             System.out.println(e.getMessage());
-        }
-    }
-
-    public static void styleOnValid(ValidationSupport validation, Control control, String invalidStyle) {
-        if(validation.isInvalid()) {
-            control.getStyleClass().add(invalidStyle);
-        } else {
-            control.getStyleClass().remove(invalidStyle);
         }
     }
 

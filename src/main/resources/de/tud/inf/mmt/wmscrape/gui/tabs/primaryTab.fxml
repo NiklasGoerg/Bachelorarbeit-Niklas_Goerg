@@ -15,7 +15,7 @@
             <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogoutButton" text="Logout" />
         </items>
       </ToolBar>
-      <VBox alignment="CENTER_LEFT" prefHeight="34.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox alignment="CENTER_LEFT" prefHeight="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="0.0">
          <children>
             <Label fx:id="currentUserLabel" text="Label" />
          </children>

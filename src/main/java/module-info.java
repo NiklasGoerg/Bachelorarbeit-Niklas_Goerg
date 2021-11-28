@@ -15,7 +15,6 @@ module de.tud.inf.mmt.wmscrape {
     requires java.management;
     requires spring.tx;
     requires spring.aop;
-    requires org.controlsfx.controls;
     requires java.annotation;
 
     requires org.apache.poi.poi;
