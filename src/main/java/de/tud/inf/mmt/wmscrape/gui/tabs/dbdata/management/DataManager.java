@@ -170,7 +170,7 @@ public abstract class DataManager {
 
     public ObservableList<CustomRow> updateDataTable(TableView<CustomRow> table) {
         List<? extends DbTableColumn> dbTableColumns = getTableColumns(dbTableColumnRepository);
-        prepareTable(table, dbTableColumns, dbTableManger.getReservedColumns(), dbTableManger.getColumnOrder());
+        prepareTable(table, dbTableColumns, dbTableManger.getKeyColumns(), dbTableManger.getColumnOrder());
         return getAllRows(dbTableManger.getTableName(), dbTableColumns);
     }
 
@@ -305,7 +305,7 @@ public abstract class DataManager {
 
     public List<? extends DbTableColumn>  getDbTableColumns() {
         var all = dbTableColumnRepository.findAll();
-        all.removeIf(column -> dbTableManger.getReservedColumns().contains(column.getName()));
+        all.removeIf(column -> dbTableManger.getReserverdColumns().contains(column.getName()));
         return all;
     }
 

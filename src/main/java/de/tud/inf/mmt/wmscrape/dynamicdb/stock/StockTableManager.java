@@ -17,7 +17,8 @@ import java.util.List;
 public class StockTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "stammdaten";
-    public static final List<String> RESERVED_COLUMNS = List.of("datum","isin");
+    public static final List<String> KEY_COLUMNS = List.of("datum","isin");
+    public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin", "wkn", "name", "typ");
     public static final List<String> COLUMN_ORDER = List.of("datum","isin","wkn","name","typ");
 
     @Autowired
@@ -68,7 +69,12 @@ public class StockTableManager extends DbTableManger {
     }
 
     @Override
-    public List<String> getReservedColumns() {
+    public List<String> getKeyColumns() {
+        return KEY_COLUMNS;
+    }
+
+    @Override
+    public List<String> getReserverdColumns() {
         return RESERVED_COLUMNS;
     }
 

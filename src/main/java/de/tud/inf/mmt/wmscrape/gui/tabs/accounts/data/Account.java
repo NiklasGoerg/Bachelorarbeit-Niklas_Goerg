@@ -32,10 +32,10 @@ public class Account {
     private AccountType accountType;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<AccountTransaction> accountTransactions = new ArrayList<>();
+    private final List<AccountTransaction> accountTransactions = new ArrayList<>();
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Depot> depots = new ArrayList<>();
+    private final List<Depot> depots = new ArrayList<>();
 
     public Account() {
     }

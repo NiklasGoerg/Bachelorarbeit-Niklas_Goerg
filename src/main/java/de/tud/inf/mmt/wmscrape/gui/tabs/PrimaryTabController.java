@@ -44,19 +44,19 @@ public class PrimaryTabController {
         Tab dataTab = new Tab("Daten" , parent);
         primaryTabPane.getTabs().add(dataTab);
 
-        // can't know when the scraping service finished so refresh on select
-        primaryTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
-            if(nv.equals(dataTab)) dataTabController.handleResetButton();
-        });
-
-
         parent = primaryTabManagement.loadTabFxml("gui/tabs/imports/controller/importTab.fxml", importTabController);
-        Tab tab = new Tab("Import" , parent);
-        primaryTabPane.getTabs().add(tab);
+        Tab importTab = new Tab("Import" , parent);
+        primaryTabPane.getTabs().add(importTab);
 
         parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);
-        tab = new Tab("Scraping" , parent);
+        Tab tab = new Tab("Scraping" , parent);
         primaryTabPane.getTabs().add(tab);
+
+        primaryTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
+            // can't know when the scraping service finished so refresh on select
+            if (nv.equals(dataTab)) dataTabController.handleResetButton();
+            if (nv.equals(importTab)) importTabController.refreshCorrelationTables();
+        });
 
     }
 

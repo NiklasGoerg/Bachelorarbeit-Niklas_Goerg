@@ -50,8 +50,8 @@
                   <Insets top="15.0" />
                </VBox.margin>
             </Label>
-            <PasswordField fx:id="newPasswordField" maxWidth="-Infinity" prefWidth="250.0" />
-            <Button maxWidth="-Infinity" mnemonicParsing="false" onAction="#handleCreateUserButton" prefWidth="200.0" text="Neuen Benutzer anlegen">
+            <PasswordField fx:id="newPasswordField" maxWidth="-Infinity" onAction="#handleCreateUserButton" prefWidth="250.0" />
+            <Button defaultButton="true" maxWidth="-Infinity" mnemonicParsing="false" onAction="#handleCreateUserButton" prefWidth="200.0" text="Neuen Benutzer anlegen">
                <VBox.margin>
                   <Insets top="30.0" />
                </VBox.margin>

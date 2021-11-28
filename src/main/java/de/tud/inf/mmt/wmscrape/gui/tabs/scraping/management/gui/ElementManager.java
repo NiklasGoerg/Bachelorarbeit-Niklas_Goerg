@@ -60,7 +60,7 @@ public abstract class ElementManager {
     @Autowired
     protected ElementIdentCorrelationRepository elementIdentCorrelationRepository;
 
-    private static ObservableList<String> getObservableList(IdentType[] identTypeArray) {
+    private static ObservableList<String> getObservableList(@SuppressWarnings("SameParameterValue") IdentType[] identTypeArray) {
         return FXCollections.observableList(Stream.of(identTypeArray).map(Enum::name).collect(Collectors.toList()));
     }
 

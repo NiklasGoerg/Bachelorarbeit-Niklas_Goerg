@@ -130,6 +130,14 @@ public class ScrapingElementsTabController {
             }
             case TABELLE -> scrapingTableManager.saveTableSettings(websiteElement);
         }
+
+        Alert alert = new Alert(
+                Alert.AlertType.INFORMATION,
+                "Die Elementeinstellungen wurden gespeichert.",
+                ButtonType.OK);
+        alert.setHeaderText("Daten gespeichert!");
+        setAlertPosition(alert);
+        alert.showAndWait();
     }
 
     @FXML
@@ -274,8 +282,14 @@ public class ScrapingElementsTabController {
             if(!rootNode.getItems().contains(rightPanelBox)) {
                 rootNode.getItems().remove(noSelectionReplacement);
                 rootNode.getItems().add(rightPanelBox);
-                rootNode.setDividerPosition(0, 0);
+                rootNode.setDividerPosition(0, 0.15);
             }
         }
+    }
+
+    private void setAlertPosition(Alert alert) {
+        var window = urlField.getScene().getWindow();
+        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
+        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
     }
 }

@@ -24,7 +24,7 @@ public class Stock {
     private String _stockType;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<DepotTransaction> depotTransactions = new ArrayList<>();
+    private final List<DepotTransaction> depotTransactions = new ArrayList<>();
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementSelection> elementSelections = new ArrayList<>();

@@ -27,7 +27,7 @@
       <VBox alignment="CENTER" layoutY="26.0" prefWidth="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
          <children>
             <Label text="Beschreibung der Seite" />
-            <TextField fx:id="descriptionField">
+            <TextField fx:id="descriptionField" onAction="#handleConfirmButton">
                <VBox.margin>
                   <Insets left="20.0" right="20.0" top="10.0" />
                </VBox.margin>
@@ -40,8 +40,8 @@
          <children>
             <HBox alignment="BOTTOM_CENTER" spacing="20.0">
                <children>
-                  <Button mnemonicParsing="false" onAction="#handleCancelButton" text="Abbrechen" />
-                  <Button mnemonicParsing="false" onAction="#handleConfirmButton" text="Anlegen" />
+                  <Button cancelButton="true" mnemonicParsing="false" onAction="#handleCancelButton" text="Abbrechen" />
+                  <Button defaultButton="true" mnemonicParsing="false" onAction="#handleConfirmButton" text="Anlegen" />
                </children>
                <VBox.margin>
                   <Insets />

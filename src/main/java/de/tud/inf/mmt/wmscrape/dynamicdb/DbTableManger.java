@@ -19,7 +19,8 @@ public abstract class DbTableManger {
     public abstract boolean removeColumn(String colName);
     public abstract void addColumn(String colName, ColumnDatatype datatype);
     public abstract String getTableName();
-    public abstract List<String> getReservedColumns();
+    public abstract List<String> getKeyColumns();
+    public abstract List<String> getReserverdColumns();
     public abstract List<String> getColumnOrder();
 
     public ArrayList<String> getColumns(String tableName) {

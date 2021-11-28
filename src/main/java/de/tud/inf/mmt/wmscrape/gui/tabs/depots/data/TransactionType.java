@@ -1,5 +1,5 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.depots.data;
 
 public enum TransactionType {
-    KAUF, VERKAUF, ERLÖS
+    KAUF, VERKAUF, ERLOES
 }

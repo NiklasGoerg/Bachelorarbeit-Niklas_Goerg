@@ -12,6 +12,7 @@ import java.util.List;
 public class ExchangeTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "wechselkurse";
+    public static final List<String> KEY_COLUMNS = List.of("datum");
     public static final List<String> RESERVED_COLUMNS = List.of("datum");
     public static final List<String> COLUMN_ORDER = List.of("datum");
 
@@ -54,7 +55,12 @@ public class ExchangeTableManager extends DbTableManger {
     }
 
     @Override
-    public List<String> getReservedColumns() {
+    public List<String> getKeyColumns() {
+        return KEY_COLUMNS;
+    }
+
+    @Override
+    public List<String> getReserverdColumns() {
         return RESERVED_COLUMNS;
     }
 

@@ -360,10 +360,8 @@ public class ImportTabController {
         sheetPreviewTable.getItems().clear();
         stockDataCorrelationTable.getColumns().clear();
         stockDataCorrelationTable.getItems().clear();
-        stockDataCorrelationTable.setMinHeight(-1);
         transactionCorrelationTable.getColumns().clear();
         transactionCorrelationTable.getItems().clear();
-        transactionCorrelationTable.setMinHeight(-1);
 
         // here to remove eventually existing error styling
         isValidInput();
@@ -389,12 +387,6 @@ public class ImportTabController {
     private boolean emptyValidator(TextInputControl input) {
         boolean isValid = input.getText() != null && !input.getText().isBlank();
         decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
-        return isValid;
-    }
-
-    private boolean numberValidator(TextInputControl input) {
-        boolean isValid = input.getText() != null && input.getText().matches("^[1-9][0-9]*$");
-        decorateField(input, "Dieses Feld darf nur eine Kombination der Zahlen 0-9 enthalten!", isValid);
         return isValid;
     }
 
@@ -428,7 +420,7 @@ public class ImportTabController {
             if(!rootNode.getItems().contains(rightPanelBox)) {
                 rootNode.getItems().remove(noSelectionReplacement);
                 rootNode.getItems().add(rightPanelBox);
-                rootNode.setDividerPosition(0, 0);
+                rootNode.setDividerPosition(0, 0.15);
             }
         }
     }
@@ -444,5 +436,13 @@ public class ImportTabController {
         var window = pathField.getScene().getWindow();
         alert.setY(window.getY() + (window.getHeight() / 2) - 200);
         alert.setX(window.getX() + (window.getWidth() / 2) - 200);
+    }
+
+    public void refreshCorrelationTables() {
+        // nothing selected means no need to refresh
+        ExcelSheet sheet = excelSheetList.getSelectionModel().getSelectedItem();
+        if (sheet == null) return;
+
+        loadSpecificExcel(sheet);
     }
 }

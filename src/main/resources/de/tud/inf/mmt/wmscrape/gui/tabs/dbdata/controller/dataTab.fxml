@@ -76,11 +76,11 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <SplitPane dividerPositions="0.22" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
+                  <SplitPane fx:id="splitPane" dividerPositions="0.22" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
                     <items>
                         <BorderPane fx:id="stockSelectionPane" minWidth="0.0" prefWidth="200.0">
                            <center>
-                              <TableView fx:id="stockSelectionTable" editable="true" BorderPane.alignment="CENTER" />
+                              <TableView fx:id="stockSelectionTable" editable="true" minWidth="0.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
                            </center>
                            <padding>
                               <Insets left="1.0" />

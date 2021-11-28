@@ -14,19 +14,17 @@ import org.springframework.stereotype.Controller;
 public class WebsiteTestPopupController {
     @FXML private Label nextStep;
     @FXML private TextArea logTextArea;
-    private SimpleStringProperty logText;
     private WebsiteTester websiteTester;
-    private Website website;
 
     @Autowired
     private ScrapingWebsiteTabController scrapingWebsiteTabController;
 
     @FXML
     private void initialize() {
-        logText = new SimpleStringProperty("");
+        SimpleStringProperty logText = new SimpleStringProperty("");
         logTextArea.textProperty().bind(logText);
 
-        website = scrapingWebsiteTabController.getWebsiteUnpersistedData();
+        Website website = scrapingWebsiteTabController.getWebsiteUnpersistedData();
         websiteTester = new WebsiteTester(website, logText);
 
         nextStep.setText("Browser starten");

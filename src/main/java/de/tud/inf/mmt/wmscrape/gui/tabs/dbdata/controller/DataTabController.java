@@ -34,6 +34,7 @@ public class DataTabController {
 
     @FXML private TableView<Stock> stockSelectionTable;
     @FXML private TableView<CustomRow> customRowTableView;
+    @FXML private SplitPane splitPane;
     @FXML private TextField newColumnNameField;
     @FXML private Tab stockTab;
     @FXML private Tab courseTab;
@@ -125,6 +126,7 @@ public class DataTabController {
         customRowTableView.getItems().addAll(allRows);
         addRowChangeListeners();
         viewEverything = true;
+        stockSelectionTable.getSelectionModel().clearSelection();
     }
 
     @FXML
@@ -164,9 +166,17 @@ public class DataTabController {
         if(wrongResponse(alert)) return;
 
         var selected = stockSelectionTable.getSelectionModel().getSelectedItem();
-        if( selected == null || allRows == null || allRows.isEmpty()) return;
-        var selectionRows = tabManager.getStockRowsBySelection(selected,allRows);
-        boolean success = tabManager.deleteRows(selectionRows, true);
+        if(allRows == null || allRows.isEmpty()) return;
+
+        boolean success;
+        if(selected == null && viewEverything) {
+            // delete *everything*
+            success = tabManager.deleteRows(allRows, true);
+        } else if (selected != null){
+            var selectionRows = tabManager.getStockRowsBySelection(selected,allRows);
+            success = tabManager.deleteRows(selectionRows, true);
+        } else return;
+
         reloadAllDataRows();
 
         if (!success) {
@@ -364,8 +374,9 @@ public class DataTabController {
             stockSelectionPane.setMinWidth(0);
             stockSelectionPane.setMaxWidth(0);
         } else {
-            stockSelectionPane.setMinWidth(165);
+            stockSelectionPane.setMinWidth(0);
             stockSelectionPane.setMaxWidth(Double.MAX_VALUE);
+            splitPane.setDividerPosition(0,0.2);
         }
     }
 
@@ -386,6 +397,8 @@ public class DataTabController {
     private void removeBadStyle() {
         newColumnNameField.getStyleClass().remove("bad-input");
         newColumnNameField.setTooltip(null);
+        newIsinField.getStyleClass().remove("bad-input");
+        newIsinField.setTooltip(null);
     }
 
     private boolean badTooltip(String message) {

@@ -373,10 +373,6 @@ public class ScrapingWebsiteTabController {
         }
     }
 
-    private boolean IdentTypesDeactivatedState() {
-        return usernameIdentChoiceBox.getValue() == IdentType.DEAKTIVIERT ||
-        passwordIdentChoiceBox.getValue() == IdentType.DEAKTIVIERT;
-    }
 
     private void setEditable(boolean editable) {
         urlField.setEditable(editable);
@@ -402,7 +398,7 @@ public class ScrapingWebsiteTabController {
             if(!rootNode.getItems().contains(rightPanelBox)) {
                 rootNode.getItems().remove(noSelectionReplacement);
                 rootNode.getItems().add(rightPanelBox);
-                rootNode.setDividerPosition(0, 0);
+                rootNode.setDividerPosition(0, 0.15);
             }
         }
     }

@@ -8,7 +8,7 @@ tooltip.bad-input {
     -fx-background-color: FF4A4A;
 }
 
-.button, .text-field, .combo-box, .choice-box, .tab, .menu-button {
+.button, .text-field, .combo-box, .choice-box, .tab, .menu-button, .spinner {
     -fx-background-radius: 0;
 }
 

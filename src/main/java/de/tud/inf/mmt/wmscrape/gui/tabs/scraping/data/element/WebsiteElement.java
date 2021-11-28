@@ -48,7 +48,7 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     private List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
 
     @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ElementDescCorrelation> elementDescCorrelations = new ArrayList<>();
+    private final List<ElementDescCorrelation> elementDescCorrelations = new ArrayList<>();
 
 
     public WebsiteElement() {}

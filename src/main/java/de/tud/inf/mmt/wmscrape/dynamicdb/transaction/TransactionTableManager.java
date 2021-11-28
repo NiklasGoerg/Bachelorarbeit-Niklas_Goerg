@@ -13,7 +13,8 @@ import java.util.List;
 public class TransactionTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "depottransaktion";
-    public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin");
+    public static final List<String> KEY_COLUMNS = List.of("datum", "isin");
+    public static final List<String> RESERVED_COLUMNS = null;
     public static final List<String> COLUMN_ORDER = List.of("datum", "isin");
 
     @Autowired
@@ -41,7 +42,12 @@ public class TransactionTableManager extends DbTableManger {
     }
 
     @Override
-    public List<String> getReservedColumns() {
+    public List<String> getKeyColumns() {
+        return KEY_COLUMNS;
+    }
+
+    @Override
+    public List<String> getReserverdColumns() {
         return RESERVED_COLUMNS;
     }
 
