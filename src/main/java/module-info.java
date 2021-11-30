@@ -1,21 +1,22 @@
 module de.tud.inf.mmt.wmscrape {
     requires javafx.controls;
+    requires javafx.graphics;
     requires javafx.fxml;
     requires spring.boot.autoconfigure;
-    requires spring.context;
-    requires spring.boot;
-    requires spring.core;
-    requires spring.beans;
-    requires java.persistence;
     requires spring.data.commons;
+    requires spring.data.jpa;
+    requires spring.context;
+    requires spring.beans;
+    requires spring.core;
+    requires spring.boot;
+    requires spring.aop;
+    requires spring.tx;
     requires java.sql;
+    requires java.persistence;
+    requires java.management;
+    requires java.annotation;
     requires org.hibernate.orm.core;
     requires commons.dbcp2;
-    requires spring.data.jpa;
-    requires java.management;
-    requires spring.tx;
-    requires spring.aop;
-    requires java.annotation;
 
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;

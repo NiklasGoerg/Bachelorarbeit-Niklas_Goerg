@@ -209,7 +209,7 @@ public class DataTabController {
         int afterCount = columnDeletionComboBox.getItems().size();
 
         messageOnSuccess(afterCount>beforeCount, "Spalte hinzugefügt!",
-                "Die Spalte mit dem Namen "+ newColumnNameField.getText()+" wurde hinzugefügt.",
+                "Die Spalte mit dem Namen "+ newColumnNameField.getText().toLowerCase()+" wurde hinzugefügt.",
                 "Hinzufügen nicht erfolgreich!",
                 "Die Spalte wurde nicht hinzugefügt.");
     }
@@ -387,8 +387,8 @@ public class DataTabController {
             return badTooltip("Dieses Feld darf nicht leer sein!");
         } else if (text.length()>=64) {
             return badTooltip("Die maximale Länge eines Spaltennamens ist 64 Zeichen.");
-        } else if (!text.matches("^[a-zA-Z0-9üä][a-zA-Z0-9_\\-+äöüß]*$")) {
-            return badTooltip("Der Name enthält unzulässige Symbole. Nur a-z,0-9,ä,ö,ü,ß,-,+,_, sind erlaubt.");
+        } else if (!text.matches("^[a-zA-Z0-9üä][a-zA-Z0-9_\\-äöüß]*$")) {
+            return badTooltip("Der Name enthält unzulässige Symbole. Nur a-z,0-9,ä,ö,ü,ß,-,_, sind erlaubt.");
         }
 
         return true;

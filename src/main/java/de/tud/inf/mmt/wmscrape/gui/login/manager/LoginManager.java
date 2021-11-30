@@ -90,7 +90,7 @@ public class LoginManager {
     }
 
     public static boolean loginExistingUser(String username, String password, Control control) throws Exception{
-        String springUsername = username.trim().replace(" ", "_");
+        String springUsername = username.trim().replace(" ", "_").toLowerCase();
         String springConnectionPath = formSpringConnectionPath(springUsername, SpringIndependentData.getPropertyConnectionPath());
 
         // tries to establish a connection
@@ -124,7 +124,7 @@ public class LoginManager {
         String rootConnectionPath = "jdbc:" + SpringIndependentData.getPropertyConnectionPath();
 
         try (Connection connection = getConnection(rootConnectionPath, rootUn.trim(), rootPw)) {
-            String newUnWithoutSpaces = newUn.trim().replace(" ", "_");
+            String newUnWithoutSpaces = newUn.trim().replace(" ", "_").toLowerCase();
 
             if (connection == null) {
                 // can't connect with root
@@ -198,7 +198,7 @@ public class LoginManager {
             ResultSet results = statement.executeQuery("show databases");
 
             while (results.next()) {
-                if (results.getString(1).contentEquals(newUsername + "_USER_DB")) {
+                if (results.getString(1).contentEquals(newUsername + "_wms_db")) {
                     return true;
                 }
             }
@@ -213,7 +213,7 @@ public class LoginManager {
     private static boolean createUserAndDb(Connection connection,  String newUsername, String newPassword) {
         try {
 
-            String newDbName = newUsername+"_USER_DB";
+            String newDbName = newUsername+"_wms_db";
             PreparedStatement pst = connection.prepareStatement("SET @user := ?, @pass := ?, @db := ?;");
             pst.setString(1, newUsername);
             pst.setString(2, newPassword);
@@ -264,7 +264,7 @@ public class LoginManager {
 
     public static String formSpringConnectionPath(String username, String propertyPath) {
         String removedTrailingSlash = propertyPath.replaceAll("/$", "");
-        return "jdbc:" + removedTrailingSlash + "/" + username.replace(" ", "_") + "_USER_DB";
+        return "jdbc:"+removedTrailingSlash+"/"+username+"_wms_db";
     }
 
 

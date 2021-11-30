@@ -48,9 +48,15 @@ public abstract class DbTableManger {
     protected  <T extends DbTableColumnRepository<? extends DbTableColumn, Integer>> void addColumnIfNotExists(
             String tableName, T repository , DbTableColumn column) {
 
+
         if(column == null || column.getColumnDatatype() == null || column.getName() == null) {
             return;
         }
+
+        String colName = column.getName().toLowerCase().replaceAll("[^a-zA-Z0-9_\\-äöüß]","");
+
+        if(colName.isBlank()) return;
+
 
         try (Connection connection = dataSource.getConnection()) {
             if (columnExists(column.getName(), tableName)) return;

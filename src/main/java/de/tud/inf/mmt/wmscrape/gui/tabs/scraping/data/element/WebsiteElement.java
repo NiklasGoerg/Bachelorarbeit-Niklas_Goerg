@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Table(name = "website_element")
 public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     @Id
     @GeneratedValue
@@ -22,23 +23,26 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "websiteId", referencedColumnName = "id")
+    @JoinColumn(name = "website_id", referencedColumnName = "id")
     private Website website;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", name = "information_url")
     private String informationUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "content_type")
     private ContentType contentType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "multiplicity_type")
     private MultiplicityType multiplicityType;
 
     //only for table scraping
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", name = "table_ident")
     private String tableIdent;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "table_iden_type")
     private IdentType tableIdenType = IdentType.ID;
 
     @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)

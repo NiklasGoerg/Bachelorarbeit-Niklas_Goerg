@@ -5,7 +5,7 @@ public class SpringIndependentData {
     private static String username; // e.g. test
     private static String password;
     private static String propertyConnectionPath; // e.g. "mysql://localhost/"
-    private static String springConnectionPath; // e.g. "jdbc:mysql://localhost/test_USER_DB"
+    private static String springConnectionPath; // e.g. "jdbc:mysql://localhost/test_wms_db"
 
     public SpringIndependentData() {}
 

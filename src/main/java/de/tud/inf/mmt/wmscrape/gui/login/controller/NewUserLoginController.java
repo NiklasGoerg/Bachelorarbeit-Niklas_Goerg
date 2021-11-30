@@ -40,8 +40,8 @@ public class NewUserLoginController {
                 alertType = Alert.AlertType.INFORMATION;
                 alertHeaderText = "Nutzer angelegt!";
                 alertText = "Ein neuer Nutzer mit der Datenbank " +
-                            newUsernameField.getText().trim().replace(" ", "_")
-                            + "_USER_DB wurde angelegt.\nOk drücken zum Einloggen.";
+                            newUsernameField.getText().trim().replace(" ", "_").toLowerCase()
+                            + "_wms_db wurde angelegt.\nOk drücken zum Einloggen.";
             }
             case -1 -> {
                 alertHeaderText = "Administratordaten fehlerhaft";
@@ -133,7 +133,7 @@ public class NewUserLoginController {
         if(value==null) return true;
 
         boolean isValid = value.matches("^[a-zA-z0-9\\söäüß]*$");
-        decorateField(input, "Ncht zulässige Zeichen! Nur a-z,0-9,ä,ö,ü,ß sowie Leerzeichen sind erlaubt.", isValid);
+        decorateField(input, "Nicht zulässige Zeichen! Nur a-z,0-9,ä,ö,ü,ß sowie Leerzeichen sind erlaubt.", isValid);
         return isValid;
     }
 

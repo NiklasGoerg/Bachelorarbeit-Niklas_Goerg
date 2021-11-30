@@ -5,24 +5,28 @@ import java.time.LocalDateTime;
 
 @Entity
 @IdClass(AccountTransactionKey.class)
-@Table(name = "Kontotransaktion")
+@Table(name = "kontotransaktion")
 public class AccountTransaction {
 
     @Id
     @GeneratedValue
     private int id;
     @Id
+    @Column(name = "account_id")
     private int accountId;
 
-    @Column(name = "Zeitpunkt")
+    @Column(name = "zeitpunkt")
     private LocalDateTime timestamp;
 
-    @Column(name = "Transaktionswert")
+    @Column(name = "transaktionswert")
     private double amount;
 
+    @Enumerated
+    @Column(name = "typ")
+    private TransactionType transactionType;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="accountId", referencedColumnName="id", updatable=false, insertable=false)
+    @JoinColumn(name="account_id", referencedColumnName="id", updatable=false, insertable=false)
     private Account account;
 
     public int getId() {
@@ -52,9 +56,5 @@ public class AccountTransaction {
     public void setTransactionType(TransactionType transactionType) {
         this.transactionType = transactionType;
     }
-
-    @Enumerated
-    @Column(name = "Typ")
-    private TransactionType transactionType;
 
 }

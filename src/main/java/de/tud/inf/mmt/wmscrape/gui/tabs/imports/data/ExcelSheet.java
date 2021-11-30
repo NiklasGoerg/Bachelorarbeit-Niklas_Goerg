@@ -5,21 +5,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "excel_sheet")
 public class ExcelSheet {
     @Id
     @GeneratedValue
     private int id;
+
     private String description;
+
     @Column(columnDefinition = "TEXT")
     private String path;
+
     @Column(columnDefinition = "TEXT")
     private String password;
+
+    @Column(name = "title_row")
     private int titleRow = 1;
+
+    @Column(name = "selection_col_title")
     private String selectionColTitle;
+
+    @Column(name = "depot_col_title")
     private String depotColTitle;
 
     @OneToMany(fetch= FetchType.LAZY, mappedBy ="excelSheet",  orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
+
 
     public ExcelSheet() {}
 

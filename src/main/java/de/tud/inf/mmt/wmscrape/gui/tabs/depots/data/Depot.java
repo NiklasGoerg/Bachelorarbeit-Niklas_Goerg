@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@Table(name = "depot")
 public class Depot {
 
     @Id
@@ -17,14 +18,14 @@ public class Depot {
     @Column(columnDefinition = "TEXT")
     private String name;
 
-    @Column(name = "Öffnungsdatum")
+    @Column(name = "öffnungsdatum")
     private Date opened;
 
-    @Column(name = "Schließungsdatum")
+    @Column(name = "schließungsdatum")
     private Date closed;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "accountId", referencedColumnName = "id")
+    @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="depot",  orphanRemoval = true, cascade = CascadeType.ALL)

@@ -4,7 +4,8 @@ import javax.persistence.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="ColType")
+@Table(name = "db_table_column")
+@DiscriminatorColumn(name="col_type")
 public abstract class DbTableColumn {
 
     @Id
@@ -12,6 +13,7 @@ public abstract class DbTableColumn {
     private int id;
     private String name;
     @Enumerated(EnumType.STRING)
+    @Column(name = "column_datatype")
     private ColumnDatatype columnDatatype;
 
     public DbTableColumn() {}
