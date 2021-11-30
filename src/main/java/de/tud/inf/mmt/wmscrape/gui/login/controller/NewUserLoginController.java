@@ -80,7 +80,7 @@ public class NewUserLoginController {
 
         if(returnInformation > 0) {
             try {
-                LoginManager.loginExistingUser(newUsernameField.getText(), newPasswordField.getText(), rootUsernameField);
+                LoginManager.loginAsUser(newUsernameField.getText(), newPasswordField.getText(), rootUsernameField);
             } catch (Exception e) {
                 LoginManager.programErrorAlert(e, newUsernameField);
             }
