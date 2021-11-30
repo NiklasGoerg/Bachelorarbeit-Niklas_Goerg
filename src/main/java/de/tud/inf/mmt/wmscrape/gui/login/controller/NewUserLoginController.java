@@ -12,12 +12,17 @@ public class NewUserLoginController {
     @FXML private TextField newUsernameField;
     @FXML private PasswordField newPasswordField;
 
+    @FXML private ProgressIndicator progress;
+    @FXML private Button createButton;
+
     @FXML
     private void initialize() {
         rootUsernameField.textProperty().addListener(x -> validRootUsernameField());
         rootPasswordField.textProperty().addListener(x -> validRootPasswordField());
         newUsernameField.textProperty().addListener(x -> validNewUsernameField());
         newPasswordField.textProperty().addListener(x -> validNewPasswordField());
+
+        showLoginProgress(false);
     }
 
     @FXML
@@ -80,11 +85,12 @@ public class NewUserLoginController {
 
         if(returnInformation > 0) {
             try {
-                LoginManager.loginAsUser(newUsernameField.getText(), newPasswordField.getText(), rootUsernameField);
+                LoginManager.loginAsUser(newUsernameField.getText(), newPasswordField.getText(), progress, createButton);
             } catch (Exception e) {
                 LoginManager.programErrorAlert(e, newUsernameField);
             }
         }
+        showLoginProgress(true);
     }
 
     @FXML
@@ -145,6 +151,14 @@ public class NewUserLoginController {
             input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
             input.getStyleClass().add("bad-input");
         }
+    }
+
+    private void showLoginProgress(boolean show) {
+        createButton.setVisible(!show);
+        createButton.setManaged(!show);
+        progress.setVisible(show);
+        progress.setManaged(show);
+        progress.setProgress(-1);
     }
 
 

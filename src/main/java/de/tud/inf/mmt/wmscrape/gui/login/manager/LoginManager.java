@@ -6,9 +6,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Control;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -87,7 +85,7 @@ public class LoginManager {
         }
     }
 
-    public static boolean loginAsUser(String username, String password, Control control) {
+    public static boolean loginAsUser(String username, String password, ProgressIndicator progress, Button button) {
         String springUsername = username.trim().replace(" ", "_").toLowerCase();
         String springConnectionPath = formSpringConnectionPath(springUsername, SpringIndependentData.getPropertyConnectionPath());
 
@@ -119,9 +117,12 @@ public class LoginManager {
         th.setDaemon(true);
 
         // use the application context to inject it into the controllers behind the login menu
-        task.setOnSucceeded(event -> injectContext(control, task.getValue()));
+        task.setOnSucceeded(event -> injectContext(button, task.getValue()));
         // if spring throws an error, create an alert
-        task.setOnFailed(evt -> programErrorAlert(task.getException(), control));
+        task.setOnFailed(evt -> {
+            programErrorAlert(task.getException(), button);
+            showLoginButtonAgain(progress, button);
+        });
 
         // start the task
         th.start();
@@ -295,7 +296,7 @@ public class LoginManager {
         }
     }
 
-    public static String formSpringConnectionPath(String username, String propertyPath) {
+    private static String formSpringConnectionPath(String username, String propertyPath) {
         String removedTrailingSlash = propertyPath.replaceAll("/$", "");
         return "jdbc:"+removedTrailingSlash+"/"+username+"_wms_db";
     }
@@ -310,6 +311,17 @@ public class LoginManager {
         alert.setX(window.getX()+(window.getWidth()/2)-200);
         alert.setY(window.getY()+(window.getHeight()/2)-200);
         alert.showAndWait();
+
+        control.setVisible(false);
+        control.setManaged(false);
+    }
+
+    private static void showLoginButtonAgain(ProgressIndicator bar, Button button) {
+        bar.setVisible(false);
+        bar.setManaged(false);
+
+        button.setVisible(true);
+        button.setManaged(true);
     }
  }
 

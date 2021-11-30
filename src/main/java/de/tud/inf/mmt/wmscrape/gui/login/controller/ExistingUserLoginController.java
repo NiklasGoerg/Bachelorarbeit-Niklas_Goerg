@@ -9,6 +9,8 @@ import javafx.scene.control.*;
 public class ExistingUserLoginController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
+    @FXML private ProgressIndicator progress;
+    @FXML private Button loginButton;
 
     @FXML
     private void initialize()  {
@@ -17,6 +19,8 @@ public class ExistingUserLoginController {
 
         usernameField.textProperty().addListener(x -> validUsernameField());
         passwordField.textProperty().addListener(x -> validPasswordField());
+
+        showLoginProgress(false);
     }
 
     @FXML
@@ -36,7 +40,7 @@ public class ExistingUserLoginController {
         // so this only starts the task creation
 
         try {
-            success = LoginManager.loginAsUser(usernameField.getText(), passwordField.getText(), usernameField);
+            success = LoginManager.loginAsUser(usernameField.getText(), passwordField.getText(), progress, loginButton);
         } catch (Exception e) {
             // catch everything. there is a lot going on
             LoginManager.programErrorAlert(e, usernameField);
@@ -52,12 +56,16 @@ public class ExistingUserLoginController {
             alert.setX(window.getX()+(window.getWidth()/2)-200);
             alert.setY(window.getY()+(window.getHeight()/2)-200);
             alert.showAndWait();
+            return;
         }
+
+        showLoginProgress(true);
     }
 
     @FXML
     private void handleChangeDbPathButton() {
-        LoginManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml", "Datenbankpfad ändern", usernameField, true);
+        LoginManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml",
+                "Datenbankpfad ändern", usernameField, true);
     }
 
 
@@ -100,6 +108,14 @@ public class ExistingUserLoginController {
             input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
             input.getStyleClass().add("bad-input");
         }
+    }
+
+    private void showLoginProgress(boolean show) {
+        loginButton.setVisible(!show);
+        loginButton.setManaged(!show);
+        progress.setVisible(show);
+        progress.setManaged(show);
+        progress.setProgress(-1);
     }
 
 }
