@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
+@Table(name = "element_selection")
 public class ElementSelection {
 
     @Id
@@ -20,10 +21,10 @@ public class ElementSelection {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "websiteElementId", referencedColumnName = "id")
+    @JoinColumn(name = "website_element_id", referencedColumnName = "id")
     private WebsiteElement websiteElement;
 
-    @Column(name = "isSelected")
+    @Column(name = "is_selected")
     private boolean _selected = false;
     @Transient
     private final SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
@@ -37,12 +38,12 @@ public class ElementSelection {
 
     // optional, only stock/course
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stockIsin", referencedColumnName = "isin")
+    @JoinColumn(name = "stock_isin", referencedColumnName = "isin")
     private Stock stock;
 
     // optional, only exchange
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exchangeDataDbTableColumnId", referencedColumnName = "id")
+    @JoinColumn(name = "exchange_column_id", referencedColumnName = "id")
     private ExchangeColumn exchangeColumn;
 
     @OneToOne(mappedBy = "elementSelection", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)

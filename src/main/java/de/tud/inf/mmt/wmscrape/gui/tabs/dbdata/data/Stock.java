@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "Wertpapier")
+@Table(name = "wertpapier")
 public class Stock {
 
     @Id

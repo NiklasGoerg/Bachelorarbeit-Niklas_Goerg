@@ -9,6 +9,8 @@ import javafx.scene.control.*;
 public class ExistingUserLoginController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
+    @FXML private ProgressIndicator progress;
+    @FXML private Button loginButton;
 
     @FXML
     private void initialize()  {
@@ -17,6 +19,8 @@ public class ExistingUserLoginController {
 
         usernameField.textProperty().addListener(x -> validUsernameField());
         passwordField.textProperty().addListener(x -> validPasswordField());
+
+        showLoginProgress(false);
     }
 
     @FXML
@@ -31,30 +35,37 @@ public class ExistingUserLoginController {
         }
 
         boolean success;
+        // only checks if the un,pw combination is valid and can be used for spring
+        // the actual spring context starts in a sub-task and automatically opens an alert if an exception occurs
+        // so this only starts the task creation
 
         try {
-            success = LoginManager.loginExistingUser(usernameField.getText(), passwordField.getText(), usernameField);
+            success = LoginManager.loginAsUser(usernameField.getText(), passwordField.getText(), progress, loginButton);
         } catch (Exception e) {
+            // catch everything. there is a lot going on
             LoginManager.programErrorAlert(e, usernameField);
             return;
         }
 
-
-        if (!success) {
+        if(!success) {
             Alert alert = new Alert(Alert.AlertType.ERROR,
                     "Der Verbindungsversuch ist fehlgeschlagen!\n" +
-                    "Überprüfen Sie den Pfad sowie Nutzername und Passwort.", ButtonType.OK);
+                            "Überprüfen Sie den Pfad sowie Nutzername und Passwort.", ButtonType.CLOSE);
             alert.setHeaderText("Verbindungsfehler");
             var window = usernameField.getScene().getWindow();
             alert.setX(window.getX()+(window.getWidth()/2)-200);
             alert.setY(window.getY()+(window.getHeight()/2)-200);
             alert.showAndWait();
+            return;
         }
+
+        showLoginProgress(true);
     }
 
     @FXML
     private void handleChangeDbPathButton() {
-        LoginManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml", "Datenbankpfad ändern", usernameField, true);
+        LoginManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml",
+                "Datenbankpfad ändern", usernameField, true);
     }
 
 
@@ -97,6 +108,14 @@ public class ExistingUserLoginController {
             input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
             input.getStyleClass().add("bad-input");
         }
+    }
+
+    private void showLoginProgress(boolean show) {
+        loginButton.setVisible(!show);
+        loginButton.setManaged(!show);
+        progress.setVisible(show);
+        progress.setManaged(show);
+        progress.setProgress(-1);
     }
 
 }

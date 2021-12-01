@@ -9,39 +9,48 @@ import javafx.beans.property.SimpleStringProperty;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "excel_correlation")
 public class ExcelCorrelation {
 
     @Id
     @GeneratedValue
     private int id;
+
+    @Column(name = "db_col_title")
     private String dbColTitle;
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "db_col_type")
     private ColumnDatatype dbColType;
 
-    @Column(name = "excelColTitle")
+    @Column(name = "excel_col_title")
     private String _excelColTitle;
-    @Transient
-    private final SimpleStringProperty excelColTitle = new SimpleStringProperty();
 
-    @Column(name = "excelColNumber")
+    @Column(name = "excel_col_number")
     private int _excelColNumber = -1;
-    @Transient
-    private final SimpleIntegerProperty excelColNumber = new SimpleIntegerProperty();
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "correlation_type")
     private CorrelationType correlationType;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="excelSheetId", referencedColumnName="id")
+    @JoinColumn(name="excel_sheet_id", referencedColumnName="id")
     private ExcelSheet excelSheet;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="stockColumnId", referencedColumnName="id")
+    @JoinColumn(name="stock_column_id", referencedColumnName="id")
     private StockColumn stockColumn;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transactionColumnId", referencedColumnName="id")
+    @JoinColumn(name = "transaction_column_id", referencedColumnName="id")
     private TransactionColumn transactionColumn;
+
+
+    @Transient
+    private final SimpleStringProperty excelColTitle = new SimpleStringProperty();
+    @Transient
+    private final SimpleIntegerProperty excelColNumber = new SimpleIntegerProperty();
+
 
     public ExcelCorrelation() {
         excelColNumber.set(_excelColNumber);

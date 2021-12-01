@@ -19,7 +19,6 @@ public class StockColumn extends DbTableColumn {
     @OneToMany(mappedBy = "stockColumn", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ElementIdentCorrelation> elementIdentCorrelations;
 
-
     public StockColumn() {}
 
     public StockColumn(String name, ColumnDatatype columnDatatype) {

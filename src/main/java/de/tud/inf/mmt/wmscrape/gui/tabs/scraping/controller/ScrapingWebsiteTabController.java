@@ -280,7 +280,7 @@ public class ScrapingWebsiteTabController {
 
     private boolean isValidInput() {
         // evaluate all to highlight all
-        boolean valid = emptyValidator(urlField);
+        boolean valid = validUrlField();
         valid &= emptyValidator(usernameField);
         valid &= emptyValidator(passwordField);
         valid &= validUsernameIdentField();
@@ -290,6 +290,10 @@ public class ScrapingWebsiteTabController {
         valid &= escapeValidator(cookieAcceptIdentField);
         valid &= escapeValidator(cookieHideIdentField);
         return valid;
+    }
+
+    private boolean validUrlField() {
+        return emptyValidator(urlField) && urlValidator(urlField);
     }
 
     private boolean validUsernameIdentField() {
@@ -307,6 +311,15 @@ public class ScrapingWebsiteTabController {
     private boolean emptyValidator(TextInputControl input) {
         boolean isValid = input.getText() != null && !input.getText().isBlank();
         decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
+        return isValid;
+    }
+
+    private boolean urlValidator(TextInputControl input) {
+        String value = input.getText();
+        if(value==null) return true;
+
+        boolean isValid = !value.matches("^https?://.*$");
+        decorateField(input, "Die URL muss mit http:// oder https:// beginnen!", isValid);
         return isValid;
     }
 

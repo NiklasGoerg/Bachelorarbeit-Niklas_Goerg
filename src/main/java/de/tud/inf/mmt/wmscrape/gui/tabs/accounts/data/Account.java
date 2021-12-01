@@ -8,27 +8,27 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "Konto")
+@Table(name = "konto")
 public class Account {
 
     @Id
     @GeneratedValue
     private int id;
 
-    @Column(name = "Kontonummer")
+    @Column(name = "kontonummer")
     private String identificationNumber;
 
-    @Column(name = "Eigentümer")
+    @Column(name = "eigentümer")
     private String owner;
 
-    @Column(name = "Öffnungsdatum")
+    @Column(name = "öffnungsdatum")
     private Date opened;
 
-    @Column(name = "Schließungsdatum")
+    @Column(name = "schließungsdatum")
     private Date closed;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Kontotyp")
+    @Column(name = "kontotyp")
     private AccountType accountType;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true, cascade = CascadeType.ALL)

@@ -44,7 +44,7 @@ public class StockTableManager extends DbTableManger {
         addColumn("url_2", ColumnDatatype.TEXT);
         addColumn("kurs", ColumnDatatype.DOUBLE);
         addColumn("gruppe", ColumnDatatype.INTEGER);
-        addColumn("Std_Datum", ColumnDatatype.DATE);
+        addColumn("std_datum", ColumnDatatype.DATE);
     }
 
     public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {

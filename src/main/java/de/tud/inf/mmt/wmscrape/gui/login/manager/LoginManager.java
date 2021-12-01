@@ -2,12 +2,11 @@ package de.tud.inf.mmt.wmscrape.gui.login.manager;
 
 import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Control;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -20,9 +19,6 @@ import java.sql.*;
 import java.util.Properties;
 
 public class LoginManager {
-
-    private static ConfigurableApplicationContext applicationContext;
-
 
     public static void loadFxml(String source, String stageTitle, Control control, boolean isModal) {
         FXMLLoader fxmlLoader = new FXMLLoader(WMScrape.class.getResource(source));
@@ -89,8 +85,8 @@ public class LoginManager {
         }
     }
 
-    public static boolean loginExistingUser(String username, String password, Control control) throws Exception{
-        String springUsername = username.trim().replace(" ", "_");
+    public static boolean loginAsUser(String username, String password, ProgressIndicator progress, Button button) {
+        String springUsername = username.trim().replace(" ", "_").toLowerCase();
         String springConnectionPath = formSpringConnectionPath(springUsername, SpringIndependentData.getPropertyConnectionPath());
 
         // tries to establish a connection
@@ -98,33 +94,71 @@ public class LoginManager {
             return false;
         }
 
-        // if successful save username for next time and set the value to be fetched by DataSourceConfig
+        // if successful
+        // save username for next time
         saveUsernameProperty(username);
+        // set the value to be fetched by DataSourceConfig
         SpringIndependentData.setSpringConnectionPath(springConnectionPath);
         SpringIndependentData.setUsername(springUsername);
         SpringIndependentData.setPassword(password);
 
-        // spring starts here
-        applicationContext = new SpringApplicationBuilder(WMScrape.class).run();
+
+        // starts a new task which sole job it is to initialize spring
+        // depending on the data to be initialized this can take a moment
+        Task<ConfigurableApplicationContext> task = new Task<>() {
+            @Override
+            protected ConfigurableApplicationContext call() {
+                return new SpringApplicationBuilder(WMScrape.class).run();
+            }
+        };
+
+        // create the task
+        Thread th = new Thread(task);
+        th.setDaemon(true);
+
+        // use the application context to inject it into the controllers behind the login menu
+        task.setOnSucceeded(event -> injectContext(button, task.getValue()));
+        // if spring throws an error, create an alert
+        task.setOnFailed(evt -> {
+            programErrorAlert(task.getException(), button);
+            showLoginButtonAgain(progress, button);
+        });
+
+        // start the task
+        th.start();
+
+        // only here to not show the unsuccessful alert in the controller
+        // task tuns in the background at this moment
+        return true;
+    }
+
+
+    // is static to be able to use it inside the anonymous function / lambda
+    public static void injectContext(Control control, ConfigurableApplicationContext context) {
         FXMLLoader fxmlLoader = new FXMLLoader(WMScrape.class.getResource("gui/tabs/primaryTab.fxml"));
         // spring context is injected
-        fxmlLoader.setControllerFactory(aClass -> applicationContext.getBean(aClass));
+        fxmlLoader.setControllerFactory(context::getBean);
         Parent parent;
 
-        parent = fxmlLoader.load();
+        try {
+            parent = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+            programErrorAlert(e, control);
+            return;
+        }
 
         Stage window = (Stage) control.getScene().getWindow();
         window.getScene().setRoot(parent);
         window.setTitle("WMScrape");
-
-        return true;
     }
+
 
     public static int createUser(String rootUn, String rootPw, String newUn, String newPw) {
         String rootConnectionPath = "jdbc:" + SpringIndependentData.getPropertyConnectionPath();
 
         try (Connection connection = getConnection(rootConnectionPath, rootUn.trim(), rootPw)) {
-            String newUnWithoutSpaces = newUn.trim().replace(" ", "_");
+            String newUnWithoutSpaces = newUn.trim().replace(" ", "_").toLowerCase();
 
             if (connection == null) {
                 // can't connect with root
@@ -198,7 +232,7 @@ public class LoginManager {
             ResultSet results = statement.executeQuery("show databases");
 
             while (results.next()) {
-                if (results.getString(1).contentEquals(newUsername + "_USER_DB")) {
+                if (results.getString(1).contentEquals(newUsername + "_wms_db")) {
                     return true;
                 }
             }
@@ -213,7 +247,7 @@ public class LoginManager {
     private static boolean createUserAndDb(Connection connection,  String newUsername, String newPassword) {
         try {
 
-            String newDbName = newUsername+"_USER_DB";
+            String newDbName = newUsername+"_wms_db";
             PreparedStatement pst = connection.prepareStatement("SET @user := ?, @pass := ?, @db := ?;");
             pst.setString(1, newUsername);
             pst.setString(2, newPassword);
@@ -262,13 +296,13 @@ public class LoginManager {
         }
     }
 
-    public static String formSpringConnectionPath(String username, String propertyPath) {
+    private static String formSpringConnectionPath(String username, String propertyPath) {
         String removedTrailingSlash = propertyPath.replaceAll("/$", "");
-        return "jdbc:" + removedTrailingSlash + "/" + username.replace(" ", "_") + "_USER_DB";
+        return "jdbc:"+removedTrailingSlash+"/"+username+"_wms_db";
     }
 
 
-    public static void programErrorAlert(Exception e, Control control) {
+    public static void programErrorAlert(Throwable e, Control control) {
         e.printStackTrace();
         Alert alert = new Alert(Alert.AlertType.ERROR,
                 "Fehler bei dem Starten des Programms!\n"+e.getCause(), ButtonType.CLOSE);
@@ -277,6 +311,17 @@ public class LoginManager {
         alert.setX(window.getX()+(window.getWidth()/2)-200);
         alert.setY(window.getY()+(window.getHeight()/2)-200);
         alert.showAndWait();
+
+        control.setVisible(false);
+        control.setManaged(false);
+    }
+
+    private static void showLoginButtonAgain(ProgressIndicator bar, Button button) {
+        bar.setVisible(false);
+        bar.setManaged(false);
+
+        button.setVisible(true);
+        button.setManaged(true);
     }
  }
 

@@ -7,31 +7,32 @@ import java.sql.Date;
 
 @Entity
 @IdClass(DepotTransactionKey.class)
-@Table(name = "Depottransaktion")
+@Table(name = "depottransaktion")
 public class DepotTransaction {
     @Id
+    @Column(name="depot_id")
     private int depotId;
 
     @Id
-    @Column(name = "transaktionsDatum")
+    @Column(name = "transaktions_datum")
     private Date date;
 
     @Id
-    @Column(name = "wertpapierIsin", length = 50)
+    @Column(name = "wertpapier_isin", length = 50)
     private String stockIsin;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="depotId", referencedColumnName="id", updatable=false, insertable=false)
+    @JoinColumn(name="depot_id", referencedColumnName="id", updatable=false, insertable=false)
     private Depot depot;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="wertpapierIsin", referencedColumnName="isin", updatable=false, insertable=false)
+    @JoinColumn(name="wertpapier_isin", referencedColumnName="isin", updatable=false, insertable=false)
     private Stock stock;
 
 
     /**
      *
-     *  remove this -> create an oject wth the bare minimum of fields and manage the rest dynamicly
+     *  remove this -> create an oject wth the bare minimum of fields and manage the rest dynamically
      *
      */
 
@@ -49,7 +50,7 @@ public class DepotTransaction {
     @Column(name = "preis")
     private double price;
 
-    @Column(name = "wertInEur")
+    @Column(name = "wert_in_eur")
     private double priceInEur;
 
     @Column(name = "bankprovision")

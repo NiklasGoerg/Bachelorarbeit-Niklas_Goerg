@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Table(name = "website")
 public class Website extends WebRepresentation<WebsiteElement>{
 
     @Id
@@ -26,37 +27,50 @@ public class Website extends WebRepresentation<WebsiteElement>{
     private String password;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "username_ident_type")
     private IdentType usernameIdentType = IdentType.ID;
-    @Column(columnDefinition = "TEXT")
+
+    @Column(columnDefinition = "TEXT", name = "username_ident")
     private String usernameIdent;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "password_ident_type")
     private IdentType passwordIdentType = IdentType.ID;
-    @Column(columnDefinition = "TEXT")
+
+    @Column(columnDefinition = "TEXT", name = "password_ident")
     private String passwordIdent;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "login_button_ident_type")
     private IdentType loginButtonIdentType = IdentType.ID;
-    @Column(columnDefinition = "TEXT")
+
+    @Column(columnDefinition = "TEXT", name = "login_button_ident")
     private String loginButtonIdent;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "logout_ident_type")
     private IdentType logoutIdentType = IdentType.DEAKTIVIERT;
-    @Column(columnDefinition = "TEXT")
+
+    @Column(columnDefinition = "TEXT", name = "logout_ident")
     private String logoutIdent;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "cookie_accept_ident_type")
     private IdentType cookieAcceptIdentType = IdentType.DEAKTIVIERT;
-    @Column(columnDefinition = "TEXT")
+
+    @Column(columnDefinition = "TEXT", name = "cookie_accept_ident")
     private String cookieAcceptIdent;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "cookie_hide_ident_type")
     private IdentType cookieHideIdentType = IdentType.DEAKTIVIERT;
-    @Column(columnDefinition = "TEXT")
+
+    @Column(columnDefinition = "TEXT", name = "cookie_hide_ident")
     private String cookieHideIdent;
 
     @OneToMany(mappedBy = "website", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<WebsiteElement> websiteElements = new ArrayList<>();
+
 
     public Website() {}
 

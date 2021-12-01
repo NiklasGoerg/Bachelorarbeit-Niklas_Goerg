@@ -18,7 +18,6 @@ public class CourseColumn extends DbTableColumn {
             super(name, columnDatatype);
     }
 
-
     @OneToMany(mappedBy = "courseColumn", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
 

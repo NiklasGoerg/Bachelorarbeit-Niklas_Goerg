@@ -12,47 +12,52 @@ import javafx.beans.property.SimpleStringProperty;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "element_ident_correlation")
 public class ElementIdentCorrelation {
     @Id
     @GeneratedValue
     private int id;
 
-    @Column(name = "identType", columnDefinition = "TEXT")
+    @Column(name = "ident_type", columnDefinition = "TEXT")
     @Enumerated(EnumType.STRING)
     private IdentType _identType = IdentType.DEAKTIVIERT;
-    @Transient
-    private final SimpleStringProperty identType = new SimpleStringProperty(_identType.name());
 
     @Column(name = "identification", columnDefinition = "TEXT")
     private String _identification;
-    @Transient
-    private final SimpleStringProperty identification = new SimpleStringProperty();
 
     @Column(name = "regex", columnDefinition = "TEXT")
     private String _regex;
-    @Transient
-    private final SimpleStringProperty regex = new SimpleStringProperty();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "websiteElementId", referencedColumnName = "id")
+    @JoinColumn(name = "website_element_id", referencedColumnName = "id")
     private WebsiteElement websiteElement;
 
     // optional for stock correlations
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stockColumnId", referencedColumnName = "id")
+    @JoinColumn(name = "stock_column_id", referencedColumnName = "id")
     private StockColumn stockColumn;
 
     // optional for course correlations
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseColumnId", referencedColumnName = "id")
+    @JoinColumn(name = "course_column_id", referencedColumnName = "id")
     private CourseColumn courseColumn;
 
     // redundant but saves fetching from the database
+    @Column(name = "column_datatype")
     private ColumnDatatype columnDatatype;
+
+    @Column(name = "db_col_name")
     private String dbColName;
+
+    @Column(name = "db_table_name")
     private String dbTableName;
 
-
+    @Transient
+    private final SimpleStringProperty identification = new SimpleStringProperty();
+    @Transient
+    private final SimpleStringProperty regex = new SimpleStringProperty();
+    @Transient
+    private final SimpleStringProperty identType = new SimpleStringProperty(_identType.name());
     @Transient
     private boolean isChanged = false;
 

@@ -12,12 +12,17 @@ public class NewUserLoginController {
     @FXML private TextField newUsernameField;
     @FXML private PasswordField newPasswordField;
 
+    @FXML private ProgressIndicator progress;
+    @FXML private Button createButton;
+
     @FXML
     private void initialize() {
         rootUsernameField.textProperty().addListener(x -> validRootUsernameField());
         rootPasswordField.textProperty().addListener(x -> validRootPasswordField());
         newUsernameField.textProperty().addListener(x -> validNewUsernameField());
         newPasswordField.textProperty().addListener(x -> validNewPasswordField());
+
+        showLoginProgress(false);
     }
 
     @FXML
@@ -40,8 +45,8 @@ public class NewUserLoginController {
                 alertType = Alert.AlertType.INFORMATION;
                 alertHeaderText = "Nutzer angelegt!";
                 alertText = "Ein neuer Nutzer mit der Datenbank " +
-                            newUsernameField.getText().trim().replace(" ", "_")
-                            + "_USER_DB wurde angelegt.\nOk drücken zum Einloggen.";
+                            newUsernameField.getText().trim().replace(" ", "_").toLowerCase()
+                            + "_wms_db wurde angelegt.\nOk drücken zum Einloggen.";
             }
             case -1 -> {
                 alertHeaderText = "Administratordaten fehlerhaft";
@@ -80,11 +85,12 @@ public class NewUserLoginController {
 
         if(returnInformation > 0) {
             try {
-                LoginManager.loginExistingUser(newUsernameField.getText(), newPasswordField.getText(), rootUsernameField);
+                LoginManager.loginAsUser(newUsernameField.getText(), newPasswordField.getText(), progress, createButton);
             } catch (Exception e) {
                 LoginManager.programErrorAlert(e, newUsernameField);
             }
         }
+        showLoginProgress(true);
     }
 
     @FXML
@@ -133,7 +139,7 @@ public class NewUserLoginController {
         if(value==null) return true;
 
         boolean isValid = value.matches("^[a-zA-z0-9\\söäüß]*$");
-        decorateField(input, "Ncht zulässige Zeichen! Nur a-z,0-9,ä,ö,ü,ß sowie Leerzeichen sind erlaubt.", isValid);
+        decorateField(input, "Nicht zulässige Zeichen! Nur a-z,0-9,ä,ö,ü,ß sowie Leerzeichen sind erlaubt.", isValid);
         return isValid;
     }
 
@@ -145,6 +151,14 @@ public class NewUserLoginController {
             input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
             input.getStyleClass().add("bad-input");
         }
+    }
+
+    private void showLoginProgress(boolean show) {
+        createButton.setVisible(!show);
+        createButton.setManaged(!show);
+        progress.setVisible(show);
+        progress.setManaged(show);
+        progress.setProgress(-1);
     }
 
 

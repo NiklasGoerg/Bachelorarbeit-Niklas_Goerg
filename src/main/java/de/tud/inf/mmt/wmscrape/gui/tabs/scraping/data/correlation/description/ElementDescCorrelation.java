@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
+@Table(name = "element_desc_correlation")
 public class  ElementDescCorrelation {
 
     @Id
@@ -18,26 +19,26 @@ public class  ElementDescCorrelation {
     @JoinColumn(name = "id", referencedColumnName = "id")
     private ElementSelection elementSelection;
 
-    @Column(name = "wsDescription", columnDefinition = "TEXT")
+    @Column(name = "ws_description", columnDefinition = "TEXT")
     private String _wsDescription;
-    @Transient
-    private final SimpleStringProperty wsDescription = new SimpleStringProperty();
 
     // only for stock/course
-    @Column(name = "wsIsin", columnDefinition = "TEXT")
+    @Column(name = "ws_isin", columnDefinition = "TEXT")
     private String _wsIsin;
-    @Transient
-    private final SimpleStringProperty wsIsin = new SimpleStringProperty();
 
-    @Column(name = "wsWkn", columnDefinition = "TEXT")
+    @Column(name = "ws_wkn", columnDefinition = "TEXT")
     private String _wsWkn;
-    @Transient
-    private final SimpleStringProperty wsWkn = new SimpleStringProperty();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "websiteElementId", referencedColumnName = "id")
+    @JoinColumn(name = "website_element_id", referencedColumnName = "id")
     private WebsiteElement websiteElement;
 
+    @Transient
+    private final SimpleStringProperty wsDescription = new SimpleStringProperty();
+    @Transient
+    private final SimpleStringProperty wsIsin = new SimpleStringProperty();
+    @Transient
+    private final SimpleStringProperty wsWkn = new SimpleStringProperty();
     @Transient
     private boolean isChanged = false;
 

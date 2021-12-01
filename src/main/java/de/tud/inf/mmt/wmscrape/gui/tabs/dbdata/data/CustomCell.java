@@ -50,8 +50,21 @@ public class CustomCell {
     private void cleanInput(String o, String n) {
         switch (column.getColumnDatatype()) {
             case TEXT -> textData.set(n.trim());
-            case DOUBLE -> textData.set(n.replaceAll(",",".").replaceAll("[^0-9.]",""));
-            case INTEGER -> textData.set(n.replaceAll("[^0-9]",""));
+
+            case DOUBLE -> {
+                String d = n.replaceAll(",",".").replaceAll("[^0-9.+-]","");
+                if(!d.matches("^([0-9]+(\\.[0-9]+)?|[+-][0-9]+(\\.[0-9]+)?)$")) {
+                    textData.set(o);
+                } else textData.set(d);
+            }
+
+            case INTEGER -> {
+                String i = n.replaceAll("[^0-9+-]","");
+                if(!i.matches("^([0-9]+|[+-][0-9]+)$")) {
+                    textData.set(o);
+                } else textData.set(i);
+            }
+
             case DATE -> {
                 String[] split = n.replaceAll("[^0-9\\-]","").split("-");
                 if(!n.trim().matches("^\\d{4}-\\d{2}-\\d{2}$")
