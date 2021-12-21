@@ -1,7 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="default" type="Application" factoryName="Application">
+  <configuration default="false" name="debug special" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="de.tud.inf.mmt.wmscrape.WMScrape" />
     <module name="WMScrape" />
+    <option name="VM_PARAMETERS" value="-Dsun.awt.disablegrab=true" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

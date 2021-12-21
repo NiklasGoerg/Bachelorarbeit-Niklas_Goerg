@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="wmscrape [compile,exec:java]" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
+  <configuration default="false" name="run only" type="MavenRunConfiguration" factoryName="Maven">
     <MavenSettings>
       <option name="myGeneralSettings" />
       <option name="myRunnerSettings" />
@@ -10,8 +10,7 @@
           </option>
           <option name="goals">
             <list>
-              <option value="compile" />
-              <option value="exec:java" />
+              <option value="javafx:run" />
             </list>
           </option>
           <option name="pomFileName" />
