@@ -24,7 +24,6 @@ import java.util.Optional;
 @Controller
 public class DataTabController {
 
-    @Autowired private NewStockPopupController newStockPopupController;
     @Autowired private PrimaryTabManagement primaryTabManagement;
     @Autowired private ScrapingElementsTabController scrapingElementsTabController;
     @Autowired private CourseDataManager courseDataManager;
@@ -224,8 +223,10 @@ public class DataTabController {
 
         if(!isValidIsin()) return;
 
-        boolean success = stockDataManager.createStock(newIsinField.getText(),newWknField.getText(),newNameField.getText(),
-                newTypeField.getText());
+        boolean success = stockDataManager.createStock(newIsinField.getText().trim(),
+                                                        newWknField.getText().trim(),
+                                                        newNameField.getText().trim(),
+                                                        newTypeField.getText().trim());
         scrapingElementsTabController.refresh();
 
         if(success) {

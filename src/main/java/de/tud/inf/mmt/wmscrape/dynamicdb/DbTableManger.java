@@ -53,7 +53,10 @@ public abstract class DbTableManger {
             return;
         }
 
-        String colName = column.getName().toLowerCase().replaceAll("[^a-zA-Z0-9_\\-äöüß]","");
+        String colName = column.getName()
+                                .trim()
+                                .toLowerCase()
+                                .replaceAll("[^a-zA-Z0-9_\\-äöüß]","");
 
         if(colName.isBlank()) return;
 
