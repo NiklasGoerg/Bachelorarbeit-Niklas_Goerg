@@ -49,7 +49,7 @@
                   </MenuButton>
                   <MenuButton alignment="CENTER" layoutX="10.0" layoutY="10.0" minWidth="100.0" mnemonicParsing="false" prefWidth="165.0" text="Inhalte anpassen">
                      <items>
-                        <MenuItem mnemonicParsing="false" onAction="#handleSaveButton" text="Zellen speichern">
+                        <MenuItem mnemonicParsing="false" onAction="#handleSaveButton" text="Änderungen speichern">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                            </accelerator></MenuItem>
@@ -78,10 +78,7 @@
                <children>
                   <SplitPane fx:id="splitPane" dividerPositions="0.22" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
                     <items>
-                        <BorderPane fx:id="stockSelectionPane" minWidth="0.0" prefWidth="200.0">
-                           <center>
-                              <TableView fx:id="stockSelectionTable" editable="true" minWidth="0.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-                           </center>
+                        <BorderPane fx:id="selectionPane" layoutX="10.0" layoutY="10.0" minWidth="0.0" prefWidth="200.0">
                            <padding>
                               <Insets left="1.0" />
                            </padding>
@@ -246,14 +243,14 @@
             </GridPane>
          </center>
       </BorderPane>
-      <TabPane id="#verticalTabPane" fx:id="sectionTabPane" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="40.0" tabMinWidth="150.0">
+      <TabPane id="#verticalTabPane" fx:id="sectionTabPane" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="40.0" tabMinWidth="145.0">
          <tabs>
             <Tab fx:id="stockTab" text="Stammdaten">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
               </content>
             </Tab>
-            <Tab fx:id="courseTab" text="Wertpapier Kurs">
+            <Tab fx:id="courseTab" text="Wertpapier-Kurs">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
               </content>
@@ -262,6 +259,11 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
               </content>
+            </Tab>
+            <Tab fx:id="transactionTab" text="Depot-Transaktionen">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+               </content>
             </Tab>
          </tabs>
          <padding>

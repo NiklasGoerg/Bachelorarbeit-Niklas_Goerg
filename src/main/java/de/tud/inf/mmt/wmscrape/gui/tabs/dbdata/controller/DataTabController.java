@@ -5,10 +5,8 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.CourseDataManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.DataManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.ExchangeDataManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.StockDataManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.*;
+import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,19 +27,24 @@ public class DataTabController {
     @Autowired private CourseDataManager courseDataManager;
     @Autowired private StockDataManager stockDataManager;
     @Autowired private ExchangeDataManager exchangeDataManager;
+    @Autowired private TransactionDataManager transactionDataManager;
 
 
-    @FXML private TableView<Stock> stockSelectionTable;
+    private final TableView<Stock> stockSelectionTable = new TableView<>();
+    private final TableView<Depot> depotSelectionTable = new TableView<>();
+    @FXML private BorderPane selectionPane;
+
     @FXML private TableView<CustomRow> customRowTableView;
     @FXML private SplitPane splitPane;
     @FXML private TextField newColumnNameField;
+    @FXML private MenuItem createStockMenuItem;
+    @FXML private MenuItem deleteStockMenuItem;
+
+    @FXML private TabPane sectionTabPane;
     @FXML private Tab stockTab;
     @FXML private Tab courseTab;
     @FXML private Tab exchangeTab;
-    @FXML private TabPane sectionTabPane;
-    @FXML private BorderPane stockSelectionPane;
-    @FXML private MenuItem createStockMenuItem;
-    @FXML private MenuItem deleteStockMenuItem;
+    @FXML private Tab transactionTab;
 
     @FXML private GridPane columnSubmenuPane;
     @FXML private ChoiceBox<ColumnDatatype> columnDatatypeChoiceBox;
@@ -56,7 +59,7 @@ public class DataTabController {
 
     private final ObservableList<CustomRow> changedRows = FXCollections.observableArrayList();
     private ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
-    private Stock lastViewed;
+    private Object lastViewed;
     private boolean viewEverything = false;
 
     // initializing with stock data
@@ -80,11 +83,18 @@ public class DataTabController {
         customRowTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         tabManager.prepareStockSelectionTable(stockSelectionTable);
+        tabManager.prepareDepotSelectionTable(depotSelectionTable);
+        selectionPane.setCenter(stockSelectionTable);
         reloadSelectionTable();
 
         stockSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
-            if(nv != null) onStockSelection(nv);
+            if(nv != null) onSelection(nv);
         });
+
+        depotSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
+            if(nv != null) onSelection(nv);
+        });
+
         newIsinField.textProperty().addListener(x -> isValidIsin());
 
         reloadAllDataRows();
@@ -126,6 +136,7 @@ public class DataTabController {
         addRowChangeListeners();
         viewEverything = true;
         stockSelectionTable.getSelectionModel().clearSelection();
+        depotSelectionTable.getSelectionModel().clearSelection();
     }
 
     @FXML
@@ -164,7 +175,7 @@ public class DataTabController {
         Alert alert = confirmationAlert("Tabellendaten löschen?", "Sollen alle Zeilen in der Tabelle gelöscht werden?.");
         if(wrongResponse(alert)) return;
 
-        var selected = stockSelectionTable.getSelectionModel().getSelectedItem();
+        Object selected = ((TableView<?>) selectionPane.getCenter()).getSelectionModel().getSelectedItem();
         if(allRows == null || allRows.isEmpty()) return;
 
         boolean success;
@@ -172,7 +183,17 @@ public class DataTabController {
             // delete *everything*
             success = tabManager.deleteRows(allRows, true);
         } else if (selected != null){
-            var selectionRows = tabManager.getStockRowsBySelection(selected,allRows);
+
+            ObservableList<CustomRow> selectionRows = null;
+
+            // TODO refactoring
+            if(selected instanceof Stock) {
+                selectionRows = tabManager.getRowsBySelection("isin", ((Stock) selected).getIsin(), allRows);
+            } else if(selected instanceof Depot) {
+                selectionRows = tabManager.getRowsBySelection("depot_name", ((Depot) selected).getName(), allRows);
+
+            }
+
             success = tabManager.deleteRows(selectionRows, true);
         } else return;
 
@@ -271,13 +292,24 @@ public class DataTabController {
             if(nv != null) {
                 if(nv.equals(stockTab)) {
                     tabManager = stockDataManager;
+                    selectionPane.setCenter(stockSelectionTable);
                     hideNonStockRelated(false);
+                    hideSelectionTable(false);
                 } else if (nv.equals(courseTab)) {
                     tabManager = courseDataManager;
+                    selectionPane.setCenter(stockSelectionTable);
                     hideNonStockRelated(false);
+                    hideSelectionTable(false);
                 } else if(nv.equals(exchangeTab)) {
                     tabManager = exchangeDataManager;
                     hideNonStockRelated(true);
+                    hideSelectionTable(true);
+                    handleViewEverythingButton();
+                } else if(nv.equals(transactionTab)) {
+                    tabManager = transactionDataManager;
+                    selectionPane.setCenter(depotSelectionTable);
+                    hideNonStockRelated(true);
+                    hideSelectionTable(false);
                     handleViewEverythingButton();
                 }
 
@@ -288,8 +320,14 @@ public class DataTabController {
     }
 
     private void reloadSelectionTable() {
-        stockSelectionTable.getItems().clear();
-        tabManager.updateStockSelectionTable(stockSelectionTable);
+        TableView<?> table = (TableView<?>) selectionPane.getCenter();
+        table.getItems().clear();
+
+        if (table == stockSelectionTable) {
+            tabManager.updateStockSelectionTable(stockSelectionTable);
+        } else if (table == depotSelectionTable) {
+            tabManager.updateDepotSelectionTable(depotSelectionTable);
+        }
         redoSelection();
     }
 
@@ -299,11 +337,19 @@ public class DataTabController {
         columnDeletionComboBox.getItems().addAll(tabManager.getDbTableColumns());
     }
 
-    private void onStockSelection(Stock stock) {
-        lastViewed = stock;
+    private void onSelection(Object o) {
+        lastViewed = o;
         viewEverything = false;
         customRowTableView.getItems().clear();
-        var rows= tabManager.getStockRowsBySelection(stock, allRows);
+        ObservableList<CustomRow> rows = FXCollections.observableArrayList();
+
+        // TODO refactoring
+        if(o instanceof Stock) {
+            rows = tabManager.getRowsBySelection("isin", ((Stock) o).getIsin(), allRows);
+        } else if(o instanceof Depot) {
+            rows = tabManager.getRowsBySelection("depot_name",((Depot) o).getName(), allRows);
+        }
+
         customRowTableView.getItems().addAll(rows);
         addRowChangeListeners();
     }
@@ -317,11 +363,16 @@ public class DataTabController {
     }
 
     private void redoSelection() {
+        TableView<?> table = (TableView<?>) selectionPane.getCenter();
+
         if(viewEverything) {
             handleViewEverythingButton();
-        } else if (lastViewed != null && stockSelectionTable.getItems().contains(lastViewed)) {
-            onStockSelection(lastViewed);
-        } else stockSelectionTable.getSelectionModel().selectFirst();
+        } else if (lastViewed != null && (
+                // TODO refactoring
+                (table == stockSelectionTable && lastViewed instanceof Stock && stockSelectionTable.getItems().contains((Stock) lastViewed)) ||
+                (table == depotSelectionTable && lastViewed instanceof Depot && depotSelectionTable.getItems().contains((Depot) lastViewed)))) {
+            onSelection(lastViewed);
+        } else ((TableView<?>) selectionPane.getCenter()).getSelectionModel().selectFirst();
     }
 
     private void addRowChangeListeners() {
@@ -366,17 +417,14 @@ public class DataTabController {
     private void hideNonStockRelated(boolean hide) {
         createStockMenuItem.setVisible(!hide);
         deleteStockMenuItem.setVisible(!hide);
-        hideSelectionTable(hide);
         showStockSubMenu(false);
     }
 
     private void hideSelectionTable(boolean hide) {
         if(hide) {
-            stockSelectionPane.setMinWidth(0);
-            stockSelectionPane.setMaxWidth(0);
+            selectionPane.setMaxWidth(0);
         } else {
-            stockSelectionPane.setMinWidth(0);
-            stockSelectionPane.setMaxWidth(Double.MAX_VALUE);
+            selectionPane.setMaxWidth(Double.MAX_VALUE);
             splitPane.setDividerPosition(0,0.2);
         }
     }

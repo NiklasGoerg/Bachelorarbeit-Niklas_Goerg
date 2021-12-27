@@ -74,7 +74,7 @@ public class StockTableManager extends DbTableManger {
     }
 
     @Override
-    public List<String> getReserverdColumns() {
+    public List<String> getReservedColumns() {
         return RESERVED_COLUMNS;
     }
 

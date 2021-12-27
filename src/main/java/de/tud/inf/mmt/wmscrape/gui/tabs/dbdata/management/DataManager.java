@@ -9,6 +9,8 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
+import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -32,6 +34,7 @@ public abstract class DataManager {
 
     @Autowired protected DataSource dataSource;
     @Autowired protected StockRepository stockRepository;
+    @Autowired private DepotRepository depotRepository;
     @Autowired private StockColumnRepository stockColumnRepository;
 
     protected DbTableColumnRepository<? extends DbTableColumn, Integer> dbTableColumnRepository;
@@ -132,6 +135,8 @@ public abstract class DataManager {
     }
 
     public boolean deleteRows(List<CustomRow> rows, boolean everything) {
+        if(rows == null) return true;
+
         try (Connection connection = dataSource.getConnection()) {
 
             if(everything) deleteEverything(connection, rows);
@@ -174,13 +179,12 @@ public abstract class DataManager {
         return getAllRows(dbTableManger.getTableName(), dbTableColumns);
     }
 
-    public ObservableList<CustomRow> getStockRowsBySelection(Stock stock, ObservableList<CustomRow> rows) {
-        String stockIsin = stock.getIsin();
+    public ObservableList<CustomRow> getRowsBySelection(String key, String keyValue, ObservableList<CustomRow> rows) {
 
         ObservableList<CustomRow> objects = FXCollections.observableArrayList();
         for (CustomRow row : rows) {
-            if(row.getCells().containsKey("isin")) {
-                if (row.getCells().get("isin").textDataProperty().get().equals(stockIsin)) {
+            if(row.getCells().containsKey(key)) {
+                if (row.getCells().get(key).textDataProperty().get().equals(keyValue)) {
                     objects.add(row);
                 }
             }
@@ -261,7 +265,7 @@ public abstract class DataManager {
         TableColumn<Stock, String> nameCol =  new TableColumn<>("Name");
         TableColumn<Stock, String> isinCol =  new TableColumn<>("ISIN");
         TableColumn<Stock, String> wknCol =  new TableColumn<>("WKN");
-        TableColumn<Stock, String> typCol =  new TableColumn<>("typ");
+        TableColumn<Stock, String> typCol =  new TableColumn<>("Typ");
 
         nameCol.setCellValueFactory(param -> param.getValue().nameProperty());
         isinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIsin()));
@@ -287,6 +291,18 @@ public abstract class DataManager {
         table.getItems().addAll(stockRepository.findAll());
     }
 
+    public void prepareDepotSelectionTable(TableView<Depot> table) {
+        TableColumn<Depot, String> nameCol =  new TableColumn<>("Name");
+        nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
+        nameCol.setEditable(false);
+        table.getColumns().add(nameCol);
+    }
+
+    public void updateDepotSelectionTable(TableView<Depot> table) {
+        table.getItems().addAll(depotRepository.findAll());
+    }
+
+
     public void saveStockListChanges(ObservableList<Stock> stocks) {
         stockRepository.saveAllAndFlush(stocks);
     }
@@ -305,7 +321,7 @@ public abstract class DataManager {
 
     public List<? extends DbTableColumn>  getDbTableColumns() {
         var all = dbTableColumnRepository.findAll();
-        all.removeIf(column -> dbTableManger.getReserverdColumns().contains(column.getName()));
+        all.removeIf(column -> dbTableManger.getReservedColumns().contains(column.getName()));
         return all;
     }
 

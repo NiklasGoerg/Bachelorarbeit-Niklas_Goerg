@@ -295,7 +295,7 @@ public class ImportTabController {
                     Alert.AlertType.INFORMATION);
             case -3 -> createAlert("Zuordnung unvollständig!",
                     "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für " +
-                            "Stammdaten:\n isin, wkn\nTransaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp",
+                            "Stammdaten:\n isin, wkn\nTransaktionen: wertpapier_isin, transaktions_datum, depot_name",
                     Alert.AlertType.ERROR);
             case -4 -> createAlert("Fehler bei Sql-Statement erstellung.!",
                     "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",

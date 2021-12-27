@@ -2,7 +2,6 @@ package de.tud.inf.mmt.wmscrape.dynamicdb.transaction;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
-import org.apache.poi.ss.formula.eval.NotImplementedFunctionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +12,8 @@ import java.util.List;
 public class TransactionTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "depottransaktion";
-    public static final List<String> KEY_COLUMNS = List.of("datum", "isin");
-    public static final List<String> RESERVED_COLUMNS = null;
+    public static final List<String> KEY_COLUMNS = List.of("depot_name", "transaktions_datum", "wertpapier_isin");
+    public static final List<String> RESERVED_COLUMNS = List.of("depot_name", "transaktions_datum", "wertpapier_isin");
     public static final List<String> COLUMN_ORDER = List.of("datum", "isin");
 
     @Autowired
@@ -28,12 +27,12 @@ public class TransactionTableManager extends DbTableManger {
 
     @Override
     public boolean removeColumn(String columnName) {
-        throw new NotImplementedFunctionException("This table is managed by hibernate");
+        return removeAbstractColumn(columnName, TABLE_NAME, transactionColumnRepository);
     }
 
     @Override
     public void addColumn(String colName, ColumnDatatype datatype) {
-        throw new NotImplementedFunctionException("This table is managed by hibernate");
+        addColumnIfNotExists(TABLE_NAME, transactionColumnRepository, new TransactionColumn(colName, datatype));
     }
 
     @Override
@@ -47,7 +46,7 @@ public class TransactionTableManager extends DbTableManger {
     }
 
     @Override
-    public List<String> getReserverdColumns() {
+    public List<String> getReservedColumns() {
         return RESERVED_COLUMNS;
     }
 

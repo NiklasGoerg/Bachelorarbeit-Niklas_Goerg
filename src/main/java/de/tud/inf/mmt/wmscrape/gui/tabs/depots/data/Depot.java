@@ -6,16 +6,13 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "depot")
 public class Depot {
-
     @Id
-    @GeneratedValue
-    private int id;
-
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 500)
     private String name;
 
     @Column(name = "öffnungsdatum")
@@ -34,9 +31,9 @@ public class Depot {
     public Depot() {
     }
 
-    public int getId() {
-        return id;
-    }
+//    public int getId() {
+//        return id;
+//    }
 
     public Depot(String name) {
         this.name = name;
@@ -80,5 +77,12 @@ public class Depot {
 
     public void setDepotTransactions(List<DepotTransaction> depotTransactions) {
         this.depotTransactions = depotTransactions;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Depot depot)) return false;
+        return Objects.equals(name, depot.name) && Objects.equals(opened, depot.opened) && Objects.equals(closed, depot.closed);
     }
 }

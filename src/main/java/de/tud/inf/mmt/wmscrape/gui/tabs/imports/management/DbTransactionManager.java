@@ -73,7 +73,7 @@ public class DbTransactionManager {
     }
 
     public PreparedStatement getPreparedTransactionStatement(String dbColName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO `"+ TransactionTableManager.TABLE_NAME +"` (depot_id, transaktions_datum, wertpapier_isin, `" + dbColName + "`) VALUES(?,?,?,?) " +
+        String sql = "INSERT INTO `"+ TransactionTableManager.TABLE_NAME +"` (depot_name, transaktions_datum, wertpapier_isin, `" + dbColName + "`) VALUES(?,?,?,?) " +
                 "ON DUPLICATE KEY UPDATE `" + dbColName + "`=VALUES(`" + dbColName + "`);";
         return connection.prepareStatement(sql);
     }
@@ -87,9 +87,9 @@ public class DbTransactionManager {
             connection.close();
         } catch (SQLException e) {
             importTabManager.addToLog("ERR:\t\t" + e.getMessage() + " _CAUSE_ " + e.getCause());
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public boolean fillStockStatementAddToBatch(String isin, Date date, PreparedStatement statement,
@@ -110,22 +110,22 @@ public class DbTransactionManager {
             e.printStackTrace();
             importTabManager.addToLog("ERR:\t\tBei dem Setzen der Statementwerte sind Fehler aufgetreten: "
                     + e.getMessage() + " _ CAUSE_ " + e.getCause());
-            return false;
+            return true;
         } catch (NumberFormatException | DateTimeParseException e) {
             e.printStackTrace();
             importTabManager.addToLog("ERR:\t\tBei dem Parsen des Wertes '" + data + "' in das Format "
                     + datatype.name() + " ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
-    public boolean fillTransactionStatementAddToBatch(int depotId, Date date, String isin,
+    public boolean fillTransactionStatementAddToBatch(String depotName, Date date, String isin,
                                                       PreparedStatement statement, String data,
                                                       ColumnDatatype datatype) {
 
         try {
-            statement.setInt(1, depotId);
+            statement.setString(1, depotName);
             statement.setDate(2, date);
             statement.setString(3, isin);
 
@@ -140,14 +140,14 @@ public class DbTransactionManager {
             e.printStackTrace();
             importTabManager.addToLog("ERR:\t\tBei dem Setzen der Statementwerte sind Fehler aufgetreten: "
                     + e.getMessage() + " _ CAUSE_ " + e.getCause());
-            return false;
+            return true;
         } catch (NumberFormatException | DateTimeParseException e) {
             e.printStackTrace();
             importTabManager.addToLog("ERR:\t\tBei dem Parsen des Wertes '" + data + "' in das Format "
                     + datatype.name() + " ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     private void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data)

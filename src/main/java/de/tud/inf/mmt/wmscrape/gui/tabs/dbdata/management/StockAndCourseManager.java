@@ -44,7 +44,7 @@ public abstract class StockAndCourseManager extends DataManager {
 
     @Override
     protected PreparedStatement prepareDeleteSelectionStatement(Connection connection) throws SQLException {
-        return connection.prepareStatement("DELETE FROM `"+ dbTableManger.getTableName()+"` WHERE isin=? and datum=?");
+        return connection.prepareStatement("DELETE FROM `"+ dbTableManger.getTableName()+"` WHERE isin=? AND datum=?");
     }
 
     @Override
@@ -56,8 +56,8 @@ public abstract class StockAndCourseManager extends DataManager {
     @Override
     protected Map<String, String> getKeyInformation(CustomRow row) {
         Map<String, String> keys = new HashMap<>();
-        String isin = row.getCells().getOrDefault("isin", null).getTextData();
-        String date = row.getCells().getOrDefault("datum", null).getTextData();
+        String isin = row.getCells().getOrDefault("isin", new CustomCell(null, null)).getTextData();
+        String date = row.getCells().getOrDefault("datum", new CustomCell(null, null)).getTextData();
         if(isin == null || date == null) return null;
         keys.put("isin", isin);
         keys.put("datum", date);
