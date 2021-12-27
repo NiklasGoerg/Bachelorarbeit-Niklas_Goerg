@@ -33,6 +33,8 @@ public class CorrelationManager {
     private StockColumnRepository stockColumnRepository;
     @Autowired
     private TransactionColumnRepository transactionColumnRepository;
+    @Autowired
+    private ImportTabManager importTabManager;
 
     private ObservableList<ExcelCorrelation> stockColumnRelations = FXCollections.observableArrayList();
     private ObservableList<ExcelCorrelation> transactionColumnRelations = FXCollections.observableArrayList();
@@ -52,16 +54,50 @@ public class CorrelationManager {
         importantTransactionCorrelations.put("depot_name", ColumnDatatype.TEXT);
         importantTransactionCorrelations.put("wertpapier_isin", ColumnDatatype.TEXT);
         importantTransactionCorrelations.put("transaktionstyp", ColumnDatatype.TEXT);
-        importantTransactionCorrelations.put("transaktions_datum", ColumnDatatype.DATE);
+        importantTransactionCorrelations.put("transaktions_datum", ColumnDatatype.TEXT);
 
         importantStockCorrelations.put("isin", ColumnDatatype.TEXT);
         importantStockCorrelations.put("wkn", ColumnDatatype.TEXT);
         importantStockCorrelations.put("name", ColumnDatatype.TEXT);
-        importantStockCorrelations.put("typ", ColumnDatatype.DATE);
+        importantStockCorrelations.put("typ", ColumnDatatype.TEXT);
+    }
+
+
+    public boolean fillCorrelationTables(TableView<ExcelCorrelation> stockDataCorrelationTable,
+                                      TableView<ExcelCorrelation> transactionCorrelationTable, ExcelSheet excelSheet) {
+        List<ExcelCorrelation> correlations = excelCorrelationRepository.findAllByExcelSheetId(excelSheet.getId());
+        boolean allValid = validateCorrelations(correlations);
+        fillStockDataCorrelationTable(stockDataCorrelationTable, excelSheet, correlations);
+        fillTransactionCorrelationTable(transactionCorrelationTable,excelSheet, correlations);
+        return allValid;
+    }
+
+    /**
+     * validate that the correlations still match
+     */
+    public boolean validateCorrelations(List<ExcelCorrelation> correlations) {
+        Map<String, Integer> titleIndexMap = parsingManager.getTitleToExcelIndex();
+        boolean allValid = true;
+
+        for(var correlation : correlations) {
+            String excelColTitle = correlation.getExcelColTitle();
+            Integer index = titleIndexMap.getOrDefault(excelColTitle,null);
+            // there was/is a correlation && (not found in sheet || index not matching)
+            if(excelColTitle != null && (index == null || correlation.getExcelColNumber() != index)) {
+                // reset correlation
+                importTabManager.addToLog("ERR:\t\tZurückgesetzte DB-Spalte: '"+correlation.getDbColTitle()+
+                                                "'. Vorher zugeordnet: '"+correlation.getExcelColTitle()+"'");
+                correlation.setExcelColNumber(-1);
+                correlation.setExcelColTitle(null);
+                allValid = false;
+            }
+        }
+        return allValid;
     }
 
     @Transactional
-    public void fillStockDataCorrelationTable(TableView<ExcelCorrelation> stockDataCorrelationTable, ExcelSheet excelSheet) {
+    public void fillStockDataCorrelationTable(TableView<ExcelCorrelation> stockDataCorrelationTable, ExcelSheet excelSheet,
+                                              List<ExcelCorrelation> correlations) {
 
         // add comboboxes
         prepareCorrelationTable(stockDataCorrelationTable);
@@ -71,7 +107,7 @@ public class CorrelationManager {
 
         // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
         // therefore the values persist until a new db transaction is done
-        for (ExcelCorrelation excelCorrelation : getAllByExcelSheetId(excelSheet)) {
+        for (ExcelCorrelation excelCorrelation : correlations) {
             if (excelCorrelation.getCorrelationType() == CorrelationType.STOCKDATA) {
                 stockColumnRelations.add(excelCorrelation);
                 addedStockDbCols.add(excelCorrelation.getDbColTitle());
@@ -96,7 +132,8 @@ public class CorrelationManager {
         stockDataCorrelationTable.getItems().addAll(stockColumnRelations);
     }
 
-    private void addImportantCorrelations(List<String> added, ExcelSheet sheet, Map<String, ColumnDatatype> cols, CorrelationType type, ObservableList<ExcelCorrelation> list) {
+    private void addImportantCorrelations(List<String> added, ExcelSheet sheet, Map<String, ColumnDatatype> cols,
+                                          CorrelationType type, ObservableList<ExcelCorrelation> list) {
 
         for(var entry : cols.entrySet()) {
             if (!added.contains(entry.getKey())) {
@@ -154,9 +191,9 @@ public class CorrelationManager {
         table.getColumns().add(excelColumn);
     }
 
-    public void fillTransactionCorrelationTable(TableView<ExcelCorrelation> transactionCorrelationTable, ExcelSheet excelSheet) {
+    public void fillTransactionCorrelationTable(TableView<ExcelCorrelation> transactionCorrelationTable,
+                                                ExcelSheet excelSheet, List<ExcelCorrelation> correlations) {
         prepareCorrelationTable(transactionCorrelationTable);
-
 
         transactionColumnRelations = FXCollections.observableArrayList();
         ArrayList<String> addedTransDbCols = new ArrayList<>();
@@ -166,7 +203,7 @@ public class CorrelationManager {
         // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
         // therefore the values persist until a new db transaction is done
         // therefore I have to fetch them manually
-        for (ExcelCorrelation excelCorrelation : getAllByExcelSheetId(excelSheet)) {
+        for (ExcelCorrelation excelCorrelation : correlations) {
             if (excelCorrelation.getCorrelationType() == CorrelationType.TRANSACTION) {
                 transactionColumnRelations.add(excelCorrelation);
                 addedTransDbCols.add(excelCorrelation.getDbColTitle());
@@ -188,9 +225,5 @@ public class CorrelationManager {
         }
 
         transactionCorrelationTable.getItems().addAll(transactionColumnRelations);
-    }
-
-    private List<ExcelCorrelation> getAllByExcelSheetId(ExcelSheet excelSheet) {
-        return excelCorrelationRepository.findAllByExcelSheetId(excelSheet.getId());
     }
 }

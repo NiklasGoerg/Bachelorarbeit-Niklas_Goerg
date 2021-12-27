@@ -107,6 +107,10 @@ public class ExcelCorrelation {
         this.excelColNumber.set(excelColNumber);
     }
 
+    public void setExcelColTitle(String excelColTitle) {
+        this.excelColTitle.set(excelColTitle);
+    }
+
     public CorrelationType getCorrelationType() {
         return correlationType;
     }

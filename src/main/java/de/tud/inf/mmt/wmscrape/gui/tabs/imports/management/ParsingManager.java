@@ -188,7 +188,8 @@ public class ParsingManager {
                                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                                     value = dateFormat.format(date);
                                 } else {
-                                    value = String.format("%.5f", cell.getNumericCellValue()).replace(",", ".");
+                                    value = String.format("%.6f", cell.getNumericCellValue()).replace(",", ".")
+                                            .replace("(Infinity|NaN)","");
                                 }
                                 break;
                             case BOOLEAN:
@@ -246,10 +247,6 @@ public class ParsingManager {
         }
 
         rowsToRemove.forEach(excelData::remove);
-    }
-
-    private void removeUnselectedRows(Map<Integer, ArrayList<String>> rowMap){
-
     }
 
     private void removeEmptyCols(Map<Integer, ArrayList<String>> rowMap, ExcelSheet excelSheet) {

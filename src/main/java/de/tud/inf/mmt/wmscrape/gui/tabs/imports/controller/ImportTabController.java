@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
+import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.CorrelationManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.management.ImportTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
 import javafx.beans.property.SimpleStringProperty;
@@ -47,6 +48,8 @@ public class ImportTabController {
     private ScrapingElementsTabController elementsTabController;
     @Autowired
     private DataTabController dataTabController;
+    @Autowired
+    private CorrelationManager correlationManager;
 
     private ObservableList<ExcelSheet> excelSheetObservableList;
     private boolean inlineValidation = false;
@@ -254,8 +257,17 @@ public class ImportTabController {
         stockDataCorrelationTable.getItems().clear();
         transactionCorrelationTable.getColumns().clear();
         transactionCorrelationTable.getItems().clear();
-        importTabManager.fillStockDataCorrelationTable(stockDataCorrelationTable, excelSheet);
-        importTabManager.fillTransactionCorrelationTable(transactionCorrelationTable, excelSheet);
+
+
+        boolean allValid = correlationManager.fillCorrelationTables(stockDataCorrelationTable,
+                                                                    transactionCorrelationTable, excelSheet);
+       if(!allValid) {
+           createAlert("Excel-Sheet-Spalten wurden verändert!",
+                   "Nicht alle gespeicherten Abbildungen stimmen mit dem Excel-Sheet überein und wurden" +
+                           " zurückgesetzt. Genauere Informationen befinden sich im Log",
+                   Alert.AlertType.WARNING);
+       }
+
         // refresh because otherwise the comboboxes are unreliable set
         stockDataCorrelationTable.refresh();
         transactionCorrelationTable.refresh();

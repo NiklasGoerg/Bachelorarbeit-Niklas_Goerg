@@ -87,14 +87,6 @@ public class ImportTabManager {
         return parsingManager.fillExcelPreview(sheetPreviewTable, excelSheet);
     }
 
-    public void fillStockDataCorrelationTable(TableView<ExcelCorrelation> stockDataCorrelationTable, ExcelSheet excelSheet) {
-        correlationManager.fillStockDataCorrelationTable(stockDataCorrelationTable, excelSheet);
-    }
-
-    public void fillTransactionCorrelationTable(TableView<ExcelCorrelation> transactionCorrelationTable, ExcelSheet excelSheet) {
-        correlationManager.fillTransactionCorrelationTable(transactionCorrelationTable, excelSheet);
-    }
-
     public int startDataExtraction() {
         return extractionManager.startDataExtraction();
     }

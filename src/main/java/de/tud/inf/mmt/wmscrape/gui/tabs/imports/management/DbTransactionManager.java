@@ -163,7 +163,7 @@ public class DbTransactionManager {
             case TEXT -> statement.setString(number, data);
             case INTEGER ->
                     // casting double to int to remove trailing zeros because of
-                    // String.format("%.5f", cell.getNumericCellValue()).replace(",",".");
+                    // String.format("%.6f", cell.getNumericCellValue()).replace(",",".");
                     statement.setInt(number, (int) Double.parseDouble(data));
             case DOUBLE -> statement.setDouble(number, Double.parseDouble(data));
             default -> {
