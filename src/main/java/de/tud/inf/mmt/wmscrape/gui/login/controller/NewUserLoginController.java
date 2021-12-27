@@ -138,7 +138,7 @@ public class NewUserLoginController {
         String value = input.getText();
         if(value==null) return true;
 
-        boolean isValid = value.matches("^[a-zA-z0-9\\söäüß]*$");
+        boolean isValid = value.matches("^[a-zA-Z0-9\\söäüß]*$");
         decorateField(input, "Nicht zulässige Zeichen! Nur a-z,0-9,ä,ö,ü,ß sowie Leerzeichen sind erlaubt.", isValid);
         return isValid;
     }

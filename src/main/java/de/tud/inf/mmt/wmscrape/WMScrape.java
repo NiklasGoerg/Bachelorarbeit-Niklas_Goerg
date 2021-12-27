@@ -21,9 +21,8 @@ public class WMScrape {
             System.setProperty("webdriver.gecko.driver","libs/geckodriver/nux_64/geckodriver");
         } else {
             throw new InvalidPropertyException(WMScrape.class,
-                    "webdriver.gecko.driver", "Für dieses Betriebssystem steht keine Geckodriver bereit.");
+                    "webdriver.gecko.driver", "Für dieses Betriebssystem steht kein Geckodriver bereit.");
         }
-        
 
         Application.launch(GuiApplication.class, args);
     }

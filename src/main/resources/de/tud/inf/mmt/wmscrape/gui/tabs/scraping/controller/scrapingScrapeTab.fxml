@@ -277,7 +277,7 @@
                                           </VBox>
                                           <VBox alignment="CENTER" GridPane.rowIndex="1">
                                              <children>
-                                                <Label text="Auswahl" />
+                                                <Label text="Zeilen" />
                                              </children>
                                           </VBox>
                                        </children>

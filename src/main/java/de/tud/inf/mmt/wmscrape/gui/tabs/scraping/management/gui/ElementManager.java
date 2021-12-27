@@ -109,20 +109,24 @@ public abstract class ElementManager {
     private void prepareStockSelectionTable(TableView<ElementSelection> table, boolean singleSelection) {
         TableColumn<ElementSelection, Boolean> selectedColumn = new TableColumn<>("Selektion");
         TableColumn<ElementSelection, String> stockNameColumn = new TableColumn<>("Bezeichnung");
-        TableColumn<ElementSelection, String> stockIsinColumn = new TableColumn<>("Isin");
+        TableColumn<ElementSelection, String> stockIsinColumn = new TableColumn<>("ISIN");
+        TableColumn<ElementSelection, String> stockWknColumn = new TableColumn<>("WKN");
 
-        selectedColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.12));
-        stockNameColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.6));
+        selectedColumn.setPrefWidth(35);
+        stockNameColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.5));
         stockIsinColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.22));
+        stockWknColumn.prefWidthProperty().bind(table.widthProperty().multiply(0.22));
 
         createCheckBox(selectedColumn, singleSelection);
 
         stockNameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         stockIsinColumn.setCellValueFactory(new PropertyValueFactory<>("isin"));
+        stockWknColumn.setCellValueFactory(new PropertyValueFactory<>("wkn"));
 
         table.getColumns().add(selectedColumn);
         table.getColumns().add(stockNameColumn);
         table.getColumns().add(stockIsinColumn);
+        table.getColumns().add(stockWknColumn);
     }
 
     private void fillStockSelectionTable(WebsiteElement websiteElement, TableView<ElementSelection> table) {

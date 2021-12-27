@@ -140,7 +140,7 @@
                            <children>
                               <VBox alignment="TOP_RIGHT" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-3.0">
                                  <children>
-                                    <Button mnemonicParsing="false" onAction="#handleDeleteElementButton" prefWidth="150.0" text="Element entfernen">
+                                    <Button mnemonicParsing="false" onAction="#handleDeleteElementButton" prefWidth="150.0" text="Konfig. entfernen">
                                        <VBox.margin>
                                           <Insets bottom="5.0" />
                                        </VBox.margin>

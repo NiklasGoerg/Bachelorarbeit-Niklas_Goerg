@@ -55,7 +55,7 @@
                <children>
                   <BorderPane>
                      <right>
-                        <Button mnemonicParsing="false" onAction="#handleDeleteWebsiteButton" text="Webseite entfernen" BorderPane.alignment="CENTER">
+                        <Button mnemonicParsing="false" onAction="#handleDeleteWebsiteButton" text="Konfig. entfernen" BorderPane.alignment="CENTER">
                            <BorderPane.margin>
                               <Insets right="-1.0" top="-3.0" />
                            </BorderPane.margin>

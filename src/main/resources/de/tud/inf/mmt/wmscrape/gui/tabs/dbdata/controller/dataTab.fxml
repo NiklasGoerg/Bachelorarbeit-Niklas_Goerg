@@ -40,7 +40,7 @@
                   <MenuButton alignment="CENTER" minWidth="100.0" mnemonicParsing="false" prefWidth="165.0" text="Inhalte entfernen">
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#handleDeleteRowsButton" text="Zeilen löschen" />
-                      <MenuItem mnemonicParsing="false" onAction="#handleDeleteAllInTableButton" text="Tabelleninhalt löschen" />
+                      <MenuItem mnemonicParsing="false" onAction="#handleDeleteAllInTableButton" text="Alle Zeilen löschen" />
                         <MenuItem fx:id="deleteStockMenuItem" mnemonicParsing="false" onAction="#handleDeleteStockButton" text="Wertpapier löschen">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
