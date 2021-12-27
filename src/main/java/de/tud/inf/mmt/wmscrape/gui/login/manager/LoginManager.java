@@ -128,7 +128,7 @@ public class LoginManager {
         th.start();
 
         // only here to not show the unsuccessful alert in the controller
-        // task tuns in the background at this moment
+        // task runs in the background at this moment
         return true;
     }
 
@@ -311,9 +311,6 @@ public class LoginManager {
         alert.setX(window.getX()+(window.getWidth()/2)-200);
         alert.setY(window.getY()+(window.getHeight()/2)-200);
         alert.showAndWait();
-
-        control.setVisible(false);
-        control.setManaged(false);
     }
 
     private static void showLoginButtonAgain(ProgressIndicator bar, Button button) {

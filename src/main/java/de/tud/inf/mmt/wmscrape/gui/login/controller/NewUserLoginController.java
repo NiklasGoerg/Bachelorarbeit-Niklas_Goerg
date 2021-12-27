@@ -86,11 +86,11 @@ public class NewUserLoginController {
         if(returnInformation > 0) {
             try {
                 LoginManager.loginAsUser(newUsernameField.getText(), newPasswordField.getText(), progress, createButton);
+                showLoginProgress(true);
             } catch (Exception e) {
                 LoginManager.programErrorAlert(e, newUsernameField);
             }
         }
-        showLoginProgress(true);
     }
 
     @FXML
