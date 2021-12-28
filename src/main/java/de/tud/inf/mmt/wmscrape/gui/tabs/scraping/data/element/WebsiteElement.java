@@ -131,18 +131,6 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
         this.elementIdentCorrelations = elementIdentCorrelations;
     }
 
-    public List<ElementDescCorrelation> getElementDescCorrelations() {
-        return elementDescCorrelations;
-    }
-
-    public void removeElementDescCorrelation(ElementDescCorrelation correlation) {
-        elementDescCorrelations.remove(correlation);
-    }
-
-    public void removeElementSelection(ElementSelection elementSelection) {
-        elementSelections.remove(elementSelection);
-    }
-
     @Override
     public List<WebRepresentation<?>> getChildren() {
         return new ArrayList<>();
@@ -159,5 +147,10 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
         if (!(o instanceof WebsiteElement)) return false;
         WebsiteElement that = (WebsiteElement) o;
         return id == that.id && Objects.equals(description, that.description) && Objects.equals(informationUrl, that.informationUrl) && contentType == that.contentType && multiplicityType == that.multiplicityType && Objects.equals(tableIdent, that.tableIdent) && tableIdenType == that.tableIdenType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, description);
     }
 }

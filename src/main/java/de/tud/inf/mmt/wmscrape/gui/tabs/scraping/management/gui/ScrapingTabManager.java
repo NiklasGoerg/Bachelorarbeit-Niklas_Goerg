@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.collections.ObservableSet;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -25,11 +26,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 @Service
 public class ScrapingTabManager {
@@ -44,6 +49,7 @@ public class ScrapingTabManager {
     private DataSource dataSource;
     private WebsiteScraper scrapingService;
     private Connection dbConnection;
+    private Properties properties;
 
     public Website createNewWebsite(String description) {
         Website website = new Website(description);
@@ -58,7 +64,7 @@ public class ScrapingTabManager {
     }
 
     public void deleteSpecificWebsite(Website website) {
-        // fix for not working orphan removal
+        // fix for not working orphan removal. PS: could be fixed with cascade typ. idk
         website.setWebsiteElements(new ArrayList<>());
         websiteRepository.delete(website);
     }
@@ -123,11 +129,33 @@ public class ScrapingTabManager {
 
     @Transactional
     public TreeView<WebRepresentation<?>> createSelectionTree(
-            ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems) {
+            ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems, Set<Integer> restored) {
         var websites = getWebsites();
-        return (new WebsiteTree(websites, checkedItems)).getTreeView();
+        return (new WebsiteTree(websites, checkedItems, restored)).getTreeView();
     }
 
+
+    public Properties getProperties() {
+        if(properties == null) {
+            try(FileInputStream f = new FileInputStream("src/main/resources/user.properties")) {
+                properties = new Properties();
+                properties.load(f);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return properties;
+    }
+
+    public void saveProperties() {
+        if(properties == null) return;
+
+        try {
+            properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /*
 
@@ -137,7 +165,7 @@ public class ScrapingTabManager {
 
     public void startScrape(double minIntra, double maxIntra, double waitElement, boolean pauseAfterElement,
                             SimpleStringProperty logText, Boolean headless,
-                            ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems) {
+                            ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems) {
 
         if(scrapingService != null) {
             if(scrapingService.stateProperty().get() == Worker.State.RUNNING) return;

@@ -210,5 +210,8 @@ public class Website extends WebRepresentation<WebsiteElement>{
         return id == website.id && Objects.equals(description, website.description) && Objects.equals(url, website.url) && Objects.equals(username, website.username) && Objects.equals(password, website.password) && usernameIdentType == website.usernameIdentType && Objects.equals(usernameIdent, website.usernameIdent) && passwordIdentType == website.passwordIdentType && Objects.equals(passwordIdent, website.passwordIdent) && loginButtonIdentType == website.loginButtonIdentType && Objects.equals(loginButtonIdent, website.loginButtonIdent) && logoutIdentType == website.logoutIdentType && Objects.equals(logoutIdent, website.logoutIdent) && cookieAcceptIdentType == website.cookieAcceptIdentType && Objects.equals(cookieAcceptIdent, website.cookieAcceptIdent);
     }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, description);
+    }
 }

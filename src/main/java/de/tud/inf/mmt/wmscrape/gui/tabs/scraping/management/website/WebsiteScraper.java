@@ -9,7 +9,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.*;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,10 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WebsiteScraper extends WebsiteHandler {
@@ -196,7 +199,7 @@ public class WebsiteScraper extends WebsiteHandler {
         }
     }
 
-    public void resetTaskData(Map<Website, ObservableList<WebsiteElement>> selectedElements) {
+    public void resetTaskData(Map<Website, ObservableSet<WebsiteElement>> selectedElements) {
         // making a shallow copy to not touch the treeView
         Map<Website, List<WebsiteElement>> dereferenced = new HashMap<>();
         // resetting progress

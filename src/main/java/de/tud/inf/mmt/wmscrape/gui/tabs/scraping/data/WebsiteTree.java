@@ -2,8 +2,8 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.collections.ObservableSet;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -11,16 +11,20 @@ import javafx.scene.control.cell.CheckBoxTreeCell;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 // used to create the selection tree inside the scraping tab
 
 public class WebsiteTree {
     private final TreeView<WebRepresentation<?>> treeView;
-    private final ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems;
+    private final ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems;
+    private final Set<Integer> restoredSelected;
 
-    public WebsiteTree(List<Website> websites, ObservableMap<Website, ObservableList<WebsiteElement>> checkedItems) {
+    public WebsiteTree(List<Website> websites, ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems,
+                       Set<Integer> restoredSelected) {
         treeView = new TreeView<>();
         this.checkedItems = checkedItems;
+        this.restoredSelected = restoredSelected;
 
         WebRepresentation<?> root = new WebRepresentation<Website>() {
             @Override
@@ -56,9 +60,11 @@ public class WebsiteTree {
 
     private CheckBoxTreeItem<WebRepresentation<?>> createItem(WebRepresentation<?> object) {
         CheckBoxTreeItem<WebRepresentation<?>> item = new CheckBoxTreeItem<>(object);
+
+        // set selected if hashcode was stored
         item.selectedProperty().addListener((o, ov, nv) -> updateSelected(nv, object));
         item.setExpanded(true);
-
+        if(restoredSelected.contains(object.hashCode())) item.setSelected(true);
 
         List<CheckBoxTreeItem<WebRepresentation<?>>> list = new ArrayList<>();
         for (WebRepresentation<?> webRepresentation : object.getChildren()) {
@@ -80,13 +86,13 @@ public class WebsiteTree {
         if (selected) {
             if (object instanceof Website && !checkedItems.containsKey(object)) {
                 // add new website
-                checkedItems.put((Website) object, FXCollections.observableArrayList());
+                checkedItems.put((Website) object, FXCollections.observableSet());
             } else if (object instanceof WebsiteElement) {
                 // add new website element and if not already done, create a new list
                 var website = ((WebsiteElement) object).getWebsite();
                 var list = checkedItems.getOrDefault(
                         website,
-                        FXCollections.observableArrayList());
+                        FXCollections.observableSet());
                 list.add((WebsiteElement) object);
                 checkedItems.put(website, list);
             }

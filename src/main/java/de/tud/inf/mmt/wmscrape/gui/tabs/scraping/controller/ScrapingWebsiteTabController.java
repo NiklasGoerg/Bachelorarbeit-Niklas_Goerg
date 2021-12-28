@@ -387,7 +387,7 @@ public class ScrapingWebsiteTabController {
     }
 
     public Website getWebsiteUnpersistedData() {
-        Website newWebsite = new Website();
+        Website newWebsite = new Website("test");
         setFieldDataToWebsite(newWebsite);
         return newWebsite;
     }
