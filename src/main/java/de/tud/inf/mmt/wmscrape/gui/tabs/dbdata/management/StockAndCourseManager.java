@@ -3,8 +3,10 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -16,7 +18,7 @@ public abstract class StockAndCourseManager extends DataManager {
     @Override
     protected PreparedStatement prepareUpdateStatements(String colName, Connection connection) throws SQLException{
         String sql = "INSERT INTO `"+ dbTableManger.getTableName()+"` (`"+colName+
-                "`, datum, isin) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `"+colName+"`=VALUES("+colName+");";
+                "`, datum, isin) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `"+colName+"`=VALUES(`"+colName+"`);";
         return connection.prepareStatement(sql);
     }
 
@@ -71,5 +73,22 @@ public abstract class StockAndCourseManager extends DataManager {
         // 1 = data
         fillByDataType(stmt, keys.get("datum"), ColumnDatatype.DATE, 2);
         fillByDataType(stmt, keys.get("isin"), ColumnDatatype.TEXT, 3);
+    }
+
+    @Override
+    public boolean addRowForSelection(Object selection) {
+        if(!(selection instanceof Stock)) return false;
+
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement stmt = connection.prepareStatement("INSERT INTO `"+dbTableManger.getTableName()+"` " +
+                    "(datum, isin) VALUES(?,?) ON DUPLICATE KEY UPDATE datum = datum, isin = isin");
+            stmt.setDate(1, new Date(System.currentTimeMillis())); // today
+            stmt.setString(2, ((Stock) selection).getIsin());
+            stmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

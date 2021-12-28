@@ -26,7 +26,7 @@ public class TransactionDataManager extends DataManager {
     protected PreparedStatement prepareUpdateStatements(String colName, Connection connection) throws SQLException{
         String sql = "INSERT INTO `"+ dbTableManger.getTableName()+"` (`"+colName+
                 "`, transaktions_datum, depot_name, wertpapier_isin) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE `"
-                +colName+"`=VALUES("+colName+");";
+                +colName+"`=VALUES(`"+colName+"`);";
         return connection.prepareStatement(sql);
     }
 
@@ -96,6 +96,11 @@ public class TransactionDataManager extends DataManager {
     protected void setColumnRepositoryAndManager() {
         dbTableColumnRepository = transactionColumnRepository;
         dbTableManger = transactionTableManager;
+    }
+
+    @Override
+    public boolean addRowForSelection(Object selection) {
+        throw new UnsupportedOperationException("Adding rows to the transaction table is not implemented");
     }
 
 }

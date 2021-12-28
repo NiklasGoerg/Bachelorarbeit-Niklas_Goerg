@@ -45,7 +45,7 @@ public class StockTableManager extends DbTableManger {
 
     public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
         String sql = "INSERT INTO "+TABLE_NAME+" (isin, datum, " + dbColName + ") VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
-                dbColName + "=VALUES(" + dbColName + ");";
+                dbColName + "=VALUES(`" + dbColName + "`);";
         return connection.prepareStatement(sql);
     }
 

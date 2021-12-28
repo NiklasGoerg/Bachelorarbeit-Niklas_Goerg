@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class ExchangeDataManager extends DataManager {
     @Override
     protected PreparedStatement prepareUpdateStatements(String colName, Connection connection) throws SQLException{
         String sql = "INSERT INTO `"+ dbTableManger.getTableName()+"` (`"+colName+
-                "`, datum) VALUES(?,?) ON DUPLICATE KEY UPDATE `"+colName+"`=VALUES("+colName+");";
+                "`, datum) VALUES(?,?) ON DUPLICATE KEY UPDATE `"+colName+"`=VALUES(`"+colName+"`);";
         return connection.prepareStatement(sql);
     }
 
@@ -81,4 +82,17 @@ public class ExchangeDataManager extends DataManager {
         dbTableManger = exchangeTableManager;
     }
 
+    @Override
+    public boolean addRowForSelection(Object selection) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement stmt = connection.prepareStatement("INSERT INTO `"+ dbTableManger.getTableName()+
+                    "` (datum) VALUES(?) ON DUPLICATE KEY UPDATE datum = datum");
+            stmt.setDate(1, new Date(System.currentTimeMillis())); // today
+            stmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }

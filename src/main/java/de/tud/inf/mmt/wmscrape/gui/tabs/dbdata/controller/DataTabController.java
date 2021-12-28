@@ -39,6 +39,7 @@ public class DataTabController {
     @FXML private TextField newColumnNameField;
     @FXML private MenuItem createStockMenuItem;
     @FXML private MenuItem deleteStockMenuItem;
+    @FXML private MenuItem addEmptyRowMenuItem;
 
     @FXML private TabPane sectionTabPane;
     @FXML private Tab stockTab;
@@ -279,6 +280,26 @@ public class DataTabController {
                 "Die Spalte "+colName+" wurde nicht gelöscht.");
     }
 
+    @FXML
+    private void handleAddEmptyRow() {
+        int before = customRowTableView.getItems().size();
+        boolean noError = tabManager.addRowForSelection(
+                ((TableView<?>)selectionPane.getCenter()).getSelectionModel().getSelectedItem());
+        reloadAllDataRows();
+
+        if(noError && customRowTableView.getItems().size() > before) {
+            createAlert("Zeile hinzugefügt!", "Eine leere Zeile für das heutige Datum wurde hinzugefügt.",
+                                Alert.AlertType.INFORMATION, true, ButtonType.OK);
+        } else if (noError) {
+            createAlert("Zeile nicht hinzugefügt!", "Keine Zeile wurde hinzugefügt. " +
+                    "Wahrscheinlich existiert für das heutige Datum bereits eine Zeile.",
+                    Alert.AlertType.WARNING, true, ButtonType.OK);
+        } else {
+            createAlert("Zeile nicht hinzugefügt!", "Keine Zeile wurde hinzugefügt.",
+                        Alert.AlertType.ERROR, true, ButtonType.CLOSE);
+        }
+    }
+
     private void clearNewStockFields() {
         newIsinField.clear();
         newWknField.clear();
@@ -295,21 +316,25 @@ public class DataTabController {
                     selectionPane.setCenter(stockSelectionTable);
                     hideNonStockRelated(false);
                     hideSelectionTable(false);
+                    addEmptyRowMenuItem.setVisible(true);
                 } else if (nv.equals(courseTab)) {
                     tabManager = courseDataManager;
                     selectionPane.setCenter(stockSelectionTable);
                     hideNonStockRelated(false);
                     hideSelectionTable(false);
+                    addEmptyRowMenuItem.setVisible(true);
                 } else if(nv.equals(exchangeTab)) {
                     tabManager = exchangeDataManager;
                     hideNonStockRelated(true);
                     hideSelectionTable(true);
+                    addEmptyRowMenuItem.setVisible(true);
                     handleViewEverythingButton();
                 } else if(nv.equals(transactionTab)) {
                     tabManager = transactionDataManager;
                     selectionPane.setCenter(depotSelectionTable);
                     hideNonStockRelated(true);
                     hideSelectionTable(false);
+                    addEmptyRowMenuItem.setVisible(false);
                     handleViewEverythingButton();
                 }
 
@@ -357,7 +382,7 @@ public class DataTabController {
 
     private void reloadAllDataRows() {
         customRowTableView.getColumns().clear();
-        customRowTableView.getItems().clear();
+        customRowTableView.getItems().clear(); // also clears selection. useful when switching tabs
         allRows = tabManager.updateDataTable(customRowTableView);
         redoSelection();
         changedRows.clear();

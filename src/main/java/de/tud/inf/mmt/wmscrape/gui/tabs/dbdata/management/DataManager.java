@@ -40,6 +40,7 @@ public abstract class DataManager {
     protected DbTableColumnRepository<? extends DbTableColumn, Integer> dbTableColumnRepository;
     protected DbTableManger dbTableManger;
 
+    public abstract boolean addRowForSelection(Object selection);
 
     @PostConstruct
     protected abstract void setColumnRepositoryAndManager();
@@ -58,7 +59,6 @@ public abstract class DataManager {
     protected abstract void fillDeleteAllStatement(CustomRow row, PreparedStatement statement) throws SQLException ;
 
     protected abstract void fillDeleteSelectionStatement(CustomRow row, PreparedStatement statement) throws SQLException ;
-
 
     protected <T extends DbTableColumn> void prepareTable(TableView<CustomRow> table,
                                                           List<T> columns,

@@ -55,6 +55,7 @@
                            </accelerator></MenuItem>
                         <MenuItem mnemonicParsing="false" onAction="#handleColumnModificationButton" text="Spalten anpassen" />
                         <MenuItem fx:id="createStockMenuItem" mnemonicParsing="false" onAction="#handleStockCreateSubMenuButton" text="Werpapiere hinzufügen" />
+                        <MenuItem fx:id="addEmptyRowMenuItem" mnemonicParsing="false" onAction="#handleAddEmptyRow" text="Heutige Zeile hinzufügen" />
                      </items>
                   </MenuButton>
                   <Button minWidth="100.0" mnemonicParsing="false" onAction="#handleResetButton" prefWidth="165.0" text="Zurücksetzen" />
