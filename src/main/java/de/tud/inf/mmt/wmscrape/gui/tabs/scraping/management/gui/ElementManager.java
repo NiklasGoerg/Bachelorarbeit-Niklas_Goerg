@@ -41,7 +41,7 @@ import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.ID
 public abstract class ElementManager {
 
     private final static String[] EXCHANGE_COLS = {"name", "kurs"};
-    private final static String[] HIDDEN_SINGLE_STOCK = {"isin"};
+    private final static String[] HIDDEN_SINGLE_STOCK = {"isin", "wkn","name", "typ"};
     private final static String[] EXTRA_STOCK = {"wkn","name"};
     private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_TABLE);
 

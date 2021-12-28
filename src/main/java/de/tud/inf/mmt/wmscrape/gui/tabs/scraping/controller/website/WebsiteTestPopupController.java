@@ -45,12 +45,11 @@ public class WebsiteTestPopupController {
         switch (step) {
             case 1 -> nextStep.setText("Webseite laden");
             case 2 -> nextStep.setText("Cookies akzeptieren");
-            case 3, 6 -> nextStep.setText("Cookies verstecken");
-            case 4 -> nextStep.setText("Login Informationen ausfüllen");
-            case 5 -> nextStep.setText("Einloggen");
-            case 7 -> nextStep.setText("Ausloggen");
-            case 8 -> nextStep.setText("Browser schließen");
-            case 9 -> nextStep.setText("Test beenden");
+            case 3 -> nextStep.setText("Login Informationen ausfüllen");
+            case 4 -> nextStep.setText("Einloggen");
+            case 5 -> nextStep.setText("Ausloggen");
+            case 6 -> nextStep.setText("Browser schließen");
+            case 7 -> nextStep.setText("Test beenden");
             default -> handleCancelButton();
         }
 

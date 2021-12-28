@@ -20,44 +20,34 @@ public class WebsiteTester extends WebsiteHandler {
 
         switch (step) {
             case 0 -> {
-                if(!startBrowser()) {step = 8; return false;}
-                if(website.getUsernameIdentType() == IdentType.DEAKTIVIERT) {step = 8; return false;}
+                if(!startBrowser()) {step = 6; return false;}
+                if(website.getUsernameIdentType() == IdentType.DEAKTIVIERT) {step = 6; return false;}
             }
             case 1 -> {
-                if (!loadLoginPage()) {step = 8; return false;}
+                if (!loadLoginPage()) {step = 6; return false;}
 
                 if(website.getCookieAcceptIdentType() == IdentType.DEAKTIVIERT) {
-                    if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
-                        step=4;
-                        return false;
-                    }
-                    step=3;
+                    step=2; // next step 3
                     return false;
                 }
+                // next step 2
             }
             case 2 ->  {
-                if (!acceptCookies()) {step = 8; return false;}
-                if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
-                    step+=1;
-                }
+                if (!acceptCookies()) {step = 6; return false;}
+                // next step 3
             }
-            case 3, 6 -> {
-                if(!hideCookies()) {step = 8; return false;}
+            case 3 -> {
+                if(!fillLoginInformation()) {step = 6; return false;}
+                // next step 4
             }
             case 4 -> {
-                if(!fillLoginInformation()) {step = 8; return false;}
-            }
-            case 5 -> {
-                if(!login()) {step = 8; return false;}
-                if(website.getCookieHideIdentType() == IdentType.DEAKTIVIERT) {
-                    step+=1;
-                    if(website.getLogoutIdentType() == IdentType.DEAKTIVIERT) {
-                        step+=1;
-                    }
+                if(!login() || website.getLogoutIdentType() == IdentType.DEAKTIVIERT) {
+                    step = 6; return false;
                 }
+                // next 5
             }
-            case 7 -> logout();
-            case 8 -> quit();
+            case 5 -> logout();
+            case 6 -> quit();
             default -> {
                 return true;
             }

@@ -245,7 +245,7 @@ public class ScrapingElementsTabController {
 
     private boolean isValidInput() {
         inlineValidation = true;
-        boolean valid = emptyValidator(urlField);
+        boolean valid = emptyValidator(urlField) && urlValidator(urlField);
         valid &= nullValidator(websiteChoiceBox);
         return valid;
     }
@@ -259,6 +259,15 @@ public class ScrapingElementsTabController {
     private boolean nullValidator(ChoiceBox<Website> choiceBox) {
         boolean isValid = choiceBox.getValue() != null;
         decorateField(choiceBox, "Es muss eine Auswahl getroffen werden!", isValid);
+        return isValid;
+    }
+
+    private boolean urlValidator(TextInputControl input) {
+        String value = input.getText();
+        if(value==null) return true;
+
+        boolean isValid = value.matches("^(https?://.*)$");
+        decorateField(input, "Die URL muss mit http:// oder https:// beginnen!", isValid);
         return isValid;
     }
 

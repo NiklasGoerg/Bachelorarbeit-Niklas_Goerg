@@ -39,8 +39,6 @@ public class ScrapingWebsiteTabController {
     @FXML private TextField logoutIdentField;
     @FXML private ChoiceBox<IdentType> cookieAcceptIdentChoiceBox;
     @FXML private TextField cookieAcceptIdentField;
-    @FXML private ChoiceBox<IdentType> cookieHideChoiceBox;
-    @FXML private TextField cookieHideIdentField;
     @FXML private VBox rightPanelBox;
     @FXML private SplitPane rootNode;
 
@@ -74,7 +72,6 @@ public class ScrapingWebsiteTabController {
         loginIdentField.textProperty().addListener((o,ov,nv) -> validLoginIdentField());
         logoutIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(logoutIdentField));
         cookieAcceptIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(cookieAcceptIdentField));
-        cookieHideIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(cookieHideIdentField));
 
         // set choicebox options
         addTypeToChoiceBox(usernameIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
@@ -82,7 +79,6 @@ public class ScrapingWebsiteTabController {
         addTypeToChoiceBox(loginIdentChoiceBox, IDENT_TYPE_DEACTIVATED_ENTER);
         addTypeToChoiceBox(logoutIdentChoiceBox, IDENT_TYPE_DEACTIVATED_URL);
         addTypeToChoiceBox(cookieAcceptIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
-        addTypeToChoiceBox(cookieHideChoiceBox, IDENT_TYPE_DEACTIVATED);
 
         addDeselectListener(usernameIdentChoiceBox);
         addDeselectListener(passwordIdentChoiceBox);
@@ -189,13 +185,11 @@ public class ScrapingWebsiteTabController {
         clearTopFields();
 
         cookieAcceptIdentField.clear();
-        cookieHideIdentField.clear();
         usernameIdentChoiceBox.setValue(null);
         passwordIdentChoiceBox.setValue(null);
         loginIdentChoiceBox.setValue(null);
         logoutIdentChoiceBox.setValue(null);
         cookieAcceptIdentChoiceBox.setValue(null);
-        cookieHideChoiceBox.setValue(null);
     }
 
     private void clearTopFields() {
@@ -222,8 +216,6 @@ public class ScrapingWebsiteTabController {
         website.setLogoutIdent(logoutIdentField.getText());
         website.setCookieAcceptIdentType(cookieAcceptIdentChoiceBox.getValue());
         website.setCookieAcceptIdent(cookieAcceptIdentField.getText());
-        website.setCookieHideIdentType(cookieHideChoiceBox.getValue());
-        website.setCookieHideIdent(cookieHideIdentField.getText());
     }
 
     public void selectWebsite(Website website) {
@@ -264,8 +256,6 @@ public class ScrapingWebsiteTabController {
         logoutIdentField.setText(website.getLogoutIdent());
         cookieAcceptIdentChoiceBox.setValue(website.getCookieAcceptIdentType());
         cookieAcceptIdentField.setText(website.getCookieAcceptIdent());
-        cookieHideChoiceBox.setValue(website.getCookieHideIdentType());
-        cookieHideIdentField.setText(website.getCookieHideIdent());
 
         // just here to remove eventually existing error style attributes
         isValidInput();
@@ -288,7 +278,6 @@ public class ScrapingWebsiteTabController {
         valid &= validLoginIdentField();
         valid &= escapeValidator(logoutIdentField);
         valid &= escapeValidator(cookieAcceptIdentField);
-        valid &= escapeValidator(cookieHideIdentField);
         return valid;
     }
 
@@ -318,7 +307,7 @@ public class ScrapingWebsiteTabController {
         String value = input.getText();
         if(value==null) return true;
 
-        boolean isValid = value.matches("^https?://.*$");
+        boolean isValid = value.matches("^(https?://.*|-)$"); // "-" to allow saving with deactivated fields
         decorateField(input, "Die URL muss mit http:// oder https:// beginnen!", isValid);
         return isValid;
     }

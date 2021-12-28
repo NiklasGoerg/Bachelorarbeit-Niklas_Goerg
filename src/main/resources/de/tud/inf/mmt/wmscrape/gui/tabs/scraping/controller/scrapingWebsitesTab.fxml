@@ -335,31 +335,6 @@
                                     <Insets left="15.0" top="5.0" />
                                  </VBox.margin>
                               </HBox>
-                              <HBox alignment="CENTER_LEFT">
-                                 <children>
-                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
-                                       <children>
-                                          <Label text="ausblenden" />
-                                       </children>
-                                       <HBox.margin>
-                                          <Insets bottom="5.0" />
-                                       </HBox.margin>
-                                    </HBox>
-                                    <ChoiceBox fx:id="cookieHideChoiceBox" prefWidth="150.0">
-                                       <HBox.margin>
-                                          <Insets left="10.0" />
-                                       </HBox.margin>
-                                    </ChoiceBox>
-                                    <TextField fx:id="cookieHideIdentField" prefWidth="300.0">
-                                       <HBox.margin>
-                                          <Insets left="10.0" />
-                                       </HBox.margin>
-                                    </TextField>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets left="15.0" top="5.0" />
-                                 </VBox.margin>
-                              </HBox>
                            </children>
                         </VBox>
                      </children>

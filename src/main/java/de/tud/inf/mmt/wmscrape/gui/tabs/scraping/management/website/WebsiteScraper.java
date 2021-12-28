@@ -103,7 +103,6 @@ public class WebsiteScraper extends WebsiteHandler {
         if(!loadLoginPage()) return false;
         delayRandom();
         if(!acceptCookies()) return false;
-        if(!hideCookies()) return false;
         delayRandom();
         if(!fillLoginInformation()) return false;
         if(!login()) return false;
@@ -356,6 +355,7 @@ public class WebsiteScraper extends WebsiteHandler {
 
     private boolean isEmptyTask() {
         if(selectedFromMenuTree == null || selectedFromMenuTree.isEmpty()) {
+            addToLog("INFO:\tKeine Elemente zum Scrapen ausgewählt.");
             quit();
             return true;
         }

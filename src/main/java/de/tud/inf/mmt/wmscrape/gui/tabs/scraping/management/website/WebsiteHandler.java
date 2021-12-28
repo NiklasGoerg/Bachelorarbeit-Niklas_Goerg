@@ -104,30 +104,6 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
-    protected boolean hideCookies() {
-        IdentType type = website.getCookieHideIdentType();
-        if (type == IdentType.DEAKTIVIERT) return true;
-
-        String identifier = website.getCookieHideIdent();
-
-        WebElement banner = extractElementFromRoot(type, identifier);
-        if (banner != null) {
-
-            try {
-                driver.executeScript("(arguments[0]).remove()", banner);
-            } catch (Exception e) {
-                System.out.println(e.getMessage()+" "+ e.getCause());
-            }
-
-        } else {
-            addToLog("WARN:\tCookiebanner nicht gefunden");
-            return false;
-        }
-
-        addToLog("INFO:\tCookiebanner ausgeblendet");
-        return true;
-    }
-
     protected boolean fillLoginInformation() {
 
         WebElement username = extractElementFromRoot(website.getUsernameIdentType(), website.getUsernameIdent());
@@ -169,10 +145,6 @@ public abstract class WebsiteHandler extends Service<Void> {
         IdentType type = website.getLogoutIdentType();
         if (type == IdentType.DEAKTIVIERT) return true;
 
-        // called separately in tester
-        if (website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
-                && !(this instanceof WebsiteTester)) hideCookies();
-
         if (type == IdentType.URL) {
             driver.get(website.getLogoutIdent());
             waitLoadEvent();
@@ -205,11 +177,6 @@ public abstract class WebsiteHandler extends Service<Void> {
         }
 
         waitLoadEvent();
-
-        // called separately in tester
-        if (website.getCookieHideIdentType() != IdentType.DEAKTIVIERT
-                && !(this instanceof WebsiteTester)) hideCookies();
-
 
         addToLog("INFO:\t" + url + " geladen");
         return true;
@@ -280,11 +247,11 @@ public abstract class WebsiteHandler extends Service<Void> {
 
 
             if (webElementInContexts != null) return webElementInContexts;
-            addToLog("ERR:\t\tKeine Elemente unter '" + identifier + "' gefunden");
+            addToLog("ERR:\t\tKeine Elemente unter '" + ident + "' gefunden");
 
         } catch (InvalidSelectorException e) {
             e.printStackTrace();
-            addToLog("ERR:\t\tInvalider Identifizierer vom Typ "+type+" '"+identifier+"'");
+            addToLog("ERR:\t\tInvalider Identifizierer vom Typ "+type+": '"+ident+"'");
         }
 
         return null;

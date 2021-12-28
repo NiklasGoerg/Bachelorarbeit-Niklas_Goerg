@@ -61,13 +61,6 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Column(columnDefinition = "TEXT", name = "cookie_accept_ident")
     private String cookieAcceptIdent;
 
-    @Enumerated(value = EnumType.STRING)
-    @Column(name = "cookie_hide_ident_type")
-    private IdentType cookieHideIdentType = IdentType.DEAKTIVIERT;
-
-    @Column(columnDefinition = "TEXT", name = "cookie_hide_ident")
-    private String cookieHideIdent;
-
     @OneToMany(mappedBy = "website", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<WebsiteElement> websiteElements = new ArrayList<>();
 
@@ -194,27 +187,6 @@ public class Website extends WebRepresentation<WebsiteElement>{
         this.cookieAcceptIdent = cookieAcceptIdent;
     }
 
-    public IdentType getCookieHideIdentType() {
-        return cookieHideIdentType;
-    }
-
-    public void setCookieHideIdentType(IdentType cookieHideIdentType) {
-        this.cookieHideIdentType = cookieHideIdentType;
-    }
-
-    public String getCookieHideIdent() {
-        return cookieHideIdent;
-    }
-
-    public void setCookieHideIdent(String cookieHideIdent) {
-        this.cookieHideIdent = cookieHideIdent;
-    }
-
-    public List<WebsiteElement> getWebsiteElements() {
-        return websiteElements;
-    }
-
-
     @Override
     public List<WebsiteElement> getChildren() {
         return websiteElements;
@@ -235,7 +207,7 @@ public class Website extends WebRepresentation<WebsiteElement>{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Website website = (Website) o;
-        return id == website.id && Objects.equals(description, website.description) && Objects.equals(url, website.url) && Objects.equals(username, website.username) && Objects.equals(password, website.password) && usernameIdentType == website.usernameIdentType && Objects.equals(usernameIdent, website.usernameIdent) && passwordIdentType == website.passwordIdentType && Objects.equals(passwordIdent, website.passwordIdent) && loginButtonIdentType == website.loginButtonIdentType && Objects.equals(loginButtonIdent, website.loginButtonIdent) && logoutIdentType == website.logoutIdentType && Objects.equals(logoutIdent, website.logoutIdent) && cookieAcceptIdentType == website.cookieAcceptIdentType && Objects.equals(cookieAcceptIdent, website.cookieAcceptIdent) && cookieHideIdentType == website.cookieHideIdentType && Objects.equals(cookieHideIdent, website.cookieHideIdent);
+        return id == website.id && Objects.equals(description, website.description) && Objects.equals(url, website.url) && Objects.equals(username, website.username) && Objects.equals(password, website.password) && usernameIdentType == website.usernameIdentType && Objects.equals(usernameIdent, website.usernameIdent) && passwordIdentType == website.passwordIdentType && Objects.equals(passwordIdent, website.passwordIdent) && loginButtonIdentType == website.loginButtonIdentType && Objects.equals(loginButtonIdent, website.loginButtonIdent) && logoutIdentType == website.logoutIdentType && Objects.equals(logoutIdent, website.logoutIdent) && cookieAcceptIdentType == website.cookieAcceptIdentType && Objects.equals(cookieAcceptIdent, website.cookieAcceptIdent);
     }
 
 
