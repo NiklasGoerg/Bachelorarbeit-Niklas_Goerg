@@ -78,7 +78,7 @@ public class ScrapingScrapeTabController {
 
         waitSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 50, 5, 0.25));
         headlessCheckBox.setSelected(false);
-        pauseCheckBox.setSelected(true);
+        pauseCheckBox.setSelected(false);
         //filling the tree here
         updateSelectionTree();
 

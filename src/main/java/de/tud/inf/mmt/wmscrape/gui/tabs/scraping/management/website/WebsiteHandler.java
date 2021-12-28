@@ -25,7 +25,7 @@ public abstract class WebsiteHandler extends Service<Void> {
 
     protected Website website;
     protected FirefoxDriver driver;
-    private long waitForWsElementSec = 5;
+    private long waitForWsElementSec = 3;
     private WebDriverWait wait;
 
     private int uniqueElementId = 0;
@@ -48,6 +48,16 @@ public abstract class WebsiteHandler extends Service<Void> {
         this.waitForWsElementSec = (long) waitForWsElementSec;
     }
 
+    public void waitForWsElements(boolean doWait) {
+        if(driver == null) return;
+
+        Duration d;
+        if(doWait) { d = Duration.ofMillis((waitForWsElementSec*1000)); }
+        else { d = Duration.ofMillis(0); }
+
+        wait = new WebDriverWait(driver, d);
+        driver.manage().timeouts().implicitlyWait(d);
+    }
 
     protected WebDriver getDriver() {
         return driver;
@@ -68,7 +78,8 @@ public abstract class WebsiteHandler extends Service<Void> {
             if (headless) options.setHeadless(true);
 
             driver = new FirefoxDriver(options);
-            wait = new WebDriverWait(driver, Duration.ofMillis(waitForWsElementSec*1000));
+            waitForWsElements(true);
+
             return true;
         } catch (SessionNotCreatedException e) {
             addToLog("ERR:\t\t Selenium konnte nicht gestartet werden.\n\n"+e.getMessage()+"\n\n"+e.getCause()+"\n\n");
@@ -99,7 +110,6 @@ public abstract class WebsiteHandler extends Service<Void> {
         if (element == null) return false;
 
         clickElement(element);
-        waitLoadEvent();
         addToLog("INFO:\tCookies akzeptiert");
         return true;
     }
@@ -124,7 +134,6 @@ public abstract class WebsiteHandler extends Service<Void> {
             if(password != null) {
                 // submit like pressing enter
                 submit(password);
-                waitLoadEvent();
                 addToLog("INFO:\tLogin erfolgreich");
                 return true;
             }
@@ -134,7 +143,6 @@ public abstract class WebsiteHandler extends Service<Void> {
         WebElement loginButton = extractElementFromRoot(website.getLoginButtonIdentType(), website.getLoginButtonIdent());
         if (loginButton == null) return false;
         clickElement(loginButton);
-        waitLoadEvent();
         addToLog("INFO:\tLogin erfolgreich");
         return true;
     }
@@ -165,6 +173,15 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
+    protected void waitLoadEvent() {
+        try {
+            Thread.sleep(1000);
+            wait.until(webDriver -> driver.executeScript("return document.readyState").equals("complete"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage()+" "+ e.getCause());
+        }
+    }
+
     protected boolean loadPage(String url) {
         // reset ids for a new page
         uniqueElementId = 0;
@@ -176,18 +193,8 @@ public abstract class WebsiteHandler extends Service<Void> {
             return false;
         }
 
-        waitLoadEvent();
-
         addToLog("INFO:\t" + url + " geladen");
         return true;
-    }
-
-    protected void waitLoadEvent() {
-        try {
-            wait.until(webDriver -> driver.executeScript("return document.readyState").equals("complete"));
-        } catch (Exception e) {
-            System.out.println(e.getMessage()+" "+ e.getCause());
-        }
     }
 
     public WebElement extractElementFromRoot(IdentType type, String identifier) {

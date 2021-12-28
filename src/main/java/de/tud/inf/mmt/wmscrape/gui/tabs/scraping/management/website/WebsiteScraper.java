@@ -42,9 +42,9 @@ public class WebsiteScraper extends WebsiteHandler {
     private final Extraction tableExchangeExtraction;
     private final Extraction tableCourseOrStockExtraction;
 
-    private Map<Website, List<WebsiteElement>> selectedFromMenuTree;
+    private volatile Map<Website, List<WebsiteElement>> selectedFromMenuTree;
     private Map<Website, Double> progressElementMax;
-    private Map<Website, Double> progressElementCurrent;
+    private volatile Map<Website, Double> progressElementCurrent;
     private boolean loggedInToWebsite = false;
     private double progressWsMax = 0.0001;
     private double progressWsCurrent = 0;
@@ -103,7 +103,6 @@ public class WebsiteScraper extends WebsiteHandler {
         if(!loadLoginPage()) return false;
         delayRandom();
         if(!acceptCookies()) return false;
-        delayRandom();
         if(!fillLoginInformation()) return false;
         if(!login()) return false;
         delayRandom();
@@ -258,7 +257,6 @@ public class WebsiteScraper extends WebsiteHandler {
 
         if(loggedInToWebsite && website != null && usesLogin()) {
             logout();
-            delayRandom();
         }
 
         loggedInToWebsite = false;
@@ -272,7 +270,7 @@ public class WebsiteScraper extends WebsiteHandler {
         var selected = selectedFromMenuTree.getOrDefault(website, null);
         if(selected != null) {
             selected.remove(element);
-            // don't delay at the last element after which the logout delay occours
+            // don't delay at the last element after which the logout occurs
             if(selected.size()>0) delayRandom();
         }
 
@@ -291,9 +289,12 @@ public class WebsiteScraper extends WebsiteHandler {
 
                 while (website != null && !this.isCancelled()) {
 
+                    WebsiteElement element = getElement();
+
                     // do log in routine
                     // check everytime due to the pause/resume option
-                    if (!loggedInToWebsite || !browserIsOpen()) {
+                    // if no more element don't do login process
+                    if (element != null && (!loggedInToWebsite || !browserIsOpen())) {
                         if (!startBrowser()) return null;
 
                         // returns false if error at login
@@ -308,8 +309,6 @@ public class WebsiteScraper extends WebsiteHandler {
                     double maxElementProgress = progressElementMax.get(website);
                     double currentElementProgress = progressElementCurrent.get(website);
                     singleElementProgress.set(currentElementProgress/maxElementProgress);
-
-                    WebsiteElement element = getElement();
 
                     while (element != null && !this.isCancelled()) {
 

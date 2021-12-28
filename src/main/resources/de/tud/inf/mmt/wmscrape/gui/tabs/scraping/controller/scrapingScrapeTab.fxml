@@ -128,7 +128,7 @@
                                     </HBox>
                                     <HBox alignment="CENTER" minWidth="60.0" prefWidth="80.0">
                                        <children>
-                                          <CheckBox fx:id="pauseCheckBox" mnemonicParsing="false" prefWidth="100.0" selected="true">
+                                          <CheckBox fx:id="pauseCheckBox" mnemonicParsing="false" prefWidth="100.0">
                                              <padding>
                                                 <Insets left="40.0" right="40.0" />
                                              </padding>

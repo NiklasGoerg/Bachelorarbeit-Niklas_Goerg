@@ -22,7 +22,6 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
 
     protected TableExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         super(connection, logText, scraper, date);
-
     }
 
     protected abstract boolean validIdentCorrelations(WebsiteElement element, List<ElementIdentCorrelation> correlations);
@@ -34,7 +33,6 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
     protected abstract void correctCarrierValues(Map<String, InformationCarrier> carrierMap, ElementSelection selection);
 
     public void extract(WebsiteElement element, Task<Void> task, SimpleDoubleProperty progress) {
-        var descriptionCorrelations  = element.getElementDescCorrelations();
         var identCorrelations = element.getElementIdentCorrelations();
         var elementSelections = element.getElementSelections();
         Map<String, InformationCarrier> preparedCarrierMap = new HashMap<>();
@@ -82,7 +80,10 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
 
         currentProgress = 0;
         maxProgress = rows.size();
-        
+
+        // don't wait for elements inside the table
+        scraper.waitForWsElements(false);
+
         // search each row for a matching stock/exchange
         for(var row : rows) {
             // looks for the information inside one row
@@ -95,6 +96,8 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             progress.set(currentProgress/maxProgress);
             scraper.resetIdentBuffer();
         }
+        scraper.waitForWsElements(true);
+
         storeInDb();
 
         logMatches(elementSelections, element.getDescription());
