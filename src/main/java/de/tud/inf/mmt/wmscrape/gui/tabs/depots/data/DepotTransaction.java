@@ -29,6 +29,9 @@ public class DepotTransaction {
     @JoinColumn(name="wertpapier_isin", referencedColumnName="isin", updatable=false, insertable=false)
     private Stock stock;
 
+    @Column(name = "transaktionstyp", columnDefinition = "TEXT")
+    private String transactionType;
+
     public DepotTransaction() {
     }
 

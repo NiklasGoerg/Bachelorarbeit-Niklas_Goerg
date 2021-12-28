@@ -31,10 +31,6 @@ public class Depot {
     public Depot() {
     }
 
-//    public int getId() {
-//        return id;
-//    }
-
     public Depot(String name) {
         this.name = name;
     }

@@ -30,12 +30,7 @@ public class ExchangeTableManager extends DbTableManger {
 
         initTableColumns(exchangeColumnRepository, TABLE_NAME);
 
-        addColumn("eur", ColumnDatatype.DOUBLE);
-        addColumn("usd", ColumnDatatype.DOUBLE);
-        addColumn("gbp", ColumnDatatype.DOUBLE);
-        addColumn("jpy", ColumnDatatype.DOUBLE);
-        addColumn("cad", ColumnDatatype.DOUBLE);
-        addColumn("cny", ColumnDatatype.DOUBLE);
+        //addColumn("eur", ColumnDatatype.DOUBLE);
     }
 
 

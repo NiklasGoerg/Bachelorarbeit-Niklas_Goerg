@@ -13,8 +13,8 @@ public class TransactionTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "depottransaktion";
     public static final List<String> KEY_COLUMNS = List.of("depot_name", "transaktions_datum", "wertpapier_isin");
-    public static final List<String> RESERVED_COLUMNS = List.of("depot_name", "transaktions_datum", "wertpapier_isin");
-    public static final List<String> COLUMN_ORDER = List.of("datum", "isin");
+    public static final List<String> RESERVED_COLUMNS = List.of("depot_name", "transaktions_datum", "wertpapier_isin", "transaktionstyp");
+    public static final List<String> COLUMN_ORDER = List.of("transaktions_datum", "depot_name", "wertpapier_isin", "transaktionstyp");
 
     @Autowired
     TransactionColumnRepository transactionColumnRepository;

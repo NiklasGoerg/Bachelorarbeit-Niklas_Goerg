@@ -263,8 +263,8 @@ public class ImportTabController {
                                                                     transactionCorrelationTable, excelSheet);
        if(!allValid) {
            createAlert("Excel-Sheet-Spalten wurden verändert!",
-                   "Nicht alle gespeicherten Abbildungen stimmen mit dem Excel-Sheet überein und wurden" +
-                           " zurückgesetzt. Genauere Informationen befinden sich im Log",
+                   "Nicht alle gespeicherten Abbildungen stimmen mit dem Excel-Sheet überein. Die betroffenen Spalten wurden" +
+                           " zurückgesetzt. Genauere Informationen befinden sich im Log.",
                    Alert.AlertType.WARNING);
        }
 
@@ -295,7 +295,7 @@ public class ImportTabController {
                     Alert.AlertType.INFORMATION);
             case -3 -> createAlert("Zuordnung unvollständig!",
                     "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für " +
-                            "Stammdaten:\n isin, wkn\nTransaktionen: wertpapier_isin, transaktions_datum, depot_name",
+                            "Stammdaten:\n isin, wkn\nTransaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp",
                     Alert.AlertType.ERROR);
             case -4 -> createAlert("Fehler bei Sql-Statement erstellung.!",
                     "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",

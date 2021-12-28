@@ -40,11 +40,7 @@ public class StockTableManager extends DbTableManger {
         initTableColumns(stockColumnRepository, TABLE_NAME);
 
         // todo remove
-        addColumn("url_1", ColumnDatatype.TEXT);
-        addColumn("url_2", ColumnDatatype.TEXT);
-        addColumn("kurs", ColumnDatatype.DOUBLE);
-        addColumn("gruppe", ColumnDatatype.INTEGER);
-        addColumn("std_datum", ColumnDatatype.DATE);
+        //addColumn("url_1", ColumnDatatype.TEXT);
     }
 
     public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {

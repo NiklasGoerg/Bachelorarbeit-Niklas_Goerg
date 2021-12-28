@@ -34,7 +34,7 @@
                </children>
             </VBox>
             <ListView fx:id="websiteList" minWidth="0.0" prefWidth="165.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
-            <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewWebsiteButton" prefHeight="30.0" text="Neue Webseite" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+            <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewWebsiteButton" prefHeight="30.0" text="Neue Webseiten Konfig." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
          </children></AnchorPane>
       <VBox fx:id="rightPanelBox" minWidth="580.0">
          <children>

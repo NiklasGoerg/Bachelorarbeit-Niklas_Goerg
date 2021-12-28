@@ -30,11 +30,7 @@ public class CourseTableManager extends DbTableManger {
 
         initTableColumns(courseColumnRepository, TABLE_NAME);
 
-        addColumn("kurs_in_eur", ColumnDatatype.DOUBLE);
-        addColumn("volumen", ColumnDatatype.DOUBLE);
-        addColumn("tages_hoch", ColumnDatatype.DOUBLE);
-        addColumn("tages_tief", ColumnDatatype.DOUBLE);
-        addColumn("datum_interessant", ColumnDatatype.DATE);
+        //addColumn("kurs_in_eur", ColumnDatatype.DOUBLE);
     }
 
     @Override

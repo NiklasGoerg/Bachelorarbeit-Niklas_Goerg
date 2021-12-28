@@ -341,6 +341,7 @@ public class ExtractionManager {
         if (getColNrByName("name", correlationManager.getStockColumnRelations()) == -1) return false;
         if (getColNrByName("wertpapier_isin", correlationManager.getTransactionColumnRelations()) == -1) return false;
         if (getColNrByName("transaktions_datum", correlationManager.getTransactionColumnRelations()) == -1) return false;
+        if (getColNrByName("transaktionstyp", correlationManager.getTransactionColumnRelations()) == -1) return false;
         return getColNrByName("depot_name", correlationManager.getTransactionColumnRelations()) != -1;
     }
 

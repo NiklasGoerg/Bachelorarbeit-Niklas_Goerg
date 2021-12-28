@@ -285,6 +285,8 @@ public abstract class DataManager {
         table.getColumns().add(nameCol);
         table.getColumns().add(wknCol);
         table.getColumns().add(typCol);
+
+        table.setEditable(true);
     }
 
     public void updateStockSelectionTable(TableView<Stock> table) {
@@ -296,6 +298,7 @@ public abstract class DataManager {
         nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
         nameCol.setEditable(false);
         table.getColumns().add(nameCol);
+        table.setEditable(true);
     }
 
     public void updateDepotSelectionTable(TableView<Depot> table) {

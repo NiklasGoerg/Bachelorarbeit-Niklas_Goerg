@@ -186,7 +186,7 @@ public class DataTabController {
 
             ObservableList<CustomRow> selectionRows = null;
 
-            // TODO refactoring
+            // TODO refactor
             if(selected instanceof Stock) {
                 selectionRows = tabManager.getRowsBySelection("isin", ((Stock) selected).getIsin(), allRows);
             } else if(selected instanceof Depot) {
@@ -323,6 +323,7 @@ public class DataTabController {
         TableView<?> table = (TableView<?>) selectionPane.getCenter();
         table.getItems().clear();
 
+        // TODO refactor
         if (table == stockSelectionTable) {
             tabManager.updateStockSelectionTable(stockSelectionTable);
         } else if (table == depotSelectionTable) {
@@ -343,7 +344,7 @@ public class DataTabController {
         customRowTableView.getItems().clear();
         ObservableList<CustomRow> rows = FXCollections.observableArrayList();
 
-        // TODO refactoring
+        // TODO refactor
         if(o instanceof Stock) {
             rows = tabManager.getRowsBySelection("isin", ((Stock) o).getIsin(), allRows);
         } else if(o instanceof Depot) {
@@ -368,7 +369,7 @@ public class DataTabController {
         if(viewEverything) {
             handleViewEverythingButton();
         } else if (lastViewed != null && (
-                // TODO refactoring
+                // TODO refactor
                 (table == stockSelectionTable && lastViewed instanceof Stock && stockSelectionTable.getItems().contains((Stock) lastViewed)) ||
                 (table == depotSelectionTable && lastViewed instanceof Depot && depotSelectionTable.getItems().contains((Depot) lastViewed)))) {
             onSelection(lastViewed);

@@ -15,10 +15,10 @@ public class Account {
     @GeneratedValue
     private int id;
 
-    @Column(name = "kontonummer")
+    @Column(name = "kontonummer", columnDefinition = "TEXT")
     private String identificationNumber;
 
-    @Column(name = "eigentümer")
+    @Column(name = "eigentümer", columnDefinition = "TEXT")
     private String owner;
 
     @Column(name = "öffnungsdatum")

@@ -51,7 +51,7 @@
             </VBox>
             <AnchorPane GridPane.rowIndex="2">
                <children>
-                  <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewExcelSheetButton" prefHeight="30.0" text="Neue Konfiguration" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewExcelSheetButton" prefHeight="30.0" text="Neue Excel Konfig." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                </children>
             </AnchorPane>
          </children>
