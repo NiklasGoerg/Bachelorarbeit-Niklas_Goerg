@@ -34,18 +34,25 @@ public class StockTableManager extends DbTableManger {
         // and has to be initialized by myself
 
         if (tableDoesNotExist(TABLE_NAME)) {
-            initializeTable("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+            executeStatement("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+
+            // set the foreign keys to the newly created table
+            // do not constraint non hibernate tables. the creation oder is not known for them (if not set -> @Order)
+            executeStatement("ALTER TABLE "+TABLE_NAME+
+                    // constraint name doesn't matter. wertpapier_stammdaten.isin
+                    " ADD CONSTRAINT fk_wertpapier_isin_stammdaten FOREIGN KEY (isin)"+
+                    // wertpapier = table name of stock entity
+                    " REFERENCES wertpapier (isin)"+" ON DELETE CASCADE"+" ON UPDATE CASCADE");
         }
 
         initTableColumns(stockColumnRepository, TABLE_NAME);
 
-        // todo remove
         //addColumn("url_1", ColumnDatatype.TEXT);
     }
 
     public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO "+TABLE_NAME+" (isin, datum, " + dbColName + ") VALUES(?,?,?) ON DUPLICATE KEY UPDATE " +
-                dbColName + "=VALUES(`" + dbColName + "`);";
+        String sql = "INSERT INTO "+TABLE_NAME+" (isin, datum, `"+dbColName+"`) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `"+
+                dbColName+"`=VALUES(`" + dbColName + "`);";
         return connection.prepareStatement(sql);
     }
 

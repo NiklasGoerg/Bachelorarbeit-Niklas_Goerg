@@ -176,7 +176,7 @@ public abstract class DbTableManger {
         return true;
     }
 
-    public void initializeTable(String statementOrder) {
+    public void executeStatement(String statementOrder) {
         try {
             Connection connection = dataSource.getConnection();
             Statement statement = connection.createStatement();

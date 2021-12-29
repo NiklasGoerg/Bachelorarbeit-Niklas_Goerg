@@ -25,7 +25,7 @@ public class ExchangeTableManager extends DbTableManger {
         // and has to be initialized by myself
 
         if (tableDoesNotExist(TABLE_NAME)) {
-            initializeTable("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (datum DATE PRIMARY KEY);");
+            executeStatement("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (datum DATE PRIMARY KEY);");
         }
 
         initTableColumns(exchangeColumnRepository, TABLE_NAME);

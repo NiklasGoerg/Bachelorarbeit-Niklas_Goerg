@@ -18,6 +18,8 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Lazy
@@ -55,9 +57,6 @@ public class ExtractionManager {
         if (stockExtractionResult < -1) {
             return stockExtractionResult;
         }
-
-        // create stocks if not existing based on prior imported stock data
-        createMissingStocks();
 
         int transactionExtractionResult = extractTransactionData();
 
@@ -132,6 +131,7 @@ public class ExtractionManager {
 
 
                 // continue bcs the key value is not inserted with a prepared statement
+                // isin wkn name typ
                 if (ignoreInStockData.contains(dbColName)) {
                     HashMap<String,String> newStocksData;
                     newStocksData = potentialNewStocks.getOrDefault(isin, new HashMap<>());
@@ -173,6 +173,10 @@ public class ExtractionManager {
             }
 
         }
+
+        // create stocks if not existing based on prior imported stock data
+        createMissingStocks();
+
 
         silentError |= dbTransactionManager.executeStatements(connection, statements);
         importTabManager.addToLog("\n##### Ende Stammdaten-Import #####\n");
@@ -346,8 +350,10 @@ public class ExtractionManager {
     }
 
     private void createMissingStocks() {
+        Set<String> knownStock = stockRepository.findAll().stream().map(Stock::getIsin).collect(Collectors.toSet());
+
         for(var ks : potentialNewStocks.entrySet()) {
-            if(stockRepository.findByIsin(ks.getKey()).isEmpty()) {
+            if(!knownStock.contains(ks.getKey())) {
                 Stock stock = new Stock(ks.getKey(),
                 ks.getValue().getOrDefault("wkn",null),
                 ks.getValue().getOrDefault("name",null),

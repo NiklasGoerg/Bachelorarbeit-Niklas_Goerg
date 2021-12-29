@@ -25,7 +25,15 @@ public class CourseTableManager extends DbTableManger {
         // and has to be initialized by myself
 
         if (tableDoesNotExist(TABLE_NAME)) {
-            initializeTable("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+            executeStatement("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
+
+            // set the foreign keys to the newly created table
+            // do not constrain non hibernate tables. the creation oder is not known for them (if not set -> @Order)
+            executeStatement("ALTER TABLE "+TABLE_NAME+
+                    // constraint name doesn't matter. wertpapier_stammdaten.isin
+                    " ADD CONSTRAINT fk_wertpapier_isin_kursdaten FOREIGN KEY (isin)"+
+                    // wertpapier = table name of stock entity
+                    " REFERENCES wertpapier (isin)"+" ON DELETE CASCADE"+" ON UPDATE CASCADE");
         }
 
         initTableColumns(courseColumnRepository, TABLE_NAME);
