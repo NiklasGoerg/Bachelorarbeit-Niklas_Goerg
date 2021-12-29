@@ -266,7 +266,7 @@ public class ScrapingElementsTabController {
         String value = input.getText();
         if(value==null) return true;
 
-        boolean isValid = value.matches("^(https?://.*)$");
+        boolean isValid = value.matches("^(https?://.+)$");
         decorateField(input, "Die URL muss mit http:// oder https:// beginnen!", isValid);
         return isValid;
     }

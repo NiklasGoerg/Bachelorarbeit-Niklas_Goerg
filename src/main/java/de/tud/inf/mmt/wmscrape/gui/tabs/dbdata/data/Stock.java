@@ -16,12 +16,6 @@ public class Stock {
     @Id
     @Column(length = 50)
     private String isin;
-    @Column(name = "wkn",columnDefinition = "TEXT")
-    private String _wkn;
-    @Column(name = "name",columnDefinition = "TEXT")
-    private String _name;
-    @Column(name = "typ",columnDefinition = "TEXT")
-    private String _stockType;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<DepotTransaction> depotTransactions = new ArrayList<>();
@@ -29,15 +23,20 @@ public class Stock {
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementSelection> elementSelections = new ArrayList<>();
 
+    @Column(name = "wkn",columnDefinition = "TEXT")
+    private String _wkn;
+    @Column(name = "name",columnDefinition = "TEXT")
+    private String _name;
+    @Column(name = "typ",columnDefinition = "TEXT")
+    private String _stockType;
+
+
     @Transient
     private final SimpleStringProperty wkn = new SimpleStringProperty();
     @Transient
     private final SimpleStringProperty name = new SimpleStringProperty();
     @Transient
     private final SimpleStringProperty stockType = new SimpleStringProperty();
-    @Transient
-    private boolean isChanged = false;
-
 
     public Stock() {}
 
@@ -112,8 +111,7 @@ public class Stock {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Stock)) return false;
-        Stock stock = (Stock) o;
+        if (!(o instanceof Stock stock)) return false;
         return Objects.equals(isin, stock.isin);
     }
 
@@ -126,18 +124,9 @@ public class Stock {
     }
 
     private void initListener() {
-        wkn.addListener((o,ov,nv) -> {
-            isChanged = true;
-            _wkn = nv.trim();
-        });
-        name.addListener((o,ov,nv) -> {
-            isChanged = true;
-            _name = nv.trim();
-        });
-        stockType.addListener((o,ov,nv) -> {
-            isChanged = true;
-            _stockType = nv.trim();
-        });
+        wkn.addListener((o,ov,nv) -> _wkn = nv.trim());
+        name.addListener((o,ov,nv) -> _name = nv.trim());
+        stockType.addListener((o,ov,nv) -> _stockType = nv.trim());
 
     }
 

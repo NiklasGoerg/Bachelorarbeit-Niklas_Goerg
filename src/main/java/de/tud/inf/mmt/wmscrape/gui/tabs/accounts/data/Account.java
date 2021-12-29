@@ -15,7 +15,13 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "kontonummer", columnDefinition = "TEXT")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true, cascade = CascadeType.ALL)
+    private final List<AccountTransaction> accountTransactions = new ArrayList<>();
+
+    @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true, cascade = CascadeType.ALL)
+    private final List<Depot> depots = new ArrayList<>();
+
+    @Column(name = "kontonummer", columnDefinition = "TEXT", nullable = false, updatable = false)
     private String identificationNumber;
 
     @Column(name = "eigentümer", columnDefinition = "TEXT")
@@ -28,20 +34,14 @@ public class Account {
     private Date closed;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "kontotyp")
+    @Column(name = "kontotyp", nullable = false)
     private AccountType accountType;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true, cascade = CascadeType.ALL)
-    private final List<AccountTransaction> accountTransactions = new ArrayList<>();
+    public Account() {}
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy ="account", orphanRemoval = true, cascade = CascadeType.ALL)
-    private final List<Depot> depots = new ArrayList<>();
-
-    public Account() {
-    }
-
-    public Account(int id) {
-        this.id = id;
+    public Account(String identificationNumber, AccountType accountType) {
+        this.identificationNumber = identificationNumber;
+        this.accountType = accountType;
     }
 
     public int getId() {
@@ -50,10 +50,6 @@ public class Account {
 
     public String getIdentificationNumber() {
         return identificationNumber;
-    }
-
-    public void setIdentificationNumber(String identificationNumber) {
-        this.identificationNumber = identificationNumber;
     }
 
     public String getOwner() {

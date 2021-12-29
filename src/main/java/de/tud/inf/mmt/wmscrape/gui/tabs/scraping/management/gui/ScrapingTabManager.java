@@ -64,8 +64,6 @@ public class ScrapingTabManager {
     }
 
     public void deleteSpecificWebsite(Website website) {
-        // fix for not working orphan removal. PS: could be fixed with cascade typ. idk
-        website.setWebsiteElements(new ArrayList<>());
         websiteRepository.delete(website);
     }
 

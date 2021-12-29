@@ -15,7 +15,7 @@
       <VBox alignment="CENTER" prefHeight="30.0" prefWidth="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <Region prefHeight="200.0" prefWidth="200.0" />
-            <Label text="Neue Webseite anlegen">
+            <Label text="Neue Webseiten-Konfiguration anlegen">
                <VBox.margin>
                   <Insets />
                </VBox.margin>
@@ -26,7 +26,7 @@
       </VBox>
       <VBox alignment="CENTER" layoutY="26.0" prefWidth="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
          <children>
-            <Label text="Beschreibung der Seite" />
+            <Label text="Beschreibung der Konfiguration" />
             <TextField fx:id="descriptionField" onAction="#handleConfirmButton">
                <VBox.margin>
                   <Insets left="20.0" right="20.0" top="10.0" />

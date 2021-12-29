@@ -16,7 +16,7 @@
       <VBox alignment="CENTER" prefHeight="30.0" prefWidth="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <Region prefHeight="200.0" prefWidth="200.0" />
-            <Label text="Neues Element anlegen">
+            <Label text="Neue Element-Konfiguration anlegen">
                <VBox.margin>
                   <Insets />
                </VBox.margin>
@@ -27,8 +27,8 @@
       </VBox>
       <VBox alignment="CENTER" fillWidth="false" layoutY="26.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
          <children>
-            <Label text="Beschreibung des Elements" />
-            <TextField fx:id="descriptionField" onAction="#handleSaveButton" prefWidth="200.0">
+            <Label text="Beschreibung der Konfiguration" />
+            <TextField fx:id="descriptionField" onAction="#handleSaveButton" prefWidth="210.0">
                <VBox.margin>
                   <Insets left="20.0" right="20.0" top="5.0" />
                </VBox.margin>
@@ -38,7 +38,7 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </Label>
-            <ChoiceBox fx:id="contentTypeChoiceBox" prefWidth="200.0">
+            <ChoiceBox fx:id="contentTypeChoiceBox" prefWidth="210.0">
                <VBox.margin>
                   <Insets top="5.0" />
                </VBox.margin>
@@ -48,7 +48,7 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </Label>
-            <ChoiceBox fx:id="multiplicityChoiceBox" prefWidth="200.0">
+            <ChoiceBox fx:id="multiplicityChoiceBox" prefWidth="210.0">
                <VBox.margin>
                   <Insets top="5.0" />
                </VBox.margin>

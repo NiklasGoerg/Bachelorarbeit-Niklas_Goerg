@@ -62,10 +62,10 @@ public abstract class DbTableManger {
 
 
         try (Connection connection = dataSource.getConnection()) {
-            if (columnExists(column.getName(), tableName)) return;
+            if (columnExists(colName, tableName)) return;
 
             Statement statement = connection.createStatement();
-            statement.execute("ALTER TABLE `"+tableName+"` ADD `"+column.getName()+"` "+column.getColumnDatatype().name());
+            statement.execute("ALTER TABLE `"+tableName+"` ADD `"+colName+"` "+column.getColumnDatatype().name());
             statement.close();
 
         } catch (SQLException e) {
@@ -73,7 +73,7 @@ public abstract class DbTableManger {
             return;
         }
 
-        if(repository.findByName(column.getName()).isEmpty()) {
+        if(repository.findByName(colName).isEmpty()) {
             repository.save(column);
         }
 

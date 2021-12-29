@@ -22,18 +22,23 @@ public class DepotTransaction {
     @Column(name = "wertpapier_isin", length = 50)
     private String stockIsin;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="depot_name", referencedColumnName="name", updatable=false, insertable=false)
+    @ManyToOne(fetch=FetchType.LAZY, optional = false)
+    @JoinColumn(name="depot_name", referencedColumnName="name", updatable=false, nullable = false, insertable = false)
     private Depot depot;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="wertpapier_isin", referencedColumnName="isin", updatable=false, insertable=false)
+    @ManyToOne(fetch=FetchType.LAZY, optional = false)
+    @JoinColumn(name="wertpapier_isin", referencedColumnName="isin", updatable=false, nullable = false, insertable = false)
     private Stock stock;
 
     @Column(name = "transaktionstyp", columnDefinition = "TEXT")
     private String transactionType;
 
-    public DepotTransaction() {
+    public DepotTransaction() {}
+
+    public DepotTransaction(Date date, Depot depot, Stock stock) {
+        this.date = date;
+        this.depot = depot;
+        this.stock = stock;
     }
 
     public Stock getStock() {

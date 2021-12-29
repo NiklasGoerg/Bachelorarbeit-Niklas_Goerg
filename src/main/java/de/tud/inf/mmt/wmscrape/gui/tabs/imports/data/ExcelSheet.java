@@ -11,6 +11,10 @@ public class ExcelSheet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @OneToMany(fetch= FetchType.LAZY, mappedBy ="excelSheet",  orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
+
+    @Column(updatable = false, nullable = false)
     private String description;
 
     @Column(columnDefinition = "TEXT")
@@ -27,9 +31,6 @@ public class ExcelSheet {
 
     @Column(name = "depot_col_title")
     private String depotColTitle;
-
-    @OneToMany(fetch= FetchType.LAZY, mappedBy ="excelSheet",  orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
 
     public ExcelSheet() {}

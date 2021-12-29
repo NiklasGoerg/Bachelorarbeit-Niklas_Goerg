@@ -329,7 +329,8 @@ public abstract class DataManager {
     }
 
     public void addColumn(String colName, ColumnDatatype datatype) {
-        dbTableManger.addColumn(colName, datatype);
+        dbTableManger.addColumn(colName.trim().toLowerCase().replaceAll("[^a-zA-Z0-9_\\-äöüß]",""),
+                                datatype);
     }
 
     public boolean removeColumn(String colName) {

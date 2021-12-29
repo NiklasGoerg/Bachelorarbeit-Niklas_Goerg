@@ -1,9 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
@@ -18,7 +16,21 @@ public class ElementIdentCorrelation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "ident_type", columnDefinition = "TEXT")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "website_element_id", referencedColumnName = "id", updatable = false, nullable = false)
+    private WebsiteElement websiteElement;
+
+    // optional for stock correlations
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "stock_column_id", referencedColumnName = "id", updatable = false)
+    private StockColumn stockColumn;
+
+    // optional for course correlations
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_column_id", referencedColumnName = "id", updatable = false)
+    private CourseColumn courseColumn;
+
+    @Column(name = "ident_type", columnDefinition = "TEXT", nullable = false)
     @Enumerated(EnumType.STRING)
     private IdentType _identType = IdentType.DEAKTIVIERT;
 
@@ -28,28 +40,14 @@ public class ElementIdentCorrelation {
     @Column(name = "regex", columnDefinition = "TEXT")
     private String _regex;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "website_element_id", referencedColumnName = "id")
-    private WebsiteElement websiteElement;
-
-    // optional for stock correlations
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stock_column_id", referencedColumnName = "id")
-    private StockColumn stockColumn;
-
-    // optional for course correlations
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_column_id", referencedColumnName = "id")
-    private CourseColumn courseColumn;
-
     // redundant but saves fetching from the database
-    @Column(name = "column_datatype")
+    @Column(name = "column_datatype", updatable = false, nullable = false)
     private ColumnDatatype columnDatatype;
 
-    @Column(name = "db_col_name")
+    @Column(name = "db_col_name", updatable = false, nullable = false)
     private String dbColName;
 
-    @Column(name = "db_table_name")
+    @Column(name = "db_table_name", updatable = false, nullable = false)
     private String dbTableName;
 
     @Transient
@@ -93,18 +91,11 @@ public class ElementIdentCorrelation {
         this.dbTableName = courseColumn.getTableName();
     }
 
-    public ElementIdentCorrelation(WebsiteElement websiteElement, String exchangeFieldName) {
-        this(websiteElement);
-        this.dbColName = exchangeFieldName;
-        this.columnDatatype = ColumnDatatype.DOUBLE;
-        this.dbTableName = ExchangeTableManager.TABLE_NAME;
-    }
-
-    public ElementIdentCorrelation(WebsiteElement websiteElement, ColumnDatatype datatype, String colName) {
+    public ElementIdentCorrelation(WebsiteElement websiteElement, ColumnDatatype datatype, String dbTableName, String colName) {
         this(websiteElement);
         this.dbColName = colName;
         this.columnDatatype = datatype;
-        this.dbTableName = CourseTableManager.TABLE_NAME;
+        this.dbTableName = dbTableName;
     }
 
     public IdentType getIdentType() {

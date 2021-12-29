@@ -35,7 +35,7 @@
                </children>
             </VBox>
             <ListView fx:id="elementList" minWidth="0.0" prefWidth="165.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
-            <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewElementButton" prefHeight="30.0" text="Neues Element Konfig." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+            <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewElementButton" prefHeight="30.0" text="Neue Element Konfig." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
          </children>
       </AnchorPane>
       <BorderPane fx:id="rightPanelBox">

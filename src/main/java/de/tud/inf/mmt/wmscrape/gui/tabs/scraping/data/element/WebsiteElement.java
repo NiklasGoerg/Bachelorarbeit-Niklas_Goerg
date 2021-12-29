@@ -20,30 +20,11 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String description;
 
+    // set to null if website config is removed -> no cascading delete
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "website_id", referencedColumnName = "id")
     private Website website;
-
-    @Column(columnDefinition = "TEXT", name = "information_url")
-    private String informationUrl;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "content_type")
-    private ContentType contentType;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "multiplicity_type")
-    private MultiplicityType multiplicityType;
-
-    //only for table scraping
-    @Column(columnDefinition = "TEXT", name = "table_ident")
-    private String tableIdent;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "table_iden_type")
-    private IdentType tableIdenType = IdentType.ID;
 
     @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementSelection> elementSelections = new ArrayList<>();
@@ -53,6 +34,29 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
 
     @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<ElementDescCorrelation> elementDescCorrelations = new ArrayList<>();
+
+
+    @Column(nullable = false, updatable = false)
+    private String description;
+
+    @Column(columnDefinition = "TEXT", name = "information_url")
+    private String informationUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "content_type", nullable = false, updatable = false)
+    private ContentType contentType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "multiplicity_type", nullable = false, updatable = false)
+    private MultiplicityType multiplicityType;
+
+    //only for table scraping
+    @Column(columnDefinition = "TEXT", name = "table_ident")
+    private String tableIdent;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "table_iden_type", nullable = false)
+    private IdentType tableIdenType = IdentType.ID;
 
 
     public WebsiteElement() {}

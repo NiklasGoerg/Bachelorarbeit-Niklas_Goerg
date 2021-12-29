@@ -12,10 +12,11 @@ public abstract class DbTableColumn {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(nullable = false, updatable = false)
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "column_datatype")
+    @Column(name = "column_datatype", nullable = false, updatable = false)
     private ColumnDatatype columnDatatype;
 
     public DbTableColumn() {}
@@ -33,16 +34,8 @@ public abstract class DbTableColumn {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public ColumnDatatype getColumnDatatype() {
         return columnDatatype;
-    }
-
-    public void setColumnDatatype(ColumnDatatype columnDatatype) {
-        this.columnDatatype = columnDatatype;
     }
 
     public abstract String getTableName();

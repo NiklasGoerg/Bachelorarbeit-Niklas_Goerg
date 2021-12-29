@@ -16,34 +16,36 @@ public class ExcelCorrelation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "db_col_title")
+
+    @ManyToOne(fetch=FetchType.LAZY, optional = false)
+    @JoinColumn(name="excel_sheet_id", referencedColumnName="id", updatable = false, nullable = false)
+    private ExcelSheet excelSheet;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="stock_column_id", referencedColumnName="id", updatable = false)
+    private StockColumn stockColumn;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transaction_column_id", referencedColumnName="id", updatable = false)
+    private TransactionColumn transactionColumn;
+
+
+    @Column(name = "db_col_title", updatable = false, nullable = false)
     private String dbColTitle;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "db_col_type")
+    @Column(name = "db_col_type", updatable = false, nullable = false)
     private ColumnDatatype dbColType;
 
     @Column(name = "excel_col_title")
     private String _excelColTitle;
 
-    @Column(name = "excel_col_number")
+    @Column(name = "excel_col_number", nullable = false)
     private int _excelColNumber = -1;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "correlation_type")
+    @Column(name = "correlation_type", nullable = false, updatable = false)
     private CorrelationType correlationType;
-
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="excel_sheet_id", referencedColumnName="id")
-    private ExcelSheet excelSheet;
-
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="stock_column_id", referencedColumnName="id")
-    private StockColumn stockColumn;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transaction_column_id", referencedColumnName="id")
-    private TransactionColumn transactionColumn;
 
 
     @Transient

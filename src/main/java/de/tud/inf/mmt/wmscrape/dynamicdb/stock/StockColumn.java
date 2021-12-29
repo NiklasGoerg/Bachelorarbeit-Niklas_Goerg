@@ -16,7 +16,7 @@ public class StockColumn extends DbTableColumn {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "stockColumn", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockColumn", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementIdentCorrelation> elementIdentCorrelations;
 
     public StockColumn() {}

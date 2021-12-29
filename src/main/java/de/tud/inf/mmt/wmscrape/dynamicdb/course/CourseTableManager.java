@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public class CourseTableManager extends DbTableManger {
 
-    public static final String TABLE_NAME = "kursdaten";
+    public static final String TABLE_NAME = "wertpapier_kursdaten";
     public static final List<String> KEY_COLUMNS = List.of("datum", "isin");
     public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin", "wkn", "name");
     public static final List<String> COLUMN_ORDER = List.of("datum", "isin");

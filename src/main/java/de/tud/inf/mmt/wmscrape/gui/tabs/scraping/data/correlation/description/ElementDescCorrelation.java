@@ -15,9 +15,13 @@ public class  ElementDescCorrelation {
     private int id;
 
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id", referencedColumnName = "id", updatable = false, nullable = false, insertable = false)
     private ElementSelection elementSelection;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "website_element_id", referencedColumnName = "id", updatable = false, nullable = false)
+    private WebsiteElement websiteElement;
 
     @Column(name = "ws_description", columnDefinition = "TEXT")
     private String _wsDescription;
@@ -28,10 +32,6 @@ public class  ElementDescCorrelation {
 
     @Column(name = "ws_wkn", columnDefinition = "TEXT")
     private String _wsWkn;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "website_element_id", referencedColumnName = "id")
-    private WebsiteElement websiteElement;
 
     @Transient
     private final SimpleStringProperty wsDescription = new SimpleStringProperty();

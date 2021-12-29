@@ -307,7 +307,7 @@ public class ScrapingWebsiteTabController {
         String value = input.getText();
         if(value==null) return true;
 
-        boolean isValid = value.matches("^(https?://.*|-)$"); // "-" to allow saving with deactivated fields
+        boolean isValid = value.matches("^(https?://.+|-)$"); // "-" to allow saving with deactivated fields
         decorateField(input, "Die URL muss mit http:// oder https:// beginnen!", isValid);
         return isValid;
     }

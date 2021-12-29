@@ -17,15 +17,29 @@ public class ElementSelection {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @OneToOne(mappedBy = "elementSelection", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    private ElementDescCorrelation elementDescCorrelation;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "website_element_id", referencedColumnName = "id", updatable = false, nullable = false)
+    private WebsiteElement websiteElement;
+
+    // optional, only stock/course
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "stock_isin", referencedColumnName = "isin", updatable = false)
+    private Stock stock;
+
+    // optional, only exchange
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exchange_column_id", referencedColumnName = "id", updatable = false)
+    private ExchangeColumn exchangeColumn;
+
+    @Column(name = "is_selected", nullable = false)
+    private boolean _selected = false;
+
     @Transient
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "website_element_id", referencedColumnName = "id")
-    private WebsiteElement websiteElement;
-
-    @Column(name = "is_selected")
-    private boolean _selected = false;
     @Transient
     private final SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
 
@@ -35,19 +49,6 @@ public class ElementSelection {
     private String isin;
     @Transient
     private String wkn;
-
-    // optional, only stock/course
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stock_isin", referencedColumnName = "isin")
-    private Stock stock;
-
-    // optional, only exchange
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exchange_column_id", referencedColumnName = "id")
-    private ExchangeColumn exchangeColumn;
-
-    @OneToOne(mappedBy = "elementSelection", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private ElementDescCorrelation elementDescCorrelation;
 
     @Transient
     private boolean isChanged = false;
@@ -60,14 +61,12 @@ public class ElementSelection {
     public ElementSelection() {}
 
     public ElementSelection(WebsiteElement websiteElement, Stock stock) {
-        //this.description = stock.getName();
         this.websiteElement = websiteElement;
         this.stock = stock;
         setPropertiesFromPersistence();
     }
 
     public ElementSelection(WebsiteElement websiteElement, ExchangeColumn exchangeColumn) {
-        //this.description = exchangeColumn.getName();
         this.websiteElement = websiteElement;
         this.exchangeColumn = exchangeColumn;
         setPropertiesFromPersistence();

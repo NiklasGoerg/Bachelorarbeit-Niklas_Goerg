@@ -15,18 +15,19 @@ public class Depot {
     @Column(length = 500)
     private String name;
 
+    @OneToMany(fetch=FetchType.LAZY, mappedBy ="depot",  orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<DepotTransaction> depotTransactions = new ArrayList<>();
+
+    // depot doesn't have to have an account atm
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "account_id", referencedColumnName = "id")
+    private Account account;
+
     @Column(name = "öffnungsdatum")
     private Date opened;
 
     @Column(name = "schließungsdatum")
     private Date closed;
-
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    private Account account;
-
-    @OneToMany(fetch=FetchType.LAZY, mappedBy ="depot",  orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<DepotTransaction> depotTransactions = new ArrayList<>();
 
     public Depot() {
     }

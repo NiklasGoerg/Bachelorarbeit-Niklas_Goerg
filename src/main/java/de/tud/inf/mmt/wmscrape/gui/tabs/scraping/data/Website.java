@@ -15,6 +15,12 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @OneToMany(mappedBy = "website", fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    private final List<WebsiteElement> websiteElements = new ArrayList<>();
+
+    @Column(nullable = false, updatable = false)
     private String description;
 
     @Column(columnDefinition = "TEXT")
@@ -27,43 +33,39 @@ public class Website extends WebRepresentation<WebsiteElement>{
     private String password;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "username_ident_type")
+    @Column(name = "username_ident_type", nullable = false)
     private IdentType usernameIdentType = IdentType.ID;
 
     @Column(columnDefinition = "TEXT", name = "username_ident")
     private String usernameIdent;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "password_ident_type")
+    @Column(name = "password_ident_type", nullable = false)
     private IdentType passwordIdentType = IdentType.ID;
 
     @Column(columnDefinition = "TEXT", name = "password_ident")
     private String passwordIdent;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "login_button_ident_type")
+    @Column(name = "login_button_ident_type", nullable = false)
     private IdentType loginButtonIdentType = IdentType.ID;
 
     @Column(columnDefinition = "TEXT", name = "login_button_ident")
     private String loginButtonIdent;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "logout_ident_type")
+    @Column(name = "logout_ident_type", nullable = false)
     private IdentType logoutIdentType = IdentType.DEAKTIVIERT;
 
     @Column(columnDefinition = "TEXT", name = "logout_ident")
     private String logoutIdent;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "cookie_accept_ident_type")
+    @Column(name = "cookie_accept_ident_type", nullable = false)
     private IdentType cookieAcceptIdentType = IdentType.DEAKTIVIERT;
 
     @Column(columnDefinition = "TEXT", name = "cookie_accept_ident")
     private String cookieAcceptIdent;
-
-    @OneToMany(mappedBy = "website", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<WebsiteElement> websiteElements = new ArrayList<>();
-
 
     public Website() {}
 
@@ -192,15 +194,18 @@ public class Website extends WebRepresentation<WebsiteElement>{
         return websiteElements;
     }
 
-    public void setWebsiteElements(List<WebsiteElement> websiteElements) {
-        this.websiteElements = websiteElements;
+
+    // TODO change when hibernate/jpa adds option for "on delete set null" when cascading persist
+    @PreRemove
+    private void onDeleteSetNull() {
+        websiteElements.forEach(e -> e.setWebsite(null));
     }
+
 
     @Override
     public String toString() {
         return this.description;
     }
-
 
     @Override
     public boolean equals(Object o) {

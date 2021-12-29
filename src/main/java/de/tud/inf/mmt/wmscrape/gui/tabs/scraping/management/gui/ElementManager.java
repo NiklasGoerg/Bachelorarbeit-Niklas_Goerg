@@ -3,10 +3,13 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
@@ -229,7 +232,8 @@ public abstract class ElementManager {
         for(String column : List.of(EXTRA_STOCK)) {
             if(!addedStockColumns.contains(column)) {
                 addedStockColumns.add(column);
-                stockCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, column));
+                stockCorrelations.add(new ElementIdentCorrelation(
+                        websiteElement, ColumnDatatype.TEXT, StockTableManager.TABLE_NAME ,column));
             }
         }
 
@@ -263,7 +267,8 @@ public abstract class ElementManager {
             for(String column : List.of(EXTRA_STOCK)) {
                 if(!addedStockColumns.contains(column)) {
                     addedStockColumns.add(column);
-                    courseCorrelations.add(new ElementIdentCorrelation(websiteElement, ColumnDatatype.TEXT, column));
+                    courseCorrelations.add(new ElementIdentCorrelation(
+                            websiteElement, ColumnDatatype.TEXT, CourseTableManager.TABLE_NAME ,column));
                 }
             }
         }
@@ -292,7 +297,8 @@ public abstract class ElementManager {
         for(String column : EXCHANGE_COLS) {
             if(!addedStockColumns.contains(column)) {
                 addedStockColumns.add(column);
-                exchangeCorrelations.add(new ElementIdentCorrelation(websiteElement, column));
+                exchangeCorrelations.add(new ElementIdentCorrelation(
+                        websiteElement, ColumnDatatype.DOUBLE, ExchangeTableManager.TABLE_NAME, column));
             }
         }
 

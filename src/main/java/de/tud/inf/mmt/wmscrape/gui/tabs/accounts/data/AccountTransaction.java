@@ -11,9 +11,14 @@ public class AccountTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Id
     @Column(name = "account_id")
     private int accountId;
+
+    @ManyToOne(fetch=FetchType.LAZY, optional = false)
+    @JoinColumn(name="account_id", referencedColumnName="id", updatable=false, insertable=false, nullable = false)
+    private Account account;
 
     @Column(name = "zeitpunkt")
     private LocalDateTime timestamp;
@@ -22,12 +27,15 @@ public class AccountTransaction {
     private double amount;
 
     @Enumerated
-    @Column(name = "typ")
+    @Column(name = "typ", nullable = false, updatable = false)
     private TransactionType transactionType;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="account_id", referencedColumnName="id", updatable=false, insertable=false)
-    private Account account;
+    public AccountTransaction() {}
+
+    public AccountTransaction(Account account, TransactionType transactionType) {
+        this.account = account;
+        this.transactionType = transactionType;
+    }
 
     public int getId() {
         return id;
@@ -51,10 +59,6 @@ public class AccountTransaction {
 
     public TransactionType getTransactionType() {
         return transactionType;
-    }
-
-    public void setTransactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
     }
 
 }
