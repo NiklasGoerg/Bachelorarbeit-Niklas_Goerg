@@ -132,7 +132,7 @@ public class ScrapingWebsiteTabController {
     @FXML
     private void handleSaveButton() {
 
-        if(!websiteIsSelected()) return;
+        if(noWebsiteSelected()) return;
         inlineValidation = true;
         if(!isValidInput()) return;
 
@@ -159,6 +159,10 @@ public class ScrapingWebsiteTabController {
 
     @FXML
     private void handleTestButton() {
+        if(noWebsiteSelected()) return;
+        inlineValidation = true;
+        if(!isValidInput() || urlField.getText().equals("-")) return;
+
         primaryTabManagement.loadFxml(
                 "gui/tabs/scraping/controller/website/websiteTestPopup.fxml",
                 "Login Test",
@@ -166,15 +170,15 @@ public class ScrapingWebsiteTabController {
                 true, websiteTestPopupController);
     }
 
-    private boolean websiteIsSelected() {
+    private boolean noWebsiteSelected() {
         if(getSelectedWebsite() == null) {
             createAlert("Keine Webseite ausgewählt!",
                     "Wählen Sie eine Webseite aus der Liste aus oder" +
                             " erstellen Sie eine neue bevor Sie Speichern."
             );
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public Website getSelectedWebsite() {
