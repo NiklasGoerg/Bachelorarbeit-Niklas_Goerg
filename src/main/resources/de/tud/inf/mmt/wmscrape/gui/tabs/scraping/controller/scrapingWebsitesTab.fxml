@@ -9,6 +9,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -22,37 +23,34 @@
   <items>
     <AnchorPane prefHeight="653.0" prefWidth="170.0">
          <children>
-            <VBox alignment="TOP_CENTER" minWidth="0.0" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="CENTER" minWidth="0.0" prefHeight="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
                   <Label text="Webseiten">
                      <VBox.margin>
-                        <Insets top="6.0" />
+                        <Insets />
                      </VBox.margin>
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
-                  <Separator minHeight="-Infinity" minWidth="-Infinity" />
                </children>
             </VBox>
-            <ListView fx:id="websiteList" minWidth="0.0" prefWidth="165.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
+            <ListView fx:id="websiteList" minWidth="0.0" prefWidth="165.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="34.0" />
             <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewWebsiteButton" prefHeight="30.0" text="Neue Webseiten Konfig." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
          </children></AnchorPane>
       <VBox fx:id="rightPanelBox" minHeight="400.0" minWidth="580.0">
          <children>
-            <VBox alignment="BOTTOM_CENTER" prefHeight="25.0">
-               <children>
-                  <Label text="Webseitenkonfiguration">
-                     <VBox.margin>
-                        <Insets bottom="1.0" />
-                     </VBox.margin>
-                     <font>
-                        <Font name="System Bold" size="13.0" />
-                     </font>
-                  </Label>
-                  <Separator minHeight="-Infinity" minWidth="-Infinity" />
-               </children>
-            </VBox>
+            <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="34.0">
+               <items>
+                  <Button mnemonicParsing="false" onAction="#handleDeleteWebsiteButton" text="Konfig. entfernen" />
+                  <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
+                <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern" />
+                  <Button mnemonicParsing="false" onAction="#handleTestButton" text="Testen" />
+               </items>
+               <VBox.margin>
+                  <Insets right="-3.0" />
+               </VBox.margin>
+            </ToolBar>
             <VBox>
                <children>
                   <GridPane>
@@ -147,24 +145,6 @@
                            </GridPane.margin>
                         </BorderPane>
                         <VBox alignment="CENTER" GridPane.columnIndex="1">
-                           <children>
-                              <Button minWidth="135.0" mnemonicParsing="false" onAction="#handleDeleteWebsiteButton" text="Konfig. entfernen" />
-                              <Button minWidth="135.0" mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen">
-                                 <VBox.margin>
-                                    <Insets top="4.0" />
-                                 </VBox.margin>
-                              </Button>
-                            <Button minWidth="135.0" mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern">
-                                 <VBox.margin>
-                                    <Insets top="4.0" />
-                                 </VBox.margin>
-                              </Button>
-                              <Button minWidth="135.0" mnemonicParsing="false" onAction="#handleTestButton" text="Testen">
-                                 <VBox.margin>
-                                    <Insets top="4.0" />
-                                 </VBox.margin>
-                              </Button>
-                           </children>
                            <padding>
                               <Insets right="8.0" />
                            </padding>
@@ -424,6 +404,6 @@
       </VBox>
   </items>
    <padding>
-      <Insets bottom="-1.0" top="3.0" />
+      <Insets bottom="-1.0" top="7.0" />
    </padding>
 </SplitPane>

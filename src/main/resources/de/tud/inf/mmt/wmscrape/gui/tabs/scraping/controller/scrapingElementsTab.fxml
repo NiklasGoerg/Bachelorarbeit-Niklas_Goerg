@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -21,7 +22,7 @@
   <items>
     <AnchorPane maxWidth="500.0" prefHeight="653.0" prefWidth="170.0">
          <children>
-            <VBox alignment="TOP_CENTER" minWidth="0.0" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="CENTER" minWidth="0.0" prefHeight="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
                   <Label text="Elemente">
                      <VBox.margin>
@@ -31,10 +32,9 @@
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
-                  <Separator minHeight="-Infinity" minWidth="-Infinity" />
                </children>
             </VBox>
-            <ListView fx:id="elementList" minWidth="0.0" prefWidth="165.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="22.0" />
+            <ListView fx:id="elementList" minWidth="0.0" prefWidth="165.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="34.0" />
             <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewElementButton" prefHeight="30.0" text="Neue Element Konfig." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
          </children>
       </AnchorPane>
@@ -42,19 +42,16 @@
          <top>
             <VBox BorderPane.alignment="CENTER">
                <children>
-                  <VBox alignment="BOTTOM_CENTER" prefHeight="25.0">
-                     <children>
-                        <Label text="Webseiten Elemente">
-                           <VBox.margin>
-                              <Insets bottom="1.0" />
-                           </VBox.margin>
-                           <font>
-                              <Font name="System Bold" size="13.0" />
-                           </font>
-                        </Label>
-                        <Separator minHeight="-Infinity" minWidth="-Infinity" />
-                     </children>
-                  </VBox>
+                  <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="34.0">
+                     <items>
+                        <Button mnemonicParsing="false" onAction="#handleDeleteElementButton" text="Konfig. entfernen" />
+                        <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
+                      <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern" />
+                     </items>
+                     <VBox.margin>
+                        <Insets right="-3.0" />
+                     </VBox.margin>
+                  </ToolBar>
                   <GridPane>
                      <VBox.margin>
                         <Insets />
@@ -70,16 +67,6 @@
                         <VBox>
                            <children>
                               <BorderPane>
-                                 <left>
-                                    <Label text="Webseiten-Verknüpfung" BorderPane.alignment="CENTER">
-                                       <font>
-                                          <Font name="System Bold" size="13.0" />
-                                       </font>
-                                       <BorderPane.margin>
-                                          <Insets left="5.0" />
-                                       </BorderPane.margin>
-                                    </Label>
-                                 </left>
                                  <padding>
                                     <Insets bottom="-1.0" />
                                  </padding>
@@ -138,25 +125,7 @@
                         </VBox>
                         <AnchorPane GridPane.columnIndex="1">
                            <children>
-                              <VBox alignment="TOP_RIGHT" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-3.0">
-                                 <children>
-                                    <Button mnemonicParsing="false" onAction="#handleDeleteElementButton" prefWidth="150.0" text="Konfig. entfernen">
-                                       <VBox.margin>
-                                          <Insets bottom="5.0" />
-                                       </VBox.margin>
-                                    </Button>
-                                    <Button mnemonicParsing="false" onAction="#handleResetButton" prefWidth="150.0" text="Zurücksetzen">
-                                       <VBox.margin>
-                                          <Insets bottom="5.0" />
-                                       </VBox.margin>
-                                    </Button>
-                                  <Button mnemonicParsing="false" onAction="#handleSaveButton" prefWidth="150.0" text="Speichern">
-                                       <VBox.margin>
-                                          <Insets />
-                                       </VBox.margin>
-                                    </Button>
-                                 </children>
-                              </VBox>
+                              <VBox alignment="TOP_RIGHT" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-3.0" />
                            </children>
                         </AnchorPane>
                      </children>
@@ -170,6 +139,6 @@
       </BorderPane>
   </items>
    <padding>
-      <Insets bottom="-1.0" top="3.0" />
+      <Insets bottom="-1.0" top="7.0" />
    </padding>
 </SplitPane>

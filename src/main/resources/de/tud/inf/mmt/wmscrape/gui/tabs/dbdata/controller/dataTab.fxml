@@ -35,9 +35,9 @@
    <children>
       <BorderPane GridPane.columnIndex="1">
          <top>
-            <ToolBar nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
+            <ToolBar minHeight="34.0" nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
               <items>
-                  <MenuButton alignment="CENTER" minWidth="100.0" mnemonicParsing="false" prefWidth="165.0" text="Inhalte entfernen">
+                  <MenuButton alignment="CENTER" mnemonicParsing="false" text="Inhalte entfernen">
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#handleDeleteRowsButton" text="Zeilen löschen" />
                       <MenuItem mnemonicParsing="false" onAction="#handleDeleteAllInTableButton" text="Alle Zeilen löschen" />
@@ -47,7 +47,7 @@
                            </accelerator></MenuItem>
                     </items>
                   </MenuButton>
-                  <MenuButton alignment="CENTER" layoutX="10.0" layoutY="10.0" minWidth="100.0" mnemonicParsing="false" prefWidth="165.0" text="Inhalte anpassen">
+                  <MenuButton alignment="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Inhalte anpassen">
                      <items>
                         <MenuItem mnemonicParsing="false" onAction="#handleSaveButton" text="Änderungen speichern">
                            <accelerator>
@@ -58,8 +58,8 @@
                         <MenuItem fx:id="addEmptyRowMenuItem" mnemonicParsing="false" onAction="#handleAddEmptyRow" text="Heutige Zeile hinzufügen" />
                      </items>
                   </MenuButton>
-                  <Button minWidth="100.0" mnemonicParsing="false" onAction="#handleResetButton" prefWidth="165.0" text="Zurücksetzen" />
-                  <Button minWidth="100.0" mnemonicParsing="false" onAction="#handleViewEverythingButton" prefWidth="165.0" text="Alles anzeigen" />
+                  <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
+                  <Button mnemonicParsing="false" onAction="#handleViewEverythingButton" text="Alles anzeigen" />
               </items>
                <BorderPane.margin>
                   <Insets right="-3.0" />

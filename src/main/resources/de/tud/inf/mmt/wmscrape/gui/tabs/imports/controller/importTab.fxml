@@ -10,13 +10,13 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <SplitPane fx:id="rootNode" dividerPositions="0.2" prefHeight="655.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController">
@@ -27,33 +27,30 @@
          </columnConstraints>
          <rowConstraints>
             <RowConstraints vgrow="NEVER" />
+            <RowConstraints vgrow="NEVER" />
             <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
             <RowConstraints vgrow="NEVER" />
          </rowConstraints>
          <children>
-            <ListView fx:id="excelSheetList" GridPane.rowIndex="1">
+            <ListView fx:id="excelSheetList" GridPane.rowIndex="2">
                <GridPane.margin>
                   <Insets top="-1.0" />
                </GridPane.margin>
             </ListView>
-            <VBox alignment="TOP_CENTER" prefHeight="25.0">
-               <children>
-                  <Label text="Excelkonfigurationen">
-                     <VBox.margin>
-                        <Insets top="6.0" />
-                     </VBox.margin>
-                     <font>
-                        <Font name="System Bold" size="13.0" />
-                     </font>
-                  </Label>
-                  <Separator />
-               </children>
-            </VBox>
-            <AnchorPane GridPane.rowIndex="2">
+            <AnchorPane GridPane.rowIndex="3">
                <children>
                   <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewExcelSheetButton" prefHeight="30.0" text="Neue Excel Konfig." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                </children>
             </AnchorPane>
+            <BorderPane prefHeight="34.0">
+               <center>
+                  <Label text="Excel-Konfigurationen" BorderPane.alignment="CENTER">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Label>
+               </center>
+            </BorderPane>
          </children>
       </GridPane>
       <GridPane fx:id="rightPanelBox" minWidth="500.0">
@@ -61,160 +58,144 @@
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
         </columnConstraints>
         <rowConstraints>
+            <RowConstraints vgrow="SOMETIMES" />
           <RowConstraints vgrow="SOMETIMES" />
           <RowConstraints vgrow="NEVER" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
         </rowConstraints>
          <children>
-            <VBox alignment="TOP_CENTER">
-               <children>
-                  <Label text="Konfiguration">
-                     <VBox.margin>
-                        <Insets top="6.0" />
-                     </VBox.margin>
-                     <font>
-                        <Font name="System Bold" size="13.0" />
-                     </font>
-                  </Label>
-                  <Separator minHeight="-Infinity" minWidth="-Infinity" />
-               </children>
-            </VBox>
-            <BorderPane GridPane.rowIndex="1">
-               <right>
-                  <VBox alignment="TOP_RIGHT" BorderPane.alignment="CENTER">
+            <BorderPane GridPane.rowIndex="2">
+               <bottom>
+                  <Separator BorderPane.alignment="CENTER" />
+               </bottom>
+               <center>
+                  <GridPane BorderPane.alignment="CENTER">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="30.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="30.0" vgrow="NEVER" />
+                     </rowConstraints>
                      <children>
-                        <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#saveSpecificExcel" prefWidth="160.0" text="Angaben Speichern">
-                           <VBox.margin>
-                              <Insets />
-                           </VBox.margin>
-                        </Button>
-                        <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#previewExcel" prefWidth="160.0" text="Vorschau Laden">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#importExcel" prefWidth="160.0" text="Import">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </Button>
-                        <Button layoutX="129.0" layoutY="102.0" mnemonicParsing="false" onAction="#openLog" prefWidth="160.0" text="Log öffnen">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#handleDeleteExcelSheetButton" prefWidth="160.0" text="Konfig. entfernen">
-                           <VBox.margin>
-                              <Insets top="5.0" />
-                           </VBox.margin>
-                        </Button>
-                     </children>
-                     <BorderPane.margin>
-                        <Insets bottom="5.0" right="5.0" top="5.0" />
-                     </BorderPane.margin>
-                  </VBox>
-               </right>
-               <left>
-                  <VBox minWidth="-Infinity" prefWidth="563.0" BorderPane.alignment="CENTER">
-                     <children>
-                        <HBox alignment="CENTER_LEFT">
+                        <HBox alignment="CENTER">
                            <children>
-                              <HBox alignment="CENTER_RIGHT" prefWidth="150.0">
+                              <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="150.0">
                                  <children>
-                                    <Label text="Dateipfad" />
+                                    <Label text="Dateipfad">
+                                       <HBox.margin>
+                                          <Insets left="10.0" right="10.0" />
+                                       </HBox.margin>
+                                    </Label>
                                  </children>
                               </HBox>
-                              <TextField fx:id="pathField" prefWidth="300.0">
+                              <TextField fx:id="pathField" prefWidth="310.0">
                                  <HBox.margin>
-                                    <Insets left="10.0" />
+                                    <Insets />
                                  </HBox.margin>
                               </TextField>
-                              <Button mnemonicParsing="false" onAction="#handleFileSelectionButton" text="Auswählen">
+                              <Button mnemonicParsing="false" onAction="#handleFileSelectionButton" prefWidth="90.0" text="Auswählen">
                                  <HBox.margin>
                                     <Insets left="-1.0" />
                                  </HBox.margin>
                               </Button>
-                           </children>
-                           <VBox.margin>
-                              <Insets left="15.0" top="5.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT">
-                           <children>
-                              <HBox alignment="CENTER_RIGHT" prefWidth="150.0">
+                              <HBox alignment="CENTER_LEFT">
                                  <children>
-                                    <Label text="Passwort" />
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="80.0">
+                                       <children>
+                                          <Label text="Passwort">
+                                             <HBox.margin>
+                                                <Insets left="10.0" right="10.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <PasswordField fx:id="passwordField" prefWidth="311.0" promptText="optional">
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin>
+                                    </PasswordField>
                                  </children>
                               </HBox>
-                              <PasswordField fx:id="passwordField" prefWidth="300.0" promptText="optional">
+                           </children>
+                           <GridPane.margin>
+                              <Insets bottom="5.0" />
+                           </GridPane.margin>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
+                        </HBox>
+                        <HBox alignment="CENTER" GridPane.rowIndex="1">
+                           <children>
+                              <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="150.0">
+                                 <children>
+                                    <Label text="Titelzeilen-Nummer">
+                                       <HBox.margin>
+                                          <Insets left="10.0" right="10.0" />
+                                       </HBox.margin>
+                                    </Label>
+                                 </children>
                                  <HBox.margin>
-                                    <Insets left="10.0" />
+                                    <Insets />
                                  </HBox.margin>
-                              </PasswordField>
-                           </children>
-                           <VBox.margin>
-                              <Insets left="15.0" top="5.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT">
-                           <children>
-                              <HBox alignment="CENTER_RIGHT" prefWidth="150.0">
-                                 <children>
-                                    <Label text="Titelzeilen Nummer" />
-                                 </children>
                               </HBox>
-                              <Spinner fx:id="titleRowSpinner" prefWidth="300.0">
+                              <Spinner fx:id="titleRowSpinner" minWidth="80.0" prefWidth="100.0">
                                  <HBox.margin>
-                                    <Insets left="10.0" />
+                                    <Insets />
                                  </HBox.margin>
                               </Spinner>
-                           </children>
-                           <VBox.margin>
-                              <Insets left="15.0" top="5.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT">
-                           <children>
-                              <HBox alignment="CENTER_RIGHT" prefWidth="150.0">
+                              <HBox alignment="CENTER_LEFT">
                                  <children>
-                                    <Label text="Titel Übernahmespalte" />
+                                    <HBox alignment="CENTER_RIGHT" prefWidth="170.0">
+                                       <children>
+                                          <Label text="Titel Übernahmespalte">
+                                             <HBox.margin>
+                                                <Insets left="10.0" right="10.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <TextField fx:id="selectionColTitleField" prefWidth="190.0">
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin>
+                                    </TextField>
                                  </children>
                               </HBox>
-                              <TextField fx:id="selectionColTitleField" prefWidth="300.0">
-                                 <HBox.margin>
-                                    <Insets left="10.0" />
-                                 </HBox.margin>
-                              </TextField>
-                           </children>
-                           <VBox.margin>
-                              <Insets left="15.0" top="5.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" layoutX="25.0" layoutY="102.0">
-                           <children>
-                              <HBox alignment="CENTER_RIGHT" prefWidth="150.0">
+                              <HBox alignment="CENTER_LEFT">
                                  <children>
-                                    <Label text="Titel Depotspalte" />
+                                    <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="140.0">
+                                       <children>
+                                          <Label text="Titel Depotspalte">
+                                             <HBox.margin>
+                                                <Insets left="10.0" right="10.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <TextField fx:id="depotColTitleField" prefWidth="190.0">
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin>
+                                    </TextField>
                                  </children>
                               </HBox>
-                              <TextField fx:id="depotColTitleField" prefWidth="300.0">
-                                 <HBox.margin>
-                                    <Insets left="10.0" />
-                                 </HBox.margin>
-                              </TextField>
                            </children>
-                           <VBox.margin>
-                              <Insets left="15.0" top="5.0" />
-                           </VBox.margin>
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
                         </HBox>
                      </children>
-                  </VBox>
-               </left>
-               <bottom>
-                  <Separator prefWidth="200.0" BorderPane.alignment="CENTER" />
-               </bottom>
+                     <BorderPane.margin>
+                        <Insets bottom="5.0" top="10.0" />
+                     </BorderPane.margin>
+                  </GridPane>
+               </center>
             </BorderPane>
-            <SplitPane dividerPositions="0.5" orientation="VERTICAL" GridPane.rowIndex="2">
+            <SplitPane dividerPositions="0.5" orientation="VERTICAL" GridPane.rowIndex="3">
               <items>
                   <BorderPane>
                      <center>
@@ -318,6 +299,18 @@
                   </BorderPane>
               </items>
             </SplitPane>
+            <ToolBar minHeight="34.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="34.0">
+              <items>
+                  <Button mnemonicParsing="false" onAction="#handleDeleteExcelSheetButton" text="Konfig. entfernen" />
+                  <Button mnemonicParsing="false" onAction="#openLog" text="Log öffnen" />
+                  <Button mnemonicParsing="false" onAction="#importExcel" text="Import" />
+                  <Button mnemonicParsing="false" onAction="#previewExcel" text="Vorschau Laden" />
+                  <Button mnemonicParsing="false" onAction="#saveSpecificExcel" text="Angaben Speichern" />
+              </items>
+               <GridPane.margin>
+                  <Insets right="-3.0" />
+               </GridPane.margin>
+            </ToolBar>
          </children>
       </GridPane>
   </items>

@@ -161,9 +161,9 @@ public class CorrelationManager {
         // to be able to undo a selection
         comboBoxOptions.add(0, null);
 
-        TableColumn<ExcelCorrelation, String> dbColumn = new TableColumn<>("Datenbank Spalte");
+        TableColumn<ExcelCorrelation, String> dbColumn = new TableColumn<>("Datenbank-Spalte");
         TableColumn<ExcelCorrelation, String> typeColumn = new TableColumn<>("DB-Typ");
-        TableColumn<ExcelCorrelation, String> excelColumn = new TableColumn<>("Excel Spalte");
+        TableColumn<ExcelCorrelation, String> excelColumn = new TableColumn<>("Excel-Spalte");
 
         // populate with name from ExcelCorrelation property
         dbColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getDbColTitle()));
