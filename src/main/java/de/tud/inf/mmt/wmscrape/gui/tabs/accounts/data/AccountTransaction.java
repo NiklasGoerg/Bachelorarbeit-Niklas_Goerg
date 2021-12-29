@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @IdClass(AccountTransactionKey.class)
-@Table(name = "kontotransaktion")
+@Table(name = "konto_transaktion")
 public class AccountTransaction {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Id
     @Column(name = "account_id")

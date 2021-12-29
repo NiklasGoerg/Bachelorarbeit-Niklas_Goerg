@@ -4,14 +4,16 @@ import javax.persistence.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name = "db_table_column")
+@Table(name = "datenbank_spalte")
 @DiscriminatorColumn(name="col_type")
 public abstract class DbTableColumn {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String name;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "column_datatype")
     private ColumnDatatype columnDatatype;

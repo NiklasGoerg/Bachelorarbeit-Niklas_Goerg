@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "website")
+@Table(name = "webseiten_konfiguration")
 public class Website extends WebRepresentation<WebsiteElement>{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String description;
 

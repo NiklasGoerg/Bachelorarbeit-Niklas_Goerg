@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "element_desc_correlation")
+@Table(name = "webseiten_element_abbildung")
 public class  ElementDescCorrelation {
 
     @Id

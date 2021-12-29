@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.depots.data;
 
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 
 import javax.persistence.*;
@@ -7,7 +8,7 @@ import java.sql.Date;
 
 @Entity
 @IdClass(DepotTransactionKey.class)
-@Table(name = "depottransaktion")
+@Table(name = TransactionTableManager.TABLE_NAME)
 public class DepotTransaction {
     @Id
     @Column(name="depot_name", length = 500)
@@ -46,5 +47,4 @@ public class DepotTransaction {
     public Date getDate() {
         return date;
     }
-
 }

@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "excel_sheet")
+@Table(name = "excel_konfiguration")
 public class ExcelSheet {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String description;

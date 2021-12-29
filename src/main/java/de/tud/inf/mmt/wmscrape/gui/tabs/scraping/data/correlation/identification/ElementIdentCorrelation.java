@@ -12,10 +12,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "element_ident_correlation")
+@Table(name = "webseiten_element_identifikation")
 public class ElementIdentCorrelation {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "ident_type", columnDefinition = "TEXT")

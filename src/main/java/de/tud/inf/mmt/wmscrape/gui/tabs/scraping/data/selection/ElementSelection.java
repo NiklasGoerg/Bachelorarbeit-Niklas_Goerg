@@ -10,11 +10,11 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "element_selection")
+@Table(name = "webseiten_element_auswahl")
 public class ElementSelection {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Transient

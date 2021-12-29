@@ -9,11 +9,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "excel_correlation")
+@Table(name = "excel_spaltenzuordnung")
 public class ExcelCorrelation {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "db_col_title")

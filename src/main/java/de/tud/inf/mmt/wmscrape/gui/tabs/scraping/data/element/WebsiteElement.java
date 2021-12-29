@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "website_element")
+@Table(name = "webseiten_element")
 public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String description;
 
@@ -144,8 +144,7 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof WebsiteElement)) return false;
-        WebsiteElement that = (WebsiteElement) o;
+        if (!(o instanceof WebsiteElement that)) return false;
         return id == that.id && Objects.equals(description, that.description) && Objects.equals(informationUrl, that.informationUrl) && contentType == that.contentType && multiplicityType == that.multiplicityType && Objects.equals(tableIdent, that.tableIdent) && tableIdenType == that.tableIdenType;
     }
 
