@@ -114,7 +114,7 @@ public class ElementManagerTable extends ElementManager {
             return;
         }
 
-        var correlation = new ElementDescCorrelation(elementSelection, elementSelection.getWebsiteElement());
+        var correlation = new ElementDescCorrelation(elementSelection);
         elementSelection.setElementDescCorrelation(correlation);
         tableSubController.getElementDescCorrelations().add(correlation);
     }

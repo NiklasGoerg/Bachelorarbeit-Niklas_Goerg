@@ -1,6 +1,5 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -18,10 +17,6 @@ public class  ElementDescCorrelation {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id", referencedColumnName = "id", updatable = false, nullable = false, insertable = false)
     private ElementSelection elementSelection;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "website_element_id", referencedColumnName = "id", updatable = false, nullable = false)
-    private WebsiteElement websiteElement;
 
     @Column(name = "ws_description", columnDefinition = "TEXT")
     private String _wsDescription;
@@ -44,9 +39,8 @@ public class  ElementDescCorrelation {
 
     public ElementDescCorrelation() {}
 
-    public ElementDescCorrelation(ElementSelection elementSelection, WebsiteElement websiteElement) {
+    public ElementDescCorrelation(ElementSelection elementSelection) {
         this.elementSelection = elementSelection;
-        this.websiteElement = websiteElement;
 
         // initial state is to show the same values as in the db
         this._wsDescription = elementSelection.getDescription();
@@ -90,14 +84,6 @@ public class  ElementDescCorrelation {
 
     public SimpleStringProperty wsWknProperty() {
         return wsWkn;
-    }
-
-    public WebsiteElement getWebsiteElement() {
-        return websiteElement;
-    }
-
-    public void setWebsiteElement(WebsiteElement websiteElement) {
-        this.websiteElement = websiteElement;
     }
 
     @PostLoad

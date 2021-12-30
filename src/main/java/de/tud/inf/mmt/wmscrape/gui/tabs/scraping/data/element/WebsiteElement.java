@@ -2,7 +2,6 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebRepresentation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
@@ -31,10 +30,6 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
 
     @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementIdentCorrelation> elementIdentCorrelations = new ArrayList<>();
-
-    @OneToMany(mappedBy = "websiteElement", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private final List<ElementDescCorrelation> elementDescCorrelations = new ArrayList<>();
-
 
     @Column(nullable = false, updatable = false)
     private String description;
