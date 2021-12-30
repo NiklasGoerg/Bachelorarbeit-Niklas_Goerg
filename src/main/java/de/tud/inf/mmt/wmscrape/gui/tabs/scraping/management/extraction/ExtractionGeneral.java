@@ -25,10 +25,10 @@ public abstract class ExtractionGeneral {
 
     protected HashMap<String , PreparedStatement> preparedStatements = new HashMap<>();
     protected HashMap<String, Integer> waitWithHighlighting = new HashMap<>();
-    protected Connection connection;
-    protected SimpleStringProperty logText;
-    protected WebsiteScraper scraper;
-    protected Date date;
+    protected final Connection connection;
+    protected final SimpleStringProperty logText;
+    protected final WebsiteScraper scraper;
+    protected final Date date;
 
     protected ExtractionGeneral(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         this.connection = connection;

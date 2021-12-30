@@ -113,7 +113,7 @@ public class CorrelationManager {
             }
         }
 
-        // even if they are given in the db i want them on top
+        // even if they are given in the db I want them on top
         addImportantCorrelations(addedStockDbCols, excelSheet, importantStockCorrelations, CorrelationType.STOCKDATA, stockColumnRelations);
 
 
@@ -196,7 +196,7 @@ public class CorrelationManager {
 
         transactionColumnRelations = FXCollections.observableArrayList();
         ArrayList<String> addedTransDbCols = new ArrayList<>();
-        // dont need the key of depot
+        // don't need the key of depot
         addedTransDbCols.add("depot_id");
 
         // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
@@ -209,7 +209,7 @@ public class CorrelationManager {
             }
         }
 
-        // even if they are given in the db i want them on top
+        // even if they are given in the db I want them on top
         addImportantCorrelations(addedTransDbCols, excelSheet, importantTransactionCorrelations, CorrelationType.TRANSACTION, transactionColumnRelations);
 
 

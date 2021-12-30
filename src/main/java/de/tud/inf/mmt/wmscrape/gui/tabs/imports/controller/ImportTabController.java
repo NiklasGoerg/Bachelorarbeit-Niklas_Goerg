@@ -239,10 +239,12 @@ public class ImportTabController {
                 alert.setHeaderText("Fehler bei der Evaluierung!");
 
                 TextArea textArea = new TextArea(
-                        "Einige Zellen konnten nicht evaluiert werden.\n" +
-                        "Genauere Informationen befinden sich im Log.\n" +
-                        "Die von POI unterstützten Funktionen können hier nachgeschlagen werden: \n\n" +
-                        "https://poi.apache.org/components/spreadsheet/eval-devguide.html");
+                        """
+                                Einige Zellen konnten nicht evaluiert werden.
+                                Genauere Informationen befinden sich im Log.
+                                Die von POI unterstützten Funktionen können hier nachgeschlagen werden:\s
+
+                                https://poi.apache.org/components/spreadsheet/eval-devguide.html""");
                 textArea.setEditable(false);
                 textArea.setWrapText(true);
                 GridPane gridPane = new GridPane();
@@ -295,8 +297,10 @@ public class ImportTabController {
             case -2 -> createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
                     Alert.AlertType.INFORMATION);
             case -3 -> createAlert("Zuordnung unvollständig!",
-                    "Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für " +
-                            "Stammdaten:\n isin, wkn\nTransaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp",
+                    """
+                            Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für Stammdaten:
+                             isin, wkn
+                            Transaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp""",
                     Alert.AlertType.ERROR);
             case -4 -> createAlert("Fehler bei Sql-Statement erstellung.!",
                     "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",
