@@ -44,7 +44,8 @@ public class ScrapingWebsiteTabController {
 
     private ObservableList<Website> websiteObservableList;
     private boolean inlineValidation = false;
-    private static final BorderPane noSelectionReplacement = new BorderPane(new Label("Wählen Sie eine Webseite aus oder erstellen Sie eine neue (unten links)"));
+    private static final BorderPane noSelectionReplacement = new BorderPane(new Label(
+            "Wählen Sie eine Konfiguration aus oder erstellen Sie eine neue (unten links)"));
 
     @Autowired
     private ScrapingTabManager scrapingTabManager;

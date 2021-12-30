@@ -53,7 +53,8 @@ public class ImportTabController {
 
     private ObservableList<ExcelSheet> excelSheetObservableList;
     private boolean inlineValidation = false;
-    private static final BorderPane noSelectionReplacement = new BorderPane(new Label("Wählen Sie eine Excelkonfiguration aus oder erstellen Sie eine neue (unten links)"));
+    private static final BorderPane noSelectionReplacement = new BorderPane(new Label(
+            "Wählen Sie eine Excelkonfiguration aus oder erstellen Sie eine neue (unten links)"));
 
     @Autowired
     private StockColumnRepository stockColumnRepository;

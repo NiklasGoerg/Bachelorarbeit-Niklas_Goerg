@@ -44,7 +44,7 @@
             </AnchorPane>
             <BorderPane prefHeight="34.0">
                <center>
-                  <Label text="Excel-Konfigurationen" BorderPane.alignment="CENTER">
+                  <Label text="Konfigurationen" BorderPane.alignment="CENTER">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>

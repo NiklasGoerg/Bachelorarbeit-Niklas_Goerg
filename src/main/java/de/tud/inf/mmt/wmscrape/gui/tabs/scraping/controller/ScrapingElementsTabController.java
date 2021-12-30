@@ -52,7 +52,7 @@ public class ScrapingElementsTabController {
     private ObservableList<WebsiteElement> elementObservableList;
     private final ObservableList<Website> websiteObservableList = FXCollections.observableArrayList();
     private static final BorderPane noSelectionReplacement = new BorderPane(new Label(
-            "Wählen Sie ein Element aus oder erstellen Sie ein neues (unten links)"));
+            "Wählen Sie eine Konfiguration aus oder erstellen Sie eine neue (unten links)"));
 
     private boolean inlineValidation = false;
 
