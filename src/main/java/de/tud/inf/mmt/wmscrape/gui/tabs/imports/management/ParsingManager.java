@@ -12,6 +12,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -60,9 +61,9 @@ public class ParsingManager {
     }
 
 
-    private Workbook decryptAndGetWorkbook(ExcelSheet excelSheet) throws EncryptedDocumentException {
+    private XSSFWorkbook decryptAndGetWorkbook(ExcelSheet excelSheet) throws EncryptedDocumentException {
         try {
-            return WorkbookFactory.create(new File(excelSheet.getPath()), excelSheet.getPassword());
+            return (new XSSFWorkbookFactory()).create(new File(excelSheet.getPath()), excelSheet.getPassword(), true);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -73,7 +74,7 @@ public class ParsingManager {
         sheetPreviewTable.getColumns().clear();
         sheetPreviewTable.getItems().clear();
 
-        Workbook workbook;
+        XSSFWorkbook workbook;
         try {
             workbook = decryptAndGetWorkbook(excelSheet);
         } catch (EncryptedDocumentException e) {
@@ -142,30 +143,30 @@ public class ParsingManager {
         return 0;
     }
 
-    private boolean getExcelSheetData(Workbook workbook, int startRow, ObservableMap<Integer, ArrayList<String>> excelData) {
+    private boolean getExcelSheetData(XSSFWorkbook workbook, int startRow, ObservableMap<Integer, ArrayList<String>> excelData) {
 
         importTabManager.addToLog("##### Start Excel Parsing #####\n");
 
-        Sheet sheet = workbook.getSheetAt(0);
+        XSSFSheet sheet = workbook.getSheetAt(0);
         FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
         evaluator.setIgnoreMissingWorkbooks(true);
         //DataFormatter formatter = new DataFormatter();
-        String value;
+        String stringValue;
         boolean evalFault = false;
 
         // for each table row
         // excel starts with index 1 "poi" with 0
-        for (int rowNumber = startRow - 1; rowNumber < sheet.getLastRowNum(); rowNumber++) {
+        for (int rowNumber = startRow-1; rowNumber < sheet.getLastRowNum(); rowNumber++) {
 
-            Row row = sheet.getRow(rowNumber);
+            XSSFRow row = sheet.getRow(rowNumber);
 
             // skip if null
             if (row == null) continue;
 
             // for each column per row
             for (int colNumber = 0; colNumber < row.getLastCellNum(); colNumber++) {
-                value = "";
-                Cell cell = row.getCell(colNumber, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                stringValue = "";
+                XSSFCell cell = row.getCell(colNumber, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 
                 // add new array if new row
                 if (!excelData.containsKey(rowNumber)) {
@@ -174,33 +175,42 @@ public class ParsingManager {
                     excelData.get(rowNumber).add(String.valueOf(rowNumber));
                 }
 
-                // cell value processing
+                // cell stringValue processing
                 if (cell == null) {
                     excelData.get(rowNumber).add("");
                 } else {
                     try {
-                        switch (evaluator.evaluateInCell(cell).getCellType()) {
+
+                        CellValue cellValue = evaluator.evaluate(cell);
+
+                        switch (cellValue.getCellType()) {
                             case STRING:
-                                value = cell.getStringCellValue();
+                                stringValue = cellValue.getStringValue();
                                 break;
                             case NUMERIC:
                                 if (DateUtil.isCellDateFormatted(cell)) {
-                                    Date date = new Date(cell.getDateCellValue().getTime());
+
+                                    // copied from org.apache.poi.xssf.usermodel.XSSFCell # getDateCellValue()
+                                    // because cell.getDateCellValue().getTime() is not offered for CellValue
+                                    double value = cellValue.getNumberValue();
+                                    boolean date1904 = cell.getSheet().getWorkbook().isDate1904();
+                                    Date date = DateUtil.getJavaDate(value, date1904);
+
                                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                                    value = dateFormat.format(date);
+                                    stringValue = dateFormat.format(date);
                                 } else {
-                                    value = String.format("%.6f", cell.getNumericCellValue()).replace(",", ".")
+                                    stringValue = String.format("%.6f", cellValue.getNumberValue()).replace(",", ".")
                                             .replace("(Infinity|NaN)","");
                                 }
                                 break;
                             case BOOLEAN:
-                                value = String.valueOf(cell.getBooleanCellValue());
+                                stringValue = String.valueOf(cellValue.getBooleanValue());
                                 break;
                             case ERROR:
-                                value = String.valueOf(cell.getErrorCellValue());
+                                stringValue = String.valueOf(cellValue.getErrorValue());
                                 break;
                             default:
-                                value = "";
+                                stringValue = "";
                                 break;
                         }
                     } catch (NotImplementedException e) {
@@ -211,12 +221,12 @@ public class ParsingManager {
                         importTabManager.addToLog(e.getMessage() + " _CAUSE:_ " + e.getCause());
                         evalFault = true;
                     } catch (Exception e) {
-                        System.out.println("Unbekannter Fehler in Zeile: "+row+" Spalte: "+colNumber+" Nachricht: "+e.getMessage()+"    _GRUND_    "+e.getCause()+"");
-                        importTabManager.addToLog(e.getMessage() + " _CAUSE:_ " + e.getCause());
+                        importTabManager.addToLog("Unbekannter Fehler in Zeile: "+rowNumber+" Spalte: "
+                                +colNumber+" Nachricht: "+e.getMessage()+"    _GRUND_    "+e.getCause());
                         evalFault = true;
                     }
 
-                    excelData.get(rowNumber).add(value.trim());
+                    excelData.get(rowNumber).add(stringValue.trim());
                 }
             }
         }
