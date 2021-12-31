@@ -1,6 +1,5 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs;
 
-import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;
@@ -32,23 +31,21 @@ public class PrimaryTabController {
     @Autowired
     private ScrapingTabController scrapingTabController;
     @Autowired
-    private PrimaryTabManagement primaryTabManagement;
-    @Autowired
     private DataTabController dataTabController;
 
     @FXML
     private void initialize() throws IOException {
         currentUserLabel.setText("Aktueller Nutzer: " + SpringIndependentData.getUsername());
 
-        Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/dbdata/controller/dataTab.fxml", dataTabController);
+        Parent parent = PrimaryTabManager.loadTabFxml("gui/tabs/dbdata/controller/dataTab.fxml", dataTabController);
         Tab dataTab = new Tab("Daten" , parent);
         primaryTabPane.getTabs().add(dataTab);
 
-        parent = primaryTabManagement.loadTabFxml("gui/tabs/imports/controller/importTab.fxml", importTabController);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/imports/controller/importTab.fxml", importTabController);
         Tab importTab = new Tab("Import" , parent);
         primaryTabPane.getTabs().add(importTab);
 
-        parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);
         Tab tab = new Tab("Scraping" , parent);
         primaryTabPane.getTabs().add(tab);
 
@@ -63,7 +60,7 @@ public class PrimaryTabController {
     @FXML
     private void handleLogoutButton() {
         applicationContext.close();
-        LoginManager.loadFxml("gui/login/controller/existingUserLogin.fxml", "Login", logoutButton, false);
+        PrimaryTabManager.loadFxml("gui/login/controller/existingUserLogin.fxml", "Login", logoutButton, false, null);
     }
 
     public ConfigurableApplicationContext getApplicationContext() {

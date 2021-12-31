@@ -50,12 +50,6 @@ public class StockTableManager extends DbTableManger {
         //addColumn("url_1", ColumnDatatype.TEXT);
     }
 
-    public PreparedStatement getPreparedStatement(String dbColName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO "+TABLE_NAME+" (isin, datum, `"+dbColName+"`) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `"+
-                dbColName+"`=VALUES(`" + dbColName + "`);";
-        return connection.prepareStatement(sql);
-    }
-
     @Override
     public boolean removeColumn(String columnName) {
         return removeAbstractColumn(columnName, TABLE_NAME, stockColumnRepository);
@@ -89,5 +83,13 @@ public class StockTableManager extends DbTableManger {
     @Override
     protected void saveNewInRepository(String colName, ColumnDatatype datatype) {
         stockColumnRepository.saveAndFlush(new StockColumn(colName, datatype));
+    }
+
+    @Override
+    public PreparedStatement getPreparedDataStatement(String colName, Connection connection) throws SQLException {
+        String sql = "INSERT INTO "+TABLE_NAME+" (isin, datum, `"+colName+"`) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `"+
+                colName+"`=VALUES(`"+colName+"`);";
+        return connection.prepareStatement(sql);
+
     }
 }

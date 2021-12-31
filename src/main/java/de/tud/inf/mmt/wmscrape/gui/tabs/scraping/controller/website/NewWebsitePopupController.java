@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingWebsiteTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
@@ -57,7 +57,7 @@ public class NewWebsitePopupController {
         descriptionField.setTooltip(null);
 
         if(descriptionField.getText() == null || descriptionField.getText().isBlank()) {
-            descriptionField.setTooltip(PrimaryTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
+            descriptionField.setTooltip(PrimaryTabManager.createTooltip("Dieses Feld darf nicht leer sein!"));
             descriptionField.getStyleClass().add("bad-input");
             return false;
         }

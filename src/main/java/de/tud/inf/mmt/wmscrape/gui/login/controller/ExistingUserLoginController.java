@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.login.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -25,7 +25,7 @@ public class ExistingUserLoginController {
 
     @FXML
     private void handleNewUserButton() {
-        LoginManager.loadFxml("gui/login/controller/newUserLogin.fxml", "Neuen Nutzer anlegen", usernameField, false);
+        PrimaryTabManager.loadFxml("gui/login/controller/newUserLogin.fxml", "Neuen Nutzer anlegen", usernameField, false, null);
     }
 
     @FXML
@@ -64,8 +64,8 @@ public class ExistingUserLoginController {
 
     @FXML
     private void handleChangeDbPathButton() {
-        LoginManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml",
-                "Datenbankpfad ändern", usernameField, true);
+        PrimaryTabManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml",
+                "Datenbankpfad ändern", usernameField, true, null);
     }
 
 
@@ -105,7 +105,7 @@ public class ExistingUserLoginController {
         input.setTooltip(null);
 
         if(!isValid) {
-            input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
+            input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
             input.getStyleClass().add("bad-input");
         }
     }

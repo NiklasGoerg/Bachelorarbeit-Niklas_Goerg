@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @Service
@@ -67,5 +69,10 @@ public class ExchangeTableManager extends DbTableManger {
     @Override
     protected void saveNewInRepository(String colName, ColumnDatatype datatype) {
         exchangeColumnRepository.saveAndFlush(new ExchangeColumn(colName, datatype));
+    }
+
+    @Override
+    public PreparedStatement getPreparedDataStatement(String colName, Connection connection) {
+        throw new UnsupportedOperationException();
     }
 }

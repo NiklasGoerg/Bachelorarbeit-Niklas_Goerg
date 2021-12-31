@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 @Service
@@ -60,4 +63,9 @@ public class TransactionTableManager extends DbTableManger {
         transactionColumnRepository.saveAndFlush(new TransactionColumn(colName, datatype));
     }
 
+    public PreparedStatement getPreparedDataStatement(String dbColName, Connection connection) throws SQLException {
+        String sql = "INSERT INTO `"+TABLE_NAME+"` (depot_name, transaktions_datum, wertpapier_isin, `"+dbColName+"`) VALUES(?,?,?,?) " +
+                "ON DUPLICATE KEY UPDATE `"+dbColName+"`=VALUES(`"+dbColName+"`);";
+        return connection.prepareStatement(sql);
+    }
 }

@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
@@ -16,11 +16,10 @@ public class ScrapingTabController {
     @Autowired private ScrapingWebsiteTabController scrapingWebsiteTabController;
     @Autowired private ScrapingElementsTabController scrapingElementsTabController;
     @Autowired private ScrapingScrapeTabController scrapingScrapeTabController;
-    @Autowired private PrimaryTabManagement primaryTabManagement;
 
     @FXML
     private void initialize() throws IOException {
-        Parent parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingScrapeTab.fxml", scrapingScrapeTabController);
+        Parent parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingScrapeTab.fxml", scrapingScrapeTabController);
         Tab tab = new Tab("Scrapen" , parent);
 
         tab.selectedProperty().addListener((o,ov,nv) -> {
@@ -31,11 +30,11 @@ public class ScrapingTabController {
         scrapingSubTabPane.getTabs().add(tab);
 
 
-        parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingWebsitesTab.fxml", scrapingWebsiteTabController);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingWebsitesTab.fxml", scrapingWebsiteTabController);
         tab = new Tab("Webseiten" , parent);
         scrapingSubTabPane.getTabs().add(tab);
 
-        parent = primaryTabManagement.loadTabFxml("gui/tabs/scraping/controller/scrapingElementsTab.fxml", scrapingElementsTabController);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingElementsTab.fxml", scrapingElementsTabController);
         tab = new Tab("Elemente" , parent);
 
         tab.selectedProperty().addListener((o,ov,nv) -> {

@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.login.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -29,9 +29,7 @@ public class ChangeDbPathPopupController {
 
     @FXML
     private void handleConfirmButton() throws IOException {
-        if(!dbPathValidation()) {
-            return;
-        }
+        if(!dbPathValidation()) return;
 
         String newPath = dbPathField.getText();
         properties.setProperty("last.dbPath", newPath);
@@ -56,7 +54,7 @@ public class ChangeDbPathPopupController {
         input.setTooltip(null);
 
         if(!isValid) {
-            input.setTooltip(PrimaryTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
+            input.setTooltip(PrimaryTabManager.createTooltip("Dieses Feld darf nicht leer sein!"));
             input.getStyleClass().add("bad-input");
         }
     }

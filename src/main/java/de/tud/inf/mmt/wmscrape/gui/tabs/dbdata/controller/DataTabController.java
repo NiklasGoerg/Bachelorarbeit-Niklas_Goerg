@@ -2,7 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
-import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.*;
@@ -22,13 +22,12 @@ import java.util.Optional;
 @Controller
 public class DataTabController {
 
-    @Autowired private PrimaryTabManagement primaryTabManagement;
+    @Autowired private PrimaryTabManager primaryTabManager;
     @Autowired private ScrapingElementsTabController scrapingElementsTabController;
     @Autowired private CourseDataManager courseDataManager;
     @Autowired private StockDataManager stockDataManager;
     @Autowired private ExchangeDataManager exchangeDataManager;
     @Autowired private TransactionDataManager transactionDataManager;
-
 
     private final TableView<Stock> stockSelectionTable = new TableView<>();
     private final TableView<Depot> depotSelectionTable = new TableView<>();
@@ -477,7 +476,7 @@ public class DataTabController {
     }
 
     private boolean badTooltip(String message) {
-        newColumnNameField.setTooltip(PrimaryTabManagement.createTooltip(message));
+        newColumnNameField.setTooltip(PrimaryTabManager.createTooltip(message));
         newColumnNameField.getStyleClass().add("bad-input");
         return false;
     }
@@ -515,11 +514,11 @@ public class DataTabController {
         String text = newIsinField.getText();
 
         if(text == null || text.isBlank()) {
-            newIsinField.setTooltip(PrimaryTabManagement.createTooltip("Dieses Feld darf nicht leer sein!"));
+            newIsinField.setTooltip(PrimaryTabManager.createTooltip("Dieses Feld darf nicht leer sein!"));
             newIsinField.getStyleClass().add("bad-input");
             return false;
         } else if (text.length()>=50) {
-            newIsinField.setTooltip(PrimaryTabManagement.createTooltip("Die maximale Länge der ISIN beträgt 50 Zeichen."));
+            newIsinField.setTooltip(PrimaryTabManager.createTooltip("Die maximale Länge der ISIN beträgt 50 Zeichen."));
             newIsinField.getStyleClass().add("bad-input");
         }
 

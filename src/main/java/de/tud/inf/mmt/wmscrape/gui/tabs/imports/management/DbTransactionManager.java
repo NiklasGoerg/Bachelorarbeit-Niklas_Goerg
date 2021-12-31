@@ -1,18 +1,19 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionTableManager;
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -27,56 +28,38 @@ public class DbTransactionManager {
     @Autowired
     private TransactionColumnRepository transactionColumnRepository;
     @Autowired
-    private StockTableManager stockDataDbManager;
-    @Autowired
     private ImportTabManager importTabManager;
     @Autowired
     private CorrelationManager correlationManager;
 
-    public HashMap<String, PreparedStatement> createStockDataStatements(Connection connection) {
-        HashMap<String, PreparedStatement> statements = new HashMap<>();
+    String dateToday;
 
-        // prepare a statement for each column
-
-        for (StockColumn column : stockColumnRepository.findAll()) {
-            try {
-                statements.put(column.getName(), stockDataDbManager.getPreparedStatement(column.getName(), connection));
-            } catch (SQLException e) {
-                e.printStackTrace();
-                importTabManager.addToLog("ERR:\t\tErstellung des Statements fehlgeschlagen. Spalte: '"
-                        + column.getName() + "' Datentyp '" + column.getColumnDatatype() + "' _CAUSE_ " + e.getCause());
-                return null;
-            }
-        }
-        return statements;
+    public DbTransactionManager() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateToday = dateFormat.format(Date.valueOf(LocalDate.now()));
     }
 
-    public HashMap<String, PreparedStatement> createTransactionDataStatements(Connection connection) {
+    public <T extends DbTableColumnRepository<? extends DbTableColumn, Integer>> HashMap<String, PreparedStatement>
+                                            createDataStatements(DbTableManger tableManger, T repository, Connection connection) {
         HashMap<String, PreparedStatement> statements = new HashMap<>();
 
         // prepare a statement for each column
 
-        for (TransactionColumn column : transactionColumnRepository.findAll()) {
-            ColumnDatatype type = column.getColumnDatatype();
+        for (DbTableColumn column : repository.findAll()) {
             String colName = column.getName();
 
             try {
-                statements.put(colName, getPreparedTransactionStatement(colName, connection));
+                statements.put(colName, tableManger.getPreparedDataStatement(colName, connection));
             } catch (SQLException e) {
                 e.printStackTrace();
                 importTabManager.addToLog("ERR:\t\tErstellung des Statements fehlgeschlagen. Spalte: '"
-                        + colName + "' Datentyp '" + type + "' _CAUSE_ " + e.getCause());
+                        + colName + "' Datentyp '" + column.getColumnDatatype() + "' _CAUSE_ " + e.getCause());
                 return null;
             }
         }
         return statements;
     }
 
-    public PreparedStatement getPreparedTransactionStatement(String dbColName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO `"+ TransactionTableManager.TABLE_NAME +"` (depot_name, transaktions_datum, wertpapier_isin, `" + dbColName + "`) VALUES(?,?,?,?) " +
-                "ON DUPLICATE KEY UPDATE `" + dbColName + "`=VALUES(`" + dbColName + "`);";
-        return connection.prepareStatement(sql);
-    }
 
     public boolean executeStatements(Connection connection, HashMap<String, PreparedStatement> statements) {
         try {
@@ -92,50 +75,34 @@ public class DbTransactionManager {
         return false;
     }
 
-    public boolean fillStockStatementAddToBatch(String isin, Date date, PreparedStatement statement,
+    public boolean fillStockStatementAddToBatch(String isin, PreparedStatement statement,
                                                 String data, ColumnDatatype datatype) {
 
-        try {
-            statement.setString(1, isin);
-            statement.setDate(2, date);
-
-            if (data == null) {
-                fillNullByDataType(datatype, statement, 3, true);
-            } else {
-                fillByDataType(datatype, statement, 3, data);
-            }
-
-            statement.addBatch();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            importTabManager.addToLog("ERR:\t\tBei dem Setzen der Statementwerte sind Fehler aufgetreten: "
-                    + e.getMessage() + " _ CAUSE_ " + e.getCause());
-            return true;
-        } catch (NumberFormatException | DateTimeParseException e) {
-            e.printStackTrace();
-            importTabManager.addToLog("ERR:\t\tBei dem Parsen des Wertes '" + data + "' in das Format "
-                    + datatype.name() + " ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
-            return true;
-        }
-        return false;
+        if (setStatementValue(1, isin, ColumnDatatype.TEXT, statement)) return true;
+        if (setStatementValue(2, dateToday, ColumnDatatype.DATE, statement)) return true;
+        if (setStatementValue(3, data, datatype, statement)) return true;
+        return addBatch(statement);
     }
 
-    public boolean fillTransactionStatementAddToBatch(String depotName, Date date, String isin,
+    public boolean fillTransactionStatementAddToBatch(String depotName, String isin, String date,
                                                       PreparedStatement statement, String data,
                                                       ColumnDatatype datatype) {
 
+        if (setStatementValue(1, depotName, ColumnDatatype.TEXT, statement)) return true;
+        if (setStatementValue(2, date, ColumnDatatype.DATE, statement)) return true;
+        if (setStatementValue(3, isin, ColumnDatatype.TEXT, statement)) return true;
+        if (setStatementValue(4, data, datatype, statement)) return true;
+        return addBatch(statement);
+    }
+
+
+    private boolean setStatementValue(int i, String data, ColumnDatatype datatype, PreparedStatement statement) {
         try {
-            statement.setString(1, depotName);
-            statement.setDate(2, date);
-            statement.setString(3, isin);
-
             if (data == null) {
-                fillNullByDataType(datatype, statement, 4, false);
+                fillNullByDataType(datatype, statement, i, false);
             } else {
-                fillByDataType(datatype, statement, 4, data);
+                fillByDataType(datatype, statement, i, data);
             }
-
-            statement.addBatch();
         } catch (SQLException e) {
             e.printStackTrace();
             importTabManager.addToLog("ERR:\t\tBei dem Setzen der Statementwerte sind Fehler aufgetreten: "
@@ -149,6 +116,17 @@ public class DbTransactionManager {
         }
         return false;
     }
+
+    private boolean addBatch(PreparedStatement statement) {
+        try {
+            statement.addBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+        return false;
+    }
+
 
     private void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data)
             throws SQLException, NumberFormatException, DateTimeParseException {

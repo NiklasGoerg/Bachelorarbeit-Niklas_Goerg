@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.login.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -95,12 +95,14 @@ public class NewUserLoginController {
 
     @FXML
     private void handleBackButton() {
-        LoginManager.loadFxml("gui/login/controller/existingUserLogin.fxml", "Login", rootPasswordField, false);
+        PrimaryTabManager.loadFxml("gui/login/controller/existingUserLogin.fxml", "Login",
+                rootPasswordField, false, null);
     }
 
     @FXML
     private void handleChangeDbPathButton() {
-        LoginManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml", "Datenbankpfad ändern", rootPasswordField, true);
+        PrimaryTabManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml",
+                "Datenbankpfad ändern", rootPasswordField, true, null);
     }
 
     private boolean isValidInput() {
@@ -148,7 +150,7 @@ public class NewUserLoginController {
         input.setTooltip(null);
 
         if(!isValid) {
-            input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
+            input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
             input.getStyleClass().add("bad-input");
         }
     }

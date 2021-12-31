@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.NewWebsitePopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.WebsiteTestPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
@@ -50,8 +50,6 @@ public class ScrapingWebsiteTabController {
     @Autowired
     private ScrapingTabManager scrapingTabManager;
     @Autowired
-    private PrimaryTabManagement primaryTabManagement;
-    @Autowired
     private NewWebsitePopupController newWebsitePopupController;
     @Autowired
     private WebsiteTestPopupController websiteTestPopupController;
@@ -96,7 +94,7 @@ public class ScrapingWebsiteTabController {
 
     @FXML
     private void handleNewWebsiteButton() {
-        primaryTabManagement.loadFxml(
+        PrimaryTabManager.loadFxml(
                 "gui/tabs/scraping/controller/website/newWebsitePopup.fxml",
                 "Neue Webseite anlegen",
                 websiteList,
@@ -164,7 +162,7 @@ public class ScrapingWebsiteTabController {
         inlineValidation = true;
         if(!isValidInput() || urlField.getText().equals("-")) return;
 
-        primaryTabManagement.loadFxml(
+        PrimaryTabManager.loadFxml(
                 "gui/tabs/scraping/controller/website/websiteTestPopup.fxml",
                 "Login Test",
                 websiteList,
@@ -332,7 +330,7 @@ public class ScrapingWebsiteTabController {
 
         if(!isValid) {
             if(inlineValidation) {
-                input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
+                input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
                 input.getStyleClass().add("bad-input");
             }
         }

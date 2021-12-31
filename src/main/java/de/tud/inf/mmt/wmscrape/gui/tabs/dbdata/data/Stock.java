@@ -21,7 +21,7 @@ public class Stock {
     private final List<DepotTransaction> depotTransactions = new ArrayList<>();
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="stock", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ElementSelection> elementSelections = new ArrayList<>();
+    private final List<ElementSelection> elementSelections = new ArrayList<>();
 
     @Column(name = "wkn",columnDefinition = "TEXT")
     private String _wkn;
@@ -80,32 +80,8 @@ public class Stock {
         this.name.set(name);
     }
 
-    public String getStockType() {
-        return stockType.get();
-    }
-
     public SimpleStringProperty stockTypeProperty() {
         return stockType;
-    }
-
-    public void setStockType(String stockType) {
-        this.stockType.set(stockType);
-    }
-
-    public List<DepotTransaction> getDepotTransactions() {
-        return depotTransactions;
-    }
-
-    public void addDepotTransaction(DepotTransaction depotTransaction) {
-        this.depotTransactions.add(depotTransaction);
-    }
-
-    public List<ElementSelection> getElementSelections() {
-        return elementSelections;
-    }
-
-    public void setElementSelections(List<ElementSelection> elementSelections) {
-        this.elementSelections = elementSelections;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
-import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.NewElementPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourseOrStockSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchangeSubController;
@@ -39,8 +39,6 @@ public class ScrapingElementsTabController {
     @Autowired
     private ElementManagerCourseAndExchange scrapingCourseAndExchangeManager;
     @Autowired
-    private PrimaryTabManagement primaryTabManagement;
-    @Autowired
     private NewElementPopupController newElementPopupController;
     @Autowired
     private SingleExchangeSubController singleExchangeSubController;
@@ -75,7 +73,7 @@ public class ScrapingElementsTabController {
 
     @FXML
     private void handleNewElementButton() {
-        primaryTabManagement.loadFxml(
+        PrimaryTabManager.loadFxml(
                 "gui/tabs/scraping/controller/element/newElementPopup.fxml",
                 "Neues Element anlegen",
                 elementList,
@@ -277,7 +275,7 @@ public class ScrapingElementsTabController {
 
         if(!isValid) {
             if(inlineValidation) {
-                input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
+                input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
                 input.getStyleClass().add("bad-input");
             }
         }

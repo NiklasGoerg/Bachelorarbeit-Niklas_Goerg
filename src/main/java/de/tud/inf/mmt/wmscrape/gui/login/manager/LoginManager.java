@@ -5,9 +5,7 @@ import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -19,37 +17,6 @@ import java.sql.*;
 import java.util.Properties;
 
 public class LoginManager {
-
-    public static void loadFxml(String source, String stageTitle, Control control, boolean isModal) {
-        FXMLLoader fxmlLoader = new FXMLLoader(WMScrape.class.getResource(source));
-        Parent parent;
-
-        try {
-            parent = fxmlLoader.load();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return;
-        }
-
-        Stage stage;
-
-        if(isModal) {
-            stage = new Stage();
-            Scene scene = new Scene(parent);
-            stage.setScene(scene);
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.getScene().getStylesheets().add("style.css");
-            stage.initOwner(control.getScene().getWindow());
-            stage.show();
-        } else {
-            stage = (Stage) control.getScene().getWindow();
-            stage.getScene().getStylesheets().add("style.css");
-            stage.getScene().setRoot(parent);
-
-        }
-
-        stage.setTitle(stageTitle);
-    }
 
     public static void closeWindow(Control control) {
         control.getScene().getWindow().hide();

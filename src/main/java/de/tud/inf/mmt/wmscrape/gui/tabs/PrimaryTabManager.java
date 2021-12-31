@@ -13,25 +13,36 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 @Service
-public class PrimaryTabManagement {
+public class PrimaryTabManager {
 
-    public Parent loadTabFxml(String path, Object controllerClass) throws IOException {
+    public static Parent loadTabFxml(String path, Object controllerClass) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(WMScrape.class.getResource(path));
         // this is the key to make spring available to the controller behind the fxml
         fxmlLoader.setControllerFactory(param -> controllerClass);
         return fxmlLoader.load();
     }
 
-    public void loadFxml(String path, String stageTitle, Control control, boolean isModal, Object controllerClass) {
+    public static void loadFxml(String path, String stageTitle, Control control, boolean isModal, Object controllerClass) {
         Parent parent;
 
         try {
-            parent = loadTabFxml(path, controllerClass);
+            if(controllerClass != null) {
+                // load with spring controller
+                parent = loadTabFxml(path, controllerClass);
+            } else {
+                // load with fxml instantiated controller
+                FXMLLoader fxmlLoader = new FXMLLoader(WMScrape.class.getResource(path));
+                parent = fxmlLoader.load();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
+        extracted(isModal, parent, control, stageTitle);
+    }
+
+    private static void extracted(boolean isModal, Parent parent, Control control, String stageTitle) {
         Stage stage;
 
         if(isModal) {
@@ -48,6 +59,7 @@ public class PrimaryTabManagement {
             stage.getScene().setRoot(parent);
 
         }
+
         stage.setTitle(stageTitle);
     }
 

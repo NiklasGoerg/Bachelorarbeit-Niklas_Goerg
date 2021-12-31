@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManagement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
@@ -38,8 +38,6 @@ public class ImportTabController {
     @FXML private GridPane rightPanelBox;
     @FXML private SplitPane rootNode;
 
-    @Autowired
-    private PrimaryTabManagement primaryTabManagement;
     @Autowired
     private NewExcelPopupController newExcelPopupController;
     @Autowired
@@ -90,7 +88,7 @@ public class ImportTabController {
 
     @FXML
     private void handleNewExcelSheetButton() {
-        primaryTabManagement.loadFxml(
+        PrimaryTabManager.loadFxml(
                 "gui/tabs/imports/controller/newExcelPopup.fxml",
                 "Neue Konfiguration anlegen",
                 excelSheetList,
@@ -184,60 +182,66 @@ public class ImportTabController {
         Alert alert;
 
         switch (result) {
-            case -1:
+            case -1 -> {
                 // wrong password
                 createAlert("Falsches Passwort!",
                         "Das angegebene Passwort ist falsch. Speichern Sie bevor Sie die Vorschau laden.",
                         Alert.AlertType.ERROR);
                 return;
-            case -2:
+            }
+            case -2 -> {
                 // TitleRowError
                 createAlert("Fehlerhafte Titelzeile!",
                         "Die Titelzeile liegt außerhalb der Begrenzung.",
                         Alert.AlertType.ERROR);
                 return;
-            case -3:
+            }
+            case -3 -> {
                 // no data in sheet
                 createAlert("Keine Daten gefunden!",
                         "Die angegebene Datei enhält keine Daten.",
                         Alert.AlertType.ERROR);
                 return;
-            case -4:
+            }
+            case -4 -> {
                 // no data title row
                 createAlert("Keine Daten gefunden!",
                         "In der angegebenen Titelzeile sind keine Daten.",
                         Alert.AlertType.ERROR);
                 return;
-            case -5:
+            }
+            case -5 -> {
                 // titles not unique
                 createAlert("Titel nicht einzigartig!",
                         "Die Titelzeile enthält Elemente mit gleichen Namen. Mehr Informationen im Log",
                         Alert.AlertType.ERROR);
                 return;
-            case -6:
+            }
+            case -6 -> {
                 // Selection column not found
                 createAlert("Übernahmespalte nicht gefunden!",
-                        "In der Zeile "+excelSheet.getTitleRow()+" " +
-                        "existiert keine Spalte mit dem Namen '" +
-                        excelSheet.getSelectionColTitle() + "'",
+                        "In der Zeile " + excelSheet.getTitleRow() + " " +
+                                "existiert keine Spalte mit dem Namen '" +
+                                excelSheet.getSelectionColTitle() + "'",
                         Alert.AlertType.ERROR);
                 return;
-            case -7:
+            }
+            case -7 -> {
                 // Selection column not found
                 createAlert("Depotspalte nicht gefunden!",
-                        "In der Zeile "+excelSheet.getTitleRow()+" " +
+                        "In der Zeile " + excelSheet.getTitleRow() + " " +
                                 "existiert keine Spalte mit dem Namen '" +
                                 excelSheet.getDepotColTitle() + "'",
                         Alert.AlertType.ERROR);
                 return;
-            case -8:
+            }
+            case -8 -> {
                 // Cell evaluation error
                 alert = new Alert(
                         Alert.AlertType.WARNING,
                         "Einige Zellen konnten nicht evaluiert werden.",
                         ButtonType.OK);
                 alert.setHeaderText("Fehler bei der Evaluierung!");
-
                 TextArea textArea = new TextArea(
                         """
                                 Einige Zellen konnten nicht evaluiert werden.
@@ -253,7 +257,7 @@ public class ImportTabController {
                 alert.getDialogPane().setContent(gridPane);
                 setAlertPosition(alert);
                 alert.show();
-                break;
+            }
         }
 
         stockDataCorrelationTable.getColumns().clear();
@@ -298,8 +302,8 @@ public class ImportTabController {
                     Alert.AlertType.INFORMATION);
             case -3 -> createAlert("Zuordnung unvollständig!",
                     """
-                            Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind für Stammdaten:
-                             isin, wkn
+                            Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind
+                             Stammdaten:    isin, wkn
                             Transaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp""",
                     Alert.AlertType.ERROR);
             case -4 -> createAlert("Fehler bei Sql-Statement erstellung.!",
@@ -419,7 +423,7 @@ public class ImportTabController {
 
         if(!isValid) {
             if(inlineValidation) {
-                input.setTooltip(PrimaryTabManagement.createTooltip(tooltip));
+                input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
                 input.getStyleClass().add("bad-input");
             }
         }

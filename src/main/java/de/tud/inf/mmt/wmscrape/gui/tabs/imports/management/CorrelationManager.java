@@ -53,7 +53,7 @@ public class CorrelationManager {
     public CorrelationManager() {
         importantTransactionCorrelations.put("depot_name", ColumnDatatype.TEXT);
         importantTransactionCorrelations.put("wertpapier_isin", ColumnDatatype.TEXT);
-        importantTransactionCorrelations.put("transaktions_datum", ColumnDatatype.TEXT);
+        importantTransactionCorrelations.put("transaktions_datum", ColumnDatatype.DATE);
 
         importantStockCorrelations.put("isin", ColumnDatatype.TEXT);
         importantStockCorrelations.put("wkn", ColumnDatatype.TEXT);

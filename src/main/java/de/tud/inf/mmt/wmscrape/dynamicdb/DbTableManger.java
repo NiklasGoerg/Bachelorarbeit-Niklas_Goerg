@@ -22,6 +22,8 @@ public abstract class DbTableManger {
     public abstract List<String> getKeyColumns();
     public abstract List<String> getReservedColumns();
     public abstract List<String> getColumnOrder();
+    protected abstract void saveNewInRepository(String colName, ColumnDatatype datatype);
+    public abstract PreparedStatement getPreparedDataStatement(String colName, Connection connection) throws SQLException ;
 
     public ArrayList<String> getColumns(String tableName) {
         if(tableName == null) return null;
@@ -224,7 +226,4 @@ public abstract class DbTableManger {
             }
         });
     }
-
-    protected abstract void saveNewInRepository(String colName, ColumnDatatype datatype);
-
 }

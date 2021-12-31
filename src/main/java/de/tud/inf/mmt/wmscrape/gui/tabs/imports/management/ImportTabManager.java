@@ -51,7 +51,7 @@ public class ImportTabManager {
     }
 
     public void saveExcel(ExcelSheet excelSheet) {
-        excelSheetRepository.save(excelSheet);
+        excelSheetRepository.saveAndFlush(excelSheet);
 
         for(ExcelCorrelation excelCorrelation : correlationManager.getStockColumnRelations()) {
             excelCorrelationRepository.save(excelCorrelation);

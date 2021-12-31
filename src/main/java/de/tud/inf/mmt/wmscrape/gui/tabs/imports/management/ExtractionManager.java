@@ -1,7 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
@@ -13,7 +16,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +35,7 @@ public class ExtractionManager {
     @Autowired
     private DbTransactionManager dbTransactionManager;
     @Autowired
-    private StockTableManager stockDataDbManager;
+    private StockTableManager stockTableManager;
     @Autowired
     private ParsingManager parsingManager;
     @Autowired
@@ -42,6 +44,12 @@ public class ExtractionManager {
     private StockRepository stockRepository;
     @Autowired
     private DepotRepository depotRepository;
+    @Autowired
+    private TransactionColumnRepository transactionColumnRepository;
+    @Autowired
+    private TransactionTableManager transactionTableManager;
+    @Autowired
+    private StockColumnRepository stockColumnRepository;
 
     public int startDataExtraction() {
         
@@ -79,8 +87,9 @@ public class ExtractionManager {
 
         // execution is not stopped at a silent error but a log message is added
         boolean silentError = false;
-        Connection connection = stockDataDbManager.getConnection();
-        HashMap<String, PreparedStatement> statements = dbTransactionManager.createStockDataStatements(connection);
+        Connection connection = stockTableManager.getConnection();
+        HashMap<String, PreparedStatement> statements = dbTransactionManager.createDataStatements(
+                                                            stockTableManager, stockColumnRepository, connection);
         potentialNewStocks.clear();
 
         var excelSheetRows = parsingManager.getExcelSheetRows();
@@ -89,7 +98,6 @@ public class ExtractionManager {
 
 
         if (statements == null) return -4;
-        Date dateToday = new Date(System.currentTimeMillis());
 
         // go through all rows
         for (int row : excelSheetRows.keySet()) {
@@ -169,7 +177,7 @@ public class ExtractionManager {
                     continue;
                 }
 
-                silentError |= dbTransactionManager.fillStockStatementAddToBatch(isin, dateToday, statement, colData, datatype);
+                silentError |= dbTransactionManager.fillStockStatementAddToBatch(isin, statement, colData, datatype);
             }
 
         }
@@ -190,8 +198,9 @@ public class ExtractionManager {
 
         // execution is not stopped at a silent error but a log message is added
         boolean silentError = false;
-        Connection connection = stockDataDbManager.getConnection();
-        HashMap<String, PreparedStatement> statements = dbTransactionManager.createTransactionDataStatements(connection);
+        Connection connection = stockTableManager.getConnection();
+        HashMap<String, PreparedStatement> statements = dbTransactionManager.createDataStatements(
+                                                        transactionTableManager,transactionColumnRepository,connection);
 
         var excelSheetRows = parsingManager.getExcelSheetRows();
         var transactionColumnRelations = correlationManager.getTransactionColumnRelations();
@@ -235,8 +244,6 @@ public class ExtractionManager {
                 silentError = true;
                 continue;
             }
-
-            Date parsedDate = Date.valueOf(date);
 
             // stocks are created beforehand
             var stock = stockRepository.findByIsin(isin);
@@ -296,7 +303,7 @@ public class ExtractionManager {
                     continue;
                 }
 
-                silentError |= dbTransactionManager.fillTransactionStatementAddToBatch(depotName, parsedDate, isin, statement, colData, colDatatype);
+                silentError |= dbTransactionManager.fillTransactionStatementAddToBatch(depotName, isin, date, statement, colData, colDatatype);
             }
         }
 
