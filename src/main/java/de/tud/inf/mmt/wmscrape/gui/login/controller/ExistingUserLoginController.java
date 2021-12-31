@@ -12,6 +12,9 @@ public class ExistingUserLoginController {
     @FXML private ProgressIndicator progress;
     @FXML private Button loginButton;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize()  {
         LoginManager.loadUserProperties();
@@ -110,6 +113,10 @@ public class ExistingUserLoginController {
         }
     }
 
+    /**
+     * hides the login button and shows the progress while waiting for spring to complete initialization
+     * @param show if true progress is displayed
+     */
     private void showLoginProgress(boolean show) {
         loginButton.setVisible(!show);
         loginButton.setManaged(!show);

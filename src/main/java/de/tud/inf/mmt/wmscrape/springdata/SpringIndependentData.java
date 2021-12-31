@@ -1,5 +1,9 @@
 package de.tud.inf.mmt.wmscrape.springdata;
 
+/**
+ * temporarily stores the connection data. the data is used by
+ * {@link de.tud.inf.mmt.wmscrape.springdata.DataSourceConfig}
+ */
 public class SpringIndependentData {
 
     private static String username; // e.g. test

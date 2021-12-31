@@ -21,6 +21,9 @@ public class NewWebsitePopupController {
     @Autowired
     private ScrapingWebsiteTabController scrapingWebsiteTabController;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
         descriptionField.textProperty().addListener((o,ov,nv) -> { if (nv != null) isValidDescription();});

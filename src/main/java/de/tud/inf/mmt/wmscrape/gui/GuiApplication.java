@@ -22,7 +22,12 @@ public class GuiApplication extends Application {
         @Override
         public void init() {}
 
-        @Override
+    /**
+     * the entry point for the javafx application
+     *
+     * @param stage the initial stage is created by javafx and can be used as a starting point
+     */
+    @Override
         public void start(Stage stage) {
 
             try {
@@ -38,7 +43,11 @@ public class GuiApplication extends Application {
             }
         }
 
-        @Override
+    /**
+     * called when closing the program window.
+     * tries to stop the spring context if one was created
+     */
+    @Override
         public void stop() {
             PrimaryTabController controller = SpringContextAccessor.getBean(PrimaryTabController.class);
             if (controller != null) {

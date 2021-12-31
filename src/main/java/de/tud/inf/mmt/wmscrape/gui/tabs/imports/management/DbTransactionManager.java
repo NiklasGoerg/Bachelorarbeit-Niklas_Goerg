@@ -34,11 +34,25 @@ public class DbTransactionManager {
 
     String dateToday;
 
+    /**
+     * constructor called at bean creation.
+     * sets the current date as the one for the import
+     */
     public DbTransactionManager() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateToday = dateFormat.format(Date.valueOf(LocalDate.now()));
     }
 
+    /**
+     * based on the column and repository type statements are created which are later used to store the
+     * excel data to the database
+     *
+     * @param tableManger the responsible subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger}
+     * @param repository the responsible subinterface of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository}
+     * @param connection jdbc connection
+     * @param <T> the subinterface of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository}
+     * @return a map which contains a prepared statement for each db column
+     */
     public <T extends DbTableColumnRepository<? extends DbTableColumn, Integer>> HashMap<String, PreparedStatement>
                                             createDataStatements(DbTableManger tableManger, T repository, Connection connection) {
         HashMap<String, PreparedStatement> statements = new HashMap<>();
@@ -61,6 +75,13 @@ public class DbTransactionManager {
     }
 
 
+    /**
+     * executes the prepared statement batches
+     *
+     * @param connection jdbc connection
+     * @param statements the prepared statements
+     * @return false if no error
+     */
     public boolean executeStatements(Connection connection, HashMap<String, PreparedStatement> statements) {
         try {
             for (PreparedStatement statement : statements.values()) {
@@ -75,6 +96,16 @@ public class DbTransactionManager {
         return false;
     }
 
+    /**
+     * sets all the relevant data for one statement and saves it inside the statement batch.
+     * the current date is used as the second key value
+     *
+     * @param isin entity isin key
+     * @param statement the prepared statement
+     * @param data the data that will be stored inside the database
+     * @param datatype the datatype of the data
+     * @return false if no error
+     */
     public boolean fillStockStatementAddToBatch(String isin, PreparedStatement statement,
                                                 String data, ColumnDatatype datatype) {
 
@@ -84,6 +115,17 @@ public class DbTransactionManager {
         return addBatch(statement);
     }
 
+    /**
+     * sets all the relevant data for one statement and saves it inside the statement batch
+     *
+     * @param depotName the name of the depot which the transaction is assigned to
+     * @param isin entity isin key
+     * @param statement the prepared statement
+     * @param date the date of the transaction
+     * @param data the data that will be stored inside the database
+     * @param datatype the datatype of the data
+     * @return false if no error
+     */
     public boolean fillTransactionStatementAddToBatch(String depotName, String isin, String date,
                                                       PreparedStatement statement, String data,
                                                       ColumnDatatype datatype) {
@@ -96,6 +138,15 @@ public class DbTransactionManager {
     }
 
 
+    /**
+     * sets one value inside a prepared statement
+     *
+     * @param i the value position
+     * @param data the inserted data
+     * @param datatype the inserted datatype
+     * @param statement the prepared statement
+     * @return false if no error occurred
+     */
     private boolean setStatementValue(int i, String data, ColumnDatatype datatype, PreparedStatement statement) {
         try {
             if (data == null) {
@@ -117,6 +168,13 @@ public class DbTransactionManager {
         return false;
     }
 
+    /**
+     * adds a fully filled out prepared statement to its batch.
+     * the statement can be reused with other values after adding it to the batch
+     *
+     * @param statement the prepared statement
+     * @return false if no error
+     */
     private boolean addBatch(PreparedStatement statement) {
         try {
             statement.addBatch();
@@ -128,6 +186,14 @@ public class DbTransactionManager {
     }
 
 
+    /**
+     * adds the data to a statement based on its datatype
+     *
+     * @param datatype the inserted datatype
+     * @param statement the prepared statement
+     * @param number at which position the data will be inserted inside the statement
+     * @param data the inserted data
+     */
     private void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data)
             throws SQLException, NumberFormatException, DateTimeParseException {
 
@@ -149,6 +215,15 @@ public class DbTransactionManager {
         }
     }
 
+    /**
+     * allows setting a null value and therefore override previous values.
+     * the null value differs between data types
+     *
+     * @param datatype the datatype of column
+     * @param statement the prepared statement
+     * @param index at which position the data will be inserted inside the statement
+     * @param physicalNull if true an actual "null" value will be inserted. should not be used with primitive datatype.
+     */
     private void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int index, boolean physicalNull)
             throws SQLException {
 

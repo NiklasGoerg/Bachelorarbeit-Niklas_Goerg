@@ -21,6 +21,11 @@ public class ExchangeTableManager extends DbTableManger {
     @Autowired
     ExchangeColumnRepository exchangeColumnRepository;
 
+    /**
+     * <li> creates the table in the database because it is not managed by hibernate</li>
+     * <li> column-entities are managed based on the columns in the database</li>
+     * <li> optional: predefined columns can be added to the db table with {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger#addColumn(String, ColumnDatatype)}</li>
+     */
     @PostConstruct
     private void initExchangeData() {
         // the exchange data table is not managed by spring

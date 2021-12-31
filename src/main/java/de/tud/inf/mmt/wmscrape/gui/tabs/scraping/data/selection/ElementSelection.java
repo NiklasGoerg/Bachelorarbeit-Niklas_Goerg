@@ -132,6 +132,10 @@ public class ElementSelection {
         this.wasExtracted = true;
     }
 
+    /**
+     * called after entity creation by hibernate (loading from the database)
+     * updates the property values to those from the database
+     */
     @PostLoad
     private void setPropertiesFromPersistence() {
         selected.set(_selected);
@@ -145,6 +149,14 @@ public class ElementSelection {
         initListener();
     }
 
+    /**
+     * due to the fact that hibernate creates proxies (subclasses of the actual entities) one has to use "instanceof" to compare
+     * objects. normally checking of equality can cause unexpected results.
+     * lazy loaded fields are omitted because one can not know if a session is still attached.
+     *
+     * @param o the object to compare to
+     * @return true if equal
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -154,6 +166,10 @@ public class ElementSelection {
         return Objects.equals(description, that.description) && Objects.equals(isin, that.isin);
     }
 
+    /**
+     * allows using properties which can't be stored by hibernate.
+     * when a property changes the filed inside the entity changes which can be stored as usual
+     */
     private void initListener() {
         selected.addListener((o,ov,nv) -> {
             isChanged = true;

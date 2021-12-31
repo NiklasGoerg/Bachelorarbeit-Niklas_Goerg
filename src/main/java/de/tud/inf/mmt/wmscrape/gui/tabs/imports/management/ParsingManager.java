@@ -61,6 +61,11 @@ public class ParsingManager {
     }
 
 
+    /**
+     * using the parameters inside the excel configuration to open and decrypt the excel sheet file
+     *
+     * @param excelSheet the excel configuratiob
+     */
     private XSSFWorkbook decryptAndGetWorkbook(ExcelSheet excelSheet) throws EncryptedDocumentException {
         try {
             return (new XSSFWorkbookFactory()).create(new File(excelSheet.getPath()), excelSheet.getPassword(), true);
@@ -70,6 +75,13 @@ public class ParsingManager {
         }
     }
 
+    /**
+     * does all the necessary operations to process the excel sheet and create the preview
+     *
+     * @param sheetPreviewTable the javafx table
+     * @param excelSheet the excel configuration
+     * @return the integer return code representing errors
+     */
     public int fillExcelPreview(TableView<ObservableList<String>> sheetPreviewTable, ExcelSheet excelSheet) throws EncryptedDocumentException {
         sheetPreviewTable.getColumns().clear();
         sheetPreviewTable.getItems().clear();
@@ -137,21 +149,27 @@ public class ParsingManager {
             sheetPreviewTableData.add(tableRow);
         });
 
-        // add rows themselves
+        // add rows to table
         sheetPreviewTable.setItems(sheetPreviewTableData);
         if (evalFaults) return -8;
         return 0;
     }
 
+    /**
+     * extracts the excel sheet information cell by cell and stores it temporarily.
+     *
+     * @param workbook the apache poi representation of an opened excel sheet file
+     * @param startRow the row containing the excel sheet titles (note: that poi index starts with 0 excel with 1)
+     * @param excelData the list where the data is stored
+     * @return returns true if there were errors while parsing the file
+     */
     private boolean getExcelSheetData(XSSFWorkbook workbook, int startRow, ObservableMap<Integer, ArrayList<String>> excelData) {
 
         importTabManager.addToLog("##### Start Excel Parsing #####\n");
 
         XSSFSheet sheet = workbook.getSheetAt(0);
         FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-        evaluator.setIgnoreMissingWorkbooks(true);
-        //DataFormatter formatter = new DataFormatter();
-        String stringValue;
+        evaluator.setIgnoreMissingWorkbooks(true); // throw no error if something references another unreachable sheet
         boolean evalFault = false;
 
         // for each table row
@@ -165,7 +183,7 @@ public class ParsingManager {
 
             // for each column per row
             for (int colNumber = 0; colNumber < row.getLastCellNum(); colNumber++) {
-                stringValue = "";
+                String stringValue = "";
                 XSSFCell cell = row.getCell(colNumber, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 
                 // add new array if new row
@@ -181,6 +199,7 @@ public class ParsingManager {
                 } else {
                     try {
 
+                        // evaluate formulas
                         CellValue cellValue = evaluator.evaluate(cell);
 
                         switch (cellValue.getCellType()) {
@@ -235,8 +254,12 @@ public class ParsingManager {
         return evalFault;
     }
 
+    /**
+     * Remove rows which are empty
+     *
+     * @param excelData all excel sheet data rows mapped to the row index
+     */
     private void removeEmptyRows(Map<Integer, ArrayList<String>> excelData) {
-        // Remove rows which are empty
         List<Integer> rowsToRemove = new ArrayList<>();
 
         boolean hasContent;
@@ -263,8 +286,15 @@ public class ParsingManager {
         rowsToRemove.forEach(excelData::remove);
     }
 
+    /**
+     * removes empty columns.
+     * note: the list has to be unified beforehand ({@link #unifyRows(Map)}
+     *
+     * @param rowMap all excel sheet data rows mapped to the row index
+     * @param excelSheet the excel configuration
+     */
     private void removeEmptyCols(Map<Integer, ArrayList<String>> rowMap, ExcelSheet excelSheet) {
-        // Lists have to be unified beforehand
+
         List<Integer> colsToRemove = new ArrayList<>();
 
         boolean hasContent;
@@ -295,6 +325,11 @@ public class ParsingManager {
         }
     }
 
+    /**
+     * adds columns to create uniform rows of the same length
+     *
+     * @param rowMap all excel sheet data rows mapped to the row index
+     */
     private void unifyRows(Map<Integer, ArrayList<String>> rowMap) {
         // Adds columns to create uniform rows of the same length
         int maxCols = 0;
@@ -314,6 +349,13 @@ public class ParsingManager {
         }
     }
 
+    /**
+     * looks up all correlations to find the one witch the matching title.
+     *
+     * @param title the excel column name
+     * @param titles all titles mapped to the column id inside the excel sheet file
+     * @return the column index of the excel sheet if found, otherwise -1
+     */
     private int getColNumberByName(Map<Integer, String> titles, String title) {
         if(title == null | titles == null) return -1;
 
@@ -325,20 +367,32 @@ public class ParsingManager {
         return -1;
     }
 
-    private HashMap<Integer, String> extractColTitles(int rowNumber, Map<Integer, ArrayList<String>> rowMap) {
+    /**
+     * extract the excel column titles given the row number
+     *
+     * @param rowNumber the index of the row containing the titles
+     * @param rows the list with the titles in order
+     * @return a map containing all titles mapped to the column index
+     */
+    private HashMap<Integer, String> extractColTitles(int rowNumber, Map<Integer, ArrayList<String>> rows) {
         HashMap<Integer, String> titleMap = new HashMap<>();
 
-        if (rowMap == null || !rowMap.containsKey(rowNumber)) {
+        if (rows == null || !rows.containsKey(rowNumber)) {
             return titleMap;
         }
 
-        ArrayList<String> titleList = rowMap.remove(rowNumber);
+        ArrayList<String> titleList = rows.remove(rowNumber);
         for (int i = 1; i < titleList.size(); i++) {
             titleMap.put(i, titleList.get(i));
         }
         return titleMap;
     }
 
+    /**
+     *
+     * @param map a map containing all titles mapped to the column index
+     * @return a map containing all titles mapped to the column index in reverse
+     */
     private HashMap<String, Integer> reverseMap(Map<Integer, String> map) {
         // must be unique titles
         HashMap<String, Integer> newMap = new HashMap<>();
@@ -348,6 +402,11 @@ public class ParsingManager {
         return newMap;
     }
 
+    /**
+     * handle malformed titles. at the moment only empty titles are replaced with "LEER"+NumberOfOccurrence
+     *
+     * @param titles a map containing all titles mapped to the column index
+     */
     private void createNormalizedTitles(Map<Integer, String> titles) {
         Map<Integer, String> replacements = new HashMap<>();
         int emptyCount = 1;
@@ -366,10 +425,17 @@ public class ParsingManager {
         titles.putAll(replacements);
     }
 
-    private boolean titlesAreUnique(Map<Integer, String> titlesLoadedExcel) {
+    /**
+     * non-unique titles would be problematic if one has to choose from the Combo-Box inside the javafx correlation table
+     * between columns with the same name.
+     *
+     * @param titles a map containing all titles mapped to the column index
+     * @return true if there are no duplicate titles
+     */
+    private boolean titlesAreUnique(Map<Integer, String> titles) {
         Set<String> set = new HashSet<>();
         var unique = true;
-        for (String title : titlesLoadedExcel.values()) {
+        for (String title : titles.values()) {
             if (!set.add(title)) {
                 importTabManager.addToLog("ERR:\t\t Titel mehrfach vorhanden: "+title);
                 unique = false;
@@ -378,7 +444,17 @@ public class ParsingManager {
         return unique;
     }
 
-    private Map<Integer, SimpleBooleanProperty> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData, int selectionColNr, boolean removeUnselected) {
+    /**
+     * selects those rows, that are marked inside the excel sheet for import
+     *
+     * @param excelData all extracted excel sheet rows
+     * @param selectionColNr the column index which defines if they should be imported
+     * @param removeUnselected if true, not marked rows are deleted from the list
+     * @return a mapping between the row index and a boolean property. this property is used for the
+     * checkboxes in the javafx preview table and can be changed
+     */
+    private Map<Integer, SimpleBooleanProperty> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData,
+                                                                     int selectionColNr, boolean removeUnselected) {
         HashMap<Integer, SimpleBooleanProperty> selectedRows = new HashMap<>();
         List<Integer> toDelete =  new ArrayList<>();
 
@@ -398,6 +474,13 @@ public class ParsingManager {
         return selectedRows;
     }
 
+    /**
+     * prepares the row preview table including the checkboxes
+     *
+     * @param sheetPreviewTable the javafx preview table
+     * @param titles all column titles
+     * @param excelSheet the excel configuration
+     */
     private void addColumnsToView(TableView<ObservableList<String>> sheetPreviewTable, Map<Integer, String> titles, ExcelSheet excelSheet) {
 
 

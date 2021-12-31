@@ -140,6 +140,14 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
         return this.description;
     }
 
+    /**
+     * due to the fact that hibernate creates proxies (subclasses of the actual entities) one has to use "instanceof" to compare
+     * objects. normally checking of equality can cause unexpected results.
+     * lazy loaded fields are omitted because one can not know if a session is still attached.
+     *
+     * @param o the object to compare to
+     * @return true if equal
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

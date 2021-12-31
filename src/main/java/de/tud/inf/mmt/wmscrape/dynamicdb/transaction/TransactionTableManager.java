@@ -22,6 +22,10 @@ public class TransactionTableManager extends DbTableManger {
     @Autowired
     TransactionColumnRepository transactionColumnRepository;
 
+    /**
+     * <li> column-entities are managed based on the columns in the database</li>
+     * <li> optional: predefined columns can be added to the db table with {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger#addColumn(String, ColumnDatatype)}</li>
+     */
     @PostConstruct
     private void initTransactionData() {
         // table is created by spring

@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.sql.Date;
 import java.util.Objects;
 
+/**
+ * one of two possibilities used by hibernate to allow composite primary keys
+ */
 public class DepotTransactionKey implements Serializable {
     private String depotName;
     private Date date;

@@ -1,6 +1,9 @@
 package de.tud.inf.mmt.wmscrape.dynamicdb;
 
+/**
+ * MySQL based column datatypes
+ * must be valid MySQL datatype names
+ */
 public enum ColumnDatatype {
-    // beware. must be valid mysql datatype names
     INTEGER, DOUBLE, DATE, TEXT
 }

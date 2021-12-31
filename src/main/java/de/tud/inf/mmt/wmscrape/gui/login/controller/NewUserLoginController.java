@@ -15,6 +15,9 @@ public class NewUserLoginController {
     @FXML private ProgressIndicator progress;
     @FXML private Button createButton;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
         rootUsernameField.textProperty().addListener(x -> validRootUsernameField());
@@ -155,6 +158,10 @@ public class NewUserLoginController {
         }
     }
 
+    /**
+     * hides the create user button and shows the progress while waiting for spring to complete initialization
+     * @param show if true progress is displayed
+     */
     private void showLoginProgress(boolean show) {
         createButton.setVisible(!show);
         createButton.setManaged(!show);

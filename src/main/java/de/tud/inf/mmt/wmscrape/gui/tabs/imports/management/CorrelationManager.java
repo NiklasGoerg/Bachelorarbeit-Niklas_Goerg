@@ -50,6 +50,13 @@ public class CorrelationManager {
     private static final Map<String, ColumnDatatype> importantStockCorrelations = new LinkedHashMap<>();
     private static final Map<String, ColumnDatatype> importantTransactionCorrelations = new LinkedHashMap<>();
 
+    /**
+     * called at bean creation.
+     *
+     * these elements are guaranteed to be included (also at the top) in the correlation lists when creating the preview.
+     * maybe one could move this to {@link de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager}
+     * and {@link de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager}
+     */
     public CorrelationManager() {
         importantTransactionCorrelations.put("depot_name", ColumnDatatype.TEXT);
         importantTransactionCorrelations.put("wertpapier_isin", ColumnDatatype.TEXT);
@@ -62,6 +69,14 @@ public class CorrelationManager {
     }
 
 
+    /**
+     * adds the object to the two correlation tables
+     *
+     * @param stockDataCorrelationTable the stock correlation table
+     * @param transactionCorrelationTable the transaction correlation table
+     * @param excelSheet the excel configuration
+     * @return true if all existing correlations matched with the columns in the excel sheet
+     */
     public boolean fillCorrelationTables(TableView<ExcelCorrelation> stockDataCorrelationTable,
                                       TableView<ExcelCorrelation> transactionCorrelationTable, ExcelSheet excelSheet) {
         List<ExcelCorrelation> correlations = excelCorrelationRepository.findAllByExcelSheetId(excelSheet.getId());
@@ -72,7 +87,7 @@ public class CorrelationManager {
     }
 
     /**
-     * validate that the correlations still match
+     * validate that the correlations still match (right name/title at the correct excel column index)
      */
     public boolean validateCorrelations(List<ExcelCorrelation> correlations) {
         Map<String, Integer> titleIndexMap = parsingManager.getTitleToExcelIndex();
@@ -94,6 +109,13 @@ public class CorrelationManager {
         return allValid;
     }
 
+    /**
+     * adds the objects for the stock correlation table
+     *
+     * @param stockDataCorrelationTable the javafx table
+     * @param excelSheet the excel configuration
+     * @param correlations all correlations for the excel configuration. only those of type "stock" are used
+     */
     @Transactional
     public void fillStockDataCorrelationTable(TableView<ExcelCorrelation> stockDataCorrelationTable, ExcelSheet excelSheet,
                                               List<ExcelCorrelation> correlations) {
@@ -131,6 +153,15 @@ public class CorrelationManager {
         stockDataCorrelationTable.getItems().addAll(stockColumnRelations);
     }
 
+    /**
+     * adds additional correlations for some specific database columns e.g. key columns
+     *
+     * @param added columns already added to the table
+     * @param sheet the excel configuration
+     * @param cols the map which holds the datatypes given the column name
+     * @param type stock or transaction correlation type
+     * @param list all correlations for the excel configuration
+     */
     private void addImportantCorrelations(List<String> added, ExcelSheet sheet, Map<String, ColumnDatatype> cols,
                                           CorrelationType type, ObservableList<ExcelCorrelation> list) {
 
@@ -143,8 +174,13 @@ public class CorrelationManager {
         }
     }
 
-    private Integer getExcelColNumber(String newValue) {
-        return parsingManager.getTitleToExcelIndex().getOrDefault(newValue, -1);
+    /**
+     *
+     * @param title the name of the column title inside the excel sheet
+     * @return the column index for the title inside the excel sheet
+     */
+    private Integer getExcelColNumber(String title) {
+        return parsingManager.getTitleToExcelIndex().getOrDefault(title, -1);
     }
 
     private ObservableList<String> mapToObservableList(Map<Integer, String> map) {
@@ -153,6 +189,11 @@ public class CorrelationManager {
         return excelColTitles;
     }
 
+    /**
+     * prepares the table so that {@link de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation} can be inserted
+     *
+     * @param table one of the two correlation tables
+     */
     private void prepareCorrelationTable(TableView<ExcelCorrelation> table) {
         // could be done better
         // normal program structure guarantees that this is accessed after table load
@@ -190,6 +231,13 @@ public class CorrelationManager {
         table.getColumns().add(excelColumn);
     }
 
+    /**
+     * adds the objects for the transaction correlation table
+     *
+     * @param transactionCorrelationTable the javafx table
+     * @param excelSheet the excel configuration
+     * @param correlations all correlations for the excel configuration. only those of type "stock" are used
+     */
     public void fillTransactionCorrelationTable(TableView<ExcelCorrelation> transactionCorrelationTable,
                                                 ExcelSheet excelSheet, List<ExcelCorrelation> correlations) {
         prepareCorrelationTable(transactionCorrelationTable);

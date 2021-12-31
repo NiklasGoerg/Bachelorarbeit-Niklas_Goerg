@@ -19,6 +19,10 @@ import org.springframework.stereotype.Controller;
 
 import java.util.Optional;
 
+/**
+ * controller for the data tab. manages all pseudo tabs inside the data tab by changing the datasource and manager
+ * responsible for filling the selection table, data table and executing operation based on the current manager
+ */
 @Controller
 public class DataTabController {
 
@@ -65,7 +69,9 @@ public class DataTabController {
     // initializing with stock data
     private DataManager tabManager = stockDataManager;
 
-
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
         tabManager = stockDataManager;
@@ -102,6 +108,9 @@ public class DataTabController {
         registerTabChangeListener();
     }
 
+    /**
+     * reloads all data in the data-table without saving
+     */
     @FXML
     public void handleResetButton() {
         reloadSelectionTable();
@@ -127,6 +136,9 @@ public class DataTabController {
                 Alert.AlertType.INFORMATION, true, ButtonType.OK);
     }
 
+    /**
+     * shows all data rows without filtering by a selection
+     */
     @FXML
     private void handleViewEverythingButton() {
         customRowTableView.getColumns().clear();
@@ -139,6 +151,9 @@ public class DataTabController {
         depotSelectionTable.getSelectionModel().clearSelection();
     }
 
+    /**
+     * starts the save process for modified rows
+     */
     @FXML
     private void handleSaveButton() {
         var success = tabManager.saveChangedRows(changedRows);
@@ -151,6 +166,9 @@ public class DataTabController {
                 "Nicht alle Daten wurden gespeichert.");
     }
 
+    /**
+     * starts the deletion process for selected rows in the data-table
+     */
     @FXML
     private void handleDeleteRowsButton() {
 
@@ -169,6 +187,10 @@ public class DataTabController {
 
     }
 
+    /**
+     * starts the deletion process for all rows in the data-table
+     * note: if something is selected only the filtered elements for that selection will be deleted
+     */
     @FXML
     private void handleDeleteAllInTableButton() {
 
@@ -205,6 +227,9 @@ public class DataTabController {
         }
     }
 
+    /**
+     * shows the column modification sub-menu
+     */
     @FXML
     private void handleColumnModificationButton() {
         showColumnSubMenu(!columnSubmenuPane.isVisible());
@@ -234,6 +259,9 @@ public class DataTabController {
                 "Die Spalte wurde nicht hinzugefügt.");
     }
 
+    /**
+     * shows the stock creation sub-menu
+     */
     @FXML
     private void handleStockCreateSubMenuButton() {
         showStockSubMenu(!stockCreateSubmenuPane.isVisible());
@@ -279,6 +307,9 @@ public class DataTabController {
                 "Die Spalte "+colName+" wurde nicht gelöscht.");
     }
 
+    /**
+     * adds a single row inside the current table with the current date if no row exists for the day
+     */
     @FXML
     private void handleAddEmptyRow() {
         int before = customRowTableView.getItems().size();
@@ -306,6 +337,9 @@ public class DataTabController {
         newTypeField.clear();
     }
 
+    /**
+     * handles the switching between the pseudo "tabs" by changing the manager and showing/hiding elements
+     */
     private void registerTabChangeListener() {
         sectionTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
 
@@ -356,12 +390,21 @@ public class DataTabController {
         redoSelection();
     }
 
+    /**
+     * updates the column deletion combo box
+     */
     private void updateColumnComboBox() {
         columnDeletionComboBox.getItems().clear();
         columnDeletionComboBox.getItems().add(null);
         columnDeletionComboBox.getItems().addAll(tabManager.getDbTableColumns());
     }
 
+    /**
+     * handles the selection change for the selection table
+     * @param o a selected element from the selection table either
+     * {@link de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock} or
+     * {@link de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot}
+     */
     private void onSelection(Object o) {
         lastViewed = o;
         viewEverything = false;
@@ -387,6 +430,9 @@ public class DataTabController {
         changedRows.clear();
     }
 
+    /**
+     * selects the last selected element useful after refreshing the data
+     */
     private void redoSelection() {
         TableView<?> table = (TableView<?>) selectionPane.getCenter();
 
@@ -400,6 +446,9 @@ public class DataTabController {
         } else ((TableView<?>) selectionPane.getCenter()).getSelectionModel().selectFirst();
     }
 
+    /**
+     * adds listeners to all custom rows to detect changes
+     */
     private void addRowChangeListeners() {
         changedRows.clear();
         for(CustomRow row : allRows) {
@@ -410,15 +459,9 @@ public class DataTabController {
     private Alert createAlert(String title, String content, Alert.AlertType type, boolean wait, ButtonType... buttonType) {
         Alert alert = new Alert(type, content, buttonType);
         alert.setHeaderText(title);
-        setAlertPosition(alert);
+        PrimaryTabManager.setAlertPosition(alert , customRowTableView);
         if(wait) alert.showAndWait();
         return alert;
-    }
-
-    private void setAlertPosition(Alert alert) {
-        var window = customRowTableView.getScene().getWindow();
-        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
-        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
     }
 
     private boolean wrongResponse(Alert alert) {
@@ -445,6 +488,9 @@ public class DataTabController {
         showStockSubMenu(false);
     }
 
+    /**
+     * hides the selection table where no selection is needed (e.g. the exchange price section)
+     */
     private void hideSelectionTable(boolean hide) {
         if(hide) {
             selectionPane.setMaxWidth(0);
@@ -468,6 +514,9 @@ public class DataTabController {
         return true;
     }
 
+    /**
+     * removes the css highlighting
+     */
     private void removeBadStyle() {
         newColumnNameField.getStyleClass().remove("bad-input");
         newColumnNameField.setTooltip(null);
@@ -475,12 +524,21 @@ public class DataTabController {
         newIsinField.setTooltip(null);
     }
 
+    /**
+     * binds the error tooltip
+     * @param message the tooltip message
+     */
     private boolean badTooltip(String message) {
         newColumnNameField.setTooltip(PrimaryTabManager.createTooltip(message));
         newColumnNameField.getStyleClass().add("bad-input");
         return false;
     }
 
+    /**
+     * opens the column modification sub menu
+     *
+     * @param show if true show the submenu
+     */
     private void showColumnSubMenu(boolean show) {
         if(show) {
             showStockSubMenu(false);

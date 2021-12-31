@@ -19,6 +19,9 @@ public class WebsiteTestPopupController {
     @Autowired
     private ScrapingWebsiteTabController scrapingWebsiteTabController;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
         SimpleStringProperty logText = new SimpleStringProperty("");

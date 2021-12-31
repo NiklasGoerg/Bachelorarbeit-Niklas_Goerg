@@ -27,6 +27,9 @@ public class NewElementPopupController {
     @Autowired
     private ScrapingElementsTabController scrapingElementsTabController;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
         descriptionField.textProperty().addListener((o,ov,nv) -> { if (nv != null) isValidDescription();});

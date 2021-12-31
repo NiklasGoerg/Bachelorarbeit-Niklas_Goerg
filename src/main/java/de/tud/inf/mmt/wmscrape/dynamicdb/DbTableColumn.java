@@ -2,6 +2,9 @@ package de.tud.inf.mmt.wmscrape.dynamicdb;
 
 import javax.persistence.*;
 
+/**
+ * general column entity
+ */
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Table(name = "datenbank_spalte")

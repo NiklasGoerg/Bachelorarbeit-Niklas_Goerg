@@ -18,10 +18,10 @@ import java.util.Properties;
 
 public class LoginManager {
 
-    public static void closeWindow(Control control) {
-        control.getScene().getWindow().hide();
-    }
-
+    /**
+     * loads the properties from the user.properties file and stores them in
+     * {@link de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData}
+     */
     public static void loadUserProperties() {
         Properties prop = new Properties();
         String lastUsername = "";
@@ -52,6 +52,16 @@ public class LoginManager {
         }
     }
 
+    /**
+     * sets the parameters for the spring DataSource-Bean and creates a new task in which spring does its initialization
+     *
+     * @param username unmodified username from the text-field
+     * @param password the password for the mysql-useraccount
+     * @param progress the progress bar either from {@link de.tud.inf.mmt.wmscrape.gui.login.controller.ExistingUserLoginController}
+     *                 or {@link de.tud.inf.mmt.wmscrape.gui.login.controller.NewUserLoginController}
+     * @param button the button which is hidden when displaying the progress
+     * @return true if successful login without errors
+     */
     public static boolean loginAsUser(String username, String password, ProgressIndicator progress, Button button) {
         String springUsername = username.trim().replace(" ", "_").toLowerCase();
         String springConnectionPath = formSpringConnectionPath(springUsername, SpringIndependentData.getPropertyConnectionPath());
@@ -100,8 +110,15 @@ public class LoginManager {
     }
 
 
-    // is static to be able to use it inside the anonymous function / lambda
+    /**
+     * injects the spring bean context to the main controller class and loads the first window behind the login
+     *
+     * @param control some fxml element used for accessing the scene/stage
+     * @param context the spring application context created by the background task in
+     * {@link de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager#loginAsUser(String, String, ProgressIndicator, Button)}
+     */
     public static void injectContext(Control control, ConfigurableApplicationContext context) {
+        // is static to be able to use it inside the anonymous function / lambda
         FXMLLoader fxmlLoader = new FXMLLoader(WMScrape.class.getResource("gui/tabs/primaryTab.fxml"));
         // spring context is injected
         fxmlLoader.setControllerFactory(context::getBean);
@@ -121,6 +138,16 @@ public class LoginManager {
     }
 
 
+    /**
+     * uses jdbc to check if every requirement to create a user is met and creates the new user if so.
+     * the username ist modified to represent a valid mysql username
+     *
+     * @param rootUn the mysql-account username with rights to create users
+     * @param rootPw the mysql-account password with rights to create users
+     * @param newUn the unmodified username for the new user
+     * @param newPw the mysql-account password for the new user
+     * @return int value used to transport error messages to the caller {@link de.tud.inf.mmt.wmscrape.gui.login.controller.NewUserLoginController}
+     */
     public static int createUser(String rootUn, String rootPw, String newUn, String newPw) {
         String rootConnectionPath = "jdbc:" + SpringIndependentData.getPropertyConnectionPath();
 
@@ -139,7 +166,7 @@ public class LoginManager {
                 // user already exists in the database
                 return -3;
             }
-            if (userTableExists(connection, newUnWithoutSpaces)) {
+            if (userDbExists(connection, newUnWithoutSpaces)) {
                 // user table already exist in the database
                 return -4;
             }
@@ -155,6 +182,12 @@ public class LoginManager {
         return 1;
     }
 
+    /**
+     * checks if the "root" user has the right to create a user by checking the access to the sys database
+     *
+     * @param connection jdbc connection
+     * @return true if sys database can be accessed
+     */
     private static boolean isRootUser(Connection connection) {
         try (Statement statement = connection.createStatement()) {
             ResultSet results = statement.executeQuery("show databases");
@@ -175,6 +208,13 @@ public class LoginManager {
         return false;
     }
 
+    /**
+     * checks if a user already exists
+     *
+     * @param connection jdbc connection
+     * @param newUsername the modified username
+     * @return true if user already exists
+     */
     private static boolean userExists(Connection connection, String newUsername) {
         try (Statement statement = connection.createStatement()){
             statement.execute("use mysql");
@@ -194,7 +234,14 @@ public class LoginManager {
         return false;
     }
 
-    private static boolean userTableExists(Connection connection, String newUsername) {
+    /**
+     * checks if a database for the user already exists
+     *
+     * @param connection jdbc connection
+     * @param newUsername the modified username
+     * @return true if the db exists
+     */
+    private static boolean userDbExists(Connection connection, String newUsername) {
         try (Statement statement = connection.createStatement()){
             ResultSet results = statement.executeQuery("show databases");
 
@@ -211,6 +258,15 @@ public class LoginManager {
         return false;
     }
 
+    /**
+     * creates the user by some special sql-statements which allow escaping the passwords correctly by using
+     * prepared statements and sql quote function
+     *
+     * @param connection jdbc connection
+     * @param newUsername the modified username
+     * @param newPassword the new user password
+     * @return true if successful
+     */
     private static boolean createUserAndDb(Connection connection,  String newUsername, String newPassword) {
         try {
 
@@ -243,6 +299,14 @@ public class LoginManager {
         }
     }
 
+    /**
+     * checks if a connection to the database can be made given the parameters
+     *
+     * @param path path to the db
+     * @param username modified username
+     * @param password unmodified password
+     * @return true if connection can be made
+     */
     private static boolean connectionValid(String path, String username, String password) {
 
         try {
@@ -254,6 +318,13 @@ public class LoginManager {
         }
     }
 
+    /**
+     *
+     * @param path path to the db
+     * @param username modified username
+     * @param password unmodified password
+     * @return a jdbc connection
+     */
     private static Connection getConnection(String path, String username, String password) {
         try {
             return DriverManager.getConnection(path, username, password);
@@ -263,12 +334,24 @@ public class LoginManager {
         }
     }
 
+    /**
+     * creating the connection path by using the username
+     *
+     * @param username modified username
+     * @param propertyPath the connection path which is stored in {@link de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData}
+     * @return the connection path string
+     */
     private static String formSpringConnectionPath(String username, String propertyPath) {
         String removedTrailingSlash = propertyPath.replaceAll("/$", "");
         return "jdbc:"+removedTrailingSlash+"/"+username+"_wms_db";
     }
 
 
+    /**
+     * used for various kinds of errors
+     * @param e the exception
+     * @param control a fxml element used for reference
+     */
     public static void programErrorAlert(Throwable e, Control control) {
         e.printStackTrace();
         Alert alert = new Alert(Alert.AlertType.ERROR,
@@ -280,6 +363,12 @@ public class LoginManager {
         alert.showAndWait();
     }
 
+    /**
+     * shows the login button again if an error occurs
+     *
+     * @param bar the progress indicator
+     * @param button the login button
+     */
     private static void showLoginButtonAgain(ProgressIndicator bar, Button button) {
         bar.setVisible(false);
         bar.setManaged(false);

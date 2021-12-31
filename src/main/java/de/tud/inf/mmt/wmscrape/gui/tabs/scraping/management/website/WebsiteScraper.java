@@ -59,7 +59,7 @@ public class WebsiteScraper extends WebsiteHandler {
     private final SimpleDoubleProperty elementSelectionProgress = new SimpleDoubleProperty(0);
     private final SimpleDoubleProperty waitProgress = new SimpleDoubleProperty(0);
 
-    private final HashMap<String, String> identBuffer = new HashMap<>();
+    private final HashMap<String, String> identDataBuffer = new HashMap<>();
 
     public WebsiteScraper(SimpleStringProperty logText, Boolean headless, Connection dbConnection, boolean pauseAfterElement) {
         super(logText, headless);
@@ -151,7 +151,7 @@ public class WebsiteScraper extends WebsiteHandler {
 
         // if already visited return
         // mainly done to not mark elements again
-        String buffered = identBuffer.get(identifier);
+        String buffered = identDataBuffer.get(identifier);
         if(buffered != null) return buffered;
 
         WebElement element;
@@ -168,13 +168,13 @@ public class WebsiteScraper extends WebsiteHandler {
         // highlight after extraction otherwise the highlight text ist extracted too
         var tmp = element.getText().trim();
 
-        identBuffer.put(identifier, tmp);
+        identDataBuffer.put(identifier, tmp);
         if(!headless) highlightElement(element, highlightText);
         return tmp;
     }
 
-    public void resetIdentBuffer() {
-        identBuffer.clear();
+    public void resetIdentDataBuffer() {
+        identDataBuffer.clear();
     }
 
     // has to be called while inside the frame

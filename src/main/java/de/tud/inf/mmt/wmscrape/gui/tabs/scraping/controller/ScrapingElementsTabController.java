@@ -54,6 +54,9 @@ public class ScrapingElementsTabController {
 
     private boolean inlineValidation = false;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
         setRightPanelBoxVisible(false);
@@ -134,7 +137,7 @@ public class ScrapingElementsTabController {
                 "Die Elementeinstellungen wurden gespeichert.",
                 ButtonType.OK);
         alert.setHeaderText("Daten gespeichert!");
-        setAlertPosition(alert);
+        PrimaryTabManager.setAlertPosition(alert , urlField);
         alert.showAndWait();
     }
 
@@ -292,11 +295,5 @@ public class ScrapingElementsTabController {
                 rootNode.setDividerPosition(0, 0.15);
             }
         }
-    }
-
-    private void setAlertPosition(Alert alert) {
-        var window = urlField.getScene().getWindow();
-        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
-        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
     }
 }

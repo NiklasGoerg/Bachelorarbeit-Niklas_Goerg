@@ -43,6 +43,9 @@ public class ScrapingScrapeTabController {
     private final ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems = FXCollections.observableHashMap();
     private static SimpleStringProperty logText;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
         logText = new SimpleStringProperty("");

@@ -19,6 +19,9 @@ public class NewExcelPopupController {
     @Autowired
     private ImportTabController importTabController;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
         descriptionField.textProperty().addListener((o,ov,nv) -> { if (nv != null) isValidDescription();});
@@ -29,6 +32,9 @@ public class NewExcelPopupController {
         descriptionField.getScene().getWindow().hide();
     }
 
+    /**
+     * on confirmation a new excel configuration is added
+     */
     @FXML
     private void handleConfirmButton() {
         if(!isValidDescription()) {

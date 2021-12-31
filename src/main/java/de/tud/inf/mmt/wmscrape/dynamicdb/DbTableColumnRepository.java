@@ -7,6 +7,11 @@ import org.springframework.data.repository.query.QueryByExampleExecutor;
 
 import java.util.Optional;
 
+/**
+ *
+ * @param <TableColumn> a subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn}
+ * @param <ID> id key of the column
+ */
 @NoRepositoryBean
 public interface DbTableColumnRepository<TableColumn, ID> extends JpaRepository<TableColumn, ID>, QueryByExampleExecutor<TableColumn> {
     Optional<TableColumn> findByName(String name);

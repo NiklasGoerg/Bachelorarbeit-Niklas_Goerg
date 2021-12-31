@@ -17,6 +17,9 @@ public class ScrapingTabController {
     @Autowired private ScrapingElementsTabController scrapingElementsTabController;
     @Autowired private ScrapingScrapeTabController scrapingScrapeTabController;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() throws IOException {
         Parent parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingScrapeTab.fxml", scrapingScrapeTabController);

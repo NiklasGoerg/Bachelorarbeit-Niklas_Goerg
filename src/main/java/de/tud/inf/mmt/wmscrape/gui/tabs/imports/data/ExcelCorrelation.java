@@ -8,6 +8,9 @@ import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 
+/**
+ * holds a single mapping between a database column and an excel sheet column
+ */
 @Entity
 @Table(name = "excel_spaltenzuordnung")
 public class ExcelCorrelation {
@@ -121,6 +124,10 @@ public class ExcelCorrelation {
         return dbColType;
     }
 
+    /**
+     * called after entity creation by hibernate (loading from the database)
+     * updates the property values to those from the database
+     */
     @PostLoad
     private void setPropertiesFromPersistence() {
         excelColTitle.set(_excelColTitle);
@@ -128,6 +135,10 @@ public class ExcelCorrelation {
         initListener();
     }
 
+    /**
+     * allows using properties which can't be stored by hibernate.
+     * when a property changes the filed inside the entity changes which can be stored as usual
+     */
     private void initListener() {
         excelColTitle.addListener((o, ov, nv ) -> _excelColTitle = nv);
         excelColNumber.addListener((o, ov, nv ) -> _excelColNumber = (int) nv);

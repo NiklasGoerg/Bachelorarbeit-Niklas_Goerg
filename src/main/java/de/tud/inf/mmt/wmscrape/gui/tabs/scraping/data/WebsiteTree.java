@@ -26,21 +26,7 @@ public class WebsiteTree {
         this.checkedItems = checkedItems;
         this.restoredSelected = restoredSelected;
 
-        WebRepresentation<?> root = new WebRepresentation<Website>() {
-            @Override
-            public String getDescription() {
-                return "root";
-            }
-
-            @Override
-            public void setDescription(String description) {
-            }
-
-            @Override
-            public List<Website> getChildren() {
-                return websites;
-            }
-        };
+        WebRepresentation<?> root = createRoot(websites);
 
         TreeItem<WebRepresentation<?>> treeRoot = createItem(root);
         treeView.setRoot(treeRoot);
@@ -53,6 +39,7 @@ public class WebsiteTree {
             }
         });
     }
+
 
     public TreeView<WebRepresentation<?>> getTreeView() {
         return treeView;
@@ -72,6 +59,7 @@ public class WebsiteTree {
             // hide empty websites
             if(webRepresentation instanceof Website && webRepresentation.getChildren().isEmpty()) continue;
 
+            // recursive child creation
             CheckBoxTreeItem<WebRepresentation<?>> webRepresentationCheckBoxTreeItem = createItem(webRepresentation);
             list.add(webRepresentationCheckBoxTreeItem);
         }
@@ -84,30 +72,57 @@ public class WebsiteTree {
     private <T extends WebRepresentation<?>> void updateSelected(boolean selected, WebRepresentation<T> object) {
 
         if (selected) {
-            if (object instanceof Website && !checkedItems.containsKey(object)) {
-                // add new website
-                checkedItems.put((Website) object, FXCollections.observableSet());
-            } else if (object instanceof WebsiteElement) {
-                // add new website element and if not already done, create a new list
-                var website = ((WebsiteElement) object).getWebsite();
-                var list = checkedItems.getOrDefault(
-                        website,
-                        FXCollections.observableSet());
-                list.add((WebsiteElement) object);
-                checkedItems.put(website, list);
-            }
+            storeSelected(object);
         } else {
-            if (object instanceof Website && checkedItems.containsKey(object)) {
-                // remove website
-                // if no website elements are selected this is also executed
-                var website = checkedItems.get((Website) object);
-                if (website != null) checkedItems.remove((Website) object);
-
-            } else if (object instanceof WebsiteElement) {
-                // remove website element
-                var elements = checkedItems.get(((WebsiteElement) object).getWebsite());
-                if (elements != null) elements.remove((WebsiteElement) object);
-            }
+            removeFromSelected(object);
         }
     }
+
+    private <T extends WebRepresentation<?>> void removeFromSelected(WebRepresentation<T> object) {
+        if (object instanceof Website && checkedItems.containsKey(object)) {
+            // remove website
+            // if no website elements are selected this is also executed
+            var website = checkedItems.get((Website) object);
+            if (website != null) checkedItems.remove((Website) object);
+
+        } else if (object instanceof WebsiteElement) {
+            // remove website element
+            var elements = checkedItems.get(((WebsiteElement) object).getWebsite());
+            if (elements != null) elements.remove((WebsiteElement) object);
+        }
+    }
+
+    private <T extends WebRepresentation<?>> void storeSelected(WebRepresentation<T> object) {
+        if (object instanceof Website && !checkedItems.containsKey(object)) {
+            // add new website
+            checkedItems.put((Website) object, FXCollections.observableSet());
+        } else if (object instanceof WebsiteElement) {
+            // add new website element and if not already done, create a new list
+            var website = ((WebsiteElement) object).getWebsite();
+            var list = checkedItems.getOrDefault(
+                    website,
+                    FXCollections.observableSet());
+            list.add((WebsiteElement) object);
+            checkedItems.put(website, list);
+        }
+    }
+
+    private WebRepresentation<Website> createRoot(List<Website> websites) {
+        return new WebRepresentation<>() {
+            @Override
+            public String getDescription() {
+                return "root";
+            }
+
+            @Override
+            public void setDescription(String description) {
+            }
+
+            @Override
+            public List<Website> getChildren() {
+                return websites;
+            }
+        };
+    }
+
 }

@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * the object which is inserted into the javafx table containing all the cells for one row
+ */
 public class CustomRow {
 
     private final SimpleBooleanProperty isChanged =  new SimpleBooleanProperty(false);
@@ -16,6 +19,11 @@ public class CustomRow {
         return cells;
     }
 
+    /**
+     *
+     * @param colName the database column name the cell corresponds to
+     * @param cell the cell with the data
+     */
     public void addCell(String colName, CustomCell cell) {
         cells.put(colName, cell);
 
@@ -26,6 +34,10 @@ public class CustomRow {
         });
     }
 
+    /**
+     *
+     * @return the changed cells based on the notification from the single cells
+     */
     public Set<CustomCell> getChangedCells() {
         return changedCells;
     }

@@ -32,11 +32,7 @@ public class ExchangeDataManager extends DataManager {
 
     @Override
     protected void fillDeleteAllStatement(CustomRow row, PreparedStatement statement) throws SQLException {
-        var cells = row.getCells();
-        if(cells == null || cells.get("datum") == null) return;
-
-        String date = cells.get("datum").getTextData();
-        fillByDataType(statement, date, ColumnDatatype.DATE, 1);
+        fillDeleteSelectionStatement(row, statement);
     }
 
 
@@ -45,8 +41,8 @@ public class ExchangeDataManager extends DataManager {
         var cells = row.getCells();
         if(cells == null || cells.get("datum") == null) return;
 
-        String datum = cells.get("datum").getTextData();
-        fillByDataType(statement, datum, ColumnDatatype.DATE, 1);
+        String date = cells.get("datum").getTextData();
+        fillByDataType(statement, date, ColumnDatatype.DATE, 1);
     }
 
     @Override
@@ -69,7 +65,7 @@ public class ExchangeDataManager extends DataManager {
     }
 
     @Override
-    protected void setStatementKeys(CustomCell cell, PreparedStatement stmt,
+    protected void setStatementKeys(PreparedStatement stmt,
                                     Map<String, String> keys) throws SQLException{
 
         // 1 = data

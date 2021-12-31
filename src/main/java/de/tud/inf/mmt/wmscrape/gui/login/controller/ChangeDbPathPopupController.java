@@ -1,6 +1,5 @@
 package de.tud.inf.mmt.wmscrape.gui.login.controller;
 
-import de.tud.inf.mmt.wmscrape.gui.login.manager.LoginManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
@@ -18,6 +17,10 @@ public class ChangeDbPathPopupController {
 
     private Properties properties;
 
+    /**
+     * called when loading the fxml file
+     * @throws IOException if the properties can't be read
+     */
     @FXML
     private void initialize() throws IOException {
         dbPathField.textProperty().addListener(x -> dbPathValidation());
@@ -27,6 +30,10 @@ public class ChangeDbPathPopupController {
         dbPathField.setText(lastDbPath);
     }
 
+    /**
+     * stores the db connection path
+     * @throws IOException if the properties can't be written
+     */
     @FXML
     private void handleConfirmButton() throws IOException {
         if(!dbPathValidation()) return;
@@ -38,17 +45,28 @@ public class ChangeDbPathPopupController {
         closeWindow();
     }
 
+    /**
+     * closes the popup window
+     */
     @FXML
     private void closeWindow() {
-        LoginManager.closeWindow(dbPathField);
+        dbPathField.getScene().getWindow().hide();
     }
 
+    /**
+     * @return true if the path field contains a valid path
+     */
     private boolean dbPathValidation() {
         boolean isValid = dbPathField.getText() != null && !dbPathField.getText().isBlank();
         decorateField(dbPathField, isValid);
         return isValid;
     }
 
+    /**
+     * highlights an invalid filed
+     * @param input the checked field
+     * @param isValid true if the field is valid
+     */
     private void decorateField(TextInputControl input, boolean isValid) {
         input.getStyleClass().remove("bad-input");
         input.setTooltip(null);

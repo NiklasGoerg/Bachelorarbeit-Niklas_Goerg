@@ -7,9 +7,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Locale;
 
+/**
+ * the annotation enables spring boot configuration (e.g bean search, datasource config, ...).
+ * more information is inside the written part (section spring-boot)
+ */
 @SpringBootApplication
 public class WMScrape {
 
+    /**
+     * main program entry point.
+     * sets the webdriver properties and launches the javafx application
+     */
     public static void main(String[] args) {
 
         String OS = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);

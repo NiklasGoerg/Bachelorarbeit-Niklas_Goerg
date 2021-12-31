@@ -51,6 +51,13 @@ public class ExtractionManager {
     @Autowired
     private StockColumnRepository stockColumnRepository;
 
+    private final HashMap<String, HashMap<String, String>> potentialNewStocks = new HashMap<>();
+
+    /**
+     * defines the order of the import processes
+     *
+     * @return integer value containing error information
+     */
     public int startDataExtraction() {
         
         if (!isInExtractableState()) return -2;
@@ -79,8 +86,12 @@ public class ExtractionManager {
         return 0;
     }
 
-    private final HashMap<String, HashMap<String, String>> potentialNewStocks = new HashMap<>();
-
+    /**
+     * does the complete stockdata import procedure including creating statements, filling them, executing them
+     * and creating {@link de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock} entities
+     *
+     * @return error information as integer value
+     */
     private int extractStockData() {
 
         importTabManager.addToLog("##### Start Stammdaten-Import #####\n");
@@ -193,6 +204,12 @@ public class ExtractionManager {
         return 0;
     }
 
+    /**
+     * does the complete depot transaction import procedure including creating statements, filling them, executing them
+     * and creating {@link de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot} entities
+     *
+     * @return error information as integer value
+     */
     private int extractTransactionData() {
         importTabManager.addToLog("##### Start Transaktions Import #####\n");
 
@@ -209,7 +226,7 @@ public class ExtractionManager {
 
         if (statements == null) return -4;
 
-        // transactionColumnNames
+        // transaction keys
         int isinCol = getColNrByName("wertpapier_isin", transactionColumnRelations);
         int dateCol = getColNrByName("transaktions_datum", transactionColumnRelations);
         int depotNameCol = getColNrByName("depot_name", transactionColumnRelations);
@@ -314,11 +331,18 @@ public class ExtractionManager {
         return 0;
     }
 
+    /**
+     * evaluates if the text data matches the given datatype
+     *
+     * @param colDatatype the datatype to test against
+     * @param colData the text data
+     * @return false if the datatype matches
+     */
     private boolean notMatchingDataType(ColumnDatatype colDatatype, String colData) {
         if (colDatatype == null) {
             return true;
         } else if (colData == null) {
-            // null is valid in order to override values that may be set in the wrong column
+            // null is valid in order to override values that may have been set in the wrong column
             return false;
         } else if (colDatatype == ColumnDatatype.INTEGER && colData.matches("^[\\-+]?[0-9]+(\\.0{6})?$")) {
             // normal format would be "^-?[0-9]+$" but because of
@@ -332,6 +356,13 @@ public class ExtractionManager {
         } else return colDatatype != ColumnDatatype.TEXT;
     }
 
+    /**
+     * looks up all correlations to find the one witch the matching title.
+     *
+     * @param name the excel column name
+     * @param correlations all correlations for the excel configuration
+     * @return the column index of the excel sheet if found, otherwise -1
+     */
     private int getColNrByName(String name, ObservableList<ExcelCorrelation> correlations) {
         for (ExcelCorrelation correlation : correlations) {
             if (correlation.getDbColTitle().equals(name)) {
@@ -341,11 +372,21 @@ public class ExtractionManager {
         return -1;
     }
 
+    /**
+     * basic test if the preview was loaded by checking if tables are empty
+     *
+     * @return true if extraction/import can begin
+     */
     private boolean isInExtractableState() {
         return parsingManager.getExcelSheetRows() != null && parsingManager.getSelectedTransactionRows() != null && parsingManager.getSelectedStockDataRows() != null &&
                 correlationManager.getStockColumnRelations().size() != 0 && correlationManager.getTransactionColumnRelations().size() != 0;
     }
 
+    /**
+     * checks if the necessary primary key correlations have been set
+     *
+     * @return true if all necessary correlations are set
+     */
     private boolean correlationsHaveValidState() {
         if (getColNrByName("isin", correlationManager.getStockColumnRelations()) == -1) return false;
         if (getColNrByName("wkn", correlationManager.getStockColumnRelations()) == -1) return false;
@@ -356,6 +397,12 @@ public class ExtractionManager {
         return getColNrByName("depot_name", correlationManager.getTransactionColumnRelations()) != -1;
     }
 
+    /**
+     * creates missing {@link {@link de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock} entities.
+     * note that these have to be created before the data can be inserted, otherwise the constaint will not be fullfilled.
+     * constraint between the "wertpapier" table and the "wertpapier_stammdaten" table.
+     * the latter refers to entities in the first.
+     */
     private void createMissingStocks() {
         Set<String> knownStock = stockRepository.findAll().stream().map(Stock::getIsin).collect(Collectors.toSet());
 

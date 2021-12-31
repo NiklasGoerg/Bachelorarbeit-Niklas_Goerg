@@ -27,7 +27,7 @@ public abstract class SingleExtraction extends ExtractionGeneral implements Extr
         double currentProgress = -1;
         double maxProgress = elementSelections.size();
 
-        scraper.resetIdentBuffer();
+        scraper.resetIdentDataBuffer();
         logStart(element.getDescription());
 
         // it's a list but due to ui restraints containing only one selection

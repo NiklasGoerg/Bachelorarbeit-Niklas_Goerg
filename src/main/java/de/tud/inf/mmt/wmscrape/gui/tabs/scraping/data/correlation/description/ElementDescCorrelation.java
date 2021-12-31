@@ -86,6 +86,10 @@ public class  ElementDescCorrelation {
         return wsWkn;
     }
 
+    /**
+     * called after entity creation by hibernate (loading from the database)
+     * updates the property values to those from the database
+     */
     @PostLoad
     private void setPropertiesFromPersistence() {
         wsDescription.set(_wsDescription);
@@ -98,6 +102,14 @@ public class  ElementDescCorrelation {
         return isChanged;
     }
 
+    /**
+     * due to the fact that hibernate creates proxies (subclasses of the actual entities) one has to use "instanceof" to compare
+     * objects. normally checking of equality can cause unexpected results.
+     * lazy loaded fields are omitted because one can not know if a session is still attached.
+     *
+     * @param o the object to compare to
+     * @return true if equal
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -107,6 +119,10 @@ public class  ElementDescCorrelation {
         return Objects.equals(elementSelection, that.elementSelection) && Objects.equals(_wsDescription,that._wsDescription) && Objects.equals(_wsIsin,that._wsIsin) && Objects.equals(_wsWkn,that._wsWkn);
     }
 
+    /**
+     * allows using properties which can't be stored by hibernate.
+     * when a property changes the filed inside the entity changes which can be stored as usual
+     */
     private void initListener() {
         wsDescription.addListener((o, ov, nv) -> {
             isChanged = true;

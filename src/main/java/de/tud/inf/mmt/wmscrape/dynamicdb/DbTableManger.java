@@ -12,19 +12,71 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * provides the basic functions for db table manipulation
+ */
 public abstract class DbTableManger {
     @Autowired DataSource dataSource;
     @Autowired TransactionTemplate transactionTemplate;
 
+    /**
+     * removes a column from the respective table
+     * @param colName the name of the column to be removed
+     * @return true if successful
+     */
     public abstract boolean removeColumn(String colName);
+
+    /**
+     * adds a column from the respective table
+     * @param colName the name of the column to be added
+     * @param datatype the sql-datatype of the column ({@link de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype})
+     */
     public abstract void addColumn(String colName, ColumnDatatype datatype);
+
+    /**
+     * @return the db table name
+     */
     public abstract String getTableName();
+
+    /**
+     * get the keys from the table
+     * @return the keys as string value
+     */
     public abstract List<String> getKeyColumns();
+
+    /**
+     * reserved columns have some special meaning and should not be removed
+     * @return the reserved column names
+     */
     public abstract List<String> getReservedColumns();
+
+    /**
+     * column order defines the displayed column order in some javaFX tables
+     * @return the column names in a list
+     */
     public abstract List<String> getColumnOrder();
+
+    /**
+     * used for storing column entities in the right repository
+     * @param colName the name of the column
+     * @param datatype the sql-datatype of the column ({@link de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype})
+     */
     protected abstract void saveNewInRepository(String colName, ColumnDatatype datatype);
+
+    /**
+     * used by some methods to create a prepared statement which only contains the keys and one data column to
+     * insert data into the database
+     * @param colName the name of the column
+     * @param connection a sql-connection
+     * @return the prepared statement ready to be filled with data and execute
+     * @throws SQLException preparing a statement can cause an exception
+     */
     public abstract PreparedStatement getPreparedDataStatement(String colName, Connection connection) throws SQLException ;
 
+    /**
+     * @param tableName name of the db table from which to get the columns
+     * @return all columns from the physical database
+     */
     public ArrayList<String> getColumns(String tableName) {
         if(tableName == null) return null;
         ArrayList<String> columns = new ArrayList<>();
@@ -47,6 +99,13 @@ public abstract class DbTableManger {
         return columns;
     }
 
+    /**
+     * adds a physical db column to a table if it doenst exists
+     * @param tableName the name of the db table
+     * @param repository the responsible repository for the table column entities
+     * @param column a column entity for which the physical representation will be created
+     * @param <T> a subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn}
+     */
     protected  <T extends DbTableColumnRepository<? extends DbTableColumn, Integer>> void addColumnIfNotExists(
             String tableName, T repository , DbTableColumn column) {
 
@@ -81,6 +140,15 @@ public abstract class DbTableManger {
 
     }
 
+    /**
+     * does the basic operations to delete a column. the exact details are provided by the subclasses
+     *
+     * @param columnName the name of the column to be deleted
+     * @param tableName the name of the table where the column exists in
+     * @param repository the responsible repository subclass
+     * @param <T> a subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn}
+     * @return true if successful
+     */
     protected <T extends DbTableColumnRepository<? extends DbTableColumn, Integer>> boolean removeAbstractColumn(
             String columnName, String tableName, T repository) {
 
@@ -103,6 +171,12 @@ public abstract class DbTableManger {
         return true;
     }
 
+    /**
+     * checks if a physical column exists in the db table
+     * @param columnName the column name to be checked
+     * @param tableName the name of the table where the column exists in
+     * @return true if it exists
+     */
     public boolean columnExists(String columnName, String tableName){
         if(columnName == null || tableName == null) return true;
 
@@ -126,6 +200,12 @@ public abstract class DbTableManger {
         return false;
     }
 
+    /**
+     * gets the datatype of a column in the database
+     * @param columnName the column name to be checked
+     * @param tableName the name of the table where the column exists in
+     * @return the column sql datatype
+     */
     public ColumnDatatype getColumnDataType(String columnName, String tableName){
         //https://www.tutorialspoint.com/java-resultsetmetadata-getcolumntype-method-with-example
 
@@ -154,6 +234,11 @@ public abstract class DbTableManger {
         return null;
     }
 
+    /**
+     * checks if a table exists in the database
+     * @param tableName the tale name to be checked
+     * @return true if it doesn't exist
+     */
     public boolean tableDoesNotExist(String tableName) {
 
         if(tableName == null) return false;
@@ -178,6 +263,10 @@ public abstract class DbTableManger {
         return true;
     }
 
+    /**
+     * executes a prepared statement
+     * @param statementOrder the string of the to be executed sql statement
+     */
     public void executeStatement(String statementOrder) {
         try {
             Connection connection = dataSource.getConnection();
@@ -190,6 +279,9 @@ public abstract class DbTableManger {
         }
     }
 
+    /**
+     * @return a jdbc connection
+     */
     public Connection getConnection() {
         try {
             return dataSource.getConnection();
@@ -199,6 +291,14 @@ public abstract class DbTableManger {
         }
     }
 
+    /**
+     * creates all column entities for a given table and stores them in the repository. Entities which do no longer
+     * have a physical representation are deleted
+     *
+     * @param repository the responsible repository subclass
+     * @param tableName the db table name
+     * @param <T> a subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn}
+     */
     protected <T extends DbTableColumnRepository<? extends DbTableColumn, Integer>> void initTableColumns(T repository, String tableName) {
         // the column names where a representation in db_table_column_exists
         ArrayList<String> representedColumns = new ArrayList<>();

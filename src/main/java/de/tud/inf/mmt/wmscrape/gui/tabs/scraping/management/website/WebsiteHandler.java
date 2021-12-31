@@ -175,6 +175,7 @@ public abstract class WebsiteHandler extends Service<Void> {
 
     protected void waitLoadEvent() {
         try {
+            // sleep otherwise it possibly checks the current side which is ready bcs. it takes some time to respond
             Thread.sleep(1000);
             wait.until(webDriver -> driver.executeScript("return document.readyState").equals("complete"));
         } catch (Exception e) {

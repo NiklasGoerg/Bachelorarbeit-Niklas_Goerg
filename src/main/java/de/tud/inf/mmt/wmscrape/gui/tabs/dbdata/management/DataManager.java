@@ -42,24 +42,79 @@ public abstract class DataManager {
 
     public abstract boolean addRowForSelection(Object selection);
 
+    /**
+     * used to set the correct column repository and manger after bean creation
+     */
     @PostConstruct
     protected abstract void setColumnRepositoryAndManager();
 
+    /**
+     * extracts the primary key information from one row
+     *
+     * @param row the row from which the keys should be extracted
+     * @return the primary keys
+     */
     protected abstract Map<String, String> getKeyInformation(CustomRow row);
 
-    protected abstract void setStatementKeys(CustomCell cell, PreparedStatement stmt ,
+    /**
+     * sets the previously extracted keys into a statement
+     *
+     * @param stmt the prepared statement to fill
+     * @param keys the extracted primary key values
+     */
+    protected abstract void setStatementKeys(PreparedStatement stmt ,
                                              Map<String, String> keys) throws SQLException;
 
+    /**
+     * creates a statement to persist changed rows
+     *
+     * @param colName the column name where the data will be persisted
+     * @param connection jdbc connection
+     * @return the statement containing the key information
+     */
     protected abstract PreparedStatement prepareUpdateStatements(String colName, Connection connection) throws SQLException;
 
+    /**
+     * creates a statement to delete all rows in a table
+     *
+     * @param connection jdbc connection
+     * @return the statement ready for data insertion
+     */
     protected abstract PreparedStatement prepareDeleteAllStatement(Connection connection) throws SQLException ;
 
+    /**
+     * creates a statement used for deleteting single rows
+     *
+     * @param connection jdbc connection
+     * @return the statement ready for data insertion
+     */
     protected abstract PreparedStatement prepareDeleteSelectionStatement(Connection connection) throws SQLException ;
 
+    /**
+     * sets the actual data into the prepared statements given the row
+     *
+     * @param row the row to be deleted
+     * @param statement previously prepared statement ready to set the data
+     */
     protected abstract void fillDeleteAllStatement(CustomRow row, PreparedStatement statement) throws SQLException ;
 
+    /**
+     * sets the actual data into the prepared statements given the row
+     *
+     * @param row the row to be deleted
+     * @param statement previously prepared statement ready to set the data
+     */
     protected abstract void fillDeleteSelectionStatement(CustomRow row, PreparedStatement statement) throws SQLException ;
 
+    /**
+     * prepares the data table to represent the custom rows and columns
+     *
+     * @param table the javafx table
+     * @param columns all columns as a list of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn} subclass Objects
+     * @param reserved the columns that are not supposed to be editable
+     * @param order the arrangement order of some columns
+     * @param <T> subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn}
+     */
     protected <T extends DbTableColumn> void prepareTable(TableView<CustomRow> table,
                                                           List<T> columns,
                                                           List<String> reserved, List<String> order) {
@@ -86,6 +141,12 @@ public abstract class DataManager {
 
     }
 
+    /**
+     * adds sorting columns based on the datatype
+     *
+     * @param column the column to be sorted
+     * @param datatype the column datatype
+     */
     private void setComparator(TableColumn<CustomRow, String> column, ColumnDatatype datatype){
 
         if(datatype == ColumnDatatype.TEXT) return;
@@ -106,6 +167,13 @@ public abstract class DataManager {
         });
     }
 
+    /**
+     *
+     * @param statement the statement where the data will be set
+     * @param data the data as string
+     * @param datatype the data datatype
+     * @param index the position where the data will be inserted into the given statement
+     */
     protected void fillByDataType(PreparedStatement statement, String data, ColumnDatatype datatype, int index)
             throws SQLException,NumberFormatException, DateTimeParseException {
 
@@ -125,6 +193,13 @@ public abstract class DataManager {
         }
     }
 
+    /**
+     * sets a null value into a statement based on the datatype
+     *
+     * @param index the position where the data will be inserted into the given statement
+     * @param datatype the data datatype
+     * @param statement the statement where the data will be set
+     */
     protected void fillNullByDataType(int index, ColumnDatatype datatype, PreparedStatement statement) throws SQLException {
         switch (datatype) {
             case DATE -> statement.setNull(index, Types.DATE);
@@ -134,6 +209,13 @@ public abstract class DataManager {
         }
     }
 
+    /**
+     * general process of deleting rows
+     *
+     * @param rows the rows to be deleted
+     * @param everything if true everything in the displayed javafx table will be deleted
+     * @return true if successful
+     */
     public boolean deleteRows(List<CustomRow> rows, boolean everything) {
         if(rows == null) return true;
 
@@ -149,6 +231,12 @@ public abstract class DataManager {
         return true;
     }
 
+    /**
+     *
+     * @param connection jdbc connection
+     * @param rows the rows to be deleted. actually not all rows are needed and some deletions have no affect
+     *             because everything is deleted already
+     */
     private void deleteEverything(Connection connection, List<CustomRow> rows) throws SQLException {
         PreparedStatement statement = prepareDeleteAllStatement(connection);
 
@@ -173,12 +261,25 @@ public abstract class DataManager {
         statement.close();
     }
 
+    /**
+     * refreshes the javafx data table
+     * @param table the javafx table
+     * @return a list of all database data fpr a table converted into custom rows/cells
+     */
     public ObservableList<CustomRow> updateDataTable(TableView<CustomRow> table) {
         List<? extends DbTableColumn> dbTableColumns = getTableColumns(dbTableColumnRepository);
         prepareTable(table, dbTableColumns, dbTableManger.getKeyColumns(), dbTableManger.getColumnOrder());
         return getAllRows(dbTableManger.getTableName(), dbTableColumns);
     }
 
+    /**
+     * filters rows by selection
+     *
+     * @param key the key column name (isin for stock/course, depotname for depots)
+     * @param keyValue the key value
+     * @param rows the rows to be filtered (normally all rows)
+     * @return the filtered rows
+     */
     public ObservableList<CustomRow> getRowsBySelection(String key, String keyValue, ObservableList<CustomRow> rows) {
 
         ObservableList<CustomRow> objects = FXCollections.observableArrayList();
@@ -192,6 +293,13 @@ public abstract class DataManager {
         return objects;
     }
 
+    /**
+     * gets all data rows for a specific table
+     *
+     * @param tableName the table that contains the data
+     * @param columns the column entitys used for cell generation
+     * @return all data rows as custom rows
+     */
     public ObservableList<CustomRow> getAllRows(String tableName,  List<? extends DbTableColumn> columns) {
 
         ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
@@ -219,6 +327,12 @@ public abstract class DataManager {
         return allRows;
     }
 
+    /**
+     *
+     * @param repository defines which db table columns will we returned
+     * @param <T> subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn}
+     * @return all column entities based on the repository
+     */
     private  <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns( DbTableColumnRepository<T, Integer> repository) {
         return repository.findAll();
     }
@@ -243,7 +357,7 @@ public abstract class DataManager {
                         stmt = statements.get(cell.getColumnName());
                     }
 
-                    setStatementKeys(cell, stmt, keys);
+                    setStatementKeys(stmt, keys);
                     fillByDataType( stmt, cell.getTextData(), cell.getDatatype(), 1);
                     stmt.addBatch();
                 }
@@ -261,6 +375,11 @@ public abstract class DataManager {
         return true;
     }
 
+    /**
+     * customizes the javafx table to be ready for element insertion
+     *
+     * @param table the javafx selection table
+     */
     public void prepareStockSelectionTable(TableView<Stock> table) {
         TableColumn<Stock, String> nameCol =  new TableColumn<>("Name");
         TableColumn<Stock, String> isinCol =  new TableColumn<>("ISIN");
@@ -322,6 +441,11 @@ public abstract class DataManager {
         return true;
     }
 
+    /**
+     * used for the column deletion combo box
+     *
+     * @return all column that are allowed to be deleted given the current repository and manager
+     */
     public List<? extends DbTableColumn>  getDbTableColumns() {
         var all = dbTableColumnRepository.findAll();
         all.removeIf(column -> dbTableManger.getReservedColumns().contains(column.getName()));

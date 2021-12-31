@@ -8,6 +8,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * column entity for courses (prices)
+ */
 @Entity
 @DiscriminatorValue("C")
 public class CourseColumn extends DbTableColumn {

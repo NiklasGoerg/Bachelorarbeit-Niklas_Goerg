@@ -60,6 +60,10 @@ public class ElementIdentCorrelation {
     private boolean isChanged = false;
 
 
+    /**
+     * called after entity creation by hibernate (loading from the database)
+     * updates the property values to those from the database
+     */
     @PostLoad
     private void setPropertiesFromPersistence() {
         identType.set(_identType.name());
@@ -154,6 +158,10 @@ public class ElementIdentCorrelation {
         return isChanged;
     }
 
+    /**
+     * allows using properties which can't be stored by hibernate.
+     * when a property changes the filed inside the entity changes which can be stored as usual
+     */
     private void initListener() {
         identType.addListener((o, ov, nv) -> {
             isChanged = true;

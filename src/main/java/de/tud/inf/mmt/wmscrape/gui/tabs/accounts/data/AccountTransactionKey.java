@@ -3,9 +3,13 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.accounts.data;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * one of two possibilities used by hibernate to allow composite primary keys
+ */
 public class AccountTransactionKey implements Serializable {
     private int accountId;
     private int id;
+
 
     @Override
     public boolean equals(Object o) {

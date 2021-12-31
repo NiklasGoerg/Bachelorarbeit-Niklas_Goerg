@@ -60,10 +60,13 @@ public class ImportTabController {
     private TextArea logTextArea = new TextArea();
     private SimpleStringProperty logText;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
 
-        setRightPanelBoxVisibile(false);
+        setRightPanelBoxVisible(false);
         sheetPreviewTable.setPlaceholder(getPlaceholder());
         stockDataCorrelationTable.setPlaceholder(getPlaceholder());
         transactionCorrelationTable.setPlaceholder(getPlaceholder());
@@ -86,6 +89,9 @@ public class ImportTabController {
         excelSheetList.getSelectionModel().selectFirst();
     }
 
+    /**
+     * opens the new element popup
+     */
     @FXML
     private void handleNewExcelSheetButton() {
         PrimaryTabManager.loadFxml(
@@ -95,6 +101,9 @@ public class ImportTabController {
                 true, newExcelPopupController);
     }
 
+    /**
+     * deletes a excel configuration
+     */
     @FXML
     private void handleDeleteExcelSheetButton() {
         //clearFields();
@@ -110,7 +119,7 @@ public class ImportTabController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setHeaderText("Einstellungen löschen?");
         alert.setContentText("Bitte bestätigen Sie, dass sie diese Konfiguration löschen möchten.");
-        setAlertPosition(alert);
+        PrimaryTabManager.setAlertPosition(alert , pathField);
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -118,7 +127,7 @@ public class ImportTabController {
 
         importTabManager.deleteSpecificExcel(excelSheet);
         reloadExcelList();
-        setRightPanelBoxVisibile(false);
+        setRightPanelBoxVisible(false);
         excelSheetList.getSelectionModel().selectFirst();
     }
 
@@ -136,17 +145,20 @@ public class ImportTabController {
         excelSheet.setSelectionColTitle(selectionColTitleField.getText());
         excelSheet.setDepotColTitle(depotColTitleField.getText());
 
-        importTabManager.saveExcel(excelSheet);
+        importTabManager.saveExcelConfig(excelSheet);
 
         Alert alert = new Alert(
                 Alert.AlertType.INFORMATION,
                 "Die Excelkonfiguration wurde gespeichert.",
                 ButtonType.OK);
         alert.setHeaderText("Daten gespeichert!");
-        setAlertPosition(alert);
+        PrimaryTabManager.setAlertPosition(alert , pathField);
         alert.showAndWait();
     }
 
+    /**
+     * opens the file chooser
+     */
     @FXML
     private void handleFileSelectionButton() {
         FileChooser fileChooser = new FileChooser();
@@ -159,6 +171,9 @@ public class ImportTabController {
         }
     }
 
+    /**
+     * starts the preview process -> parsing the excel sheet, process the data, filling the preview tables
+     */
     @FXML
     private void previewExcel() {
         // remove changes if not saved
@@ -179,86 +194,8 @@ public class ImportTabController {
         }
 
         int result = importTabManager.fillExcelPreview(sheetPreviewTable, excelSheet);
-        Alert alert;
 
-        switch (result) {
-            case -1 -> {
-                // wrong password
-                createAlert("Falsches Passwort!",
-                        "Das angegebene Passwort ist falsch. Speichern Sie bevor Sie die Vorschau laden.",
-                        Alert.AlertType.ERROR);
-                return;
-            }
-            case -2 -> {
-                // TitleRowError
-                createAlert("Fehlerhafte Titelzeile!",
-                        "Die Titelzeile liegt außerhalb der Begrenzung.",
-                        Alert.AlertType.ERROR);
-                return;
-            }
-            case -3 -> {
-                // no data in sheet
-                createAlert("Keine Daten gefunden!",
-                        "Die angegebene Datei enhält keine Daten.",
-                        Alert.AlertType.ERROR);
-                return;
-            }
-            case -4 -> {
-                // no data title row
-                createAlert("Keine Daten gefunden!",
-                        "In der angegebenen Titelzeile sind keine Daten.",
-                        Alert.AlertType.ERROR);
-                return;
-            }
-            case -5 -> {
-                // titles not unique
-                createAlert("Titel nicht einzigartig!",
-                        "Die Titelzeile enthält Elemente mit gleichen Namen. Mehr Informationen im Log",
-                        Alert.AlertType.ERROR);
-                return;
-            }
-            case -6 -> {
-                // Selection column not found
-                createAlert("Übernahmespalte nicht gefunden!",
-                        "In der Zeile " + excelSheet.getTitleRow() + " " +
-                                "existiert keine Spalte mit dem Namen '" +
-                                excelSheet.getSelectionColTitle() + "'",
-                        Alert.AlertType.ERROR);
-                return;
-            }
-            case -7 -> {
-                // Selection column not found
-                createAlert("Depotspalte nicht gefunden!",
-                        "In der Zeile " + excelSheet.getTitleRow() + " " +
-                                "existiert keine Spalte mit dem Namen '" +
-                                excelSheet.getDepotColTitle() + "'",
-                        Alert.AlertType.ERROR);
-                return;
-            }
-            case -8 -> {
-                // Cell evaluation error
-                alert = new Alert(
-                        Alert.AlertType.WARNING,
-                        "Einige Zellen konnten nicht evaluiert werden.",
-                        ButtonType.OK);
-                alert.setHeaderText("Fehler bei der Evaluierung!");
-                TextArea textArea = new TextArea(
-                        """
-                                Einige Zellen konnten nicht evaluiert werden.
-                                Genauere Informationen befinden sich im Log.
-                                Die von POI unterstützten Funktionen können hier nachgeschlagen werden:\s
-
-                                https://poi.apache.org/components/spreadsheet/eval-devguide.html""");
-                textArea.setEditable(false);
-                textArea.setWrapText(true);
-                GridPane gridPane = new GridPane();
-                gridPane.setMaxWidth(Double.MAX_VALUE);
-                gridPane.add(textArea, 0, 0);
-                alert.getDialogPane().setContent(gridPane);
-                setAlertPosition(alert);
-                alert.show();
-            }
-        }
+        if (showPreviewResults(excelSheet, result)) return;
 
         stockDataCorrelationTable.getColumns().clear();
         stockDataCorrelationTable.getItems().clear();
@@ -280,6 +217,98 @@ public class ImportTabController {
         transactionCorrelationTable.refresh();
     }
 
+    /**
+     *
+     * @param excelSheet the used excel configuration
+     * @param result the result value from the process
+     * @return returns true if a critical error occurred
+     */
+    private boolean showPreviewResults(ExcelSheet excelSheet, int result) {
+        Alert alert;
+        switch (result) {
+            case -1 -> {
+                // wrong password
+                createAlert("Falsches Passwort!",
+                        "Das angegebene Passwort ist falsch. Speichern Sie bevor Sie die Vorschau laden.",
+                        Alert.AlertType.ERROR);
+                return true;
+            }
+            case -2 -> {
+                // TitleRowError
+                createAlert("Fehlerhafte Titelzeile!",
+                        "Die Titelzeile liegt außerhalb der Begrenzung.",
+                        Alert.AlertType.ERROR);
+                return true;
+            }
+            case -3 -> {
+                // no data in sheet
+                createAlert("Keine Daten gefunden!",
+                        "Die angegebene Datei enhält keine Daten.",
+                        Alert.AlertType.ERROR);
+                return true;
+            }
+            case -4 -> {
+                // no data title row
+                createAlert("Keine Daten gefunden!",
+                        "In der angegebenen Titelzeile sind keine Daten.",
+                        Alert.AlertType.ERROR);
+                return true;
+            }
+            case -5 -> {
+                // titles not unique
+                createAlert("Titel nicht einzigartig!",
+                        "Die Titelzeile enthält Elemente mit gleichen Namen. Mehr Informationen im Log",
+                        Alert.AlertType.ERROR);
+                return true;
+            }
+            case -6 -> {
+                // Selection column not found
+                createAlert("Übernahmespalte nicht gefunden!",
+                        "In der Zeile " + excelSheet.getTitleRow() + " " +
+                                "existiert keine Spalte mit dem Namen '" +
+                                excelSheet.getSelectionColTitle() + "'",
+                        Alert.AlertType.ERROR);
+                return true;
+            }
+            case -7 -> {
+                // Selection column not found
+                createAlert("Depotspalte nicht gefunden!",
+                        "In der Zeile " + excelSheet.getTitleRow() + " " +
+                                "existiert keine Spalte mit dem Namen '" +
+                                excelSheet.getDepotColTitle() + "'",
+                        Alert.AlertType.ERROR);
+                return true;
+            }
+            case -8 -> {
+                // Cell evaluation error
+                alert = new Alert(
+                        Alert.AlertType.WARNING,
+                        "Einige Zellen konnten nicht evaluiert werden.",
+                        ButtonType.OK);
+                alert.setHeaderText("Fehler bei der Evaluierung!");
+                TextArea textArea = new TextArea(
+                        """
+                                Einige Zellen konnten nicht evaluiert werden.
+                                Genauere Informationen befinden sich im Log.
+                                Die von POI unterstützten Funktionen können hier nachgeschlagen werden:\s
+
+                                https://poi.apache.org/components/spreadsheet/eval-devguide.html""");
+                textArea.setEditable(false);
+                textArea.setWrapText(true);
+                GridPane gridPane = new GridPane();
+                gridPane.setMaxWidth(Double.MAX_VALUE);
+                gridPane.add(textArea, 0, 0);
+                alert.getDialogPane().setContent(gridPane);
+                PrimaryTabManager.setAlertPosition(alert , pathField);
+                alert.show();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * starts the import process
+     */
     @FXML
     private void importExcel() {
         logText.set("");
@@ -367,7 +396,7 @@ public class ImportTabController {
             return;
         }
 
-        setRightPanelBoxVisibile(true);
+        setRightPanelBoxVisible(true);
         inlineValidation = false;
         logText.set("");
 
@@ -433,7 +462,12 @@ public class ImportTabController {
         return new Label("Keine Vorschau geladen.");
     }
 
-    private void setRightPanelBoxVisibile(boolean visible) {
+    /**
+     * if no configuration exists, the normal view is hidden and replaced with an instruction window
+     *
+     * @param visible if true show the normal config winoow
+     */
+    private void setRightPanelBoxVisible(boolean visible) {
         if(!visible) {
             rootNode.getItems().remove(rightPanelBox);
             rootNode.getItems().add(noSelectionReplacement);
@@ -449,14 +483,8 @@ public class ImportTabController {
     private void createAlert(String title, String content, Alert.AlertType type) {
         Alert alert = new Alert(type, content, ButtonType.OK);
         alert.setHeaderText(title);
-        setAlertPosition(alert);
+        PrimaryTabManager.setAlertPosition(alert , pathField);
         alert.showAndWait();
-    }
-
-    private void setAlertPosition(Alert alert) {
-        var window = pathField.getScene().getWindow();
-        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
-        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
     }
 
     public void refreshCorrelationTables() {

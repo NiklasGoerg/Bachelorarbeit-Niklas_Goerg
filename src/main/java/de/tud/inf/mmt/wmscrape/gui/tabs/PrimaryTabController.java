@@ -33,6 +33,9 @@ public class PrimaryTabController {
     @Autowired
     private DataTabController dataTabController;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() throws IOException {
         currentUserLabel.setText("Aktueller Nutzer: " + SpringIndependentData.getUsername());
@@ -57,6 +60,9 @@ public class PrimaryTabController {
 
     }
 
+    /**
+     * closes the spring application context and returns to the login menu
+     */
     @FXML
     private void handleLogoutButton() {
         applicationContext.close();

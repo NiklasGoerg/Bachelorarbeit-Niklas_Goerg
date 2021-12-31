@@ -48,20 +48,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         // e.g. stock/course needs isin or wkn or the name
         if(!validIdentCorrelations(element, identCorrelations)) return;
 
-        for (var correlation : identCorrelations) {
-            if(task.isCancelled()) return;
-
-            // create an information carrier with the basic information
-            informationCarrier = prepareCarrier(correlation, null);
-            preparedCarrierMap.put(correlation.getDbColName(), informationCarrier);
-
-            // create a sql statement with the basic information
-            // row names stay the same
-            statement = prepareStatement(connection, informationCarrier);
-            if (statement != null && !doNotSaveColumns.contains(correlation.getDbColName())) {
-                preparedStatements.put(correlation.getDbColName(), statement);
-            }
-        }
+        if (prepareCarrierAndStatements(task, identCorrelations, preparedCarrierMap)) return;
 
         // get the table
         WebElementInContext table = getTable(element);
@@ -92,15 +79,36 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             searchInsideRow(preparedCarrierMap, row);
             processSelectionsForRow(elementSelections, preparedCarrierMap);
             resetCarriers(preparedCarrierMap);
+
             currentProgress++;
             progress.set(currentProgress/maxProgress);
-            scraper.resetIdentBuffer();
+            scraper.resetIdentDataBuffer();
         }
         scraper.waitForWsElements(true);
 
         storeInDb();
 
         logMatches(elementSelections, element.getDescription());
+    }
+
+    private boolean prepareCarrierAndStatements(Task<Void> task, List<ElementIdentCorrelation> identCorrelations, Map<String, InformationCarrier> preparedCarrierMap) {
+        PreparedStatement statement;
+        InformationCarrier informationCarrier;
+        for (var correlation : identCorrelations) {
+            if(task.isCancelled()) return true;
+
+            // create an information carrier with the basic information
+            informationCarrier = prepareCarrier(correlation, null);
+            preparedCarrierMap.put(correlation.getDbColName(), informationCarrier);
+
+            // create a sql statement with the basic information
+            // row names stay the same
+            statement = prepareStatement(connection, informationCarrier);
+            if (statement != null && !doNotSaveColumns.contains(correlation.getDbColName())) {
+                preparedStatements.put(correlation.getDbColName(), statement);
+            }
+        }
+        return false;
     }
 
     private void logMatches(List<ElementSelection> selections, String description) {

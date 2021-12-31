@@ -54,6 +54,9 @@ public class ScrapingWebsiteTabController {
     @Autowired
     private WebsiteTestPopupController websiteTestPopupController;
 
+    /**
+     * called when loading the fxml file
+     */
     @FXML
     private void initialize() {
 
@@ -115,7 +118,7 @@ public class ScrapingWebsiteTabController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setHeaderText("Einstellungen löschen?");
         alert.setContentText("Bitte bestätigen Sie, dass sie diese Webseitenkonfiguration löschen möchten.");
-        setAlertPosition(alert);
+        PrimaryTabManager.setAlertPosition(alert , urlField);
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -147,7 +150,7 @@ public class ScrapingWebsiteTabController {
                 "Die Webseitenkonfiguration wurde gespeichert.",
                 ButtonType.OK);
         alert.setHeaderText("Daten gespeichert!");
-        setAlertPosition(alert);
+        PrimaryTabManager.setAlertPosition(alert , urlField);
         alert.showAndWait();
     }
 
@@ -267,7 +270,7 @@ public class ScrapingWebsiteTabController {
     private void createAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR, content, ButtonType.OK);
         alert.setHeaderText(title);
-        setAlertPosition(alert);
+        PrimaryTabManager.setAlertPosition(alert , urlField);
         alert.showAndWait();
     }
 
@@ -406,12 +409,6 @@ public class ScrapingWebsiteTabController {
                 rootNode.setDividerPosition(0, 0.15);
             }
         }
-    }
-
-    private void setAlertPosition(Alert alert) {
-        var window = urlField.getScene().getWindow();
-        alert.setY(window.getY() + (window.getHeight() / 2) - 200);
-        alert.setX(window.getX() + (window.getWidth() / 2) - 200);
     }
 
 }

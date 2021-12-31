@@ -12,7 +12,7 @@ public class ExcelSheet {
     private int id;
 
     @OneToMany(fetch= FetchType.LAZY, mappedBy ="excelSheet",  orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
+    private final List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
     @Column(updatable = false, nullable = false)
     private String description;
@@ -79,18 +79,6 @@ public class ExcelSheet {
         this.selectionColTitle = selectionColTitle;
     }
 
-    public List<ExcelCorrelation> getExcelCorrelations() {
-        return excelCorrelations;
-    }
-
-    public void addExcelCorrelation(ExcelCorrelation excelCorrelation) {
-        this.excelCorrelations.add(excelCorrelation);
-    }
-
-    public void setExcelCorrelations(List<ExcelCorrelation> excelCorrelations) {
-        this.excelCorrelations = excelCorrelations;
-    }
-
     public String getDepotColTitle() {
         return depotColTitle;
     }
@@ -99,6 +87,10 @@ public class ExcelSheet {
         this.depotColTitle = depotColTitle;
     }
 
+    /**
+     * used to display the description when inserting these objects into the javafx selection table
+     * @return the description of the configuration
+     */
     @Override
     public String toString() {
         return this.description;

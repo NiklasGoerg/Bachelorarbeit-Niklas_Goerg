@@ -28,6 +28,12 @@ public class StockTableManager extends DbTableManger {
     @Autowired
     TransactionTemplate transactionTemplate;
 
+    /**
+     * <li> creates the table in the database because it is not managed by hibernate.</li>
+     * <li> a constraint between the "wertpapier" table and the "wertpapier_stammdaten" is added</li>
+     * <li> column-entities are managed based on the columns in the database</li>
+     * <li> optional: predefined columns can be added to the db table with {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger#addColumn(String, ColumnDatatype)}</li>
+     */
     @PostConstruct
     private void initStockData() {
         // the stock data table is not managed by spring

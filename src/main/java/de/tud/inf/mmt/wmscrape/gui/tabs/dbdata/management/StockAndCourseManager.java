@@ -67,7 +67,7 @@ public abstract class StockAndCourseManager extends DataManager {
     }
 
     @Override
-    protected void setStatementKeys(CustomCell cell, PreparedStatement stmt,
+    protected void setStatementKeys(PreparedStatement stmt,
                                     Map<String, String> keys) throws SQLException{
 
         // 1 = data

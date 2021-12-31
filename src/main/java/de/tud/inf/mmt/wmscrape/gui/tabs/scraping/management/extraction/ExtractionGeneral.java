@@ -24,7 +24,6 @@ public abstract class ExtractionGeneral {
     private static final String[] DATE_FORMATS = {"dd-MM-yyyy", "dd-MM-yy", "MM-dd-yyyy", "MM-dd-yy", "yy-MM-dd"};
 
     protected HashMap<String , PreparedStatement> preparedStatements = new HashMap<>();
-    protected HashMap<String, Integer> waitWithHighlighting = new HashMap<>();
     protected final Connection connection;
     protected final SimpleStringProperty logText;
     protected final WebsiteScraper scraper;
@@ -81,23 +80,23 @@ public abstract class ExtractionGeneral {
         return text;
     }
 
-    private String getRegularDate(String text) {
+    private String getDateInRegularFormat(String text) {
 
         // matches every date format
         String match = findFirst("(\\d{4}|\\d{1,2}|\\d)[^0-9]{1,3}\\d{1,2}[^0-9]{1,3}(\\d{4}|\\d{1,2}|\\d)", text);
 
         if (match == null || match.isBlank()) return "";
 
-        String[] sub = getDateSubstrings(match);
+        String[] sub = getDateSubstringParts(match);
 
         // building new date from parts
         if (sub[0].length()==2 && sub[1].length()==1 && sub[2].length()==1) {
             // yy-m-d -> dd-MM-yyyy
-            reorder(sub, 0, 2);
+            reorderArray(sub, 0, 2);
         } else if(match.matches("^[^0-9]*\\d{4}[^0-9]+\\d{1,2}[^0-9]+\\d{1,2}[^0-9]*$")) {
             // matches yyyy-?-? -> ?-?-yyyy assuming yyyy-MM-dd
             assumeDMOrder(sub, 2, 1);
-            reorder(sub, 0,2);
+            reorderArray(sub, 0,2);
         } else if(match.matches("^[^0-9]*\\d{1,2}[^0-9]+\\d{1,2}[^0-9]+\\d{4}[^0-9]*$")) {
             // matches ?-?-yyyy
             assumeDMOrder(sub, 0, 1);
@@ -117,7 +116,7 @@ public abstract class ExtractionGeneral {
         return firstPadding+sub[0] +"-"+ centerPadding+sub[1] +"-"+ lastPadding+sub[2];
     }
 
-    private String getRegularNumber(String data) {
+    private String getNumberInRegularFormat(String data) {
         // every following digit are cut off at the double->int cast
 
         // imagine 10.000,023
@@ -152,17 +151,17 @@ public abstract class ExtractionGeneral {
 
         if(a <= 12 && b > 12) {
             // assuming 'b' is day an 'a' is month
-            reorder(order,x,y);
+            reorderArray(order,x,y);
         }
     }
 
-    private static void reorder(String[] order, int x, int y) {
-        String tmp = order[x];
-        order[x] = order[y];
-        order[y] = tmp;
+    private static void reorderArray(String[] array, int x, int y) {
+        String tmp = array[x];
+        array[x] = array[y];
+        array[y] = tmp;
     }
 
-    private String[] getDateSubstrings(String text) {
+    private String[] getDateSubstringParts(String text) {
         // pattern to extract the substrings
         Pattern pattern = Pattern.compile("\\d{1,4}");
         String[] sub = new String[3];
@@ -203,7 +202,7 @@ public abstract class ExtractionGeneral {
 
     private Date getDateFromString(String date) {
 
-        // last option but date should be prepared to be accepted with the first/second format
+        // last option with try/error. date should be prepared to be accepted with the first/second format
         for (String format : DATE_FORMATS) {
             try {
                 LocalDate dataToDate = LocalDate.from(DateTimeFormatter.ofPattern(format).parse(date));
@@ -222,10 +221,10 @@ public abstract class ExtractionGeneral {
 
         switch (datatype) {
             case INTEGER, DOUBLE -> {
-                return getRegularNumber(data);
+                return getNumberInRegularFormat(data);
             }
             case DATE -> {
-                return getRegularDate(data);
+                return getDateInRegularFormat(data);
             }
             case TEXT -> {
                 return data;
@@ -242,7 +241,7 @@ public abstract class ExtractionGeneral {
         boolean valid;
 
         switch (datatype) {
-            case INTEGER, DOUBLE -> valid =  data.matches("^[\\-+]?[0-9]+([.,]?[0-9]+)?$");
+            case INTEGER, DOUBLE -> valid =  data.matches("^[\\-+]?[0-9]+([.]?[0-9]+)?$");
             case DATE -> valid = data.matches("^(\\d{1,2}|\\d{4})-\\d{1,2}-(\\d{1,2}|\\d{4})$");
             default -> valid = true;
         }
