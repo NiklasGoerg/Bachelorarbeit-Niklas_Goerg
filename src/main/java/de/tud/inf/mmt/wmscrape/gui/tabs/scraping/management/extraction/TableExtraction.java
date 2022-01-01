@@ -24,14 +24,53 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         super(connection, logText, scraper, date);
     }
 
+    /**
+     * validates if the necessary ident correlations have been set inside the website element configuration.
+     * e.g. for the stock types at least one of isin, wkn or name must be set
+     *
+     * @param element the website element configuration
+     * @param correlations the correlations previously taken from the website element
+     * @return true if valid
+     */
     protected abstract boolean validIdentCorrelations(WebsiteElement element, List<ElementIdentCorrelation> correlations);
 
+    /**
+     * updates the statements to match the current selection element
+     * changes the key attributs for the prepared statements that were created for all table columns.
+     * e.g. for the stock types the isin is updated
+     *
+     * @param statements all prepared statement
+     * @param selection the selection that contains the information to update the carrier
+     */
     protected abstract void updateStatements(Map<String, PreparedStatement> statements, ElementSelection selection);
 
+    /**
+     * tries to find a matching selection element for the extracted data.
+     * e.g. for stock data it tries to match based on the isin, wkn, and name of stocks
+     *
+     * @param descCorrelation the description correlation the extracted data is matched against
+     * @param carrierMap a map of carriers that hold the information for specific database columns
+     * @return true if matching
+     */
     protected abstract boolean matches(ElementDescCorrelation descCorrelation, Map<String, InformationCarrier> carrierMap);
 
+    /**
+     * the carriers are reused for multiple selection as the column and table names of the db do not change in the
+     * scraping process. so the only thing changing are some key values and the saved extracted data is reset.
+     *
+     * @param carrierMap the carriers mapped to their column name
+     * @param selection the selection that contains the information to update the carrier
+     */
     protected abstract void correctCarrierValues(Map<String, InformationCarrier> carrierMap, ElementSelection selection);
 
+    /**
+     * defines the standard procedure of scraping a table including finding the table, extracting rows and matching
+     * the content. abstract methods are used as gapes filled by the specific table extraction type implementation
+     *
+     * @param element the website element configuration to extract data for
+     * @param task the task the process is running in
+     * @param progress the selection/row progress property bound to the javafx progress bar
+     */
     public void extract(WebsiteElement element, Task<Void> task, SimpleDoubleProperty progress) {
         var identCorrelations = element.getElementIdentCorrelations();
         var elementSelections = element.getElementSelections();
@@ -91,7 +130,16 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         logMatches(elementSelections, element.getDescription());
     }
 
-    private boolean prepareCarrierAndStatements(Task<Void> task, List<ElementIdentCorrelation> identCorrelations, Map<String, InformationCarrier> preparedCarrierMap) {
+    /**
+     * creates all carriers and prepared statements and fills them with the basic information.
+     *
+     * @param task the task to allow canceling the task
+     * @param identCorrelations for every correlation a carrier and statement is created
+     * @param preparedCarrierMap a map of carriers that hold the information for specific database columns
+     * @return false if not canceled
+     */
+    private boolean prepareCarrierAndStatements(Task<Void> task, List<ElementIdentCorrelation> identCorrelations,
+                                                Map<String, InformationCarrier> preparedCarrierMap) {
         PreparedStatement statement;
         InformationCarrier informationCarrier;
         for (var correlation : identCorrelations) {
@@ -111,6 +159,12 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         return false;
     }
 
+    /**
+     * called at the end of the scraping process to show all found selections in the website table
+     *
+     * @param selections all selection elements
+     * @param description the description of the website element configuration
+     */
     private void logMatches(List<ElementSelection> selections, String description) {
 
         StringBuilder success = new StringBuilder("\n");
@@ -135,6 +189,12 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
                 "\n----------------------------------------------------------------------------\n");
     }
 
+    /**
+     * searches all not yet extracted selections for a match to the extracted website table row
+     *
+     * @param selections all selection elements
+     * @param carrierMap the map of carriers containing the extracted data mapped to the database column name
+     */
     private void processSelectionsForRow(List<ElementSelection> selections,
                                          Map<String, InformationCarrier> carrierMap) {
         
@@ -173,10 +233,16 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         log("\nINFO:\tKein Treffer in der Zeile.\n");
     }
 
+
     private void resetCarriers(Map<String, InformationCarrier> carriers) {
         carriers.values().forEach(c -> c.setExtractedData(null));
     }
 
+    /**
+     * sets the data for all prepared statements given the carriers containing the data
+     *
+     * @param carrierMap the carriers containing the data
+     */
     private void setStatementExtractedData(Map<String, InformationCarrier> carrierMap) {
         for(var carrier : carrierMap.values()) {
             var statement = preparedStatements.getOrDefault(carrier.getDbColName(), null);
@@ -186,6 +252,12 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         }
     }
 
+    /**
+     * searches for the html table
+     *
+     * @param websiteElement the website element configuration holding the reference (xpath/css) to the table
+     * @return the table object inside a context object containing references to iframes
+     */
     private WebElementInContext getTable(WebsiteElement websiteElement) {
         WebElementInContext element = scraper.extractFrameElementFromContext(websiteElement.getTableIdenType(), websiteElement.getTableIdent(), null);
 
@@ -195,6 +267,12 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         return element;
     }
 
+    /**
+     * extracts all rows from the table
+     *
+     * @param table the table inside the context object used as a reference point
+     * @return all rows found
+     */
     private List<WebElementInContext> getRows(WebElementInContext table) {
         List<WebElementInContext> elements;
 
@@ -210,6 +288,12 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         return elements;
     }
 
+    /**
+     * extracts the data for database columns inside one row based on the information inside the carriers
+     *
+     * @param carrierMap the carriers containing the information how to search inside the row
+     * @param row the row element used as a reference point
+     */
     private void searchInsideRow(Map<String, InformationCarrier> carrierMap, WebElementInContext row) {
         String data;
 
@@ -230,6 +314,13 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         }
     }
 
+    /**
+     * compares key information with extracted data inside the carrier
+     *
+     * @param carrier holding the extracted data
+     * @param dbData the data to compare against
+     * @return true if matching
+     */
     protected boolean compare(InformationCarrier carrier, String dbData) {
         if (carrier != null ) {
             var websiteData = carrier.getExtractedData();

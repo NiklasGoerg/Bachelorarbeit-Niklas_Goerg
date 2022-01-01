@@ -21,21 +21,38 @@ public class ElementManagerTable extends ElementManager {
     @Autowired
     private TableSubController tableSubController;
 
+    /**
+     * used by the {@link TableSubController} to initialize and fill the description correlations for the stock or course type.
+     *
+     * @param staleElement the website element configuration
+     * @param table the javafx correlation table
+     */
     @Transactional
-    public void initCourseOrStockDescriptionTable(WebsiteElement staleElement, TableView<ElementDescCorrelation> table) {
+    public void initCourseOrStockDescCorrelationTable(WebsiteElement staleElement, TableView<ElementDescCorrelation> table) {
         var websiteElement = getFreshWebsiteElement(staleElement);
-        prepareCourseDescriptionTable(table);
-        fillDescriptionTable(websiteElement, table);
+        prepareCourseDescCorrelationTable(table);
+        fillDescCorrelationTable(websiteElement, table);
     }
 
+    /**
+     * used by the {@link TableSubController} to initialize the description correlations for the exchange type.
+     *
+     * @param staleElement the website element configuration
+     * @param table the javafx correlation table
+     */
     @Transactional
-    public void initExchangeDescriptionTable(WebsiteElement staleElement, TableView<ElementDescCorrelation> table) {
+    public void initExchangeDescCorrelationTable(WebsiteElement staleElement, TableView<ElementDescCorrelation> table) {
         var websiteElement = getFreshWebsiteElement(staleElement);
-        prepareExchangeDescriptionTable(table);
-        fillDescriptionTable(websiteElement, table);
+        prepareExchangeDescCorrelationTable(table);
+        fillDescCorrelationTable(websiteElement, table);
     }
 
-    private void prepareCourseDescriptionTable(TableView<ElementDescCorrelation> table) {
+    /**
+     * adds the columns to the correlation table and sets the factories
+     *
+     * @param table the javafx correlation table
+     */
+    private void prepareCourseDescCorrelationTable(TableView<ElementDescCorrelation> table) {
 
         TableColumn<ElementDescCorrelation, String> dbDescriptionCol = new TableColumn<>("DB-Name");
         TableColumn<ElementDescCorrelation, String> dbIsinCol = new TableColumn<>("DB-ISIN");
@@ -74,7 +91,12 @@ public class ElementManagerTable extends ElementManager {
         table.getColumns().add(wsWknColl);
     }
 
-    private void prepareExchangeDescriptionTable(TableView<ElementDescCorrelation> table) {
+    /**
+     * adds the columns to the correlation table and sets the factories
+     *
+     * @param table the javafx correlation table
+     */
+    private void prepareExchangeDescCorrelationTable(TableView<ElementDescCorrelation> table) {
 
         TableColumn<ElementDescCorrelation, String> dbDescriptionCol = new TableColumn<>("Bezeichnung in DB");
         TableColumn<ElementDescCorrelation, String> wsDescriptionCol = new TableColumn<>("Bezeichnung auf der Seite");
@@ -90,7 +112,13 @@ public class ElementManagerTable extends ElementManager {
         table.getColumns().add(wsDescriptionCol);
     }
 
-    private void fillDescriptionTable(WebsiteElement websiteElement, TableView<ElementDescCorrelation> table) {
+    /**
+     * adds all the saved correlations from the website configuration element to the table and adds te missing ones
+     *
+     * @param websiteElement the current website element configuration
+     * @param table the javafx description correlation table
+     */
+    private void fillDescCorrelationTable(WebsiteElement websiteElement, TableView<ElementDescCorrelation> table) {
         for (ElementSelection selection : websiteElement.getElementSelections()) {
             ElementDescCorrelation correlation = selection.getElementDescCorrelation();
             if (correlation != null) {
@@ -101,6 +129,11 @@ public class ElementManagerTable extends ElementManager {
         }
     }
 
+    /**
+     * adds a new description correlation if an element has be selected inside the selection table
+     *
+     * @param elementSelection the selected element
+     */
     protected void addNewElementDescCorrelation(ElementSelection elementSelection) {
 
         for(ElementDescCorrelation correlation : tableSubController.getElementDescCorrelations()) {
@@ -119,6 +152,11 @@ public class ElementManagerTable extends ElementManager {
         tableSubController.getElementDescCorrelations().add(correlation);
     }
 
+    /**
+     * removes a description correlation if an element has be unselected inside the selection table
+     *
+     * @param elementSelection the selected element
+     */
     protected void removeElementDescCorrelation(ElementSelection elementSelection) {
         ElementDescCorrelation correlation = elementSelection.getElementDescCorrelation();
         if (correlation == null) return;
@@ -126,6 +164,17 @@ public class ElementManagerTable extends ElementManager {
         elementSelection.setElementDescCorrelation(null);
     }
 
+    /**
+     * stores all the input for the current website element configuration. the flush is necessary
+     * otherwise database restraints could fail.
+     *
+     * <li>1. correlations</li>
+     * <li>2. selections</li>
+     * <li>3. the element configuration</li>
+     * <li>4. removes unselected selection elements from the database</li>
+     *
+     * @param websiteElement the website element configuration
+     */
     @Transactional
     public void saveTableSettings(WebsiteElement websiteElement) {
 

@@ -15,6 +15,9 @@ public class TransactionColumn extends DbTableColumn {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "transactionColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<ExcelCorrelation> excelCorrelations = new ArrayList<>();
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public TransactionColumn() {}
 
     public TransactionColumn(String name, ColumnDatatype columnDatatype) {

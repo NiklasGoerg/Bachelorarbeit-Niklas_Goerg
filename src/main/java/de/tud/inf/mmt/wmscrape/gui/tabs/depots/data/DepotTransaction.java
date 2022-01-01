@@ -33,6 +33,9 @@ public class DepotTransaction {
     @Column(name = "transaktionstyp", columnDefinition = "TEXT")
     private String transactionType;
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public DepotTransaction() {}
 
     public DepotTransaction(Date date, Depot depot, Stock stock) {

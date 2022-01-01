@@ -38,6 +38,9 @@ public class Stock {
     @Transient
     private final SimpleStringProperty stockType = new SimpleStringProperty();
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public Stock() {}
 
     public Stock(String isin, String wkn, String name, String stockType) {

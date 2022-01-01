@@ -10,6 +10,9 @@ import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 
+/**
+ * the controller for the complete scraping tab adding the sub-tabs
+ */
 @Controller
 public class ScrapingTabController {
     @FXML private TabPane scrapingSubTabPane;

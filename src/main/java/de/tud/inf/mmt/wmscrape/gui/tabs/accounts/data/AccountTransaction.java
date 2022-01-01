@@ -30,6 +30,9 @@ public class AccountTransaction {
     @Column(name = "typ", nullable = false, updatable = false)
     private TransactionType transactionType;
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public AccountTransaction() {}
 
     public AccountTransaction(Account account, TransactionType transactionType) {

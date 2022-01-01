@@ -13,13 +13,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-// used to create the selection tree inside the scraping tab
-
+/**
+ * used to create the selection tree inside the scraping tab
+ */
 public class WebsiteTree {
     private final TreeView<WebRepresentation<?>> treeView;
     private final ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems;
     private final Set<Integer> restoredSelected;
 
+    /**
+     * creates the tree which can be accessed by {@link #getTreeView()}
+     *
+     * @param websites all website configurations to be added
+     * @param checkedItems the observable list where selected elements will be stored in
+     * @param restoredSelected the hash values of the previously selected elements restored from user.properties
+     */
     public WebsiteTree(List<Website> websites, ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems,
                        Set<Integer> restoredSelected) {
         treeView = new TreeView<>();
@@ -45,6 +53,12 @@ public class WebsiteTree {
         return treeView;
     }
 
+    /**
+     * recursively builds the tree by accessing {@link WebRepresentation#getChildren()}
+     *
+     * @param object the parent node
+     * @return one checkbox item (at the end it's the root item containing all sub items)
+     */
     private CheckBoxTreeItem<WebRepresentation<?>> createItem(WebRepresentation<?> object) {
         CheckBoxTreeItem<WebRepresentation<?>> item = new CheckBoxTreeItem<>(object);
 
@@ -69,6 +83,13 @@ public class WebsiteTree {
         return item;
     }
 
+    /**
+     * adds or removes an element from the list of selected elemetns
+     *
+     * @param selected if true the element is added
+     * @param object the object where the selection has been changed
+     * @param <T> the subtype e.g. {@link Website} or {@link WebsiteElement}
+     */
     private <T extends WebRepresentation<?>> void updateSelected(boolean selected, WebRepresentation<T> object) {
 
         if (selected) {
@@ -78,6 +99,12 @@ public class WebsiteTree {
         }
     }
 
+    /**
+     * called by {@link #updateSelected(boolean, WebRepresentation)} to remove an element
+     *
+     * @param object the object where the selection has been changed
+     * @param <T> the subtype e.g. {@link Website} or {@link WebsiteElement}
+     */
     private <T extends WebRepresentation<?>> void removeFromSelected(WebRepresentation<T> object) {
         if (object instanceof Website && checkedItems.containsKey(object)) {
             // remove website
@@ -92,6 +119,12 @@ public class WebsiteTree {
         }
     }
 
+    /**
+     * called by {@link #updateSelected(boolean, WebRepresentation)} to add an element
+     *
+     * @param object the object where the selection has been changed
+     * @param <T> the subtype e.g. {@link Website} or {@link WebsiteElement}
+     */
     private <T extends WebRepresentation<?>> void storeSelected(WebRepresentation<T> object) {
         if (object instanceof Website && !checkedItems.containsKey(object)) {
             // add new website
@@ -107,6 +140,11 @@ public class WebsiteTree {
         }
     }
 
+    /**
+     * creates an hidden pseudo root
+     * @param websites the children of the root node are all website configurations
+     * @return the root node
+     */
     private WebRepresentation<Website> createRoot(List<Website> websites) {
         return new WebRepresentation<>() {
             @Override

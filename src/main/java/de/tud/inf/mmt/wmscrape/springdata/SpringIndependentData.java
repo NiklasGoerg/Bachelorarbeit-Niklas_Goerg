@@ -11,6 +11,7 @@ public class SpringIndependentData {
     private static String propertyConnectionPath; // e.g. "mysql://localhost/"
     private static String springConnectionPath; // e.g. "jdbc:mysql://localhost/test_wms_db"
 
+
     public SpringIndependentData() {}
 
     public static String getPassword() {

@@ -48,7 +48,7 @@ public class TableExchangeExtraction extends TableExtraction {
 
     @Override
     protected void updateStatements(Map<String, PreparedStatement> statements, ElementSelection selection) {
-        // nothing to do because the date is the only key
+        // nothing to do because the date is the only key and does not change
     }
 
     @Override

@@ -37,6 +37,9 @@ public class Account {
     @Column(name = "kontotyp", nullable = false)
     private AccountType accountType;
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public Account() {}
 
     public Account(String identificationNumber, AccountType accountType) {

@@ -10,6 +10,9 @@ import javafx.scene.control.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+/**
+ * used for skipping through all login and logout steps usually done by the scraper
+ */
 @Controller
 public class WebsiteTestPopupController {
     @FXML private Label nextStep;
@@ -33,6 +36,9 @@ public class WebsiteTestPopupController {
         nextStep.setText("Browser starten");
     }
 
+    /**
+     * does the next step in {@link de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteTester}
+     */
     @FXML
     private void handleNextStepButton() {
 

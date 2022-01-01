@@ -9,6 +9,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javax.persistence.*;
 import java.util.Objects;
 
+/**
+ * stores the selected elements corresponding to one website element configuration
+ */
 @Entity
 @Table(name = "webseiten_element_auswahl")
 public class ElementSelection {
@@ -57,7 +60,9 @@ public class ElementSelection {
     @Transient
     private boolean wasExtracted = false;
 
-
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public ElementSelection() {}
 
     public ElementSelection(WebsiteElement websiteElement, Stock stock) {

@@ -17,6 +17,13 @@ public abstract class SingleExtraction extends ExtractionGeneral implements Extr
         super(connection, logText, scraper, date);
     }
 
+    /**
+     * starts the extraction process for a single website element configuration
+     *
+     * @param element the website element configuration to extract data for
+     * @param task the task the process is running in
+     * @param progress the selection/row progress property bound to the javafx progress bar
+     */
     public void extract(WebsiteElement element, Task<Void> task, SimpleDoubleProperty progress) {
         var identCorrelations = element.getElementIdentCorrelations();
         var elementSelections = element.getElementSelections();

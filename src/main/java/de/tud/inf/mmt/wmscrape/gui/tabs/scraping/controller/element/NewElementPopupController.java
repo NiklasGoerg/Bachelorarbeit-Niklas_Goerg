@@ -5,7 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabC
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ElementManagerTable;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
+
 @Controller
 @Lazy
 public class NewElementPopupController {
@@ -22,8 +23,9 @@ public class NewElementPopupController {
     @FXML private ChoiceBox<ContentType> contentTypeChoiceBox;
     @FXML private ChoiceBox<MultiplicityType> multiplicityChoiceBox;
 
+    /* doesn't matter which manager as all have the needed methods */
     @Autowired
-    private ScrapingTabManager scrapingTabManager;
+    private ElementManagerTable elementManagerTable;
     @Autowired
     private ScrapingElementsTabController scrapingElementsTabController;
 
@@ -45,7 +47,7 @@ public class NewElementPopupController {
             return;
         }
 
-        WebsiteElement element = scrapingTabManager.createNewElement(
+        WebsiteElement element = elementManagerTable.createNewElement(
                 descriptionField.getText(),
                 contentTypeChoiceBox.getValue(),
                 multiplicityChoiceBox.getValue());

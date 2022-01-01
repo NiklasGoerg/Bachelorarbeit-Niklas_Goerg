@@ -7,9 +7,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchan
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ElementManagerCourseAndExchange;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ElementManagerTable;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -33,7 +31,7 @@ public class ScrapingElementsTabController {
     @FXML private SplitPane rootNode;
 
     @Autowired
-    private ScrapingTabManager scrapingTabManager;
+    private WebsiteManager websiteManager;
     @Autowired
     private ElementManagerTable scrapingTableManager;
     @Autowired
@@ -60,7 +58,7 @@ public class ScrapingElementsTabController {
     @FXML
     private void initialize() {
         setRightPanelBoxVisible(false);
-        elementObservableList = scrapingTabManager.initWebsiteElementList(elementList);
+        elementObservableList = scrapingTableManager.initWebsiteElementList(elementList);
         elementList.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldWs, newWs) -> loadSpecificElement(newWs));
 
@@ -74,6 +72,9 @@ public class ScrapingElementsTabController {
         elementList.getSelectionModel().selectFirst();
     }
 
+    /**
+     * opens the new element config popup
+     */
     @FXML
     private void handleNewElementButton() {
         PrimaryTabManager.loadFxml(
@@ -105,7 +106,7 @@ public class ScrapingElementsTabController {
             return;
         }
 
-        scrapingTabManager.deleteSpecificElement(element);
+        scrapingTableManager.deleteSpecificElement(element);
         clearFields();
         reloadElementList();
         setRightPanelBoxVisible(false);
@@ -141,18 +142,25 @@ public class ScrapingElementsTabController {
         alert.showAndWait();
     }
 
+    /**
+     * resets the input fields by reloading the configuration
+     */
     @FXML
     private void handleResetButton() {
         loadSpecificElement(getSelectedElement());
     }
 
+    /**
+     * called when selecting a configuration inside the selection list
+     * @param staleElement the element from the list (stale because it has no proxy session attached)
+     */
     private void loadSpecificElement(WebsiteElement staleElement) {
         if (staleElement == null) return;
 
         inlineValidation = false;
         setRightPanelBoxVisible(true);
 
-        scrapingTabManager.resetElementRepresentation(urlField, websiteChoiceBox, staleElement);
+        scrapingTableManager.resetElementRepresentation(urlField, websiteChoiceBox, staleElement);
 
         switch (staleElement.getMultiplicityType()) {
             case EINZELWERT -> {
@@ -167,21 +175,24 @@ public class ScrapingElementsTabController {
 
     public void reloadElementList() {
         elementObservableList.clear();
-        elementObservableList.addAll(scrapingTabManager.getElements());
+        elementObservableList.addAll(scrapingTableManager.getElements());
     }
 
     private void reloadWebsiteList() {
         websiteObservableList.clear();
-        websiteObservableList.addAll(scrapingTabManager.getWebsites());
+        websiteObservableList.addAll(websiteManager.getWebsites());
     }
 
+    /**
+     * called from other controllers when relevant data changes and the view has to be refreshed
+     */
     public void refresh() {
         WebsiteElement selected = getSelectedElement();
         reloadWebsiteList();
         reloadElementList();
 
         if(selected != null && elementList.getItems().contains(selected)) {
-            scrapingTabManager.resetElementRepresentation(urlField, websiteChoiceBox, selected);
+            scrapingTableManager.resetElementRepresentation(urlField, websiteChoiceBox, selected);
             elementList.getSelectionModel().select(selected);
         } else {
             elementList.getSelectionModel().selectFirst();
@@ -230,17 +241,17 @@ public class ScrapingElementsTabController {
     }
 
     private void loadSingleCourseOrStock() {
-        ScrapingTabManager.loadSubMenu(singleCourseOrStockSubController,
+        ElementManager.loadSubMenu(singleCourseOrStockSubController,
                 "gui/tabs/scraping/controller/element/singleCourseOrStockSubmenu.fxml", subPane);
     }
 
     private void loadSingleExchange() {
-        ScrapingTabManager.loadSubMenu(singleExchangeSubController,
+        ElementManager.loadSubMenu(singleExchangeSubController,
                 "gui/tabs/scraping/controller/element/singleExchangeSubmenu.fxml", subPane);
     }
 
     private void loadTable() {
-        ScrapingTabManager.loadSubMenu(tableSubController,
+        ElementManager.loadSubMenu(tableSubController,
                 "gui/tabs/scraping/controller/element/tableSubmenu.fxml", subPane);
     }
 
@@ -272,6 +283,13 @@ public class ScrapingElementsTabController {
         return isValid;
     }
 
+    /**
+     * highlights a field id its invalid and ads a tooltip
+     *
+     * @param input the element to highlight
+     * @param tooltip the tooltip text
+     * @param isValid highlight if false
+     */
     private void decorateField(Control input, String tooltip, boolean isValid) {
         input.getStyleClass().remove("bad-input");
         input.setTooltip(null);
@@ -284,6 +302,11 @@ public class ScrapingElementsTabController {
         }
     }
 
+    /**
+     * hides the usual input mask if no configuration exists
+     *
+     * @param visible if true the normal input mask for a configuration is shown
+     */
     private void setRightPanelBoxVisible(boolean visible) {
         if(!visible) {
             rootNode.getItems().remove(rightPanelBox);

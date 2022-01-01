@@ -2,7 +2,9 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data;
 
 import java.util.List;
 
-// only used to represent different objects in a tree view
+/**
+ * only used to represent different objects in a tree view
+ */
 public abstract class WebRepresentation<T extends WebRepresentation<?>> {
 
     public WebRepresentation() {}

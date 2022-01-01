@@ -1,25 +1,18 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 
-import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebRepresentation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteTree;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElementRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
 import javafx.concurrent.Worker;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TreeView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
@@ -31,108 +24,37 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
 @Service
-public class ScrapingTabManager {
+public class ScrapingManager {
 
-    @Autowired
-    private WebsiteRepository websiteRepository;
-    @Autowired
-    private WebsiteElementRepository websiteElementRepository;
-    @Autowired
-    private AutowireCapableBeanFactory beanFactory;
-    @Autowired
-    private DataSource dataSource;
+    @Autowired private AutowireCapableBeanFactory beanFactory;
+    @Autowired private DataSource dataSource;
+    @Autowired private WebsiteRepository websiteRepository;
     private WebsiteScraper scrapingService;
     private Connection dbConnection;
     private Properties properties;
 
-    public Website createNewWebsite(String description) {
-        Website website = new Website(description);
-        websiteRepository.save(website);
-        return website;
-    }
-
-    public WebsiteElement createNewElement(String description, ContentType contentType, MultiplicityType multiplicityType) {
-        WebsiteElement element = new WebsiteElement(description, contentType, multiplicityType);
-        websiteElementRepository.save(element);
-        return element;
-    }
-
-    public void deleteSpecificWebsite(Website website) {
-        websiteRepository.delete(website);
-    }
-
-    public void deleteSpecificElement(WebsiteElement element) {
-        element.setElementSelections(new ArrayList<>());
-        element.setElementCorrelations(new ArrayList<>());
-        websiteElementRepository.delete(element);
-    }
-
-    public ObservableList<Website> initWebsiteList(ListView<Website> websiteListView) {
-        ObservableList<Website> websiteObservableList = FXCollections.observableList(websiteRepository.findAll());
-        websiteListView.setItems(websiteObservableList);
-        return websiteObservableList;
-    }
-
-    public ObservableList<WebsiteElement> initWebsiteElementList(ListView<WebsiteElement> elementListView) {
-        ObservableList<WebsiteElement> elementObservableList = FXCollections.observableList(websiteElementRepository.findAll());
-        elementListView.setItems(elementObservableList);
-        return elementObservableList;
-    }
-
-    public List<Website> getWebsites() {
-        return websiteRepository.findAll();
-    }
-
-    public List<WebsiteElement> getElements() {
-        return websiteElementRepository.findAll();
-    }
-
-    public void saveWebsite(Website website) {
-        websiteRepository.save(website);
-    }
-
-    public static void loadSubMenu(Object controllerClass, String resource, BorderPane control) {
-        FXMLLoader fxmlLoader = new FXMLLoader(WMScrape.class.getResource(resource));
-        fxmlLoader.setControllerFactory(param -> controllerClass);
-        Parent scene;
-
-        try {
-            scene = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        control.centerProperty().setValue(scene);
-    }
-
-    @Transactional
-    public void resetElementRepresentation(TextField urlField, ChoiceBox<Website> choiceBox, WebsiteElement oldElement) {
-        var newElement = getFreshWebsiteElement(oldElement);
-        oldElement.setTableIdent(newElement.getTableIdent());
-        oldElement.setTableIdenType(newElement.getTableIdenType());
-        urlField.setText(newElement.getInformationUrl());
-        choiceBox.setValue(newElement.getWebsite());
-    }
-
-    private WebsiteElement getFreshWebsiteElement(WebsiteElement staleElement) {
-        return websiteElementRepository.getById(staleElement.getId());
-    }
-
+    /**
+     * creates the selection tree for the scraping menu
+     *
+     * @param checkedItems the list that holds the selected elements
+     * @param restored the hash values of the previously selected elements
+     * @return the javafx tree view
+     */
     @Transactional
     public TreeView<WebRepresentation<?>> createSelectionTree(
             ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems, Set<Integer> restored) {
-        var websites = getWebsites();
+        var websites = websiteRepository.findAll();
         return (new WebsiteTree(websites, checkedItems, restored)).getTreeView();
     }
 
-
+    /**
+     * loads the properties from user.properties
+     * @return the properties object
+     */
     public Properties getProperties() {
         if(properties == null) {
             try(FileInputStream f = new FileInputStream("src/main/resources/user.properties")) {
@@ -145,6 +67,9 @@ public class ScrapingTabManager {
         return properties;
     }
 
+    /**
+     * stores the properties file
+     */
     public void saveProperties() {
         if(properties == null) return;
 
@@ -155,12 +80,17 @@ public class ScrapingTabManager {
         }
     }
 
-    /*
-
-    This is where the transition from the ui to the scraper happens
-
+    /**
+     * takes all the parameters from the scraping menu and starts the scraping task if none is running
+     *
+     * @param minIntra minimum wait time before the next page load can be done
+     * @param maxIntra maximum wait time before the next page load can be done
+     * @param waitElement wait time for website elements
+     * @param pauseAfterElement if true the task pauses after every element
+     * @param logText the text property of the log field
+     * @param headless if true no browser window will be shown
+     * @param checkedItems the selected items from the selection tree
      */
-
     public void startScrape(double minIntra, double maxIntra, double waitElement, boolean pauseAfterElement,
                             SimpleStringProperty logText, Boolean headless,
                             ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems) {
@@ -187,6 +117,9 @@ public class ScrapingTabManager {
         scrapingService.start();
     }
 
+    /**
+     * forces the task to stop
+     */
     public void cancelScrape() {
         if(scrapingService != null) {
             scrapingService.cancel();
@@ -196,14 +129,22 @@ public class ScrapingTabManager {
         }
     }
 
-    public void continueScrape(double minIntra, double maxIntra, double waitElement, boolean pauseElement) {
+    /**
+     * continues the scraping process after pausing it. allows the change of paramters
+     *
+     * @param minIntra minimum wait time before the next page load can be done
+     * @param maxIntra maximum wait time before the next page load can be done
+     * @param waitElement wait time for website elements
+     * @param pauseAfterElement if true the task pauses after every element
+     */
+    public void continueScrape(double minIntra, double maxIntra, double waitElement, boolean pauseAfterElement) {
 
         if(scrapingService != null) {
             if (scrapingService.stateProperty().get() == Worker.State.SUCCEEDED) {
                 scrapingService.setMinIntraSiteDelay(minIntra);
                 scrapingService.setMaxIntraSiteDelay(maxIntra);
                 scrapingService.setWaitForWsElementSec(waitElement);
-                scrapingService.setPauseAfterElement(pauseElement);
+                scrapingService.setPauseAfterElement(pauseAfterElement);
                 // continues where it stopped
                 scrapingService.restart();
             } else if(scrapingService.stateProperty().get() != Worker.State.RUNNING) {
@@ -212,6 +153,11 @@ public class ScrapingTabManager {
         }
     }
 
+    /**
+     * sets the jdbc connection that will be used
+     *
+     * @return true if a connection has been set
+     */
     private boolean updateDbConnection(){
         try {
             if(dbConnection == null || dbConnection.isClosed()) {
@@ -224,6 +170,14 @@ public class ScrapingTabManager {
         }
     }
 
+    /**
+     * binds the javafx progress bar progress properties to the progress properties of the task.
+     *
+     * @param websites website progressbar
+     * @param elements website element progressbar
+     * @param selections selection / table row progressbar
+     * @param waitProgress the clock like wait time progress bar (shows the intra site delay)
+     */
     public void bindProgressBars(ProgressBar websites, ProgressBar elements, ProgressBar selections, ProgressIndicator waitProgress) {
         if(scrapingService == null) return;
 
@@ -232,6 +186,5 @@ public class ScrapingTabManager {
         elements.progressProperty().bindBidirectional(scrapingService.singleElementProgressProperty());
         selections.progressProperty().bindBidirectional(scrapingService.elementSelectionProgressProperty());
         waitProgress.progressProperty().bindBidirectional(scrapingService.waitProgressProperty());
-
     }
 }

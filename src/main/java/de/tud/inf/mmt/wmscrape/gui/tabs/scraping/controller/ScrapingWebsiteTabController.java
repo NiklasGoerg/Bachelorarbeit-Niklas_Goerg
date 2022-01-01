@@ -5,7 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.NewWebsitePo
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.WebsiteTestPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.WebsiteManager;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -48,7 +48,7 @@ public class ScrapingWebsiteTabController {
             "Wählen Sie eine Konfiguration aus oder erstellen Sie eine neue (unten links)"));
 
     @Autowired
-    private ScrapingTabManager scrapingTabManager;
+    private WebsiteManager websiteManager;
     @Autowired
     private NewWebsitePopupController newWebsitePopupController;
     @Autowired
@@ -61,7 +61,7 @@ public class ScrapingWebsiteTabController {
     private void initialize() {
 
         setRightPanelBoxVisible(false);
-        websiteObservableList = scrapingTabManager.initWebsiteList(websiteList);
+        websiteObservableList = websiteManager.initWebsiteList(websiteList);
         websiteList.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldWs, newWs) -> loadSpecificWebsite(newWs));
 
@@ -124,7 +124,7 @@ public class ScrapingWebsiteTabController {
             return;
         }
 
-        scrapingTabManager.deleteSpecificWebsite(website);
+        websiteManager.deleteSpecificWebsite(website);
         clearFields();
         reloadWebsiteList();
         setRightPanelBoxVisible(false);
@@ -143,7 +143,7 @@ public class ScrapingWebsiteTabController {
 
         setFieldDataToWebsite(website);
 
-        scrapingTabManager.saveWebsite(website);
+        websiteManager.saveWebsite(website);
 
         Alert alert = new Alert(
                 Alert.AlertType.INFORMATION,
@@ -237,7 +237,7 @@ public class ScrapingWebsiteTabController {
 
     public void reloadWebsiteList() {
         websiteObservableList.clear();
-        websiteObservableList.addAll(scrapingTabManager.getWebsites());
+        websiteObservableList.addAll(websiteManager.getWebsites());
     }
 
     private void loadSpecificWebsite(Website website) {
@@ -347,6 +347,12 @@ public class ScrapingWebsiteTabController {
         choiceBox.getItems().addAll(identType);
     }
 
+    /**
+     * if the password or username identification is set to deactivate some fields are no longer editable
+     *
+     * @param oldIdentType the previous set {@link de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType}
+     * @param newIdentType the now set {@link de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType}
+     */
     private void deselectOnDeactivated(IdentType oldIdentType,IdentType newIdentType) {
         if(newIdentType == IdentType.DEAKTIVIERT) {
             usernameIdentChoiceBox.setValue(IdentType.DEAKTIVIERT);
@@ -392,12 +398,21 @@ public class ScrapingWebsiteTabController {
         logoutIdentField.setEditable(editable);
     }
 
+    /**
+     * creates a temporary copy of a website to use the data with the website tester without saving
+     * @return the temporary website
+     */
     public Website getWebsiteUnpersistedData() {
         Website newWebsite = new Website("test");
         setFieldDataToWebsite(newWebsite);
         return newWebsite;
     }
 
+    /**
+     * hides the usual input mask if no configuration exists
+     *
+     * @param visible if true the normal input mask for a configuration is shown
+     */
     private void setRightPanelBoxVisible(boolean visible) {
         if(!visible) {
             rootNode.getItems().remove(rightPanelBox);

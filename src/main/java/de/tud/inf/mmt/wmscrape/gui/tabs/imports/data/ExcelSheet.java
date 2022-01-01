@@ -32,7 +32,9 @@ public class ExcelSheet {
     @Column(name = "depot_col_title")
     private String depotColTitle;
 
-
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public ExcelSheet() {}
 
     public ExcelSheet(String description) { this.description = description; }

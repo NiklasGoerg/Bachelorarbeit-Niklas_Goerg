@@ -15,6 +15,9 @@ import java.util.List;
 @DiscriminatorValue("C")
 public class CourseColumn extends DbTableColumn {
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public CourseColumn() {}
 
     public CourseColumn(String name, ColumnDatatype columnDatatype) {

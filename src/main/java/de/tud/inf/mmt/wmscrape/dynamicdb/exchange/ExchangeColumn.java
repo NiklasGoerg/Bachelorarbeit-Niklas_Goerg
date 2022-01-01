@@ -15,6 +15,9 @@ public class ExchangeColumn extends DbTableColumn {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "exchangeColumn",  orphanRemoval = true, cascade = CascadeType.ALL)
     private final List<ElementSelection> elementSelections = new ArrayList<>();
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public ExchangeColumn() {}
 
     public ExchangeColumn(String name, ColumnDatatype columnDatatype) {

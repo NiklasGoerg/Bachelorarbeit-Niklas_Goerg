@@ -5,6 +5,10 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 
 import java.sql.Date;
 
+/**
+ * is a uniform data object containing all the necessary information for the complete extraction process.
+ * one carrier holds the information for one data element, where to save it in the database and where to find on the website
+ */
 public class InformationCarrier {
 
 

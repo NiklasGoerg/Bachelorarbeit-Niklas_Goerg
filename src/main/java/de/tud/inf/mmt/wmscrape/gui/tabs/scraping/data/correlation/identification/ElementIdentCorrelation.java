@@ -9,6 +9,9 @@ import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 
+/**
+ * stores the xpath / css / etc. data for one website element configuration
+ */
 @Entity
 @Table(name = "webseiten_element_identifikation")
 public class ElementIdentCorrelation {
@@ -72,13 +75,24 @@ public class ElementIdentCorrelation {
         initListener();
     }
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public ElementIdentCorrelation() {}
 
+    /**
+     * do not use this constructor
+     * @param websiteElement the corresponding website element configuration
+     */
     private ElementIdentCorrelation(WebsiteElement websiteElement) {
         this.websiteElement = websiteElement;
         initListener();
     }
 
+    /**
+     * @param websiteElement the corresponding website element configuration
+     * @param stockColumn the database column the correlation relates to in form of a column entity
+     */
     public ElementIdentCorrelation(WebsiteElement websiteElement, StockColumn stockColumn) {
         this(websiteElement);
         this.stockColumn = stockColumn;
@@ -87,6 +101,10 @@ public class ElementIdentCorrelation {
         this.dbTableName = stockColumn.getTableName();
     }
 
+    /**
+     * @param websiteElement the corresponding website element configuration
+     * @param courseColumn the database column the correlation relates to in form of a column entity
+     */
     public ElementIdentCorrelation(WebsiteElement websiteElement, CourseColumn courseColumn) {
         this(websiteElement);
         this.courseColumn = courseColumn;
@@ -95,6 +113,12 @@ public class ElementIdentCorrelation {
         this.dbTableName = courseColumn.getTableName();
     }
 
+    /**
+     * used for some special columns
+     *
+     * @param websiteElement the corresponding website element configuration
+     * @param colName the database column the correlation relates to in form of the column name
+     */
     public ElementIdentCorrelation(WebsiteElement websiteElement, ColumnDatatype datatype, String dbTableName, String colName) {
         this(websiteElement);
         this.dbColName = colName;

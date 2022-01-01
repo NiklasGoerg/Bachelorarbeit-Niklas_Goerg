@@ -19,6 +19,9 @@ public class StockColumn extends DbTableColumn {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockColumn", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ElementIdentCorrelation> elementIdentCorrelations;
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public StockColumn() {}
 
     public StockColumn(String name, ColumnDatatype columnDatatype) {

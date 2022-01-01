@@ -3,7 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingWebsiteTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.WebsiteManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -17,7 +17,7 @@ public class NewWebsitePopupController {
     private TextField descriptionField;
 
     @Autowired
-    private ScrapingTabManager scrapingTabManager;
+    private WebsiteManager websiteManager;
     @Autowired
     private ScrapingWebsiteTabController scrapingWebsiteTabController;
 
@@ -40,7 +40,7 @@ public class NewWebsitePopupController {
             return;
         }
 
-        Website website = scrapingTabManager.createNewWebsite(descriptionField.getText());
+        Website website = websiteManager.createNewWebsite(descriptionField.getText());
         scrapingWebsiteTabController.reloadWebsiteList();
         scrapingWebsiteTabController.selectWebsite(website);
 

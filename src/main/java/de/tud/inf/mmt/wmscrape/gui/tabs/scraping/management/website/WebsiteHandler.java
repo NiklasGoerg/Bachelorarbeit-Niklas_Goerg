@@ -25,8 +25,10 @@ public abstract class WebsiteHandler extends Service<Void> {
 
     protected Website website;
     protected FirefoxDriver driver;
-    private long waitForWsElementSec = 3;
     private WebDriverWait wait;
+    private long waitForWsElementSec = 3;
+    protected boolean waitForWsElementSecActive = true;
+    protected boolean waitForWsElementSecWasActive = true;
 
     private int uniqueElementId = 0;
 
@@ -35,6 +37,13 @@ public abstract class WebsiteHandler extends Service<Void> {
         this.logText = logText;
     }
 
+    /**
+     * only used by the website tester where the website configuration is known
+     *
+     * @param website the configuration to test
+     * @param logText the text property of the tester log area
+     * @param headless in this case always false. starts the browser with a window open
+     */
     public WebsiteHandler(Website website, SimpleStringProperty logText, Boolean headless) {
         this(logText, headless);
         this.website = website;
@@ -44,25 +53,64 @@ public abstract class WebsiteHandler extends Service<Void> {
         return headless;
     }
 
+    /**
+     * converts double to long
+     * @param waitForWsElementSec the waiting time website elements until declared as not found
+     */
     public void setWaitForWsElementSec(double waitForWsElementSec) {
         this.waitForWsElementSec = (long) waitForWsElementSec;
     }
 
+    /**
+     * enables or disables waiting for website elements.
+     * usefull if the existance of elements is implicitly given (like rows inside a table)
+     *
+     * @param doWait if true waiting is enabled
+     */
     public void waitForWsElements(boolean doWait) {
         if(driver == null) return;
+        waitForWsElementSecActive = doWait;
+
 
         Duration d;
-        if(doWait) { d = Duration.ofMillis((waitForWsElementSec*1000)); }
-        else { d = Duration.ofMillis(0); }
+        if(doWait) { d = Duration.ofMillis((waitForWsElementSec*1000));
+        } else { d = Duration.ofMillis(0); }
 
         wait = new WebDriverWait(driver, d);
         driver.manage().timeouts().implicitlyWait(d);
+    }
+
+
+    /**
+     * used to temporarily deactivate implicit waiting by the {@link WebDriver}.
+     * useful for the recursive search where it is known that a wait time already was done before.
+     *
+     * @param disable if true try to disable the waiting
+     */
+    private void tempDisableWaiting(boolean disable) {
+        if (disable && waitForWsElementSecActive) {
+            // deactivate and was active before -> deactivate tmp
+            waitForWsElementSecWasActive = true;
+            waitForWsElements(false);
+        } else if(disable) {
+            // deactivate and wasn't active before -> nothing to do
+            waitForWsElementSecWasActive = false;
+        } else if(waitForWsElementSecWasActive) {
+            // activate and was active -> activate again
+            waitForWsElements(true);
+        }  // activate and wasn't active -> do nothing
+
     }
 
     protected WebDriver getDriver() {
         return driver;
     }
 
+    /**
+     * creates a new {@link WebDriver} session
+     *
+     * @return true if successful
+     */
     protected boolean startBrowser() {
         try {
             if(driver != null && browserIsOpen()) {
@@ -87,7 +135,11 @@ public abstract class WebsiteHandler extends Service<Void> {
         }
     }
 
-    // thanks selenium for not providing information
+    /**
+     * gives information if a session is still active. there is no direct option
+     *
+     * @return true if a session exists
+     */
     protected boolean browserIsOpen() {
         try{
             driver.getTitle();
@@ -101,6 +153,11 @@ public abstract class WebsiteHandler extends Service<Void> {
         return loadPage(website.getUrl());
     }
 
+    /**
+     * tries to click a html dom element to hide a cookie banner
+     *
+     * @return true if successful
+     */
     protected boolean acceptCookies() {
         IdentType type = website.getCookieAcceptIdentType();
         if (type == IdentType.DEAKTIVIERT) return true;
@@ -114,6 +171,11 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
+    /**
+     * sets the user information into html text fields
+     *
+     * @return true if successful
+     */
     protected boolean fillLoginInformation() {
 
         WebElement username = extractElementFromRoot(website.getUsernameIdentType(), website.getUsernameIdent());
@@ -128,6 +190,11 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
+    /**
+     * clicks the login button
+     *
+     * @return true if successful
+     */
     protected boolean login() {
         if (website.getLoginButtonIdentType() == IdentType.ENTER) {
             WebElement password = extractElementFromRoot(website.getPasswordIdentType(), website.getPasswordIdent());
@@ -147,6 +214,11 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
+    /**
+     * clicks a logout button or loads a logout url
+     *
+     * @return true if successful
+     */
     protected boolean logout() {
         if(website == null) return false;
 
@@ -173,6 +245,9 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
+    /**
+     * waits for the dom ready state event
+     */
     protected void waitLoadEvent() {
         try {
             // sleep otherwise it possibly checks the current side which is ready bcs. it takes some time to respond
@@ -183,6 +258,12 @@ public abstract class WebsiteHandler extends Service<Void> {
         }
     }
 
+    /**
+     * tries to load a url and resets the identifiers
+     *
+     * @param url the website url
+     * @return true if successful
+     */
     protected boolean loadPage(String url) {
         // reset ids for a new page
         uniqueElementId = 0;
@@ -198,6 +279,13 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
+    /**
+     * tries to find an element straight from the website root
+     *
+     * @param type the {@link IdentType} used to find the element
+     * @param identifier the identifier of the specified type
+     * @return the {@link WebElement} if found otherwise null
+     */
     public WebElement extractElementFromRoot(IdentType type, String identifier) {
         // solely the selenium element without iframe or relation context
         var elements = extractAllFramesFromContext(type, identifier, null);
@@ -205,12 +293,29 @@ public abstract class WebsiteHandler extends Service<Void> {
         return null;
     }
 
-    public WebElement extractElementFromContext(IdentType type, String identifier, WebElementInContext webElementInContext) {
-        var elements = extractAllFramesFromContext(type, identifier, webElementInContext);
+    /**
+     * extracts and returns just the {@link WebElement} with a parent as a search starting point
+     *
+     * @param type the {@link IdentType} used to find the element
+     * @param identifier the identifier of the specified type
+     * @param context the reference point used for the search
+     * @return the {@link WebElement} if found otherwise null
+     */
+    public WebElement extractElementFromContext(IdentType type, String identifier, WebElementInContext context) {
+        var elements = extractAllFramesFromContext(type, identifier, context);
         if (elements != null) return elements.get(0).get();
         return null;
     }
 
+    /**
+     * extracts the {@link WebElement} and puts saves there context so that the element can be used as a reference point.
+     * this allows composing multiple elements
+     *
+     * @param type the {@link IdentType} used to find the element
+     * @param identifier the identifier of the specified type
+     * @param context the reference point used for the search
+     * @return the {@link WebElementInContext} if found otherwise null
+     */
     public WebElementInContext extractFrameElementFromContext(IdentType type, String identifier, WebElementInContext context) {
         // a frame element containing the selenium element and iframe/context information
         var elements = extractAllFramesFromContext(type, identifier,  context);
@@ -224,7 +329,14 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     /**
-     * @param parent null uses the driver context
+     * extracts all elements matching for an identifier (useful for rows from a table).
+     * used by all other search options.
+     * it tries to find
+     *
+     * @param type the {@link IdentType} used to find the element
+     * @param ident the identifier of the specified type
+     * @param parent null uses the driver context otherwise it's the reference point where the search begins
+     * @return all elements found for the identifier
      */
     public List<WebElementInContext> extractAllFramesFromContext(IdentType type, String ident, WebElementInContext parent) {
 
@@ -249,6 +361,9 @@ public abstract class WebsiteHandler extends Service<Void> {
             if (webElements != null && webElements.size() > 0) return toContextList(webElements, frame, parentId);
 
 
+            // disable implicit waiting while searching recursively if active
+            tempDisableWaiting(true);
+
             // search in sub iframes recursively
             List<WebElementInContext> webElementInContexts = recursiveSearch(searchContext, type, identifier,
                     searchContext.findElements(By.tagName("iframe")), 0, parentId);
@@ -262,9 +377,18 @@ public abstract class WebsiteHandler extends Service<Void> {
             addToLog("ERR:\t\tInvalider Identifizierer vom Typ "+type+": '"+ident+"'");
         }
 
+        tempDisableWaiting(false);
         return null;
     }
 
+    /**
+     * embeds the {@link WebElement}s inside their context
+     *
+     * @param webElements all elements to embed
+     * @param frame the iframe the elements were found or null if it's the normal website frame
+     * @param parentId the id of the parent used as a reference or 0
+     * @return the embedded {@link WebElement}s
+     */
     private List<WebElementInContext> toContextList(List<WebElement> webElements, WebElement frame, int parentId) {
         List<WebElementInContext> webElementInContexts = new ArrayList<>();
 
@@ -277,6 +401,16 @@ public abstract class WebsiteHandler extends Service<Void> {
         return webElementInContexts;
     }
 
+    /**
+     * searches elements given a {@link WebElement} as reference point.
+     * note: has no effect with xpath due to the definition of the xpath standard a single xpath is relative to
+     * the website root, the {@link WebElement} does not change that.
+     *
+     * @param context some {@link WebElement} as reference point
+     * @param type the {@link IdentType} used to find the element
+     * @param identifier the identifier of the specified type
+     * @return all found {@link WebElement}
+     */
     private List<WebElement> findElementsRelative(SearchContext context, IdentType type, String identifier) throws InvalidSelectorException {
         List<WebElement> elements;
         switch (type) {
@@ -289,6 +423,12 @@ public abstract class WebsiteHandler extends Service<Void> {
         return elements;
     }
 
+    /**
+     * uses javascript to add a site wide unique id attribute to a dom elemente (which the {@link WebElement} is the
+     * representation for
+     * @param element the element the id is set
+     * @param id the id to set
+     */
     private void setUniqueId(WebElement element, int id) {
         if(element == null) return;
         try {
@@ -299,7 +439,14 @@ public abstract class WebsiteHandler extends Service<Void> {
 
     }
 
-    // creates an absolute xpath based on the id priorly set
+    /**
+     * creates an absolute xpath based on the id priorly set
+     *
+     * @param type the {@link IdentType} used to find the element
+     * @param identifier the identifier of the specified type
+     * @param parenId the id of the parent
+     * @return an "absolute" xpath using the parent as a reference point
+     */
     private String enhancedIdentifier(IdentType type, String identifier, int parenId) {
         if(type == IdentType.XPATH) {
             checkRelativeXPath(identifier);
@@ -314,7 +461,19 @@ public abstract class WebsiteHandler extends Service<Void> {
         }
     }
 
-
+    /**
+     * searches for elements inside multiple html iframes
+     *
+     * todo: using the parent id attribute makes no sense when switching frames
+     *
+     * @param context some {@link WebElement} as reference point
+     * @param type the {@link IdentType} used to find the element
+     * @param identifier the identifier of the specified type
+     * @param iframes all iframes inside the current frame
+     * @param depth the current search depth
+     * @param parentId the parent id
+     * @return all found elements
+     */
     private List<WebElementInContext> recursiveSearch(SearchContext context, IdentType type, String identifier,
                                                       List<WebElement> iframes, int depth, int parentId) throws InvalidSelectorException {
         // nothing found in max depth. return
@@ -354,6 +513,14 @@ public abstract class WebsiteHandler extends Service<Void> {
         if(element == null) return;
         element.submit();
     }
+
+    // only call in respective frame
+    /**
+     * clicks an element if it can. if the button is behind some other html element a button can't be clicked normally
+     * but javascript can to it.
+     *
+     * @param element the element/button to click
+     */
 
     // only call in respective frame
     private void clickElement(WebElement element) {

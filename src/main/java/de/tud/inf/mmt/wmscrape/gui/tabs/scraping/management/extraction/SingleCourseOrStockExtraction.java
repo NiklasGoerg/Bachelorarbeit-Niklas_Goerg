@@ -45,7 +45,4 @@ public class SingleCourseOrStockExtraction extends SingleExtraction {
         }
         return null;
     }
-
-
-
 }

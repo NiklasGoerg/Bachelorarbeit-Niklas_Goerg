@@ -2,7 +2,8 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ScrapingManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.WebsiteManager;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
@@ -24,7 +25,9 @@ import java.util.stream.Collectors;
 public class ScrapingScrapeTabController {
 
     @Autowired
-    ScrapingTabManager scrapingTabManager;
+    ScrapingManager scrapingManager;
+    @Autowired
+    WebsiteManager websiteManager;
 
     @FXML private TextArea logArea;
     @FXML private Spinner<Double> delayMinSpinner;
@@ -99,9 +102,12 @@ public class ScrapingScrapeTabController {
         });
     }
 
+    /**
+     * starts the scraping task and combines the progress bar properties with the ones from the task
+     */
     @FXML
     public void handleStartButton() {
-        scrapingTabManager.startScrape(
+        scrapingManager.startScrape(
                 delayMinSpinner.getValue(),
                 delayMaxSpinner.getValue(),
                 waitSpinner.getValue(),
@@ -109,26 +115,39 @@ public class ScrapingScrapeTabController {
                 logText,headlessCheckBox.isSelected(),
                 checkedItems);
 
-        scrapingTabManager.bindProgressBars(websiteProgress, elementProgress, selectionProgress, waitProgress);
+        scrapingManager.bindProgressBars(websiteProgress, elementProgress, selectionProgress, waitProgress);
         saveSettings();
     }
 
 
+    /**
+     * continues the scraping process if the task was paused
+     */
     @FXML
     private void handleNextButton() {
-        scrapingTabManager.continueScrape(
+        scrapingManager.continueScrape(
                 delayMinSpinner.getValue(),
                 delayMaxSpinner.getValue(),
                 waitSpinner.getValue(),
                 pauseCheckBox.isSelected());
     }
 
+    /**
+     * called when loading the fxml file
+     *
+     * <li>binds the various properties of buttons an elements to functions</li>
+     * <li></li>
+     */
     @FXML
     private void handleAbortButton() {
-        scrapingTabManager.cancelScrape();
+        scrapingManager.cancelScrape();
         resetProgressBars();
     }
 
+    /**
+     *
+     * @return true if all selected elements have been processed
+     */
     private boolean allDone() {
         return websiteProgress.getProgress() >= 1 && elementProgress.getProgress() >= 1;
     }
@@ -142,6 +161,10 @@ public class ScrapingScrapeTabController {
         makeStartVisible(true);
     }
 
+    /**
+     * only shows the continue button if needed
+     * @param b if true show the button
+     */
     private void makeContinueVisible(boolean b){
         if(b && !headlessCheckBox.isSelected()) {
             continueButton.setVisible(true);
@@ -152,30 +175,39 @@ public class ScrapingScrapeTabController {
         }
     }
 
+
     private void makeStartVisible(boolean b){
         startButton.setVisible(b);
         startButton.setManaged(b);
     }
 
+    /**
+     * restores the scraping settings from properties
+     */
     public void restoreSettings() {
-        Properties p = scrapingTabManager.getProperties();
+        Properties p = scrapingManager.getProperties();
         delayMinSpinner.getValueFactory().setValue(Double.valueOf(p.getProperty("scraping.delay.min", "4")));
         delayMaxSpinner.getValueFactory().setValue(Double.valueOf(p.getProperty("scraping.delay.max", "6.5")));
         waitSpinner.getValueFactory().setValue(Double.valueOf(p.getProperty("scraping.wait", "5")));
         headlessCheckBox.setSelected(Boolean.parseBoolean(p.getProperty("scraping.headless", "false")));
         pauseCheckBox.setSelected(Boolean.parseBoolean(p.getProperty("scraping.pause", "false")));
+
+        /* using the hash value of the elements separated by comma */
         int[] r = Arrays.stream(p.getProperty("scraping.selected", "0").split(","))
                 .mapToInt(Integer::parseInt).toArray();
         Set<Integer> restoredSelected = Arrays.stream(r).boxed().collect(Collectors.toSet());
 
         // replacing the selection tree
-        var tree = scrapingTabManager.createSelectionTree(checkedItems ,restoredSelected);
+        var tree = scrapingManager.createSelectionTree(checkedItems ,restoredSelected);
         tree.setPadding(new Insets(15,1,1,1));
         borderPane.setCenter(tree);
     }
 
+    /**
+     * stores the scraping settings from properties
+     */
     private void saveSettings() {
-        Properties p = scrapingTabManager.getProperties();
+        Properties p = scrapingManager.getProperties();
         p.setProperty("scraping.delay.min", String.valueOf(delayMinSpinner.getValue()));
         p.setProperty("scraping.delay.max", String.valueOf(delayMaxSpinner.getValue()));
         p.setProperty("scraping.wait", String.valueOf(waitSpinner.getValue()));
@@ -189,6 +221,6 @@ public class ScrapingScrapeTabController {
         }
         p.setProperty("scraping.selected", String.valueOf(hashes));
 
-        scrapingTabManager.saveProperties();
+        scrapingManager.saveProperties();
     }
 }

@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * contains all information for a website configuration and can be assigned to multiple website element configurations
+ */
 @Entity
 @Table(name = "webseiten_konfiguration")
 public class Website extends WebRepresentation<WebsiteElement>{
@@ -67,6 +70,9 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Column(columnDefinition = "TEXT", name = "cookie_accept_ident")
     private String cookieAcceptIdent;
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public Website() {}
 
     public Website(String description) {
@@ -189,6 +195,11 @@ public class Website extends WebRepresentation<WebsiteElement>{
         this.cookieAcceptIdent = cookieAcceptIdent;
     }
 
+    /**
+     * used at the creation of the selection tree inside the scraping tab
+     *
+     * @return all connected website element configurations
+     */
     @Override
     public List<WebsiteElement> getChildren() {
         return websiteElements;
@@ -196,6 +207,11 @@ public class Website extends WebRepresentation<WebsiteElement>{
 
 
     // TODO change when hibernate/jpa adds option for "on delete set null" when cascading persist
+    /**
+     * hibernate does not offer an option to set foreign key fields to null as MySQL does. this emulates the behaviour
+     * by setting all fields to null before deleting the entity. if this wouldn't be done website
+     * element configurations would have invalid reverences to website configurations that do not exist anymore.
+     */
     @PreRemove
     private void onDeleteSetNull() {
         websiteElements.forEach(e -> e.setWebsite(null));
@@ -223,6 +239,10 @@ public class Website extends WebRepresentation<WebsiteElement>{
         return id == website.id && Objects.equals(description, website.description) && Objects.equals(url, website.url) && Objects.equals(username, website.username) && Objects.equals(password, website.password) && usernameIdentType == website.usernameIdentType && Objects.equals(usernameIdent, website.usernameIdent) && passwordIdentType == website.passwordIdentType && Objects.equals(passwordIdent, website.passwordIdent) && loginButtonIdentType == website.loginButtonIdentType && Objects.equals(loginButtonIdent, website.loginButtonIdent) && logoutIdentType == website.logoutIdentType && Objects.equals(logoutIdent, website.logoutIdent) && cookieAcceptIdentType == website.cookieAcceptIdentType && Objects.equals(cookieAcceptIdent, website.cookieAcceptIdent);
     }
 
+    /**
+     * used for saving the selected elements inside the selection tree in the scraping menu as hash values
+     * @return the hash value
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id, description);

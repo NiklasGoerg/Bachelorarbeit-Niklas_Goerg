@@ -6,6 +6,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javax.persistence.*;
 import java.util.Objects;
 
+/**
+ * saves the correlation between some data on a website which will be extracted
+ * and some key information inside the database which will be used to make a connection while scraping website tables.
+ *
+ * there is a one to one relation between an {@link de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection}
+ * because one correlation describes one selection
+ */
 @Entity
 @Table(name = "webseiten_element_abbildung")
 public class  ElementDescCorrelation {
@@ -37,6 +44,9 @@ public class  ElementDescCorrelation {
     @Transient
     private boolean isChanged = false;
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public ElementDescCorrelation() {}
 
     public ElementDescCorrelation(ElementSelection elementSelection) {

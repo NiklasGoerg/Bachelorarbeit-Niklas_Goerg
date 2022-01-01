@@ -22,6 +22,9 @@ public abstract class DbTableColumn {
     @Column(name = "column_datatype", nullable = false, updatable = false)
     private ColumnDatatype columnDatatype;
 
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public DbTableColumn() {}
 
     public DbTableColumn(String name, ColumnDatatype columnDatatype) {

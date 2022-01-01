@@ -29,6 +29,12 @@ public abstract class ExtractionGeneral {
     protected final WebsiteScraper scraper;
     protected final Date date;
 
+    /**
+     * @param connection jdbc connection used for every database access
+     * @param logText some text property where errors/infos will be written into
+     * @param scraper the scraper that manages the abstract process of scraping
+     * @param date the date used for information that is saved for a specific date (atm always today
+     */
     protected ExtractionGeneral(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         this.connection = connection;
         this.logText = logText;
@@ -36,10 +42,37 @@ public abstract class ExtractionGeneral {
         this.date = date;
     }
 
-    // make sure that the to be inserted value is the first attribute in the statement
+    /**
+     * used to create sql statements based on the table. the first parameter is reserved for the data that will be inserted
+     * with the statement
+     * note: make sure that the to be inserted value is the first attribute in the statement
+     *
+     * @param connection the jdbc connection
+     * @param carrier the carrier holds all the necessary information to fill the statement.
+     *                the carrier has to be prepared beforehand
+     * @return the prepared statement ready to insert data into
+     */
     protected abstract PreparedStatement prepareStatement(Connection connection, InformationCarrier carrier);
+
+    /**
+     * second step after {@link #prepareCarrier(ElementIdentCorrelation, ElementSelection)}
+     * adds additional information that is needed to the carrier (e.g. statement creation)
+     *
+     * @param carrier the information carrier
+     * @param correlation the element correlation used to extend the carrier
+     * @param selection the selection used to extend the carrier
+     * @return the prepared carrier
+     */
     protected abstract InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection);
 
+    /**
+     * processes the data extracted from the website including the sub element extraction with a given regex and
+     * sanitizing according t the datatype set in the prepared carrier
+     *
+     * @param carrier the carrier associated with the data
+     * @param data the extracted text data from the website
+     * @return text data ready to be validated and parsed
+     */
     protected String processData(InformationCarrier carrier, String data) {
         log("INFO:\tDaten gefunden für "+carrier.getDbColName()+":\t\t'"+ data.replace("\n", "\\n") +"'");
         data = regexFilter(carrier.getRegexFilter(), data);
@@ -48,6 +81,13 @@ public abstract class ExtractionGeneral {
         return data;
     }
 
+    /**
+     * adds the basic information that do not varie between element types
+     *
+     * @param selection the selection used to extend the carrier
+     * @param correlation the element correlation used to extend the carrier
+     * @return the prepared carrier
+     */
     protected InformationCarrier prepareCarrier(ElementIdentCorrelation correlation, ElementSelection selection) {
         ColumnDatatype datatype = correlation.getColumnDatatype();
         IdentType identType = correlation.getIdentType();
@@ -56,6 +96,14 @@ public abstract class ExtractionGeneral {
         return extendCarrier(new InformationCarrier(date, datatype, identType, identification, regex), correlation, selection);
     }
 
+    /**
+     * tries to find the first substring based on a given regex.
+     * used to search the data for a specific datatype
+     *
+     * @param regex the regex used for the search
+     * @param text the text data that will be searched
+     * @return the substring or an empty string
+     */
     private String findFirst(String regex, String text) {
         try {
             Pattern pattern = Pattern.compile(regex);
@@ -70,6 +118,13 @@ public abstract class ExtractionGeneral {
         return "";
     }
 
+    /**
+     * used to prefilter text data with an optional user defined regex
+     *
+     * @param regex the regex used for the filtering
+     * @param text the text data that will be searched
+     * @return the substring or the original string
+     */
     private String regexFilter(String regex, String text) {
         if (regex!= null && !regex.trim().isBlank()) {
             var tmp = findFirst(regex, text);
@@ -80,6 +135,13 @@ public abstract class ExtractionGeneral {
         return text;
     }
 
+    /**
+     * transforms various date formats to dd-MM-yyyy.
+     * this solves some issues regarding date formats that could be parsed in the wrong format
+     *
+     * @param text the text string containing the date
+     * @return the ordered date or an empty string
+     */
     private String getDateInRegularFormat(String text) {
 
         // matches every date format
@@ -116,6 +178,13 @@ public abstract class ExtractionGeneral {
         return firstPadding+sub[0] +"-"+ centerPadding+sub[1] +"-"+ lastPadding+sub[2];
     }
 
+    /**
+     * transforms text containing a numerical value with separators into one with only on point
+     * separating the decimal values
+     *
+     * @param data the text data containing the numerical value
+     * @return the transformed value as text
+     */
     private String getNumberInRegularFormat(String data) {
         // every following digit are cut off at the double->int cast
 
@@ -142,25 +211,45 @@ public abstract class ExtractionGeneral {
 
     }
 
-    private void assumeDMOrder(String[] order, int x, int y) {
-        // Assume Date Month order
+    /**
+     * simple assumption about the order of the date and month. if one of them is lager than 12 and the other equal or
+     * less than 12, it can be assumed what is the month and what the day
+     *
+     * @param array an array containing parts of a date
+     * @param x the index of day or month
+     * @param y the index of day or month
+     */
+    private void assumeDMOrder(String[] array, int x, int y) {
+        // Assume Date Month array
         String tmp;
 
-        int a = Integer.parseInt(order[x]);
-        int b = Integer.parseInt(order[y]);
+        int a = Integer.parseInt(array[x]);
+        int b = Integer.parseInt(array[y]);
 
         if(a <= 12 && b > 12) {
             // assuming 'b' is day an 'a' is month
-            reorderArray(order,x,y);
+            reorderArray(array,x,y);
         }
     }
 
+    /**
+     * swaps array positions
+     *
+     * @param x swap with y position
+     * @param y swap with x position
+     */
     private static void reorderArray(String[] array, int x, int y) {
         String tmp = array[x];
         array[x] = array[y];
         array[y] = tmp;
     }
 
+    /**
+     * splits a date in text form into its daym month and year parts
+     *
+     * @param text the text containing the date
+     * @return the splitted date
+     */
     private String[] getDateSubstringParts(String text) {
         // pattern to extract the substrings
         Pattern pattern = Pattern.compile("\\d{1,4}");
@@ -177,6 +266,14 @@ public abstract class ExtractionGeneral {
         return sub;
     }
 
+    /**
+     * fills a prepared statement with data according to the datatype
+     *
+     * @param index the index where the data will be inserted
+     * @param datatype the data datatype
+     * @param statement the sql statement already prepared ond only missing the data
+     * @param data the validated text data
+     */
     private void fillByDataType(int index, ColumnDatatype datatype, PreparedStatement statement, String data) throws SQLException {
         if (data == null || data.isBlank()) {
             fillNullByDataType(index, datatype, statement);
@@ -191,6 +288,12 @@ public abstract class ExtractionGeneral {
         }
     }
 
+    /**
+     *
+     * @param index the index where the data will be inserted
+     * @param datatype the data datatype
+     * @param statement the sql statement already prepared ond only missing the data
+     */
     private void fillNullByDataType(int index, ColumnDatatype datatype, PreparedStatement statement) throws SQLException {
         switch (datatype) {
             case DATE -> statement.setNull(index, Types.DATE);
@@ -200,6 +303,13 @@ public abstract class ExtractionGeneral {
         }
     }
 
+    /**
+     * tries multiple data formats to parse the extracted and prepared date string. the first one should work
+     * as this is the one the date was prepared for
+     *
+     * @param date the date value as text
+     * @return the text date parsed to a java date
+     */
     private Date getDateFromString(String date) {
 
         // last option with try/error. date should be prepared to be accepted with the first/second format
@@ -216,6 +326,13 @@ public abstract class ExtractionGeneral {
         return null;
     }
 
+    /**
+     * cleans the input based on the given datatype and returns only that part of the given string that matches the datatype
+     *
+     * @param data the extracted text data from the website
+     * @param datatype the known datatype of the text string
+     * @return the part that matches the datatype or an empty string
+     */
     private String sanitize(String data, ColumnDatatype datatype) {
         if(data == null) return "";
 
@@ -235,6 +352,14 @@ public abstract class ExtractionGeneral {
         }
     }
 
+    /**
+     * validates the text data based on the datatype
+     *
+     * @param data the extracted text data from the website
+     * @param datatype the known datatype of the text string
+     * @param colName the column the data will be inserted into
+     * @return true if it matches the datatype
+     */
     protected boolean isValid(String data, ColumnDatatype datatype, String colName) {
         if(datatype == null) return false;
 
@@ -251,6 +376,14 @@ public abstract class ExtractionGeneral {
         return valid;
     }
 
+    /**
+     * fills the prepared statement with the given data and adds it to the statement batch
+     *
+     * @param index the index of statemen position for the data to be inserted
+     * @param statement the prepared statement
+     * @param data the extracted text data from the website
+     * @param datatype the known datatype of the text string
+     */
     protected void fillStatement(int index, PreparedStatement statement, String data, ColumnDatatype datatype) {
         try {
             fillByDataType(index, datatype, statement, data);
@@ -265,6 +398,9 @@ public abstract class ExtractionGeneral {
         }
     }
 
+    /**
+     * executes all prepared statements
+     */
     protected void storeInDb() {
         for(PreparedStatement statement : preparedStatements.values()) {
             try {
@@ -277,6 +413,10 @@ public abstract class ExtractionGeneral {
         }
     }
 
+    /**
+     * adds a text line to the log
+     * @param line the log message
+     */
     protected void log(String line) {
         // not doing this would we be a problem due to the multithreaded execution
         Platform.runLater(() -> logText.set(this.logText.getValue() +"\n" + line));
@@ -293,6 +433,13 @@ public abstract class ExtractionGeneral {
         return text.replace("\n","\\n");
     }
 
+    /**
+     * uses the scraper to extract the text data from the website
+     *
+     * @param element the website element in context containing the information about the html frame and web element parents
+     * @param carrier the carrier containing the identification of the data (xpath /css)
+     * @return the extracted data or null if not found
+     */
     protected String getTextData(WebElementInContext element, InformationCarrier carrier) {
         return scraper.findTextInContext(
                 carrier.getIdentType(),

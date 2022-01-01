@@ -101,6 +101,11 @@ public class WebsiteScraper extends WebsiteHandler {
         return waitProgress;
     }
 
+    /**
+     * passes through all activated login steps
+     *
+     * @return true if all successful
+     */
     private boolean doLoginRoutine() {
         if(!usesLogin()) return true;
         if(!loadLoginPage()) return false;
@@ -117,6 +122,9 @@ public class WebsiteScraper extends WebsiteHandler {
                 website.getPasswordIdentType() != IdentType.DEAKTIVIERT;
     }
 
+    /**
+     * waits some time in a range defined before
+     */
     private void delayRandom() {
         double randTime = ThreadLocalRandom.current().nextDouble(minIntraSiteDelay, maxIntraSiteDelay + 1);
         addToLog("INFO:\tWarte "+(Math.round((randTime/1000)*100.0)/100.0)+"s");
@@ -146,6 +154,16 @@ public class WebsiteScraper extends WebsiteHandler {
         }
     }
 
+    /**
+     * extracts text data by searching for a {@link WebElement} which can be a child of another ({@link WebElementInContext})
+     * previously found data for an identifier is buffered inside a map and should be reset if needed (e.g. reset after switching table rows)
+     *
+     * @param type the {@link IdentType} used to find the element
+     * @param identifier the identifier of the specified type
+     * @param highlightText the text that is added via javascript to the position of the element
+     * @param webElementInContext if not null the element is the reference point for the search
+     * @return the text data or an empty string
+     */
     public String findTextInContext(IdentType type, String identifier, String highlightText,
                                     WebElementInContext webElementInContext) {
 
@@ -178,6 +196,13 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     // has to be called while inside the frame
+
+    /**
+     * adds a dom sub element/tooltip and highlights the found element and is useful for debugging/presentation
+     *
+     * @param element the element to add the highlighting
+     * @param text the text of the tooltip
+     */
     public void highlightElement(WebElement element, String text) {
         if(headless || element == null) return;
 
@@ -199,6 +224,11 @@ public class WebsiteScraper extends WebsiteHandler {
         }
     }
 
+    /**
+     * instead of creation a new instance of this class, the data used is reset
+     *
+     * @param selectedElements the elements selected inside the javafx selection tree
+     */
     public void resetTaskData(Map<Website, ObservableSet<WebsiteElement>> selectedElements) {
         // making a shallow copy to not touch the treeView
         Map<Website, List<WebsiteElement>> dereferenced = new HashMap<>();
@@ -229,6 +259,10 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     // if not set get any
+
+    /**
+     * tries to set the current website if none is set
+     */
     public void updateWebsite() {
         if (website == null && selectedFromMenuTree != null && selectedFromMenuTree.keySet().iterator().hasNext()) {
             loggedInToWebsite = false;
@@ -253,6 +287,9 @@ public class WebsiteScraper extends WebsiteHandler {
         return selectedFromMenuTree.get(website).get(0);
     }
 
+    /**
+     * removes a website configuration as there are no more connected website element configurations to proceess
+     */
     public void removeFinishedWebsite() {
         if(selectedFromMenuTree != null) {
             selectedFromMenuTree.remove(website);
@@ -267,6 +304,9 @@ public class WebsiteScraper extends WebsiteHandler {
         progressWsCurrent++;
     }
 
+    /**
+     * removes an element that has been processed
+     */
     public void removeFinishedElement(WebsiteElement element) {
         if(selectedFromMenuTree == null || !selectedFromMenuTree.containsKey(website)) return;
 
@@ -280,6 +320,11 @@ public class WebsiteScraper extends WebsiteHandler {
         progressElementCurrent.put(website, progressElementCurrent.get(website)+ 1);
     }
 
+    /**
+     * the task that runs in a second thread and control the data extraction process.
+     * if pausing is activated the task cancels itself after processing each website element
+     *
+     */
     @Override
     public Task<Void> createTask() {
         Task<Void> task = new Task<>() {
@@ -384,6 +429,10 @@ public class WebsiteScraper extends WebsiteHandler {
         return false;
     }
 
+    /**
+     * does the login process
+     * @return true if an error occurred
+     */
     private boolean logInError() {
         if(!doLoginRoutine()) {
             addToLog("ERR:\t\tLogin nicht korrekt durchgeführt für " + website.getUrl());
@@ -393,6 +442,9 @@ public class WebsiteScraper extends WebsiteHandler {
         return false;
     }
 
+    /**
+     * allows access to exceptions inside the task
+     */
     private void addExceptionListener(Task<Void> task) {
         task.exceptionProperty().addListener((o, ov, nv) ->  {
             if(nv != null) {
@@ -402,6 +454,14 @@ public class WebsiteScraper extends WebsiteHandler {
         });
     }
 
+    /**
+     * selects the fitting extraction process for a website element configuration
+     *
+     * @param element the website element configuration to process
+     * @param multiplicityType if its a table or single element
+     * @param contentType stock data, course, ...
+     * @param task the task the extraction runs in
+     */
     private void processWebsiteElement(WebsiteElement element, MultiplicityType multiplicityType,
                                        ContentType contentType, Task<Void> task) {
 

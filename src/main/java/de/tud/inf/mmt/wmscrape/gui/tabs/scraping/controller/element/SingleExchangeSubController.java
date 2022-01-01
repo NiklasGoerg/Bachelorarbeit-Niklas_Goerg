@@ -44,7 +44,7 @@ public class SingleExchangeSubController {
         WebsiteElement websiteElement = scrapingElementsTabController.getSelectedElement();
         manager.initExchangeSelectionTable(websiteElement, exchangeSelectionTable, true);
 
-        elementIdentCorrelations = manager.initExchangeCorrelations(exchangeIdentTypeChoiceBox,
+        elementIdentCorrelations = manager.initExchangeIdentCorrelations(exchangeIdentTypeChoiceBox,
                 exchangeIdentField, regexField, websiteElement);
 
     }

@@ -17,6 +17,9 @@ import org.springframework.stereotype.Controller;
 
 import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_SIMPLE;
 
+/**
+ * same functions as the single controllers but adding the management of te correlation table
+ */
 @Controller
 @Lazy
 public class TableSubController extends SingleCourseOrStockSubController{
@@ -38,11 +41,11 @@ public class TableSubController extends SingleCourseOrStockSubController{
 
         if(websiteElement.getContentType() != ContentType.WECHSELKURS) {
             scrapingTableManager.initStockSelectionTable(websiteElement, selectionTable, false);
-            scrapingTableManager.initCourseOrStockDescriptionTable(websiteElement, elementDescCorrelationTableView);
+            scrapingTableManager.initCourseOrStockDescCorrelationTable(websiteElement, elementDescCorrelationTableView);
         } else {
             scrapingTableManager.initExchangeSelectionTable(websiteElement, selectionTable, false);
             selectionTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-            scrapingTableManager.initExchangeDescriptionTable(websiteElement,elementDescCorrelationTableView);
+            scrapingTableManager.initExchangeDescCorrelationTable(websiteElement,elementDescCorrelationTableView);
             elementDescCorrelationTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         }
 

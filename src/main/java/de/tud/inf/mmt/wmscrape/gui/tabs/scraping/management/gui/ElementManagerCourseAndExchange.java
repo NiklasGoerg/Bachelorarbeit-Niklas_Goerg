@@ -26,10 +26,20 @@ public class ElementManagerCourseAndExchange extends ElementManager {
     @Autowired
     private SingleCourseOrStockSubController singleCourseOrStockSubController;
 
+    /**
+     * used by the {@link SingleExchangeSubController} to initialize the correlations. the only submenu that has no
+     * correlation table because there is only the price that has to be identified.
+     *
+     * @param exchangeChoiceBox the choicebox containing the ident types ({@link IdentType})
+     * @param exchangeIdentField the text field containg the identifier (e.g. xpath or css)
+     * @param regexField the regex string used for substring selection
+     * @param staleElement the website element configuration
+     * @return only the price correlation inside a list
+     */
     @Transactional
-    public List<ElementIdentCorrelation> initExchangeCorrelations(ChoiceBox<IdentType> exchangeChoiceBox,
-                                                                  TextField exchangeIdentField, TextField regexField,
-                                                                  WebsiteElement staleElement) {
+    public List<ElementIdentCorrelation> initExchangeIdentCorrelations(ChoiceBox<IdentType> exchangeChoiceBox,
+                                                                       TextField exchangeIdentField, TextField regexField,
+                                                                       WebsiteElement staleElement) {
 
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
 
@@ -56,6 +66,14 @@ public class ElementManagerCourseAndExchange extends ElementManager {
         return elementIdentCorrelations;
     }
 
+    /**
+     * adds the listeners to the fields to detect changes.
+     *
+     * @param choiceBox the choicebox containing the ident types ({@link IdentType})
+     * @param identField the text field containg the identifier (e.g. xpath or css)
+     * @param regexField the regex string used for substring selection
+     * @param correlation the price correlation element which stores the correlation
+     */
     public void bindExchangeFieldsToCorrelation(ChoiceBox<IdentType> choiceBox, TextField identField, TextField regexField, ElementIdentCorrelation correlation) {
         choiceBox.setValue(correlation.getIdentType());
         choiceBox.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> correlation.setIdentType(nv.name()));
@@ -80,6 +98,18 @@ public class ElementManagerCourseAndExchange extends ElementManager {
 
     }
 
+    /**
+     * stores all the input for the current website element configuration. the flush is necessary
+     * otherwise database restraints could fail.
+     *
+     * <li>1. selections</li>
+     * <li>2. correlations</li>
+     * <li>3. the element configuration</li>
+     *
+     * @param element the website element configuration
+     * @param selections all selection elements from the selection table
+     * @param correlations the correlations for the columns
+     */
     public void saveSingleSettings(WebsiteElement element, List<ElementSelection> selections, List<ElementIdentCorrelation> correlations) {
         for (var selection : selections) {
             if(selection.isChanged()) elementSelectionRepository.save(selection);

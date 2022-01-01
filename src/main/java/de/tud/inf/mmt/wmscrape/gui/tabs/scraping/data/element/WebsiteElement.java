@@ -13,6 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * holds the information for one website element configuration of different types.
+ *
+ * can exist without a website configuration attached to it
+ */
 @Entity
 @Table(name = "webseiten_element")
 public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
@@ -53,7 +58,9 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     @Column(name = "table_iden_type", nullable = false)
     private IdentType tableIdenType = IdentType.ID;
 
-
+    /**
+     * only used by hibernate. do not save an instance without setting the necessary fields
+     */
     public WebsiteElement() {}
 
     public WebsiteElement(String description, ContentType contentType, MultiplicityType multiplicityType) {
@@ -130,6 +137,10 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
         this.elementIdentCorrelations = elementIdentCorrelations;
     }
 
+    /**
+     * used for the representation inside the scraping menu with a selection tree
+     * @return website elements have no children only the {@link de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website} configurations have
+     */
     @Override
     public List<WebRepresentation<?>> getChildren() {
         return new ArrayList<>();
@@ -155,6 +166,10 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
         return id == that.id && Objects.equals(description, that.description) && Objects.equals(informationUrl, that.informationUrl) && contentType == that.contentType && multiplicityType == that.multiplicityType && Objects.equals(tableIdent, that.tableIdent) && tableIdenType == that.tableIdenType;
     }
 
+    /**
+     * used for saving the selected elements inside the selection tree in the scraping menu as hash values
+     * @return the hash value
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id, description);
