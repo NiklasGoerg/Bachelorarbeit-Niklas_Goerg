@@ -177,6 +177,14 @@ public class ElementManagerTable extends ElementManager {
      */
     @Transactional
     public void saveTableSettings(WebsiteElement websiteElement) {
+        websiteElementRepository.saveAndFlush(websiteElement);
+
+        for (var selection : tableSubController.getSelections()) {
+            if(selection.isChanged()) {
+                elementSelectionRepository.save(selection);
+            }
+        }
+        elementSelectionRepository.flush();
 
         for(var correlation : tableSubController.getElementDescCorrelations()) {
             if(correlation.isChanged()) {
@@ -185,23 +193,13 @@ public class ElementManagerTable extends ElementManager {
         }
         elementDescCorrelationRepository.flush();
 
-        for (var selection : tableSubController.getSelections()) {
-            if(selection.isChanged()) {
-                elementSelectionRepository.save(selection);
-            }
-        }
-
-        elementSelectionRepository.flush();
-
         for (var identCorrelation : tableSubController.getDbCorrelations()) {
             if(identCorrelation.isChanged()) {
                 elementIdentCorrelationRepository.save(identCorrelation);
             }
         }
 
-        elementDescCorrelationRepository.flush();
         elementSelectionRepository.deleteAllBy_selected(false);
-        websiteElementRepository.save(websiteElement);
     }
 
     private void textFieldCellFactory(TableColumn<ElementDescCorrelation, String> column) {

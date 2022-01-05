@@ -111,6 +111,8 @@ public class ElementManagerCourseAndExchange extends ElementManager {
      * @param correlations the correlations for the columns
      */
     public void saveSingleSettings(WebsiteElement element, List<ElementSelection> selections, List<ElementIdentCorrelation> correlations) {
+        websiteElementRepository.save(element);
+
         for (var selection : selections) {
             if(selection.isChanged()) elementSelectionRepository.save(selection);
         }
@@ -123,7 +125,6 @@ public class ElementManagerCourseAndExchange extends ElementManager {
             if(correlation.isChanged()) elementIdentCorrelationRepository.save(correlation);
         }
 
-        websiteElementRepository.save(element);
     }
 
 

@@ -19,8 +19,8 @@ public class ElementIdentCorrelation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "website_element_id", referencedColumnName = "id", updatable = false, nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "website_element_id", referencedColumnName = "id", nullable = false)
     private WebsiteElement websiteElement;
 
     // optional for stock correlations
