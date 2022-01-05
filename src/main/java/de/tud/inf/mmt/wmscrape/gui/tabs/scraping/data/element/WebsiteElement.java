@@ -168,10 +168,11 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
 
     /**
      * used for saving the selected elements inside the selection tree in the scraping menu as hash values
+     * extra value 1 to differentiate between websites
      * @return the hash value
      */
     @Override
     public int hashCode() {
-        return Objects.hash(id, description);
+        return Objects.hash(id, description, 1);
     }
 }
