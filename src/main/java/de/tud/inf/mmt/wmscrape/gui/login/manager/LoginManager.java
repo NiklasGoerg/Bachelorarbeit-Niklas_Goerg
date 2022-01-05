@@ -27,8 +27,8 @@ public class LoginManager {
         String lastUsername = "";
         String lastDbPath = "mysql://localhost/";
 
-        try {
-            prop.load(new FileInputStream("src/main/resources/user.properties"));
+        try(FileInputStream f = new FileInputStream("src/main/resources/user.properties")) {
+            prop.load(f);
             lastUsername = prop.getProperty("last.username","");
             lastDbPath = prop.getProperty("last.dbPath", "mysql://localhost/");
 
@@ -44,7 +44,7 @@ public class LoginManager {
         Properties properties = new Properties();
 
         try {
-            properties.load(WMScrape.class.getClassLoader().getResourceAsStream("user.properties"));
+            properties.load(new FileInputStream("src/main/resources/user.properties"));
             properties.setProperty("last.username",username);
             properties.store( new FileOutputStream("src/main/resources/user.properties"), null);
         } catch (IOException e) {
