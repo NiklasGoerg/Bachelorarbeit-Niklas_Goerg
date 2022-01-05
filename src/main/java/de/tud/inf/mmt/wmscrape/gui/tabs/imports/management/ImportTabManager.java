@@ -63,8 +63,6 @@ public class ImportTabManager {
      * @param excelSheet the excel configuration
      */
     public void saveExcelConfig(ExcelSheet excelSheet) {
-        excelSheetRepository.saveAndFlush(excelSheet);
-
         for(ExcelCorrelation excelCorrelation : correlationManager.getStockColumnRelations()) {
             excelCorrelationRepository.save(excelCorrelation);
         }
@@ -72,6 +70,9 @@ public class ImportTabManager {
         for(ExcelCorrelation excelCorrelation : correlationManager.getTransactionColumnRelations()) {
             excelCorrelationRepository.save(excelCorrelation);
         }
+
+        excelCorrelationRepository.flush();
+        excelSheetRepository.saveAndFlush(excelSheet);
     }
 
     /**
