@@ -27,7 +27,7 @@ public abstract class StockAndCourseManager extends DataManager {
         var cells = row.getCells();
         if(cells == null || cells.get("isin") == null) return;
 
-        String isin = cells.get("isin").getTextData();
+        String isin = cells.get("isin").getDbData();
         fillByDataType(statement, isin, ColumnDatatype.TEXT, 1);
     }
 
@@ -37,8 +37,8 @@ public abstract class StockAndCourseManager extends DataManager {
         var cells = row.getCells();
         if(cells == null || cells.get("isin") == null || cells.get("datum") == null) return;
 
-        String isin = cells.get("isin").getTextData();
-        String datum = cells.get("datum").getTextData();
+        String isin = cells.get("isin").getDbData();
+        String datum = cells.get("datum").getDbData();
 
         fillByDataType(statement, isin, ColumnDatatype.TEXT, 1);
         fillByDataType(statement, datum, ColumnDatatype.DATE, 2);
@@ -58,8 +58,8 @@ public abstract class StockAndCourseManager extends DataManager {
     @Override
     protected Map<String, String> getKeyInformation(CustomRow row) {
         Map<String, String> keys = new HashMap<>();
-        String isin = row.getCells().getOrDefault("isin", new CustomCell(null, null)).getTextData();
-        String date = row.getCells().getOrDefault("datum", new CustomCell(null, null)).getTextData();
+        String isin = row.getCells().getOrDefault("isin", new CustomCell(null, null)).getDbData();
+        String date = row.getCells().getOrDefault("datum", new CustomCell(null, null)).getDbData();
         if(isin == null || date == null) return null;
         keys.put("isin", isin);
         keys.put("datum", date);

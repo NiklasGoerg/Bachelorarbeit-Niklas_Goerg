@@ -1,9 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
-import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.*;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
@@ -125,8 +122,16 @@ public abstract class DataManager {
 
             TableColumn<CustomRow, String> tableColumn = new TableColumn<>(colName);
 
+            // binding the event handlers to the cell
+            tableColumn.addEventHandler(TableColumn.editStartEvent(), event ->
+                    table.getSelectionModel().getSelectedItem().getCells().get(colName).onEditStartEvent());
+            tableColumn.addEventHandler(TableColumn.editCancelEvent(), event ->
+                    table.getSelectionModel().getSelectedItem().getCells().get(colName).onEditCancelEvent());
+            tableColumn.addEventHandler(TableColumn.editCommitEvent(), event ->
+                    table.getSelectionModel().getSelectedItem().getCells().get(colName).onEditCommitEvent(event));
+
             // binding the custom cell property directly to the table cell
-            tableColumn.setCellValueFactory(param -> param.getValue().getCells().get(colName).textDataProperty());
+            tableColumn.setCellValueFactory(param -> param.getValue().getCells().get(colName).visualizedDataPropertyProperty());
             tableColumn.setCellFactory(TextFieldTableCell.forTableColumn());
             setComparator(tableColumn, datatype);
             tableColumn.setPrefWidth(150);
@@ -157,14 +162,29 @@ public abstract class DataManager {
             if (x == null) return -1;
             if (y == null) return 1;
 
-            switch (datatype) {
-                case INTEGER -> {return Integer.valueOf(x).compareTo(Integer.valueOf(y));}
-                case DOUBLE -> {return Double.valueOf(x).compareTo(Double.valueOf(y));}
-                case DATE -> {return Date.valueOf(x).compareTo(Date.valueOf(y));}
+            try {
+                switch (datatype) {
+                    case INTEGER -> {return Integer.valueOf(cleanNumber(x)).compareTo(Integer.valueOf(cleanNumber(y)));}
+                    case DOUBLE -> {return Double.valueOf(cleanNumber(x)).compareTo(Double.valueOf(cleanNumber(y)));}
+                    case DATE -> {return Date.valueOf(x).compareTo(Date.valueOf(y));}
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(e.getMessage());
             }
 
             return 0;
         });
+    }
+
+    /**
+     * had to be added because now there are symbols like €, $ or % that are directly inside the cell
+     * and have to be filtered out before comparing.
+     *
+     * @param string the numerical value as string
+     * @return a numerical value that can be parsed
+     */
+    private String cleanNumber(String string) {
+        return string.replaceAll("[^+\\-0-9.]","");
     }
 
     /**
@@ -285,7 +305,7 @@ public abstract class DataManager {
         ObservableList<CustomRow> objects = FXCollections.observableArrayList();
         for (CustomRow row : rows) {
             if(row.getCells().containsKey(key)) {
-                if (row.getCells().get(key).textDataProperty().get().equals(keyValue)) {
+                if (row.getCells().get(key).visualizedDataPropertyProperty().get().equals(keyValue)) {
                     objects.add(row);
                 }
             }
@@ -358,7 +378,7 @@ public abstract class DataManager {
                     }
 
                     setStatementKeys(stmt, keys);
-                    fillByDataType( stmt, cell.getTextData(), cell.getDatatype(), 1);
+                    fillByDataType( stmt, cell.getDbData(), cell.getDatatype(), 1);
                     stmt.addBatch();
                 }
             }
@@ -452,9 +472,9 @@ public abstract class DataManager {
         return all;
     }
 
-    public void addColumn(String colName, ColumnDatatype datatype) {
+    public void addColumn(String colName, VisualDatatype visualDatatype) {
         dbTableManger.addColumn(colName.trim().toLowerCase().replaceAll("[^a-zA-Z0-9_\\-äöüß]",""),
-                                datatype);
+                                visualDatatype);
     }
 
     public boolean removeColumn(String colName) {

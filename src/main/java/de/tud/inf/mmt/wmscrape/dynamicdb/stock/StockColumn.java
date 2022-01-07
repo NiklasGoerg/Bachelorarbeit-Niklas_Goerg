@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.dynamicdb.stock;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 
@@ -26,6 +27,10 @@ public class StockColumn extends DbTableColumn {
 
     public StockColumn(String name, ColumnDatatype columnDatatype) {
         super(name, columnDatatype);
+    }
+
+    public StockColumn(String name, VisualDatatype visualDatatype) {
+        super(name, visualDatatype);
     }
 
     @Override

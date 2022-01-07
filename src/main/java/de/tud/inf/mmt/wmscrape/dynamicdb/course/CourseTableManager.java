@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.dynamicdb.course;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class CourseTableManager extends DbTableManger {
      * <li> creates the table in the database because it is not managed by hibernate.</li>
      * <li> a constraint between the "wertpapier" table and the "wertpapier_kursdaten" is added</li>
      * <li> column-entities are managed based on the columns in the database</li>
-     * <li> optional: predefined columns can be added to the db table with {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger#addColumn(String, ColumnDatatype)}</li>
+     * <li> optional: predefined columns can be added to the db table with {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger#addColumn(String, VisualDatatype)}</li>
      */
     @PostConstruct
     private void initCourseData() {
@@ -55,8 +56,8 @@ public class CourseTableManager extends DbTableManger {
     }
 
     @Override
-    public void addColumn(String colName, ColumnDatatype datatype) {
-        addColumnIfNotExists(TABLE_NAME, courseColumnRepository, new CourseColumn(colName, datatype));
+    public void addColumn(String colName, VisualDatatype visualDatatype) {
+        addColumnIfNotExists(TABLE_NAME, courseColumnRepository, new CourseColumn(colName, visualDatatype));
     }
 
     @Override

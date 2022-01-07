@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.dynamicdb.transaction;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 
 import javax.persistence.*;
@@ -22,6 +23,10 @@ public class TransactionColumn extends DbTableColumn {
 
     public TransactionColumn(String name, ColumnDatatype columnDatatype) {
         super(name, columnDatatype);
+    }
+
+    public TransactionColumn(String name, VisualDatatype visualDatatype) {
+        super(name, visualDatatype);
     }
 
 

@@ -35,7 +35,7 @@ public class TransactionDataManager extends DataManager {
         var cells = row.getCells();
         if(cells == null || cells.get("depot_name") == null) return;
 
-        String depot = cells.get("depot_name").getTextData();
+        String depot = cells.get("depot_name").getDbData();
         fillByDataType(statement, depot, ColumnDatatype.TEXT, 1);
     }
 
@@ -46,9 +46,9 @@ public class TransactionDataManager extends DataManager {
         if(cells == null || cells.get("transaktions_datum") == null || cells.get("depot_name") == null ||
                 cells.get("wertpapier_isin") == null) return;
 
-        String date = cells.get("transaktions_datum").getTextData();
-        String depot = cells.get("depot_name").getTextData();
-        String isin = cells.get("wertpapier_isin").getTextData();
+        String date = cells.get("transaktions_datum").getDbData();
+        String depot = cells.get("depot_name").getDbData();
+        String isin = cells.get("wertpapier_isin").getDbData();
         fillByDataType(statement, date, ColumnDatatype.DATE, 1);
         fillByDataType(statement, depot, ColumnDatatype.TEXT, 2);
         fillByDataType(statement, isin, ColumnDatatype.TEXT, 3);
@@ -69,11 +69,11 @@ public class TransactionDataManager extends DataManager {
     protected Map<String, String> getKeyInformation(CustomRow row) {
         Map<String, String> keys = new HashMap<>();
         String date = row.getCells().getOrDefault("transaktions_datum",
-                new CustomCell(null, null)).getTextData();
+                new CustomCell(null, null)).getDbData();
         String depot = row.getCells().getOrDefault("depot_name",
-                new CustomCell(null, null)).getTextData();
+                new CustomCell(null, null)).getDbData();
         String isin = row.getCells().getOrDefault("wertpapier_isin",
-                new CustomCell(null, null)).getTextData();
+                new CustomCell(null, null)).getDbData();
 
         if(date == null || depot == null || isin == null) return null;
         keys.put("transaktions_datum", date);

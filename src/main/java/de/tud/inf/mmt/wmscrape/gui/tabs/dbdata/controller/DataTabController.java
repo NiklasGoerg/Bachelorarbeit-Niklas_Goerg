@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
@@ -51,7 +51,7 @@ public class DataTabController {
     @FXML private Tab transactionTab;
 
     @FXML private GridPane columnSubmenuPane;
-    @FXML private ChoiceBox<ColumnDatatype> columnDatatypeChoiceBox;
+    @FXML private ChoiceBox<VisualDatatype> columnDatatypeChoiceBox;
     @FXML private ComboBox<DbTableColumn> columnDeletionComboBox;
 
     @FXML private GridPane stockCreateSubmenuPane;
@@ -78,8 +78,8 @@ public class DataTabController {
 
         showColumnSubMenu(false);
         showStockSubMenu(false);
-        columnDatatypeChoiceBox.getItems().setAll(ColumnDatatype.values());
-        columnDatatypeChoiceBox.setValue(ColumnDatatype.TEXT);
+        columnDatatypeChoiceBox.getItems().setAll(VisualDatatype.values());
+        columnDatatypeChoiceBox.setValue(VisualDatatype.Text);
 
         updateColumnComboBox();
         columnDeletionComboBox.setValue(null);

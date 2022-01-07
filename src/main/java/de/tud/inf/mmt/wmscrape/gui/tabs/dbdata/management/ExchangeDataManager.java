@@ -41,7 +41,7 @@ public class ExchangeDataManager extends DataManager {
         var cells = row.getCells();
         if(cells == null || cells.get("datum") == null) return;
 
-        String date = cells.get("datum").getTextData();
+        String date = cells.get("datum").getDbData();
         fillByDataType(statement, date, ColumnDatatype.DATE, 1);
     }
 
@@ -58,7 +58,7 @@ public class ExchangeDataManager extends DataManager {
     @Override
     protected Map<String, String> getKeyInformation(CustomRow row) {
         Map<String, String> keys = new HashMap<>();
-        String date = row.getCells().getOrDefault("datum", new CustomCell(null, null)).getTextData();
+        String date = row.getCells().getOrDefault("datum", new CustomCell(null, null)).getDbData();
         if(date == null) return null;
         keys.put("datum", date);
         return keys;

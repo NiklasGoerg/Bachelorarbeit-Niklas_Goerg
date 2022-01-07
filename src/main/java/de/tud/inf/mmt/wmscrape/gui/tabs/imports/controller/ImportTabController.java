@@ -494,4 +494,12 @@ public class ImportTabController {
 
         loadSpecificExcel(sheet);
     }
+
+    public ObservableList<ExcelCorrelation> getStockDataCorrelations() {
+        return stockDataCorrelationTable.getItems();
+    }
+
+    public ObservableList<ExcelCorrelation> getTransactionCorrelations() {
+        return transactionCorrelationTable.getItems();
+    }
 }

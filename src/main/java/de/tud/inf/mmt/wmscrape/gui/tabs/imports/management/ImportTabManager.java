@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
@@ -29,6 +30,8 @@ public class ImportTabManager {
     private ExcelSheetRepository excelSheetRepository;
     @Autowired
     private ExcelCorrelationRepository excelCorrelationRepository;
+    @Autowired
+    private ImportTabController importTabController;
 
     private SimpleStringProperty logText;
 
@@ -63,16 +66,16 @@ public class ImportTabManager {
      * @param excelSheet the excel configuration
      */
     public void saveExcelConfig(ExcelSheet excelSheet) {
-        for(ExcelCorrelation excelCorrelation : correlationManager.getStockColumnRelations()) {
-            excelCorrelationRepository.save(excelCorrelation);
-        }
-
-        for(ExcelCorrelation excelCorrelation : correlationManager.getTransactionColumnRelations()) {
-            excelCorrelationRepository.save(excelCorrelation);
-        }
-
-        excelCorrelationRepository.flush();
         excelSheetRepository.saveAndFlush(excelSheet);
+        for(ExcelCorrelation excelCorrelation : importTabController.getStockDataCorrelations()) {
+            excelCorrelationRepository.save(excelCorrelation);
+        }
+
+        for(ExcelCorrelation excelCorrelation : importTabController.getTransactionCorrelations()) {
+            excelCorrelationRepository.save(excelCorrelation);
+        }
+
+//        excelCorrelationRepository.flush();
     }
 
     /**

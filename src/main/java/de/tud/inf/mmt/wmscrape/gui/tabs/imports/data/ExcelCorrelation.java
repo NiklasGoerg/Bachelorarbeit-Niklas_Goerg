@@ -1,6 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.data;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumn;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -40,6 +42,11 @@ public class ExcelCorrelation {
     @Column(name = "db_col_type", updatable = false, nullable = false)
     private ColumnDatatype dbColType;
 
+    // redundant
+    @Enumerated(EnumType.STRING)
+    @Column(name = "db_col_visual_type", updatable = false, nullable = false)
+    private VisualDatatype dbColVisualType;
+
     @Column(name = "excel_col_title")
     private String _excelColTitle;
 
@@ -57,12 +64,12 @@ public class ExcelCorrelation {
     private final SimpleIntegerProperty excelColNumber = new SimpleIntegerProperty();
 
 
-    public ExcelCorrelation() {
+    private ExcelCorrelation() {
         excelColNumber.set(_excelColNumber);
         initListener();
     }
 
-    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet) {
+    private ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet) {
         this();
         this.correlationType = correlationType;
         this.excelSheet = excelSheet;
@@ -70,22 +77,25 @@ public class ExcelCorrelation {
 
     public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, StockColumn column) {
         this(correlationType, excelSheet);
-        this.dbColType = column.getColumnDatatype();
         this.dbColTitle = column.getName();
         this.stockColumn = column;
+        this.dbColType = column.getColumnDatatype();
+        this.dbColVisualType = column.getColumnVisualDatatype();
     }
 
     public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, TransactionColumn column) {
         this(correlationType, excelSheet);
-        this.dbColType = column.getColumnDatatype();
         this.dbColTitle = column.getName();
         this.transactionColumn = column;
+        this.dbColType = column.getColumnDatatype();
+        this.dbColVisualType = column.getColumnVisualDatatype();
     }
 
     public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, ColumnDatatype columnDatatype, String colName) {
         this(correlationType, excelSheet);
-        this.dbColType = columnDatatype;
         this.dbColTitle = colName;
+        this.dbColType = columnDatatype;
+        this.dbColVisualType = DbTableManger.translateVisualDatatype(columnDatatype);
     }
 
     public int getId() {
@@ -122,6 +132,14 @@ public class ExcelCorrelation {
 
     public ColumnDatatype getDbColDataType() {
         return dbColType;
+    }
+
+    /**
+     * only used for the "visual" datatype as the related column was created in the data tab with
+     * @return the visual datatype
+     */
+    public VisualDatatype getDbColVisualType() {
+        return dbColVisualType;
     }
 
     /**

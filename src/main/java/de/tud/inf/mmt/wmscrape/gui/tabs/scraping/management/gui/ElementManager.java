@@ -107,6 +107,7 @@ public abstract class ElementManager {
             SimpleBooleanProperty sbp = row.getValue().selectedProperty();
             sbp.addListener( (o, ov, nv) -> {
                 if(singleSelection) {
+                    // no desc correlation on songle selections
                     if(nv) deselectOther(row);
                 } else {
                     if(nv) addNewElementDescCorrelation(row.getValue());
@@ -142,6 +143,8 @@ public abstract class ElementManager {
      */
     @Transactional
     public void initStockSelectionTable(WebsiteElement staleElement, TableView<ElementSelection> table, boolean singleSelection) {
+        table.setPlaceholder(new Label("Es existieren noch keine Wertpapiere"));
+
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
         prepareStockSelectionTable(table, singleSelection);
         fillStockSelectionTable(websiteElement, table);
@@ -210,8 +213,8 @@ public abstract class ElementManager {
      */
     @Transactional
     public void initIdentCorrelationTable(WebsiteElement staleElement, TableView<ElementIdentCorrelation> table , MultiplicityType multiplicityType) {
-        // load anew because the element from the table has no session attached anymore and therefore can't resolve
-        // lazy evaluation
+        table.setPlaceholder(new Label("Es stehen keine DB-Spalten zur Auswahl. Legen Sie zusätzliche an."));
+
         WebsiteElement websiteElement = getFreshWebsiteElement(staleElement);
 
         prepareIdentCorrelationTable(table);
@@ -253,7 +256,7 @@ public abstract class ElementManager {
         // DbColName
         nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getDbColName()));
         // datatype
-        typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getColumnDatatype().name()));
+        typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getVisualDatatype().name()));
         // choiceBox
         identTypeColumn.setCellValueFactory(param -> param.getValue().identTypeProperty());
         identTypeColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(identTypeDeactivatedObservable));

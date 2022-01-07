@@ -36,17 +36,6 @@ public class CorrelationManager {
     @Autowired
     private ImportTabManager importTabManager;
 
-    private ObservableList<ExcelCorrelation> stockColumnRelations = FXCollections.observableArrayList();
-    private ObservableList<ExcelCorrelation> transactionColumnRelations = FXCollections.observableArrayList();
-
-    public ObservableList<ExcelCorrelation> getStockColumnRelations() {
-        return stockColumnRelations;
-    }
-
-    public ObservableList<ExcelCorrelation> getTransactionColumnRelations() {
-        return transactionColumnRelations;
-    }
-
     private static final Map<String, ColumnDatatype> importantStockCorrelations = new LinkedHashMap<>();
     private static final Map<String, ColumnDatatype> importantTransactionCorrelations = new LinkedHashMap<>();
 
@@ -123,20 +112,20 @@ public class CorrelationManager {
         // add comboboxes
         prepareCorrelationTable(stockDataCorrelationTable);
 
-        stockColumnRelations = FXCollections.observableArrayList();
         ArrayList<String> addedStockDbCols = new ArrayList<>();
 
         // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
         // therefore the values persist until a new db transaction is done
         for (ExcelCorrelation excelCorrelation : correlations) {
             if (excelCorrelation.getCorrelationType() == CorrelationType.STOCKDATA) {
-                stockColumnRelations.add(excelCorrelation);
+                stockDataCorrelationTable.getItems().add(excelCorrelation);
                 addedStockDbCols.add(excelCorrelation.getDbColTitle());
             }
         }
 
         // even if they are given in the db I want them on top
-        addImportantCorrelations(addedStockDbCols, excelSheet, importantStockCorrelations, CorrelationType.STOCKDATA, stockColumnRelations);
+        addImportantCorrelations(stockDataCorrelationTable, addedStockDbCols, excelSheet,
+                importantStockCorrelations, CorrelationType.STOCKDATA);
 
 
         // add correlation for missing stock db columns
@@ -147,29 +136,28 @@ public class CorrelationManager {
             if (!name.equals("datum") && !addedStockDbCols.contains(name)) {
                 ExcelCorrelation excelCorrelation = new ExcelCorrelation(CorrelationType.STOCKDATA, excelSheet, stockColumn);
                 addedStockDbCols.add(name);
-                stockColumnRelations.add(excelCorrelation);
+                stockDataCorrelationTable.getItems().add(excelCorrelation);
             }
         }
-        stockDataCorrelationTable.getItems().addAll(stockColumnRelations);
     }
 
     /**
      * adds additional correlations for some specific database columns e.g. key columns
      *
+     * @param stockDataCorrelationTable the stock javafx correlation table
      * @param added columns already added to the table
      * @param sheet the excel configuration
      * @param cols the map which holds the datatypes given the column name
      * @param type stock or transaction correlation type
-     * @param list all correlations for the excel configuration
      */
-    private void addImportantCorrelations(List<String> added, ExcelSheet sheet, Map<String, ColumnDatatype> cols,
-                                          CorrelationType type, ObservableList<ExcelCorrelation> list) {
+    private void addImportantCorrelations(TableView<ExcelCorrelation> stockDataCorrelationTable, List<String> added, ExcelSheet sheet, Map<String, ColumnDatatype> cols,
+                                          CorrelationType type) {
 
         for(var entry : cols.entrySet()) {
             if (!added.contains(entry.getKey())) {
                 ExcelCorrelation excelCorrelation = new ExcelCorrelation(type, sheet, entry.getValue(), entry.getKey());
                 added.add(excelCorrelation.getDbColTitle());
-                list.add(excelCorrelation);
+                stockDataCorrelationTable.getItems().add(excelCorrelation);
             }
         }
     }
@@ -208,7 +196,7 @@ public class CorrelationManager {
 
         // populate with name from ExcelCorrelation property
         dbColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getDbColTitle()));
-        typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getDbColDataType().name()));
+        typeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getDbColVisualType().name()));
 
         // choiceBox
         excelColumn.setCellValueFactory(param -> param.getValue().excelColTitleProperty());
@@ -242,7 +230,6 @@ public class CorrelationManager {
                                                 ExcelSheet excelSheet, List<ExcelCorrelation> correlations) {
         prepareCorrelationTable(transactionCorrelationTable);
 
-        transactionColumnRelations = FXCollections.observableArrayList();
         ArrayList<String> addedTransDbCols = new ArrayList<>();
         // don't need the key of depot
         addedTransDbCols.add("depot_id");
@@ -252,13 +239,14 @@ public class CorrelationManager {
         // therefore I have to fetch them manually
         for (ExcelCorrelation excelCorrelation : correlations) {
             if (excelCorrelation.getCorrelationType() == CorrelationType.TRANSACTION) {
-                transactionColumnRelations.add(excelCorrelation);
+                transactionCorrelationTable.getItems().add(excelCorrelation);
                 addedTransDbCols.add(excelCorrelation.getDbColTitle());
             }
         }
 
         // even if they are given in the db I want them on top
-        addImportantCorrelations(addedTransDbCols, excelSheet, importantTransactionCorrelations, CorrelationType.TRANSACTION, transactionColumnRelations);
+        addImportantCorrelations(transactionCorrelationTable, addedTransDbCols, excelSheet,
+                importantTransactionCorrelations, CorrelationType.TRANSACTION);
 
 
         for (TransactionColumn column : transactionColumnRepository.findAll()) {
@@ -267,10 +255,8 @@ public class CorrelationManager {
             if (!addedTransDbCols.contains(name)) {
                 ExcelCorrelation excelCorrelation = new ExcelCorrelation(CorrelationType.TRANSACTION, excelSheet, column);
                 addedTransDbCols.add(name);
-                transactionColumnRelations.add(excelCorrelation);
+                transactionCorrelationTable.getItems().add(excelCorrelation);
             }
         }
-
-        transactionCorrelationTable.getItems().addAll(transactionColumnRelations);
     }
 }

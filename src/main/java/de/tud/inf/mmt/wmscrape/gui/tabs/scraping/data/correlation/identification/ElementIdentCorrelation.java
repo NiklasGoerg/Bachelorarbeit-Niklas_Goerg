@@ -1,6 +1,8 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -46,6 +48,11 @@ public class ElementIdentCorrelation {
     // redundant but saves fetching from the database
     @Column(name = "column_datatype", updatable = false, nullable = false)
     private ColumnDatatype columnDatatype;
+
+    // redundant
+    @Enumerated(EnumType.STRING)
+    @Column(name = "column_visual_datatype", updatable = false, nullable = false)
+    private VisualDatatype visualDatatype;
 
     @Column(name = "db_col_name", updatable = false, nullable = false)
     private String dbColName;
@@ -99,6 +106,7 @@ public class ElementIdentCorrelation {
         this.columnDatatype = stockColumn.getColumnDatatype();
         this.dbColName = stockColumn.getName();
         this.dbTableName = stockColumn.getTableName();
+        this.visualDatatype = stockColumn.getColumnVisualDatatype();
     }
 
     /**
@@ -111,6 +119,7 @@ public class ElementIdentCorrelation {
         this.columnDatatype = courseColumn.getColumnDatatype();
         this.dbColName = courseColumn.getName();
         this.dbTableName = courseColumn.getTableName();
+        this.visualDatatype = courseColumn.getColumnVisualDatatype();
     }
 
     /**
@@ -124,6 +133,7 @@ public class ElementIdentCorrelation {
         this.dbColName = colName;
         this.columnDatatype = datatype;
         this.dbTableName = dbTableName;
+        this.visualDatatype = DbTableManger.translateVisualDatatype(datatype);
     }
 
     public IdentType getIdentType() {
@@ -154,10 +164,6 @@ public class ElementIdentCorrelation {
         return regex;
     }
 
-    public void setRegex(String regex) {
-        this.regex.set(regex);
-    }
-
     public SimpleStringProperty identificationProperty() {
         return identification;
     }
@@ -168,6 +174,14 @@ public class ElementIdentCorrelation {
 
     public ColumnDatatype getColumnDatatype() {
         return columnDatatype;
+    }
+
+    /**
+     * only used for the "visual" datatype as the related column was created in the data tab with
+     * @return the visual datatype
+     */
+    public VisualDatatype getVisualDatatype() {
+        return visualDatatype;
     }
 
     public String getDbColName() {

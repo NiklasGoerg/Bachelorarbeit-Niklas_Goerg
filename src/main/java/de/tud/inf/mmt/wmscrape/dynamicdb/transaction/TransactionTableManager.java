@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.dynamicdb.transaction;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class TransactionTableManager extends DbTableManger {
 
     /**
      * <li> column-entities are managed based on the columns in the database</li>
-     * <li> optional: predefined columns can be added to the db table with {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger#addColumn(String, ColumnDatatype)}</li>
+     * <li> optional: predefined columns can be added to the db table with {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger#addColumn(String, VisualDatatype)}</li>
      */
     @PostConstruct
     private void initTransactionData() {
@@ -38,8 +39,8 @@ public class TransactionTableManager extends DbTableManger {
     }
 
     @Override
-    public void addColumn(String colName, ColumnDatatype datatype) {
-        addColumnIfNotExists(TABLE_NAME, transactionColumnRepository, new TransactionColumn(colName, datatype));
+    public void addColumn(String colName, VisualDatatype visualDatatype) {
+        addColumnIfNotExists(TABLE_NAME, transactionColumnRepository, new TransactionColumn(colName, visualDatatype));
     }
 
     @Override

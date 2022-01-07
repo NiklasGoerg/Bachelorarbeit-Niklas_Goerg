@@ -9,6 +9,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import javafx.collections.ObservableList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ public class ExtractionManager {
 
     @Autowired
     private ImportTabManager importTabManager;
+    @Autowired
+    private ImportTabController importTabController;
     @Autowired
     private DbTransactionManager dbTransactionManager;
     @Autowired
@@ -104,7 +107,7 @@ public class ExtractionManager {
         potentialNewStocks.clear();
 
         var excelSheetRows = parsingManager.getExcelSheetRows();
-        var stockColumnRelations = correlationManager.getStockColumnRelations();
+        var stockColumnRelations = importTabController.getStockDataCorrelations();
         var selected = parsingManager.getSelectedStockDataRows();
 
 
@@ -220,7 +223,7 @@ public class ExtractionManager {
                                                         transactionTableManager,transactionColumnRepository,connection);
 
         var excelSheetRows = parsingManager.getExcelSheetRows();
-        var transactionColumnRelations = correlationManager.getTransactionColumnRelations();
+        var transactionColumnRelations = importTabController.getTransactionCorrelations();
         var selected = parsingManager.getSelectedTransactionRows();
 
 
@@ -379,7 +382,7 @@ public class ExtractionManager {
      */
     private boolean isInExtractableState() {
         return parsingManager.getExcelSheetRows() != null && parsingManager.getSelectedTransactionRows() != null && parsingManager.getSelectedStockDataRows() != null &&
-                correlationManager.getStockColumnRelations().size() != 0 && correlationManager.getTransactionColumnRelations().size() != 0;
+                importTabController.getStockDataCorrelations().size() != 0 && importTabController.getTransactionCorrelations().size() != 0;
     }
 
     /**
@@ -388,13 +391,13 @@ public class ExtractionManager {
      * @return true if all necessary correlations are set
      */
     private boolean correlationsHaveValidState() {
-        if (getColNrByName("isin", correlationManager.getStockColumnRelations()) == -1) return false;
-        if (getColNrByName("wkn", correlationManager.getStockColumnRelations()) == -1) return false;
-        if (getColNrByName("name", correlationManager.getStockColumnRelations()) == -1) return false;
-        if (getColNrByName("wertpapier_isin", correlationManager.getTransactionColumnRelations()) == -1) return false;
-        if (getColNrByName("transaktions_datum", correlationManager.getTransactionColumnRelations()) == -1) return false;
-        if (getColNrByName("transaktionstyp", correlationManager.getTransactionColumnRelations()) == -1) return false;
-        return getColNrByName("depot_name", correlationManager.getTransactionColumnRelations()) != -1;
+        if (getColNrByName("isin", importTabController.getStockDataCorrelations()) == -1) return false;
+        if (getColNrByName("wkn", importTabController.getStockDataCorrelations()) == -1) return false;
+        if (getColNrByName("name", importTabController.getStockDataCorrelations()) == -1) return false;
+        if (getColNrByName("wertpapier_isin", importTabController.getStockDataCorrelations()) == -1) return false;
+        if (getColNrByName("transaktions_datum", importTabController.getStockDataCorrelations()) == -1) return false;
+        if (getColNrByName("transaktionstyp", importTabController.getStockDataCorrelations()) == -1) return false;
+        return getColNrByName("depot_name", importTabController.getStockDataCorrelations()) != -1;
     }
 
     /**

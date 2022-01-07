@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.dynamicdb.stock;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class StockTableManager extends DbTableManger {
      * <li> creates the table in the database because it is not managed by hibernate.</li>
      * <li> a constraint between the "wertpapier" table and the "wertpapier_stammdaten" is added</li>
      * <li> column-entities are managed based on the columns in the database</li>
-     * <li> optional: predefined columns can be added to the db table with {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger#addColumn(String, ColumnDatatype)}</li>
+     * <li> optional: predefined columns can be added to the db table with the {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger}</li>
      */
     @PostConstruct
     private void initStockData() {
@@ -62,8 +63,8 @@ public class StockTableManager extends DbTableManger {
     }
 
     @Override
-    public void addColumn(String colName, ColumnDatatype datatype) {
-        addColumnIfNotExists(TABLE_NAME, stockColumnRepository, new StockColumn(colName, datatype));
+    public void addColumn(String colName, VisualDatatype visualDatatype) {
+        addColumnIfNotExists(TABLE_NAME, stockColumnRepository, new StockColumn(colName, visualDatatype));
     }
 
     @Override

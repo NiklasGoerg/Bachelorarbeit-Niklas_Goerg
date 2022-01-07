@@ -18,9 +18,15 @@ public abstract class DbTableColumn {
     @Column(nullable = false, updatable = false)
     private String name;
 
+    // the MySQL datatype
     @Enumerated(EnumType.STRING)
     @Column(name = "column_datatype", nullable = false, updatable = false)
     private ColumnDatatype columnDatatype;
+
+    // the datatype used for representational purposes
+    @Enumerated(EnumType.STRING)
+    @Column(name = "column_visual_datatype", nullable = false, updatable = false)
+    private VisualDatatype visualDatatype;
 
     /**
      * only used by hibernate. do not save an instance without setting the necessary fields
@@ -30,6 +36,13 @@ public abstract class DbTableColumn {
     public DbTableColumn(String name, ColumnDatatype columnDatatype) {
         this.name = name;
         this.columnDatatype = columnDatatype;
+        this.visualDatatype = DbTableManger.translateVisualDatatype(columnDatatype);
+    }
+
+    public DbTableColumn(String name, VisualDatatype visualDatatype) {
+        this.name = name;
+        this.columnDatatype = DbTableManger.translateDataType(visualDatatype);
+        this.visualDatatype = visualDatatype;
     }
 
     public int getId() {
@@ -42,6 +55,10 @@ public abstract class DbTableColumn {
 
     public ColumnDatatype getColumnDatatype() {
         return columnDatatype;
+    }
+
+    public VisualDatatype getColumnVisualDatatype() {
+        return visualDatatype;
     }
 
     public abstract String getTableName();

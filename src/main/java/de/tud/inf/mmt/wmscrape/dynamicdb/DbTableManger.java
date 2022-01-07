@@ -29,9 +29,9 @@ public abstract class DbTableManger {
     /**
      * adds a column from the respective table
      * @param colName the name of the column to be added
-     * @param datatype the sql-datatype of the column ({@link de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype})
+     * @param visualDatatype the datatype that will be used to represent the value of the column will be translated into a {@link ColumnDatatype}
      */
-    public abstract void addColumn(String colName, ColumnDatatype datatype);
+    public abstract void addColumn(String colName, VisualDatatype visualDatatype);
 
     /**
      * @return the db table name
@@ -39,7 +39,7 @@ public abstract class DbTableManger {
     public abstract String getTableName();
 
     /**
-     * get the keys from the table
+     * get the key column names from the table
      * @return the keys as string value
      */
     public abstract List<String> getKeyColumns();
@@ -325,5 +325,37 @@ public abstract class DbTableManger {
                 representedColumns.forEach(repository::deleteByName);
             }
         });
+    }
+
+    /**
+     * translates a mysql datatype to a default visual datatype
+     *
+     * @param datatype the mysql datatype
+     * @return the visual default datatype
+     */
+    public static VisualDatatype translateVisualDatatype(ColumnDatatype datatype) {
+        switch (datatype) {
+            case TEXT -> {return VisualDatatype.Text;}
+            case DATE -> {return VisualDatatype.Datum;}
+            case DOUBLE -> {return VisualDatatype.Double;}
+            case INTEGER -> {return VisualDatatype.Int;}
+        }
+        throw new RuntimeException("Ungültiger Datentyp angegeben");
+    }
+
+    /**
+     * translates a visual datatype to a mysql datatype
+     *
+     * @param datatype the visual datatype
+     * @return the mysql datatype
+     */
+    public static ColumnDatatype translateDataType(VisualDatatype datatype) {
+        switch (datatype) {
+            case Datum -> {return ColumnDatatype.DATE;}
+            case Int -> {return ColumnDatatype.INTEGER;}
+            case Text -> {return ColumnDatatype.TEXT;}
+            case Double, Prozent, Euro, Doller -> {return ColumnDatatype.DOUBLE;}
+        }
+        throw new RuntimeException("Ungültiger Datentyp angegeben");
     }
 }
