@@ -4,7 +4,6 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -58,22 +57,7 @@ public class ChangeDbPathPopupController {
      */
     private boolean dbPathValidation() {
         boolean isValid = dbPathField.getText() != null && !dbPathField.getText().isBlank();
-        decorateField(dbPathField, isValid);
+        PrimaryTabManager.decorateField(dbPathField, "Es muss ein Pfad angeben werden.", isValid, true);
         return isValid;
-    }
-
-    /**
-     * highlights an invalid filed
-     * @param input the checked field
-     * @param isValid true if the field is valid
-     */
-    private void decorateField(TextInputControl input, boolean isValid) {
-        input.getStyleClass().remove("bad-input");
-        input.setTooltip(null);
-
-        if(!isValid) {
-            input.setTooltip(PrimaryTabManager.createTooltip("Dieses Feld darf nicht leer sein!"));
-            input.getStyleClass().add("bad-input");
-        }
     }
 }

@@ -305,7 +305,7 @@ public class ScrapingWebsiteTabController {
 
     private boolean emptyValidator(TextInputControl input) {
         boolean isValid = input.getText() != null && !input.getText().isBlank();
-        decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
+        PrimaryTabManager.decorateField(input, "Dieses Feld darf nicht leer sein!", isValid, inlineValidation);
         return isValid;
     }
 
@@ -314,7 +314,8 @@ public class ScrapingWebsiteTabController {
         if(value==null) return true;
 
         boolean isValid = value.matches("^(https?://.+|-)$"); // "-" to allow saving with deactivated fields
-        decorateField(input, "Die URL muss mit http:// oder https:// beginnen!", isValid);
+        PrimaryTabManager.decorateField(input, "Die URL muss mit http:// oder https:// beginnen!", isValid,
+                                        inlineValidation);
         return isValid;
     }
 
@@ -323,20 +324,8 @@ public class ScrapingWebsiteTabController {
         if(value==null) return true;
 
         boolean isValid = !value.matches("^.*[\"´`]+.*$");
-        decorateField(input, "Die Symbole \",´,` sind nicht erlaubt!", isValid);
+        PrimaryTabManager.decorateField(input, "Die Symbole \",´,` sind nicht erlaubt!", isValid, inlineValidation);
         return isValid;
-    }
-
-    private void decorateField(TextInputControl input, String tooltip, boolean isValid) {
-        input.getStyleClass().remove("bad-input");
-        input.setTooltip(null);
-
-        if(!isValid) {
-            if(inlineValidation) {
-                input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
-                input.getStyleClass().add("bad-input");
-            }
-        }
     }
 
     private void addDeselectListener(ChoiceBox<IdentType> choiceBox) {

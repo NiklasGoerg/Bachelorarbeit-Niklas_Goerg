@@ -135,7 +135,7 @@ public class NewUserLoginController {
 
     private boolean emptyValidator(TextInputControl input) {
         boolean isValid = input.getText() != null && !input.getText().isBlank();
-        decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
+        PrimaryTabManager.decorateField(input, "Dieses Feld darf nicht leer sein!", isValid, true);
         return isValid;
     }
 
@@ -144,18 +144,9 @@ public class NewUserLoginController {
         if(value==null) return true;
 
         boolean isValid = value.matches("^[a-zA-Z0-9\\söäüß]*$");
-        decorateField(input, "Nicht zulässige Zeichen! Nur a-z,0-9,ä,ö,ü,ß sowie Leerzeichen sind erlaubt.", isValid);
+        PrimaryTabManager.decorateField(input, "Nicht zulässige Zeichen! Nur a-z,0-9,ä,ö,ü,ß sowie Leerzeichen sind erlaubt.",
+                                        isValid, true);
         return isValid;
-    }
-
-    private void decorateField(TextInputControl input, String tooltip, boolean isValid) {
-        input.getStyleClass().remove("bad-input");
-        input.setTooltip(null);
-
-        if(!isValid) {
-            input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
-            input.getStyleClass().add("bad-input");
-        }
     }
 
     /**

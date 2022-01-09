@@ -335,33 +335,15 @@ public class ImportTabController {
 
     private boolean emptyValidator(TextInputControl input) {
         boolean isValid = input.getText() != null && !input.getText().isBlank();
-        decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
+        PrimaryTabManager.decorateField(input, "Dieses Feld darf nicht leer sein!", isValid, inlineValidation);
         return isValid;
     }
 
     private boolean pathValidator(TextInputControl input) {
         boolean isValid = input.getText() != null && input.getText().matches("^.*\\.xlsx$");
-        decorateField(input, "Dieses Feld darf nur auf xlsx Dateien verweisen!", isValid);
+        PrimaryTabManager.decorateField(input, "Dieses Feld darf nur auf xlsx Dateien verweisen!", isValid,
+                                            inlineValidation);
         return isValid;
-    }
-
-    /**
-     * adds the css styling or removes it based on the validation value
-     *
-     * @param input the javafx element to add styling to
-     * @param tooltip the tooltip message to display if invalid
-     * @param isValid if false the element will be styled accordingly
-     */
-    private void decorateField(TextInputControl input, String tooltip, boolean isValid) {
-        input.getStyleClass().remove("bad-input");
-        input.setTooltip(null);
-
-        if(!isValid) {
-            if(inlineValidation) {
-                input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
-                input.getStyleClass().add("bad-input");
-            }
-        }
     }
 
     private Label getPlaceholder() {

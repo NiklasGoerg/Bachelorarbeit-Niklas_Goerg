@@ -264,13 +264,14 @@ public class ScrapingElementsTabController {
 
     private boolean emptyValidator(TextInputControl input) {
         boolean isValid = input.getText() != null && !input.getText().isBlank();
-        decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
+        PrimaryTabManager.decorateField(input, "Dieses Feld darf nicht leer sein!", isValid, inlineValidation);
         return isValid;
     }
 
     private boolean nullValidator(ChoiceBox<Website> choiceBox) {
         boolean isValid = choiceBox.getValue() != null;
-        decorateField(choiceBox, "Es muss eine Auswahl getroffen werden!", isValid);
+        PrimaryTabManager.decorateField(choiceBox, "Es muss eine Auswahl getroffen werden!", isValid,
+                                        inlineValidation);
         return isValid;
     }
 
@@ -279,27 +280,9 @@ public class ScrapingElementsTabController {
         if(value==null) return true;
 
         boolean isValid = value.matches("^(https?://.+)$");
-        decorateField(input, "Die URL muss mit http:// oder https:// beginnen!", isValid);
+        PrimaryTabManager.decorateField(input, "Die URL muss mit http:// oder https:// beginnen!", isValid,
+                                        inlineValidation);
         return isValid;
-    }
-
-    /**
-     * highlights a field id its invalid and ads a tooltip
-     *
-     * @param input the element to highlight
-     * @param tooltip the tooltip text
-     * @param isValid highlight if false
-     */
-    private void decorateField(Control input, String tooltip, boolean isValid) {
-        input.getStyleClass().remove("bad-input");
-        input.setTooltip(null);
-
-        if(!isValid) {
-            if(inlineValidation) {
-                input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
-                input.getStyleClass().add("bad-input");
-            }
-        }
     }
 
     /**

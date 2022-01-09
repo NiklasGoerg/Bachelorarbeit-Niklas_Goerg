@@ -116,4 +116,23 @@ public class PrimaryTabManager {
         alert.setY(window.getY() + (window.getHeight() / 2) - 200);
         alert.setX(window.getX() + (window.getWidth() / 2) - 200);
     }
+
+    /**
+     * adds the css styling and a tooltip based on the validation value
+     *
+     * @param input the javafx element to add styling to
+     * @param tooltip the tooltip message to display if invalid
+     * @param isValid if false the element will be styled accordingly
+     * @param inlineValidationActive used if decoration id only allowed after activating. set to true if no activation needed
+     */
+    public static void decorateField(Control input, String tooltip, boolean isValid, boolean inlineValidationActive) {
+        // see bad-input class in style.css
+        input.getStyleClass().remove("bad-input");
+        input.setTooltip(null);
+
+        if(!isValid && inlineValidationActive) {
+            input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
+            input.getStyleClass().add("bad-input");
+        }
+    }
 }
