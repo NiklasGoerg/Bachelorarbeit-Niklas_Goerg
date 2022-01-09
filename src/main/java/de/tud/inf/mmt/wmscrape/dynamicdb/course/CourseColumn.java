@@ -25,8 +25,8 @@ public class CourseColumn extends DbTableColumn {
             super(name, visualDatatype);
     }
 
-    public CourseColumn(String name, ColumnDatatype visualDatatype) {
-        super(name, visualDatatype);
+    public CourseColumn(String name, ColumnDatatype columnDatatype) {
+        super(name, columnDatatype);
     }
 
     @OneToMany(mappedBy = "courseColumn", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)

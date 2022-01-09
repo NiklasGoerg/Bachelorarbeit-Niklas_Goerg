@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -32,7 +33,7 @@ public class ImportTabController {
     @FXML private Spinner<Integer> titleRowSpinner;
     @FXML private TextField selectionColTitleField;
     @FXML private TextField depotColTitleField;
-    @FXML private TableView<ObservableList<String>> sheetPreviewTable;
+    @FXML private TableView<List<String>> sheetPreviewTable;
     @FXML private TableView<ExcelCorrelation> stockDataCorrelationTable;
     @FXML private TableView<ExcelCorrelation> transactionCorrelationTable;
     @FXML private GridPane rightPanelBox;
@@ -118,7 +119,7 @@ public class ImportTabController {
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setHeaderText("Einstellungen löschen?");
-        alert.setContentText("Bitte bestätigen Sie, dass sie diese Konfiguration löschen möchten.");
+        alert.setContentText("Soll diese Konfiguration gelöscht werden?");
         PrimaryTabManager.setAlertPosition(alert , pathField);
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isEmpty() || result.get() != ButtonType.OK) {
@@ -176,7 +177,7 @@ public class ImportTabController {
      */
     @FXML
     private void previewExcel() {
-        // remove changes if not saved
+        // removes changes if not saved before
         loadSpecificExcel(excelSheetList.getSelectionModel().getSelectedItem());
 
         if(excelIsNotSelected()) return;

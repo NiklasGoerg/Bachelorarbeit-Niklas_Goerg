@@ -1,17 +1,17 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -29,8 +29,6 @@ public class ParsingManager {
     
     @Autowired
     private ImportTabManager importTabManager;
-
-    private final ObservableList<ObservableList<String>> sheetPreviewTableData = FXCollections.observableArrayList();
 
     private ObservableMap<Integer, ArrayList<String>> excelSheetRows;
 
@@ -64,7 +62,7 @@ public class ParsingManager {
     /**
      * using the parameters inside the excel configuration to open and decrypt the excel sheet file
      *
-     * @param excelSheet the excel configuratiob
+     * @param excelSheet the excel configuration
      */
     private XSSFWorkbook decryptAndGetWorkbook(ExcelSheet excelSheet) throws EncryptedDocumentException {
         try {
@@ -76,15 +74,12 @@ public class ParsingManager {
     }
 
     /**
-     * does all the necessary operations to process the excel sheet and create the preview
+     * does all the necessary operations to process the excel sheet
      *
-     * @param sheetPreviewTable the javafx table
      * @param excelSheet the excel configuration
      * @return the integer return code representing errors
      */
-    public int fillExcelPreview(TableView<ObservableList<String>> sheetPreviewTable, ExcelSheet excelSheet) throws EncryptedDocumentException {
-        sheetPreviewTable.getColumns().clear();
-        sheetPreviewTable.getItems().clear();
+    public int parseExcel(ExcelSheet excelSheet) {
 
         XSSFWorkbook workbook;
         try {
@@ -125,6 +120,7 @@ public class ParsingManager {
         indexToExcelTitle = extractColTitles(excelSheet.getTitleRow() - 1, excelSheetRows);
 
         createNormalizedTitles(indexToExcelTitle);
+        // checks that every title is unique
         if (!titlesAreUnique(indexToExcelTitle)) return -5;
 
         titleToExcelIndex = reverseMap(indexToExcelTitle);
@@ -140,17 +136,6 @@ public class ParsingManager {
         selectedStockDataRows = getSelectedInitially(excelSheetRows, selectionColNumber, true);
         selectedTransactionRows = getSelectedInitially(excelSheetRows, depotColNumber, false);
 
-        addColumnsToView(sheetPreviewTable, indexToExcelTitle, excelSheet);
-
-        // add rows to data observer
-        excelSheetRows.forEach((row, rowContent) -> {
-            ObservableList<String> tableRow = FXCollections.observableArrayList();
-            tableRow.addAll(rowContent);
-            sheetPreviewTableData.add(tableRow);
-        });
-
-        // add rows to table
-        sheetPreviewTable.setItems(sheetPreviewTableData);
         if (evalFaults) return -8;
         return 0;
     }
@@ -183,8 +168,8 @@ public class ParsingManager {
 
             // for each column per row
             for (int colNumber = 0; colNumber < row.getLastCellNum(); colNumber++) {
-                String stringValue = "";
                 XSSFCell cell = row.getCell(colNumber, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                String stringValue = "";
 
                 // add new array if new row
                 if (!excelData.containsKey(rowNumber)) {
@@ -475,49 +460,19 @@ public class ParsingManager {
     }
 
     /**
-     * prepares the row preview table including the checkboxes
+     * looks up all correlations to find the one with the matching title.
      *
-     * @param sheetPreviewTable the javafx preview table
-     * @param titles all column titles
-     * @param excelSheet the excel configuration
+     * @param name the excel column name
+     * @param correlations all correlations for the excel configuration
+     * @return the column index of the excel sheet if found, otherwise -1
      */
-    private void addColumnsToView(TableView<ObservableList<String>> sheetPreviewTable, Map<Integer, String> titles, ExcelSheet excelSheet) {
-
-
-        for (Integer col : titles.keySet()) {
-
-            // ignore row index
-            if (col == 0) continue;
-
-            if (titles.get(col).equals(excelSheet.getSelectionColTitle())) {
-
-                // add the checkbox column for stockdata
-                TableColumn<ObservableList<String>, Boolean> tableCol = new TableColumn<>("Stammdaten");
-
-                tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
-                // my assumption -> no content == not selected
-                tableCol.setCellValueFactory(row -> selectedStockDataRows.get(Integer.valueOf(row.getValue().get(0))));
-
-                sheetPreviewTable.getColumns().add(tableCol);
-
-
-                // add the checkbox column for transactions
-                // same concept different listener
-                tableCol = new TableColumn<>("Transaktionen");
-                tableCol.setCellFactory(CheckBoxTableCell.forTableColumn(tableCol));
-                // my assumption -> no content == not selected
-                tableCol.setCellValueFactory(row -> selectedTransactionRows.get(Integer.valueOf(row.getValue().get(0))));
-
-                sheetPreviewTable.getColumns().add(tableCol);
-                continue;
+    public int getColNrByName(String name, ObservableList<ExcelCorrelation> correlations) {
+        for (ExcelCorrelation correlation : correlations) {
+            if (correlation.getDbColTitle().equals(name)) {
+                return correlation.getExcelColNumber();
             }
-
-            // normal columns with string content
-            TableColumn<ObservableList<String>, String> tableCol = new TableColumn<>(titles.get(col));
-            tableCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().get(col)));
-            tableCol.prefWidthProperty().bind(sheetPreviewTable.widthProperty().multiply(0.12));
-            //tableCol.setSortable(false);
-            sheetPreviewTable.getColumns().add(tableCol);
         }
+        return -1;
     }
+
 }

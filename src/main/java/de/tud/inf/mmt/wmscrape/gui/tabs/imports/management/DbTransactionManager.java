@@ -9,7 +9,6 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.*;
 import java.text.DateFormat;
@@ -19,7 +18,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 
-@Transactional
 @Service
 @Lazy
 public class DbTransactionManager {

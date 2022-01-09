@@ -11,7 +11,6 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
-import javafx.collections.ObservableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -42,8 +41,6 @@ public class ExtractionManager {
     @Autowired
     private ParsingManager parsingManager;
     @Autowired
-    private CorrelationManager correlationManager;
-    @Autowired
     private StockRepository stockRepository;
     @Autowired
     private DepotRepository depotRepository;
@@ -62,10 +59,6 @@ public class ExtractionManager {
      * @return integer value containing error information
      */
     public int startDataExtraction() {
-        
-        if (!isInExtractableState()) return -2;
-        if (!correlationsHaveValidState()) return -3;
-
 
         int stockExtractionResult = extractStockData();
 
@@ -125,7 +118,7 @@ public class ExtractionManager {
             // the columns for one row
             ArrayList<String> rowData = excelSheetRows.get(row);
 
-            int isinCol = getColNrByName("isin", stockColumnRelations);
+            int isinCol = parsingManager.getColNrByName("isin", stockColumnRelations);
 
             // check if isin valid
             String isin = rowData.get(isinCol);
@@ -218,6 +211,11 @@ public class ExtractionManager {
 
         // execution is not stopped at a silent error but a log message is added
         boolean silentError = false;
+
+        Set<String> knownStockIsins = getStockIsins();
+        Set<String> knownDepots = getDepotNames();
+
+
         Connection connection = stockTableManager.getConnection();
         HashMap<String, PreparedStatement> statements = dbTransactionManager.createDataStatements(
                                                         transactionTableManager,transactionColumnRepository,connection);
@@ -230,9 +228,9 @@ public class ExtractionManager {
         if (statements == null) return -4;
 
         // transaction keys
-        int isinCol = getColNrByName("wertpapier_isin", transactionColumnRelations);
-        int dateCol = getColNrByName("transaktions_datum", transactionColumnRelations);
-        int depotNameCol = getColNrByName("depot_name", transactionColumnRelations);
+        int isinCol = parsingManager.getColNrByName("wertpapier_isin", transactionColumnRelations);
+        int dateCol = parsingManager.getColNrByName("transaktions_datum", transactionColumnRelations);
+        int depotNameCol = parsingManager.getColNrByName("depot_name", transactionColumnRelations);
 
         // go through all rows
         for (int row : excelSheetRows.keySet()) {
@@ -243,7 +241,7 @@ public class ExtractionManager {
             ArrayList<String> rowData = excelSheetRows.get(row);
 
             String depotName = rowData.get(depotNameCol);
-            if (depotName == null || depotName.isBlank() || depotName.length() >= 50) {
+            if (depotName == null || depotName.isBlank() || depotName.length() >= 500) {
                 importTabManager.addToLog("ERR:\t\tDepotname der Zeile "+(row+OFFSET)+" fehlerhaft oder leer. Wert: '"
                         + depotName + "' ");
                 silentError = true;
@@ -266,21 +264,17 @@ public class ExtractionManager {
             }
 
             // stocks are created beforehand
-            var stock = stockRepository.findByIsin(isin);
-            if (stock.isEmpty()) {
+            if (!knownStockIsins.contains(isin)) {
                 importTabManager.addToLog("ERR:\t\tDas passende Wertpapier zur Transaktion aus Zeile " + (row+OFFSET) +
-                        " konnte nicht gefunden werden. Angegebene Isin: '" + isin + "'");
+                        " konnte nicht gefunden werden. Angegebene ISIN: '" + isin + "'");
                 silentError = true;
                 continue;
             }
 
             // search if the depot already exists or creates a new one
-            Depot depot = depotRepository.findByName(depotName).orElse(null);
-
-            if (depot == null) {
+            if (!knownDepots.contains(depotName)) {
                 importTabManager.addToLog("INFO:\tErstelle Depot mit dem Namen: " + depotName);
-                depot = new Depot(depotName);
-                depotRepository.save(depot);
+                depotRepository.saveAndFlush(new Depot(depotName));
             }
 
             for (ExcelCorrelation correlation : transactionColumnRelations) {
@@ -359,46 +353,8 @@ public class ExtractionManager {
         } else return colDatatype != ColumnDatatype.TEXT;
     }
 
-    /**
-     * looks up all correlations to find the one witch the matching title.
-     *
-     * @param name the excel column name
-     * @param correlations all correlations for the excel configuration
-     * @return the column index of the excel sheet if found, otherwise -1
-     */
-    private int getColNrByName(String name, ObservableList<ExcelCorrelation> correlations) {
-        for (ExcelCorrelation correlation : correlations) {
-            if (correlation.getDbColTitle().equals(name)) {
-                return correlation.getExcelColNumber();
-            }
-        }
-        return -1;
-    }
 
-    /**
-     * basic test if the preview was loaded by checking if tables are empty
-     *
-     * @return true if extraction/import can begin
-     */
-    private boolean isInExtractableState() {
-        return parsingManager.getExcelSheetRows() != null && parsingManager.getSelectedTransactionRows() != null && parsingManager.getSelectedStockDataRows() != null &&
-                importTabController.getStockDataCorrelations().size() != 0 && importTabController.getTransactionCorrelations().size() != 0;
-    }
 
-    /**
-     * checks if the necessary primary key correlations have been set
-     *
-     * @return true if all necessary correlations are set
-     */
-    private boolean correlationsHaveValidState() {
-        if (getColNrByName("isin", importTabController.getStockDataCorrelations()) == -1) return false;
-        if (getColNrByName("wkn", importTabController.getStockDataCorrelations()) == -1) return false;
-        if (getColNrByName("name", importTabController.getStockDataCorrelations()) == -1) return false;
-        if (getColNrByName("wertpapier_isin", importTabController.getStockDataCorrelations()) == -1) return false;
-        if (getColNrByName("transaktions_datum", importTabController.getStockDataCorrelations()) == -1) return false;
-        if (getColNrByName("transaktionstyp", importTabController.getStockDataCorrelations()) == -1) return false;
-        return getColNrByName("depot_name", importTabController.getStockDataCorrelations()) != -1;
-    }
 
     /**
      * creates missing {@link {@link de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock} entities.
@@ -407,7 +363,7 @@ public class ExtractionManager {
      * the latter refers to entities in the first.
      */
     private void createMissingStocks() {
-        Set<String> knownStock = stockRepository.findAll().stream().map(Stock::getIsin).collect(Collectors.toSet());
+        Set<String> knownStock = getStockIsins();
 
         for(var ks : potentialNewStocks.entrySet()) {
             if(!knownStock.contains(ks.getKey())) {
@@ -419,6 +375,16 @@ public class ExtractionManager {
                 stockRepository.save(stock);
             }
         }
+
+        stockRepository.flush();
+    }
+
+    private Set<String> getStockIsins() {
+        return stockRepository.findAll().stream().map(Stock::getIsin).collect(Collectors.toSet());
+    }
+
+    private Set<String> getDepotNames() {
+        return depotRepository.findAll().stream().map(Depot::getName).collect(Collectors.toSet());
     }
 
 }

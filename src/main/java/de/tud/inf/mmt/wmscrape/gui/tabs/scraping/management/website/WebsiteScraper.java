@@ -191,6 +191,9 @@ public class WebsiteScraper extends WebsiteHandler {
         return tmp;
     }
 
+    /**
+     * clears the cached values (mostly called after each row)
+     */
     public void resetIdentDataBuffer() {
         identDataBuffer.clear();
     }
