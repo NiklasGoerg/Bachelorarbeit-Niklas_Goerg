@@ -31,7 +31,7 @@ public class ParsingManager {
     @Autowired
     private ImportTabManager importTabManager;
 
-    private ObservableMap<Integer, ArrayList<String>> excelSheetRows;
+    private final ObservableMap<Integer, ArrayList<String>> excelSheetRows = FXCollections.observableMap(new TreeMap<>());
 
     private Map<Integer, String> indexToExcelTitle;
     private Map<String, Integer> titleToExcelIndex;
@@ -101,7 +101,7 @@ public class ParsingManager {
             return -2;
         }
 
-        excelSheetRows = FXCollections.observableMap(new TreeMap<>());
+        excelSheetRows.clear();
         boolean evalFaults = getExcelSheetData(workbook, excelSheet.getTitleRow(), excelSheetRows, task);
 
         // return value doesn't matter because canceling is canted extra
@@ -160,7 +160,7 @@ public class ParsingManager {
 
         XSSFSheet sheet = workbook.getSheetAt(0);
         FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-        evaluator.setIgnoreMissingWorkbooks(true); // throw no error if something references another unreachable sheet
+        evaluator.setIgnoreMissingWorkbooks(true); // throw no error if some formulas reference another unreachable sheet
         boolean evalFault = false;
         int lastRowNr = sheet.getLastRowNum();
 

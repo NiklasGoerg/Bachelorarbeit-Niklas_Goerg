@@ -38,8 +38,15 @@ public class ImportTabController {
     @FXML private TableView<ExcelCorrelation> transactionCorrelationTable;
     @FXML private GridPane rightPanelBox;
     @FXML private SplitPane rootNode;
+
     @FXML private ProgressIndicator importProgressIndicator;
     @FXML private Button importAbortButton;
+
+    // used to disallow certain actions while running a task
+    @FXML private Button saveConfButton;
+    @FXML private Button previewButton;
+    @FXML private Button importButtom;
+    @FXML private Button deleteConfButton;
 
     @Autowired
     private NewExcelPopupController newExcelPopupController;
@@ -205,6 +212,211 @@ public class ImportTabController {
         importTabManager.fillExcelPreview(sheetPreviewTable, excelSheet);
     }
 
+    @FXML
+    private void cancelTask() {
+        importTabManager.cancelTask();
+    }
+
+    /**
+     * starts the import process
+     */
+    @FXML
+    private void importExcel() {
+        logText.set("");
+
+        if (transactionCorrelationTable.getItems().isEmpty() || stockDataCorrelationTable.getItems().size() == 0
+                || !importTabManager.excelHasContentForImport()) {
+            createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
+                    Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        if (!importTabManager.correlationsHaveValidState()) {
+            createAlert("Zuordnung unvollständig!",
+                    """
+                            Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind
+                             Stammdaten:    isin, wkn
+                            Transaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp""",
+                    Alert.AlertType.ERROR);
+            return;
+        }
+
+        showProgress(true);
+
+        importTabManager.startDataExtraction();
+    }
+
+    @FXML
+    private void openLog() {
+
+        Stage stage = new Stage();
+        Scene scene = logTextArea.getScene();
+
+        if (scene == null) {
+            scene = new Scene(this.logTextArea);
+            scene.getStylesheets().add("style.css");
+        } else {
+            logTextArea.getScene().getWindow().hide();
+        }
+
+        stage.setScene(scene);
+
+        stage.initOwner(pathField.getScene().getWindow());
+        stage.initModality(Modality.NONE);
+        stage.show();
+
+        stage.setTitle("Log");
+    }
+
+    private boolean excelIsNotSelected() {
+        ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
+
+        if(excelSheet == null) {
+            createAlert("Keine Excel ausgewählt!",
+                    "Wählen Sie eine Excelkonfiguration aus der Liste aus oder erstellen Sie eine neue, bevor Sie Speichern.",
+                    Alert.AlertType.ERROR);
+            return true;
+        }
+        return false;
+    }
+
+    public void selectLastExcel() {
+        excelSheetList.getSelectionModel().selectLast();
+    }
+
+    public void reloadExcelList() {
+        excelSheetObservableList.clear();
+        excelSheetObservableList.addAll(importTabManager.getExcelSheets());
+    }
+
+    private void loadSpecificExcel(ExcelSheet excelSheet) {
+        if (excelSheet == null) return;
+
+        // just for safety
+        cancelTask();
+
+        setRightPanelBoxVisible(true);
+        inlineValidation = false;
+        logText.set("");
+
+        pathField.setText(excelSheet.getPath());
+        passwordField.setText(excelSheet.getPassword());
+        titleRowSpinner.getValueFactory().setValue(excelSheet.getTitleRow());
+        selectionColTitleField.setText(excelSheet.getSelectionColTitle());
+        depotColTitleField.setText(excelSheet.getDepotColTitle());
+
+        sheetPreviewTable.getColumns().clear();
+        sheetPreviewTable.getItems().clear();
+        stockDataCorrelationTable.getColumns().clear();
+        stockDataCorrelationTable.getItems().clear();
+        transactionCorrelationTable.getColumns().clear();
+        transactionCorrelationTable.getItems().clear();
+
+        // here to remove eventually existing error styling
+        isValidInput();
+    }
+
+    private boolean validPath() {
+        return emptyValidator(pathField) && pathValidator(pathField);
+    }
+
+    private boolean validTitleColNr() {
+        return titleRowSpinner.getValue() != null && titleRowSpinner.getValue() > 0;
+    }
+
+    private boolean isValidInput() {
+        // need all methods executed to highlight errors
+        boolean valid = validPath();
+        valid &= validTitleColNr();
+        valid &= emptyValidator(selectionColTitleField);
+        valid &= emptyValidator(depotColTitleField);
+        return valid;
+    }
+
+    private boolean emptyValidator(TextInputControl input) {
+        boolean isValid = input.getText() != null && !input.getText().isBlank();
+        decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
+        return isValid;
+    }
+
+    private boolean pathValidator(TextInputControl input) {
+        boolean isValid = input.getText() != null && input.getText().matches("^.*\\.xlsx$");
+        decorateField(input, "Dieses Feld darf nur auf xlsx Dateien verweisen!", isValid);
+        return isValid;
+    }
+
+    /**
+     * adds the css styling or removes it based on the validation value
+     *
+     * @param input the javafx element to add styling to
+     * @param tooltip the tooltip message to display if invalid
+     * @param isValid if false the element will be styled accordingly
+     */
+    private void decorateField(TextInputControl input, String tooltip, boolean isValid) {
+        input.getStyleClass().remove("bad-input");
+        input.setTooltip(null);
+
+        if(!isValid) {
+            if(inlineValidation) {
+                input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
+                input.getStyleClass().add("bad-input");
+            }
+        }
+    }
+
+    private Label getPlaceholder() {
+        return new Label("Keine Vorschau geladen.");
+    }
+
+    /**
+     * if no configuration exists, the normal view is hidden and replaced with an instruction window
+     *
+     * @param visible if true show the normal config winoow
+     */
+    private void setRightPanelBoxVisible(boolean visible) {
+        if(!visible) {
+            rootNode.getItems().remove(rightPanelBox);
+            rootNode.getItems().add(noSelectionReplacement);
+        } else {
+            if(!rootNode.getItems().contains(rightPanelBox)) {
+                rootNode.getItems().remove(noSelectionReplacement);
+                rootNode.getItems().add(rightPanelBox);
+                rootNode.setDividerPosition(0, 0.15);
+            }
+        }
+    }
+
+    private void createAlert(String title, String content, Alert.AlertType type) {
+        Alert alert = new Alert(type, content, ButtonType.OK);
+        alert.setHeaderText(title);
+        PrimaryTabManager.setAlertPosition(alert , pathField);
+        alert.showAndWait();
+    }
+
+    /**
+     * reloads the correlation table if some new columns have been added to the database via the data tab
+     */
+    public void refreshCorrelationTables() {
+        // nothing selected means no need to refresh
+        ExcelSheet sheet = excelSheetList.getSelectionModel().getSelectedItem();
+        if (sheet == null) return;
+
+        loadSpecificExcel(sheet);
+    }
+
+    public ObservableList<ExcelCorrelation> getStockDataCorrelations() {
+        return stockDataCorrelationTable.getItems();
+    }
+
+    public ObservableList<ExcelCorrelation> getTransactionCorrelations() {
+        return transactionCorrelationTable.getItems();
+    }
+
+    /**
+     * called after the preview task exits which is started with {@link #previewExcel()}
+     *
+     * @param result the result value from the task indicating errors or success
+     */
     public void onPreviewTaskFinished(int result) {
         showProgress(false);
 
@@ -230,16 +442,12 @@ public class ImportTabController {
         transactionCorrelationTable.refresh();
     }
 
-    @FXML
-    private void cancelTask() {
-        importTabManager.cancelTask();
-    }
-
     /**
+     * outsourced the preview msg handling
      *
      * @param excelSheet the used excel configuration
      * @param result the result value from the process
-     * @return returns true if a critical error occurred
+     * @return returns true if a critical error occurred and no preview will be displayed
      */
     private boolean showPreviewResultMsg(ExcelSheet excelSheet, int result) {
         Alert alert;
@@ -340,18 +548,12 @@ public class ImportTabController {
     }
 
     /**
-     * starts the import process
+     * called after the import task exits which is started with {@link #importExcel()}
+     *
+     * @param result the result value from the task indicating errors or success
      */
-    @FXML
-    private void importExcel() {
-        logText.set("");
-
-        if (transactionCorrelationTable.getItems().isEmpty() || stockDataCorrelationTable.getItems().size() == 0) {
-            createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
-                    Alert.AlertType.INFORMATION);
-            return;
-        }
-        int result = importTabManager.startDataExtraction();
+    public void onImportTaskFinished(int result) {
+        showProgress(false);
 
         switch (result) {
             case 0 -> createAlert("Import abgeschlossen!",
@@ -360,184 +562,34 @@ public class ImportTabController {
             case -1 -> createAlert("Import unvollständig!", "Nicht alle Zellen wurden " +
                             "importiert. Der Log enthält mehr Informationen.",
                     Alert.AlertType.WARNING);
-            case -2 -> createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
-                    Alert.AlertType.INFORMATION);
-            case -3 -> createAlert("Zuordnung unvollständig!",
-                    """
-                            Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind
-                             Stammdaten:    isin, wkn
-                            Transaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp""",
-                    Alert.AlertType.ERROR);
-            case -4 -> createAlert("Fehler bei Sql-Statement erstellung.!",
+            case -2 -> createAlert("Fehler bei Sql-Statement erstellung.!",
                     "Bei der Erstellung der Sql-Statements kam es zu fehlern. Die Logs enthalten genauere Informationen.",
                     Alert.AlertType.ERROR);
-            default -> createAlert("Fehler mit unbekannter Id!",
-                    "Eine Fehlerbeschreibung zur Id: '" + result + "' existiert nicht",
+            case -3 -> createAlert("Prozess abgebrochen!", // occurs only on a failed task
+                    "Der laufende Prozess wurde durch den Abbruch-Button abgebrochen.",
+                    Alert.AlertType.INFORMATION);
+            case -4 -> createAlert("Unbekannter Fehler!", // occurs only on a failed task
+                    "Bei dem Erstellen der Vorschau kam es zu einem unbekannten Fehler.",
                     Alert.AlertType.ERROR);
         }
 
-        // add new stocks to the list etc
+        // add new stocks to the list in the other tabs
         elementsTabController.refresh();
         dataTabController.handleResetButton();
     }
 
-    @FXML
-    private void openLog() {
-
-        Stage stage = new Stage();
-        Scene scene = logTextArea.getScene();
-
-        if (scene == null) {
-            scene = new Scene(this.logTextArea);
-            scene.getStylesheets().add("style.css");
-        } else {
-            logTextArea.getScene().getWindow().hide();
-        }
-
-        stage.setScene(scene);
-
-        stage.initOwner(pathField.getScene().getWindow());
-        stage.initModality(Modality.NONE);
-        stage.show();
-
-        stage.setTitle("Log");
-    }
-
-    private boolean excelIsNotSelected() {
-        ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
-
-        if(excelSheet == null) {
-            createAlert("Keine Excel ausgewählt!",
-                    "Wählen Sie eine Excelkonfiguration aus der Liste aus oder erstellen Sie eine neue, bevor Sie Speichern.",
-                    Alert.AlertType.ERROR);
-            return true;
-        }
-        return false;
-    }
-
-    public void selectLastExcel() {
-        excelSheetList.getSelectionModel().selectLast();
-    }
-
-    public void reloadExcelList() {
-        excelSheetObservableList.clear();
-        excelSheetObservableList.addAll(importTabManager.getExcelSheets());
-    }
-
-    private void loadSpecificExcel(ExcelSheet excelSheet) {
-        if (excelSheet == null) {
-            return;
-        }
-
-        setRightPanelBoxVisible(true);
-        inlineValidation = false;
-        logText.set("");
-
-        pathField.setText(excelSheet.getPath());
-        passwordField.setText(excelSheet.getPassword());
-        titleRowSpinner.getValueFactory().setValue(excelSheet.getTitleRow());
-        selectionColTitleField.setText(excelSheet.getSelectionColTitle());
-        depotColTitleField.setText(excelSheet.getDepotColTitle());
-
-        sheetPreviewTable.getColumns().clear();
-        sheetPreviewTable.getItems().clear();
-        stockDataCorrelationTable.getColumns().clear();
-        stockDataCorrelationTable.getItems().clear();
-        transactionCorrelationTable.getColumns().clear();
-        transactionCorrelationTable.getItems().clear();
-
-        // here to remove eventually existing error styling
-        isValidInput();
-    }
-
-    private boolean validPath() {
-        return emptyValidator(pathField) && pathValidator(pathField);
-    }
-
-    private boolean validTitleColNr() {
-        return titleRowSpinner.getValue() != null && titleRowSpinner.getValue() > 0;
-    }
-
-    private boolean isValidInput() {
-        // need all methods executed to highlight errors
-        boolean valid = validPath();
-        valid &= validTitleColNr();
-        valid &= emptyValidator(selectionColTitleField);
-        valid &= emptyValidator(depotColTitleField);
-        return valid;
-    }
-
-    private boolean emptyValidator(TextInputControl input) {
-        boolean isValid = input.getText() != null && !input.getText().isBlank();
-        decorateField(input, "Dieses Feld darf nicht leer sein!", isValid);
-        return isValid;
-    }
-
-    private boolean pathValidator(TextInputControl input) {
-        boolean isValid = input.getText() != null && input.getText().matches("^.*\\.xlsx$");
-        decorateField(input, "Dieses Feld darf nur auf xlsx Dateien verweisen!", isValid);
-        return isValid;
-    }
-
-    private void decorateField(TextInputControl input, String tooltip, boolean isValid) {
-        input.getStyleClass().remove("bad-input");
-        input.setTooltip(null);
-
-        if(!isValid) {
-            if(inlineValidation) {
-                input.setTooltip(PrimaryTabManager.createTooltip(tooltip));
-                input.getStyleClass().add("bad-input");
-            }
-        }
-    }
-
-    private Label getPlaceholder() {
-        return new Label("Keine Vorschau geladen.");
-    }
-
     /**
-     * if no configuration exists, the normal view is hidden and replaced with an instruction window
+     * makes the progress indicator visible and disables some buttons
      *
-     * @param visible if true show the normal config winoow
+     * @param show if true the progress indicator will be visible
      */
-    private void setRightPanelBoxVisible(boolean visible) {
-        if(!visible) {
-            rootNode.getItems().remove(rightPanelBox);
-            rootNode.getItems().add(noSelectionReplacement);
-        } else {
-            if(!rootNode.getItems().contains(rightPanelBox)) {
-                rootNode.getItems().remove(noSelectionReplacement);
-                rootNode.getItems().add(rightPanelBox);
-                rootNode.setDividerPosition(0, 0.15);
-            }
-        }
-    }
-
-    private void createAlert(String title, String content, Alert.AlertType type) {
-        Alert alert = new Alert(type, content, ButtonType.OK);
-        alert.setHeaderText(title);
-        PrimaryTabManager.setAlertPosition(alert , pathField);
-        alert.showAndWait();
-    }
-
-    public void refreshCorrelationTables() {
-        // nothing selected means no need to refresh
-        ExcelSheet sheet = excelSheetList.getSelectionModel().getSelectedItem();
-        if (sheet == null) return;
-
-        loadSpecificExcel(sheet);
-    }
-
-    public ObservableList<ExcelCorrelation> getStockDataCorrelations() {
-        return stockDataCorrelationTable.getItems();
-    }
-
-    public ObservableList<ExcelCorrelation> getTransactionCorrelations() {
-        return transactionCorrelationTable.getItems();
-    }
-
     private void showProgress(boolean show) {
         importProgressIndicator.setVisible(show);
         importAbortButton.setVisible(show);
+
+        saveConfButton.setDisable(show);
+        previewButton.setDisable(show);
+        importButtom.setDisable(show);
+        deleteConfButton.setDisable(show);
     }
 }

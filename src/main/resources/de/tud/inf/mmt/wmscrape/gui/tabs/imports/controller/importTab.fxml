@@ -68,11 +68,11 @@
          <children>
             <ToolBar minHeight="34.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="34.0">
               <items>
-                  <Button mnemonicParsing="false" onAction="#handleDeleteExcelSheetButton" text="Konfig. entfernen" />
+                  <Button fx:id="deleteConfButton" mnemonicParsing="false" onAction="#handleDeleteExcelSheetButton" text="Konfig. entfernen" />
                   <Button mnemonicParsing="false" onAction="#openLog" text="Log öffnen" />
-                  <Button mnemonicParsing="false" onAction="#importExcel" text="Import" />
-                  <Button mnemonicParsing="false" onAction="#previewExcel" text="Vorschau Laden" />
-                  <Button mnemonicParsing="false" onAction="#saveSpecificExcel" text="Angaben Speichern" />
+                  <Button fx:id="importButtom" mnemonicParsing="false" onAction="#importExcel" text="Import" />
+                  <Button fx:id="previewButton" mnemonicParsing="false" onAction="#previewExcel" text="Vorschau Laden" />
+                  <Button fx:id="saveConfButton" mnemonicParsing="false" onAction="#saveSpecificExcel" text="Angaben Speichern" />
               </items>
                <GridPane.margin>
                   <Insets right="-3.0" />

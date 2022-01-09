@@ -11,6 +11,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
+import javafx.concurrent.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -56,26 +57,23 @@ public class ExtractionManager {
     /**
      * defines the order of the import processes
      *
+     * @param task the task the process is running in. only used for reacting to task cancellation
      * @return integer value containing error information
      */
-    public int startDataExtraction() {
+    public int startDataExtraction(Task<Integer> task) {
 
-        int stockExtractionResult = extractStockData();
-
+        int stockExtractionResult = extractStockData(task);
         // 0-OK, -1-SilentError -> below other error
         // don't break execution if silent
         // only silent and ok can pass
-        if (stockExtractionResult < -1) {
-            return stockExtractionResult;
-        }
+        if (stockExtractionResult < -1) return stockExtractionResult;
+        if (task.isCancelled()) return -3;
 
-        int transactionExtractionResult = extractTransactionData();
-
+        int transactionExtractionResult = extractTransactionData(task);
         // 0-OK, -1-SilentError -> below other error
         // only ok can pass
-        if (transactionExtractionResult != 0) {
-            return transactionExtractionResult;
-        }
+        if (transactionExtractionResult != 0) return transactionExtractionResult;
+        if(task.isCancelled()) return -3;
 
         // transaction ok but stock had a silent error
         if (stockExtractionResult == -1) return -1;
@@ -86,9 +84,10 @@ public class ExtractionManager {
      * does the complete stockdata import procedure including creating statements, filling them, executing them
      * and creating {@link de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock} entities
      *
+     * @param task the task the process is running in. only used for reacting to task cancellation
      * @return error information as integer value
      */
-    private int extractStockData() {
+    private int extractStockData(Task<Integer> task) {
 
         importTabManager.addToLog("##### Start Stammdaten-Import #####\n");
 
@@ -104,10 +103,11 @@ public class ExtractionManager {
         var selected = parsingManager.getSelectedStockDataRows();
 
 
-        if (statements == null) return -4;
+        if (statements == null) return -2;
 
         // go through all rows
         for (int row : excelSheetRows.keySet()) {
+            if(task.isCancelled()) return -3;
 
             // skip rows if not selected
             if (!(selected.get(row).get())) {
@@ -130,6 +130,8 @@ public class ExtractionManager {
 
             // pick one column per relation from row
             for (ExcelCorrelation correlation : stockColumnRelations) {
+                if(task.isCancelled()) return -3;
+
                 String dbColName = correlation.getDbColTitle();
 
                 int correlationColNumber = correlation.getExcelColNumber();
@@ -190,7 +192,8 @@ public class ExtractionManager {
         }
 
         // create stocks if not existing based on prior imported stock data
-        createMissingStocks();
+        // only returns false if the task is canceled
+        if(!createMissingStocks(task)) return -3;
 
 
         silentError |= dbTransactionManager.executeStatements(connection, statements);
@@ -204,9 +207,10 @@ public class ExtractionManager {
      * does the complete depot transaction import procedure including creating statements, filling them, executing them
      * and creating {@link de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot} entities
      *
+     * @param task the task the process is running in. only used for reacting to task cancellation
      * @return error information as integer value
      */
-    private int extractTransactionData() {
+    private int extractTransactionData(Task<Integer> task) {
         importTabManager.addToLog("##### Start Transaktions Import #####\n");
 
         // execution is not stopped at a silent error but a log message is added
@@ -225,7 +229,7 @@ public class ExtractionManager {
         var selected = parsingManager.getSelectedTransactionRows();
 
 
-        if (statements == null) return -4;
+        if (statements == null) return -2;
 
         // transaction keys
         int isinCol = parsingManager.getColNrByName("wertpapier_isin", transactionColumnRelations);
@@ -234,6 +238,8 @@ public class ExtractionManager {
 
         // go through all rows
         for (int row : excelSheetRows.keySet()) {
+            if(task.isCancelled()) return -3;
+
             // skip rows if not selected
             if (!selected.get(row).get()) continue;
 
@@ -278,6 +284,8 @@ public class ExtractionManager {
             }
 
             for (ExcelCorrelation correlation : transactionColumnRelations) {
+                if(task.isCancelled()) return -3;
+
                 String dbColName = correlation.getDbColTitle();
 
                 // already set before don't do it again
@@ -361,11 +369,15 @@ public class ExtractionManager {
      * note that these have to be created before the data can be inserted, otherwise the constaint will not be fullfilled.
      * constraint between the "wertpapier" table and the "wertpapier_stammdaten" table.
      * the latter refers to entities in the first.
+     *
+     * @param task the task the process is running in. only used for reacting to task cancellation
      */
-    private void createMissingStocks() {
+    private boolean createMissingStocks(Task<Integer> task) {
         Set<String> knownStock = getStockIsins();
 
         for(var ks : potentialNewStocks.entrySet()) {
+            if(task.isCancelled()) return false;
+
             if(!knownStock.contains(ks.getKey())) {
                 Stock stock = new Stock(ks.getKey(),
                 ks.getValue().getOrDefault("wkn",null),
@@ -377,6 +389,7 @@ public class ExtractionManager {
         }
 
         stockRepository.flush();
+        return true;
     }
 
     private Set<String> getStockIsins() {

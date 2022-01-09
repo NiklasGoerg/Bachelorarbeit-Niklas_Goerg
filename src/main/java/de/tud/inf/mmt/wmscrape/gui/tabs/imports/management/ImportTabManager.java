@@ -115,7 +115,7 @@ public class ImportTabManager {
     }
 
     /**
-     * starts the excel parsing and fills the preview with the extracted data
+     * starts the excel parsing by creating a separate task where the actual process is running in
      *
      * @param sheetPreviewTable the javaFX preview table
      * @param excelSheet the configuration used for the parsing
@@ -125,8 +125,7 @@ public class ImportTabManager {
         sheetPreviewTable.getItems().clear();
 
         // ignore action if task is running
-        if(currentTask != null && (currentTask.getState() == Worker.State.RUNNING ||
-                currentTask.getState() == Worker.State.SCHEDULED)) return;
+        if(taskIsActive()) return;
 
         Task<Integer> task = new Task<>() {
             @Override
@@ -141,6 +140,21 @@ public class ImportTabManager {
         startTask(task);
     }
 
+    /**
+     * used to disallow creating multiple task at once
+     *
+     * @return true if a task is currently active
+     */
+    private boolean taskIsActive() {
+        return currentTask != null && (currentTask.getState() == Worker.State.RUNNING ||
+                currentTask.getState() == Worker.State.SCHEDULED);
+    }
+
+    /**
+     * creates a new thread and starts the task within
+     *
+     * @param task the task to run
+     */
     private void startTask(Task<Integer> task) {
         task.exceptionProperty().addListener((o, ov, nv) ->  {
             if(nv != null) {
@@ -156,6 +170,9 @@ public class ImportTabManager {
         th.start();
     }
 
+    /**
+     * stops the current task. needs the checks "isCanceled" inside the task functions to work.
+     */
     public void cancelTask() {
         if(currentTask == null) return;
         currentTask.cancel();
@@ -190,6 +207,11 @@ public class ImportTabManager {
         }
     }
 
+    /**
+     * adds the row data to the prepared table
+     *
+     * @param sheetPreviewTable the javafx preview table
+     */
     public void fillPreviewTable(TableView<List<String>> sheetPreviewTable) {
         // adding the content as list (converting from map)
         sheetPreviewTable.getItems().addAll(new ArrayList<>(parsingManager.getExcelSheetRows().values()));
@@ -213,28 +235,27 @@ public class ImportTabManager {
     }
 
     /**
-     * starts the data extraction
-     *
-     * @return a value indicating errors. 0 equals no error
+     * starts the data extraction by creating a separate task where the actual process is running in
      */
-    public int startDataExtraction() {
-        if (!isInExtractableState()) return -2;
-        if (!correlationsHaveValidState()) return -3;
+    public void startDataExtraction() {
+        // ignore action if task is running
+        if(taskIsActive()) return;
 
-        return extractionManager.startDataExtraction();
+        Task<Integer> task = new Task<>() {
+            @Override
+            protected Integer call() {
+                return extractionManager.startDataExtraction(this);
+            }
+        };
+
+        task.setOnSucceeded(event -> importTabController.onImportTaskFinished(task.getValue()));
+        task.setOnCancelled(event -> importTabController.onImportTaskFinished(-3));
+        task.setOnFailed(event -> importTabController.onImportTaskFinished(-4));
+        startTask(task);
     }
 
-    /**
-     * basic test if the preview was loaded by checking if tables are empty
-     *
-     * @return true if extraction/import can begin
-     */
-    private boolean isInExtractableState() {
-        return parsingManager.getExcelSheetRows() != null &&
-                parsingManager.getSelectedTransactionRows() != null &&
-                parsingManager.getSelectedStockDataRows() != null &&
-                importTabController.getStockDataCorrelations().size() != 0 &&
-                importTabController.getTransactionCorrelations().size() != 0;
+    public boolean excelHasContentForImport() {
+        return !parsingManager.getExcelSheetRows().isEmpty();
     }
 
     /**
@@ -242,7 +263,7 @@ public class ImportTabManager {
      *
      * @return true if all necessary correlations are set
      */
-    private boolean correlationsHaveValidState() {
+    public boolean correlationsHaveValidState() {
         if (incorrectStockCorr("isin") || incorrectStockCorr("wkn") ||
                 incorrectStockCorr("name")) return false;
 
@@ -250,10 +271,22 @@ public class ImportTabManager {
                 correctTransactionCorr("transaktionstyp") && correctTransactionCorr("depot_name");
     }
 
+    /**
+     * checks if some value has been set to the correlation. -1 is the default value indicating nothing was/is set
+     *
+     * @param name the name of the database column name
+     * @return true if set
+     */
     private boolean correctTransactionCorr(String name) {
         return parsingManager.getColNrByName(name, importTabController.getTransactionCorrelations()) != -1;
     }
 
+    /**
+     * checks if some value has been set to the correlation. -1 is the default value indicating nothing was/is set
+     *
+     * @param name the name of the database column name
+     * @return true if set
+     */
     private boolean incorrectStockCorr(String name) {
         return parsingManager.getColNrByName(name, importTabController.getStockDataCorrelations()) == -1;
     }
