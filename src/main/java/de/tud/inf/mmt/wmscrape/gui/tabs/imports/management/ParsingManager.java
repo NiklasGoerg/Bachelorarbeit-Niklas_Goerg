@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.concurrent.Task;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.CellValue;
@@ -77,9 +78,10 @@ public class ParsingManager {
      * does all the necessary operations to process the excel sheet
      *
      * @param excelSheet the excel configuration
+     * @param task the task the function is running is. used to react to task cancellation
      * @return the integer return code representing errors
      */
-    public int parseExcel(ExcelSheet excelSheet) {
+    public int parseExcel(ExcelSheet excelSheet, Task<Integer> task) {
 
         XSSFWorkbook workbook;
         try {
@@ -100,7 +102,10 @@ public class ParsingManager {
         }
 
         excelSheetRows = FXCollections.observableMap(new TreeMap<>());
-        boolean evalFaults = getExcelSheetData(workbook, excelSheet.getTitleRow(), excelSheetRows);
+        boolean evalFaults = getExcelSheetData(workbook, excelSheet.getTitleRow(), excelSheetRows, task);
+
+        // return value doesn't matter because canceling is canted extra
+        if(task.isCancelled()) return -10;
 
         try {
             workbook.close();
@@ -148,7 +153,8 @@ public class ParsingManager {
      * @param excelData the list where the data is stored
      * @return returns true if there were errors while parsing the file
      */
-    private boolean getExcelSheetData(XSSFWorkbook workbook, int startRow, ObservableMap<Integer, ArrayList<String>> excelData) {
+    private boolean getExcelSheetData(XSSFWorkbook workbook, int startRow, ObservableMap<Integer,
+                                        ArrayList<String>> excelData, Task<Integer> task) {
 
         importTabManager.addToLog("##### Start Excel Parsing #####\n");
 
@@ -156,10 +162,12 @@ public class ParsingManager {
         FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
         evaluator.setIgnoreMissingWorkbooks(true); // throw no error if something references another unreachable sheet
         boolean evalFault = false;
+        int lastRowNr = sheet.getLastRowNum();
 
         // for each table row
         // excel starts with index 1 "poi" with 0
-        for (int rowNumber = startRow-1; rowNumber < sheet.getLastRowNum(); rowNumber++) {
+        for (int rowNumber = startRow-1; rowNumber < lastRowNr; rowNumber++) {
+            if(task.isCancelled()) return false;
 
             XSSFRow row = sheet.getRow(rowNumber);
 
@@ -168,6 +176,8 @@ public class ParsingManager {
 
             // for each column per row
             for (int colNumber = 0; colNumber < row.getLastCellNum(); colNumber++) {
+                if(task.isCancelled()) return false;
+
                 XSSFCell cell = row.getCell(colNumber, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                 String stringValue = "";
 

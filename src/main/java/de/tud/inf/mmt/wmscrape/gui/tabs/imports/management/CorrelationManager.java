@@ -70,6 +70,12 @@ public class CorrelationManager {
                                       TableView<ExcelCorrelation> transactionCorrelationTable, ExcelSheet excelSheet) {
         List<ExcelCorrelation> correlations = excelCorrelationRepository.findAllByExcelSheetId(excelSheet.getId());
         boolean allValid = validateCorrelations(correlations);
+
+        stockDataCorrelationTable.getColumns().clear();
+        stockDataCorrelationTable.getItems().clear();
+        transactionCorrelationTable.getColumns().clear();
+        transactionCorrelationTable.getItems().clear();
+
         fillStockDataCorrelationTable(stockDataCorrelationTable, excelSheet, correlations);
         fillTransactionCorrelationTable(transactionCorrelationTable,excelSheet, correlations);
         return allValid;

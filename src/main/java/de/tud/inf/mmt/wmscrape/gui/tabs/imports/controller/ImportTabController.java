@@ -38,6 +38,8 @@ public class ImportTabController {
     @FXML private TableView<ExcelCorrelation> transactionCorrelationTable;
     @FXML private GridPane rightPanelBox;
     @FXML private SplitPane rootNode;
+    @FXML private ProgressIndicator importProgressIndicator;
+    @FXML private Button importAbortButton;
 
     @Autowired
     private NewExcelPopupController newExcelPopupController;
@@ -88,6 +90,8 @@ public class ImportTabController {
         importTabManager.passLogText(logText);
         titleRowSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1,1));
         excelSheetList.getSelectionModel().selectFirst();
+
+        importProgressIndicator.setProgress(-1);
     }
 
     /**
@@ -177,10 +181,11 @@ public class ImportTabController {
      */
     @FXML
     private void previewExcel() {
-        // removes changes if not saved before
+        // removes all changes if not saved before
         loadSpecificExcel(excelSheetList.getSelectionModel().getSelectedItem());
 
         if(excelIsNotSelected()) return;
+
         inlineValidation = true;
         if(!isValidInput()) return;
 
@@ -194,28 +199,40 @@ public class ImportTabController {
             return;
         }
 
-        int result = importTabManager.fillExcelPreview(sheetPreviewTable, excelSheet);
+        showProgress(true);
 
-        if (showPreviewResults(excelSheet, result)) return;
+        // starts the preview task
+        importTabManager.fillExcelPreview(sheetPreviewTable, excelSheet);
+    }
 
-        stockDataCorrelationTable.getColumns().clear();
-        stockDataCorrelationTable.getItems().clear();
-        transactionCorrelationTable.getColumns().clear();
-        transactionCorrelationTable.getItems().clear();
+    public void onPreviewTaskFinished(int result) {
+        showProgress(false);
 
+        ExcelSheet excelSheet = excelSheetList.getSelectionModel().getSelectedItem();
 
+        if (showPreviewResultMsg(excelSheet, result)) return;
+
+        importTabManager.preparePreviewTable(sheetPreviewTable, excelSheet);
+        importTabManager.fillPreviewTable(sheetPreviewTable);
+
+        // adds and validates the correlations
         boolean allValid = correlationManager.fillCorrelationTables(stockDataCorrelationTable,
-                                                                    transactionCorrelationTable, excelSheet);
-       if(!allValid) {
-           createAlert("Excel-Sheet-Spalten wurden verändert!",
-                   "Nicht alle gespeicherten Abbildungen stimmen mit dem Excel-Sheet überein. Die betroffenen Spalten wurden" +
-                           " zurückgesetzt. Genauere Informationen befinden sich im Log.",
-                   Alert.AlertType.WARNING);
-       }
+                transactionCorrelationTable, excelSheet);
+        if(!allValid) {
+            createAlert("Excel-Sheet-Spalten wurden verändert!",
+                    "Nicht alle gespeicherten Abbildungen stimmen mit dem Excel-Sheet überein. Die betroffenen Spalten wurden" +
+                            " zurückgesetzt. Genauere Informationen befinden sich im Log.",
+                    Alert.AlertType.WARNING);
+        }
 
         // refresh because otherwise the comboboxes are unreliable set
         stockDataCorrelationTable.refresh();
         transactionCorrelationTable.refresh();
+    }
+
+    @FXML
+    private void cancelTask() {
+        importTabManager.cancelTask();
     }
 
     /**
@@ -224,7 +241,7 @@ public class ImportTabController {
      * @param result the result value from the process
      * @return returns true if a critical error occurred
      */
-    private boolean showPreviewResults(ExcelSheet excelSheet, int result) {
+    private boolean showPreviewResultMsg(ExcelSheet excelSheet, int result) {
         Alert alert;
         switch (result) {
             case -1 -> {
@@ -302,6 +319,21 @@ public class ImportTabController {
                 alert.getDialogPane().setContent(gridPane);
                 PrimaryTabManager.setAlertPosition(alert , pathField);
                 alert.show();
+                return false;
+            }
+            case -9 -> {
+                // occurs only on a failed task
+                createAlert("Prozess abgebrochen!",
+                        "Der laufende Prozess wurde durch den Abbruch-Button abgebrochen.",
+                        Alert.AlertType.INFORMATION);
+                return true;
+            }
+            case -10 -> {
+                // occurs only on a failed task
+                createAlert("Unbekannter Fehler!",
+                        "Bei dem Erstellen der Vorschau kam es zu einem unbekannten Fehler.",
+                        Alert.AlertType.ERROR);
+                return true;
             }
         }
         return false;
@@ -502,5 +534,10 @@ public class ImportTabController {
 
     public ObservableList<ExcelCorrelation> getTransactionCorrelations() {
         return transactionCorrelationTable.getItems();
+    }
+
+    private void showProgress(boolean show) {
+        importProgressIndicator.setVisible(show);
+        importAbortButton.setVisible(show);
     }
 }

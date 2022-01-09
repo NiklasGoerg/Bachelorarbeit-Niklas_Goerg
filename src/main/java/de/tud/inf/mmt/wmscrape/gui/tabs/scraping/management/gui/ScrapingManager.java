@@ -96,7 +96,8 @@ public class ScrapingManager {
                             ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems) {
 
         if(scrapingService != null) {
-            if(scrapingService.stateProperty().get() == Worker.State.RUNNING) return;
+            if(scrapingService.stateProperty().get() == Worker.State.RUNNING ||
+                    scrapingService.stateProperty().get() == Worker.State.SCHEDULED) return;
             else cancelScrape();
         }
 

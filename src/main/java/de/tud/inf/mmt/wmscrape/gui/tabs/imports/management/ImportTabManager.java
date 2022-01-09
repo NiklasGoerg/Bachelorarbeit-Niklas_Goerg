@@ -9,6 +9,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -38,6 +40,8 @@ public class ImportTabManager {
     private ImportTabController importTabController;
 
     private SimpleStringProperty logText;
+
+    private Task<Integer> currentTask = null;
 
     public void createNewExcel(String description) {
         excelSheetRepository.save(new ExcelSheet(description));
@@ -115,35 +119,56 @@ public class ImportTabManager {
      *
      * @param sheetPreviewTable the javaFX preview table
      * @param excelSheet the configuration used for the parsing
-     * @return a value indicating errors. 0 equals no error
      */
-    public int fillExcelPreview(TableView<List<String>> sheetPreviewTable, ExcelSheet excelSheet){
+    public void fillExcelPreview(TableView<List<String>> sheetPreviewTable, ExcelSheet excelSheet){
         sheetPreviewTable.getColumns().clear();
         sheetPreviewTable.getItems().clear();
 
-        // todo create task
-        int result = parsingManager.parseExcel(excelSheet);
+        // ignore action if task is running
+        if(currentTask != null && (currentTask.getState() == Worker.State.RUNNING ||
+                currentTask.getState() == Worker.State.SCHEDULED)) return;
 
-        // only fill the preview if there were no breaking errors
-        // 0 == no error -8 == some evaluation error
-        if(result == 0 || result == -8) {
-            preparePreviewTable(sheetPreviewTable, parsingManager.getIndexToExcelTitle(), excelSheet);
-            // adding the content as list (converting from map)
-            sheetPreviewTable.getItems().addAll(new ArrayList<>(parsingManager.getExcelSheetRows().values()));
-        }
+        Task<Integer> task = new Task<>() {
+            @Override
+            protected Integer call() {
+                return parsingManager.parseExcel(excelSheet, this);
+            }
+        };
 
-        return result;
+        task.setOnSucceeded(event -> importTabController.onPreviewTaskFinished(task.getValue()));
+        task.setOnCancelled(event -> importTabController.onPreviewTaskFinished(-9));
+        task.setOnFailed(event -> importTabController.onPreviewTaskFinished(-10));
+        startTask(task);
+    }
+
+    private void startTask(Task<Integer> task) {
+        task.exceptionProperty().addListener((o, ov, nv) ->  {
+            if(nv != null) {
+                Exception e = (Exception) nv;
+                System.out.println(e.getMessage()+" "+e.getCause());
+            }
+        });
+
+        currentTask = task;
+
+        Thread th = new Thread(task);
+        th.setDaemon(true);
+        th.start();
+    }
+
+    public void cancelTask() {
+        if(currentTask == null) return;
+        currentTask.cancel();
     }
 
     /**
      * prepares the row preview table including the checkboxes
      *
      * @param sheetPreviewTable the javafx preview table
-     * @param titles all column titles
      * @param excelSheet the excel configuration
      */
-    private void preparePreviewTable(TableView<List<String>> sheetPreviewTable, Map<Integer, String> titles, ExcelSheet excelSheet) {
-
+    public void preparePreviewTable(TableView<List<String>> sheetPreviewTable, ExcelSheet excelSheet) {
+        Map<Integer, String> titles = parsingManager.getIndexToExcelTitle();
 
         for (Integer col : titles.keySet()) {
 
@@ -163,6 +188,11 @@ public class ImportTabManager {
             //tableCol.setSortable(false);
             sheetPreviewTable.getColumns().add(tableCol);
         }
+    }
+
+    public void fillPreviewTable(TableView<List<String>> sheetPreviewTable) {
+        // adding the content as list (converting from map)
+        sheetPreviewTable.getItems().addAll(new ArrayList<>(parsingManager.getExcelSheetRows().values()));
     }
 
     /**
