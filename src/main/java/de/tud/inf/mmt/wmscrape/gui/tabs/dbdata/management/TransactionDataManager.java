@@ -1,10 +1,13 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
+import javafx.scene.control.TableView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -103,4 +107,18 @@ public class TransactionDataManager extends DataManager {
         throw new UnsupportedOperationException("Adding rows to the transaction table is not implemented");
     }
 
+    @Override
+    protected <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(DbTableColumnRepository<T, Integer> repository) {
+        return transactionColumnRepository.findAll();
+    }
+
+    @Override
+    protected String getSelectionStatement() {
+        return "SELECT * FROM "+ TransactionTableManager.TABLE_NAME;
+    }
+
+    @Override
+    protected void setDataTableInitialSort(TableView<CustomRow> dataTable) {
+        // nothing to sort
+    }
 }

@@ -1,10 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.imports.management;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.CorrelationType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelationRepository;
@@ -20,7 +20,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Lazy
@@ -36,8 +39,8 @@ public class CorrelationManager {
     @Autowired
     private ImportTabManager importTabManager;
 
-    private static final Map<String, ColumnDatatype> importantStockCorrelations = new LinkedHashMap<>();
-    private static final Map<String, ColumnDatatype> importantTransactionCorrelations = new LinkedHashMap<>();
+    private static final Map<String, VisualDatatype> importantStockCorrelations = new LinkedHashMap<>();
+    private static final Map<String, VisualDatatype> importantTransactionCorrelations = new LinkedHashMap<>();
 
     /**
      * called at bean creation.
@@ -47,14 +50,16 @@ public class CorrelationManager {
      * and {@link de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager}
      */
     public CorrelationManager() {
-        importantTransactionCorrelations.put("depot_name", ColumnDatatype.TEXT);
-        importantTransactionCorrelations.put("wertpapier_isin", ColumnDatatype.TEXT);
-        importantTransactionCorrelations.put("transaktions_datum", ColumnDatatype.DATE);
+        importantTransactionCorrelations.put("depot_name", VisualDatatype.Text);
+        importantTransactionCorrelations.put("wertpapier_isin", VisualDatatype.Text);
+        importantTransactionCorrelations.put("transaktions_datum", VisualDatatype.Datum);
 
-        importantStockCorrelations.put("isin", ColumnDatatype.TEXT);
-        importantStockCorrelations.put("wkn", ColumnDatatype.TEXT);
-        importantStockCorrelations.put("name", ColumnDatatype.TEXT);
-        importantStockCorrelations.put("typ", ColumnDatatype.TEXT);
+        importantStockCorrelations.put("isin", VisualDatatype.Text);
+        importantStockCorrelations.put("wkn", VisualDatatype.Text);
+        importantStockCorrelations.put("name", VisualDatatype.Text);
+        importantStockCorrelations.put("typ", VisualDatatype.Text);
+        importantStockCorrelations.put("r_par", VisualDatatype.Int);
+
     }
 
 
@@ -156,8 +161,8 @@ public class CorrelationManager {
      * @param cols the map which holds the datatypes given the column name
      * @param type stock or transaction correlation type
      */
-    private void addImportantCorrelations(TableView<ExcelCorrelation> stockDataCorrelationTable, List<String> added, ExcelSheet sheet, Map<String, ColumnDatatype> cols,
-                                          CorrelationType type) {
+    private void addImportantCorrelations(TableView<ExcelCorrelation> stockDataCorrelationTable, List<String> added, ExcelSheet sheet,
+                                          Map<String, VisualDatatype> cols, CorrelationType type) {
 
         for(var entry : cols.entrySet()) {
             if (!added.contains(entry.getKey())) {

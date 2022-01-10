@@ -264,8 +264,7 @@ public class ImportTabManager {
      * @return true if all necessary correlations are set
      */
     public boolean correlationsHaveValidState() {
-        if (incorrectStockCorr("isin") || incorrectStockCorr("wkn") ||
-                incorrectStockCorr("name")) return false;
+        if (incorrectStockCorr("isin")) return false;
 
         return correctTransactionCorr("wertpapier_isin") && correctTransactionCorr("transaktions_datum") &&
                 correctTransactionCorr("transaktionstyp") && correctTransactionCorr("depot_name");

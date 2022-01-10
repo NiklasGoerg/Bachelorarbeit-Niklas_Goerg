@@ -30,6 +30,9 @@ public class Stock {
     @Column(name = "typ",columnDefinition = "TEXT")
     private String _stockType;
 
+    // don't know what its exactly for butt he wants it for sorting purposes
+    @Column(name = "r_par")
+    private Integer _sortOrder;
 
     @Transient
     private final SimpleStringProperty wkn = new SimpleStringProperty();
@@ -37,17 +40,30 @@ public class Stock {
     private final SimpleStringProperty name = new SimpleStringProperty();
     @Transient
     private final SimpleStringProperty stockType = new SimpleStringProperty();
+    @Transient
+    private final SimpleStringProperty sortOrder = new SimpleStringProperty();
+
 
     /**
      * only used by hibernate. do not save an instance without setting the necessary fields
      */
     public Stock() {}
 
-    public Stock(String isin, String wkn, String name, String stockType) {
+    /**
+     * Important: sortOrder is not a primitive and can be set to null!
+     *
+     * @param isin the unique stock isin
+     * @param wkn optional wkn number
+     * @param name optional name
+     * @param stockType optional stockType
+     * @param sortOrder optional sortOrder aka "r_par"
+     */
+    public Stock(String isin, String wkn, String name, String stockType, Integer sortOrder) {
         this.isin = isin;
         this._wkn = wkn;
         this._name = name;
         this._stockType = stockType;
+        this._sortOrder = sortOrder;
         initListener();
     }
 
@@ -87,8 +103,12 @@ public class Stock {
         return stockType;
     }
 
+    public SimpleStringProperty sortOrderProperty() {
+        return sortOrder;
+    }
+
     /**
-     * due to the fact that hibernate creates proxies (ubclasses of the actual entities) one has to use "instanceof" to compare
+     * due to the fact that hibernate creates proxies (subclasses of the actual entities) one has to use "instanceof" to compare
      * objects. normally checking of equality can cause unexpected results.
      * lazy loaded fields are omitted because one can not know if a session is still attached.
      *
@@ -111,6 +131,7 @@ public class Stock {
         name.set(_name);
         wkn.set(_wkn);
         stockType.set(_stockType);
+        sortOrder.set((_sortOrder == null) ? (null):(String.valueOf(_sortOrder)));
         initListener();
     }
 
@@ -122,7 +143,32 @@ public class Stock {
         wkn.addListener((o,ov,nv) -> _wkn = nv.trim());
         name.addListener((o,ov,nv) -> _name = nv.trim());
         stockType.addListener((o,ov,nv) -> _stockType = nv.trim());
-
+        sortOrder.addListener((o,ov,nv) -> cleanOrder(ov, nv));
     }
 
+    /**
+     * had to be added to allow modifying the "r_par" value which is numerical and therefore needs validation
+     *
+     * @param ov the previously set cell value
+     * @param nv the value after committing the value (enter)
+     */
+    private void cleanOrder(String ov, String nv) {
+        // a null value is explicitly allowed as it is not a primitive
+        if(nv == null || nv.isBlank()) {
+            sortOrder.set(null);
+            _sortOrder = null;
+            return;
+        }
+        
+        if(ov.equals(nv)) return;
+
+        String clean = nv.replaceAll("[^+\\-0-9]","");
+
+        if(clean.matches("^[+-]?[0-9]+$")) {
+            sortOrder.set(clean);
+            _sortOrder = Integer.valueOf(clean);
+        } else {
+            sortOrder.set(ov);
+        }
+    }
 }

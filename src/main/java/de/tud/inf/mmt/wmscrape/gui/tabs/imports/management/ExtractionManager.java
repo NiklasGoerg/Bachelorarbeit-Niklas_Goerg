@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class ExtractionManager {
     // POI: index 0, EXCEL Index: 1
     private final static int OFFSET = 1;
-    private static final List<String> ignoreInStockData = List.of("isin", "wkn", "name", "typ");
+    private static final List<String> ignoreInStockData = List.of("isin", "wkn", "name", "typ", "r_par");
 
     @Autowired
     private ImportTabManager importTabManager;
@@ -146,18 +146,6 @@ public class ExtractionManager {
                     if (colData.isBlank()) colData = null;
                 }
 
-
-                // continue bcs the key value is not inserted with a prepared statement
-                // isin wkn name typ
-                if (ignoreInStockData.contains(dbColName)) {
-                    HashMap<String,String> newStocksData;
-                    newStocksData = potentialNewStocks.getOrDefault(isin, new HashMap<>());
-                    newStocksData.put(dbColName, colData);
-                    potentialNewStocks.put(isin,newStocksData);
-                    continue;
-                }
-
-
                 ColumnDatatype datatype = correlation.getDbColDataType();
 
                 if (datatype == null) {
@@ -172,6 +160,18 @@ public class ExtractionManager {
                     importTabManager.addToLog("ERR:\t\tDer Datentyp der Zeile " + (row+OFFSET) + " in der Spalte '" + correlation.getExcelColTitle() +
                             "', stimmt nicht mit dem der Datenbankspalte " + dbColName + " vom Typ " + datatype.name() +
                             " überein. Zellendaten: '" + colData + "'");
+                    continue;
+                }
+
+                // continue bcs the key value is not inserted with a prepared statement
+                // isin wkn name typ
+                if (ignoreInStockData.contains(dbColName)) {
+                    //if(colData == null) continue; uncomment if stock values should not contain null
+
+                    HashMap<String,String> newStocksData;
+                    newStocksData = potentialNewStocks.getOrDefault(isin, new HashMap<>());
+                    newStocksData.put(dbColName, colData);
+                    potentialNewStocks.put(isin,newStocksData);
                     continue;
                 }
 
@@ -362,8 +362,6 @@ public class ExtractionManager {
     }
 
 
-
-
     /**
      * creates missing {@link {@link de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock} entities.
      * note that these have to be created before the data can be inserted, otherwise the constaint will not be fullfilled.
@@ -382,7 +380,8 @@ public class ExtractionManager {
                 Stock stock = new Stock(ks.getKey(),
                 ks.getValue().getOrDefault("wkn",null),
                 ks.getValue().getOrDefault("name",null),
-                ks.getValue().getOrDefault("typ",null));
+                ks.getValue().getOrDefault("typ",null),
+                getNullInteger(ks.getValue().getOrDefault("r_par",null)));
 
                 stockRepository.save(stock);
             }
@@ -400,4 +399,13 @@ public class ExtractionManager {
         return depotRepository.findAll().stream().map(Depot::getName).collect(Collectors.toSet());
     }
 
+    /**
+     *
+     * @param value the value fetched from the excel sheet
+     * @return null if the input is null or empty
+     */
+    private Integer getNullInteger(String value) {
+        if(value == null || value.isBlank()) return null;
+        return Double.valueOf(value).intValue();
+    }
 }

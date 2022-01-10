@@ -14,9 +14,9 @@ public class CustomCell {
 
     private final DbTableColumn column;
     private String dbData;
-    private String visualizedData = null;
+    private String _visualizedData = null;
     private boolean skipListener = false; // stops the lister from acting on visualization changes
-    private final SimpleStringProperty visualizedDataProperty = new SimpleStringProperty();
+    private final SimpleStringProperty visualizedData = new SimpleStringProperty();
     private final SimpleBooleanProperty isChanged = new SimpleBooleanProperty(false);
 
     /**
@@ -32,10 +32,10 @@ public class CustomCell {
         setVisualizedData();
 
         // called after input commit and after the onEditCommitEvent function
-        this.visualizedDataProperty.addListener((o, ov, nv) -> {
+        this.visualizedData.addListener((o, ov, nv) -> {
             if (nv != null && !skipListener && !nv.equals(ov)) {
                 isChanged.set(true);
-                visualizedDataProperty.set(visualizedData);
+                visualizedData.set(_visualizedData);
             }
         });
     }
@@ -44,8 +44,13 @@ public class CustomCell {
         return dbData;
     }
 
-    public SimpleStringProperty visualizedDataPropertyProperty() {
-        return visualizedDataProperty;
+    /**
+     * used to bind the cell value to a table cell
+     *
+     * @return the cell value including datatype specific symbols
+     */
+    public SimpleStringProperty visualizedDataProperty() {
+        return visualizedData;
     }
 
     public ColumnDatatype getDatatype() {
@@ -105,14 +110,14 @@ public class CustomCell {
      */
     public void onEditStartEvent() {
         skipListener = true;
-        visualizedDataProperty.set(dbData);
+        visualizedData.set(dbData);
     }
 
     /**
      * called when leaving the cell edit mode in the table
      */
     public void onEditCancelEvent() {
-        visualizedDataProperty.set(visualizedData);
+        visualizedData.set(_visualizedData);
     }
 
     /**
@@ -140,7 +145,7 @@ public class CustomCell {
             case Prozent -> suffix = " %";
         }
 
-        visualizedData = dbData + suffix;
-        visualizedDataProperty.set(visualizedData);
+        _visualizedData = dbData + suffix;
+        visualizedData.set(_visualizedData);
     }
 }

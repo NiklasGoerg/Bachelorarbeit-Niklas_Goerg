@@ -39,13 +39,15 @@ public abstract class DbTableManger {
     public abstract String getTableName();
 
     /**
-     * get the key column names from the table
+     * get the key column names from the table.
+     * used in the data tab to disallow modification
      * @return the keys as string value
      */
     public abstract List<String> getKeyColumns();
 
     /**
-     * reserved columns have some special meaning and should not be removed
+     * reserved columns have some special meaning and should not be removed.
+     * used inside the data tab to disallow removing of columns
      * @return the reserved column names
      */
     public abstract List<String> getReservedColumns();

@@ -103,6 +103,41 @@ public abstract class DataManager {
      */
     protected abstract void fillDeleteSelectionStatement(CustomRow row, PreparedStatement statement) throws SQLException ;
 
+
+    /**
+     *
+     * the commented out code below had to be moved down to the actual implementation to allow
+     * joining tables (used for the "r_par").
+     *
+     * can therefore be used to add colums that normally don't fall into the administration of the current
+     * column entity manager
+     *
+     * @param repository defines which db table columns will we returned
+     * @param <T> subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn}
+     * @return all column entities based on the repository
+     */
+    protected abstract <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(DbTableColumnRepository<T, Integer> repository);
+    /*
+    private  <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(DbTableColumnRepository<T, Integer> repository) {
+        return repository.findAll();
+    }
+    */
+
+    /**
+     * moves the creation of the "select all" statement to the implementations to allow joining tables
+     *
+     * @return the sql statement used to fetch data for the data table. uses {@link DbTableColumn}s to extract the
+     * data from the sql results.
+     */
+    protected abstract String getSelectionStatement();
+
+    /**
+     * allows adding table specific sorting
+     *
+     * @param dataTable the table the sorting will be set
+     */
+    protected abstract void setDataTableInitialSort(TableView<CustomRow> dataTable);
+
     /**
      * prepares the data table to represent the custom rows and columns
      *
@@ -122,16 +157,23 @@ public abstract class DataManager {
 
             TableColumn<CustomRow, String> tableColumn = new TableColumn<>(colName);
 
-            // binding the event handlers to the cell
-            tableColumn.addEventHandler(TableColumn.editStartEvent(), event ->
-                    table.getSelectionModel().getSelectedItem().getCells().get(colName).onEditStartEvent());
-            tableColumn.addEventHandler(TableColumn.editCancelEvent(), event ->
-                    table.getSelectionModel().getSelectedItem().getCells().get(colName).onEditCancelEvent());
-            tableColumn.addEventHandler(TableColumn.editCommitEvent(), event ->
-                    table.getSelectionModel().getSelectedItem().getCells().get(colName).onEditCommitEvent(event));
+            // binding the event handlers to the cell to register changes
+            // allows removing or adding the datatype specific symbols like € or %
+            tableColumn.addEventHandler(TableColumn.editStartEvent(), event -> {
+                    CustomRow c = (CustomRow) event.getRowValue();
+                    if(c != null) c.getCells().get(colName).onEditStartEvent();
+            });
+            tableColumn.addEventHandler(TableColumn.editCancelEvent(), event -> {
+                CustomRow c = (CustomRow) event.getRowValue();
+                if(c != null) c.getCells().get(colName).onEditCancelEvent();
+            });
+            tableColumn.addEventHandler(TableColumn.editCommitEvent(), event -> {
+                CustomRow c = (CustomRow) event.getRowValue();
+                if(c != null) c.getCells().get(colName).onEditCommitEvent(event);
+            });
 
             // binding the custom cell property directly to the table cell
-            tableColumn.setCellValueFactory(param -> param.getValue().getCells().get(colName).visualizedDataPropertyProperty());
+            tableColumn.setCellValueFactory(param -> param.getValue().getCells().get(colName).visualizedDataProperty());
             tableColumn.setCellFactory(TextFieldTableCell.forTableColumn());
             setComparator(tableColumn, datatype);
             tableColumn.setPrefWidth(150);
@@ -152,7 +194,7 @@ public abstract class DataManager {
      * @param column the column to be sorted
      * @param datatype the column datatype
      */
-    private void setComparator(TableColumn<CustomRow, String> column, ColumnDatatype datatype){
+    private void setComparator(TableColumn<?, String> column, ColumnDatatype datatype){
 
         if(datatype == ColumnDatatype.TEXT) return;
 
@@ -289,7 +331,8 @@ public abstract class DataManager {
     public ObservableList<CustomRow> updateDataTable(TableView<CustomRow> table) {
         List<? extends DbTableColumn> dbTableColumns = getTableColumns(dbTableColumnRepository);
         prepareTable(table, dbTableColumns, dbTableManger.getKeyColumns(), dbTableManger.getColumnOrder());
-        return getAllRows(dbTableManger.getTableName(), dbTableColumns);
+        setDataTableInitialSort(table);
+        return getAllRows(dbTableColumns);
     }
 
     /**
@@ -305,7 +348,7 @@ public abstract class DataManager {
         ObservableList<CustomRow> objects = FXCollections.observableArrayList();
         for (CustomRow row : rows) {
             if(row.getCells().containsKey(key)) {
-                if (row.getCells().get(key).visualizedDataPropertyProperty().get().equals(keyValue)) {
+                if (row.getCells().get(key).visualizedDataProperty().get().equals(keyValue)) {
                     objects.add(row);
                 }
             }
@@ -316,17 +359,16 @@ public abstract class DataManager {
     /**
      * gets all data rows for a specific table
      *
-     * @param tableName the table that contains the data
      * @param columns the column entitys used for cell generation
      * @return all data rows as custom rows
      */
-    public ObservableList<CustomRow> getAllRows(String tableName,  List<? extends DbTableColumn> columns) {
+    public ObservableList<CustomRow> getAllRows(List<? extends DbTableColumn> columns) {
 
         ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
 
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery("SELECT * FROM "+tableName);
+            ResultSet results = statement.executeQuery(getSelectionStatement());
 
             // for each db row create new custom row
             while (results.next()) {
@@ -348,15 +390,11 @@ public abstract class DataManager {
     }
 
     /**
+     * saves those rows that have been marked as changed
      *
-     * @param repository defines which db table columns will we returned
-     * @param <T> subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn}
-     * @return all column entities based on the repository
+     * @param rows the changed rows
+     * @return true if successful
      */
-    private  <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns( DbTableColumnRepository<T, Integer> repository) {
-        return repository.findAll();
-    }
-
     public boolean saveChangedRows(List<CustomRow> rows) {
         if(rows == null || rows.size() == 0) return true;
         HashMap<String, PreparedStatement> statements = new HashMap<>();
@@ -405,25 +443,32 @@ public abstract class DataManager {
         TableColumn<Stock, String> isinCol =  new TableColumn<>("ISIN");
         TableColumn<Stock, String> wknCol =  new TableColumn<>("WKN");
         TableColumn<Stock, String> typCol =  new TableColumn<>("Typ");
+        TableColumn<Stock, String> sortCol =  new TableColumn<>("R-Par");
 
         nameCol.setCellValueFactory(param -> param.getValue().nameProperty());
         isinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIsin()));
         wknCol.setCellValueFactory(param -> param.getValue().wknProperty());
         typCol.setCellValueFactory(param -> param.getValue().stockTypeProperty());
+        sortCol.setCellValueFactory(param -> param.getValue().sortOrderProperty());
 
         nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
         wknCol.setCellFactory(TextFieldTableCell.forTableColumn());
         typCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        sortCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        setComparator(sortCol, ColumnDatatype.INTEGER);
 
         nameCol.setEditable(true);
         isinCol.setEditable(false);
         wknCol.setEditable(true);
         typCol.setEditable(true);
+        sortCol.setEditable(true);
 
         table.getColumns().add(isinCol);
         table.getColumns().add(nameCol);
         table.getColumns().add(wknCol);
         table.getColumns().add(typCol);
+        table.getColumns().add(sortCol);
 
         table.setEditable(true);
     }
@@ -444,7 +489,6 @@ public abstract class DataManager {
         table.getItems().addAll(depotRepository.findAll());
     }
 
-
     public void saveStockListChanges(ObservableList<Stock> stocks) {
         stockRepository.saveAllAndFlush(stocks);
     }
@@ -453,11 +497,11 @@ public abstract class DataManager {
         stockRepository.delete(stock);
     }
 
-    public boolean createStock(String isin, String wkn, String name, String type) {
+    public boolean createStock(String isin, String wkn, String name, String type, String sortOrder) {
         if(isin == null || isin.isBlank()) return false;
 
         if(stockRepository.findByIsin(isin).isPresent()) return false;
-        stockRepository.saveAndFlush(new Stock(isin, wkn, name, type));
+        stockRepository.saveAndFlush(new Stock(isin, wkn, name, type, Integer.parseInt(sortOrder)));
         return true;
     }
 

@@ -1,10 +1,13 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
+import javafx.scene.control.TableView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -90,5 +94,20 @@ public class ExchangeDataManager extends DataManager {
             return false;
         }
         return true;
+    }
+
+    @Override
+    protected <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(DbTableColumnRepository<T, Integer> repository) {
+        return exchangeColumnRepository.findAll();
+    }
+
+    @Override
+    protected String getSelectionStatement() {
+        return "SELECT * FROM "+ExchangeTableManager.TABLE_NAME;
+    }
+
+    @Override
+    protected void setDataTableInitialSort(TableView<CustomRow> dataTable) {
+        // nothing to sort
     }
 }

@@ -59,6 +59,7 @@ public class DataTabController {
     @FXML private TextField newWknField;
     @FXML private TextField newNameField;
     @FXML private TextField newTypeField;
+    @FXML private TextField newSortOrderField;
 
 
     private final ObservableList<CustomRow> changedRows = FXCollections.observableArrayList();
@@ -66,14 +67,16 @@ public class DataTabController {
     private Object lastViewed;
     private boolean viewEverything = false;
 
-    // initializing with stock data
-    private DataManager tabManager = stockDataManager;
+    private DataManager tabManager;
 
     /**
      * called when loading the fxml file
+     *
+     * sets the manager and repository to the stock data as default
      */
     @FXML
     private void initialize() {
+        // initializing with stock data
         tabManager = stockDataManager;
 
         showColumnSubMenu(false);
@@ -101,7 +104,10 @@ public class DataTabController {
             if(nv != null) onSelection(nv);
         });
 
+        // validating the input at the stock creation submenu
         newIsinField.textProperty().addListener(x -> isValidIsin());
+        newSortOrderField.textProperty().addListener(x -> isValidNumber());
+
 
         reloadAllDataRows();
         handleViewEverythingButton();
@@ -142,9 +148,10 @@ public class DataTabController {
     @FXML
     private void handleViewEverythingButton() {
         customRowTableView.getColumns().clear();
-        allRows = tabManager.updateDataTable(customRowTableView);
         customRowTableView.getItems().clear();
+        allRows = tabManager.updateDataTable(customRowTableView);
         customRowTableView.getItems().addAll(allRows);
+        customRowTableView.sort();
         addRowChangeListeners();
         viewEverything = true;
         stockSelectionTable.getSelectionModel().clearSelection();
@@ -161,6 +168,7 @@ public class DataTabController {
         scrapingElementsTabController.refresh();
         changedRows.clear();
 
+        handleResetButton();
         messageOnSuccess(success, "Speichern erfolgreich!", "Alle Daten wurden gespeichert.",
                 "Speichern nicht erfolgreich!",
                 "Nicht alle Daten wurden gespeichert.");
@@ -270,12 +278,13 @@ public class DataTabController {
     @FXML
     private void handleNewStockButton() {
 
-        if(!isValidIsin()) return;
+        if(!isValidStockCreationInput()) return;
 
         boolean success = stockDataManager.createStock(newIsinField.getText().trim(),
                                                         newWknField.getText().trim(),
                                                         newNameField.getText().trim(),
-                                                        newTypeField.getText().trim());
+                                                        newTypeField.getText().trim(),
+                                                        newSortOrderField.getText().trim());
         scrapingElementsTabController.refresh();
 
         if(success) {
@@ -335,6 +344,7 @@ public class DataTabController {
         newWknField.clear();
         newNameField.clear();
         newTypeField.clear();
+        newSortOrderField.clear();
     }
 
     /**
@@ -522,6 +532,8 @@ public class DataTabController {
         newColumnNameField.setTooltip(null);
         newIsinField.getStyleClass().remove("bad-input");
         newIsinField.setTooltip(null);
+        newSortOrderField.getStyleClass().remove("bad-input");
+        newSortOrderField.setTooltip(null);
     }
 
     /**
@@ -565,6 +577,17 @@ public class DataTabController {
         stockCreateSubmenuPane.setManaged(show);
     }
 
+    /**
+     * validates that the input is sufficient to create a stock
+     *
+     * @return true if valid
+     */
+    private boolean isValidStockCreationInput() {
+        boolean valid = isValidIsin();
+        valid &= isValidNumber();
+        return valid;
+    }
+
     private boolean isValidIsin() {
         newIsinField.getStyleClass().remove("bad-input");
         newIsinField.setTooltip(null);
@@ -572,14 +595,39 @@ public class DataTabController {
         String text = newIsinField.getText();
 
         if(text == null || text.isBlank()) {
-            newIsinField.setTooltip(PrimaryTabManager.createTooltip("Dieses Feld darf nicht leer sein!"));
-            newIsinField.getStyleClass().add("bad-input");
+            addTooltip(newIsinField,"Dieses Feld darf nicht leer sein!");
             return false;
         } else if (text.length()>=50) {
-            newIsinField.setTooltip(PrimaryTabManager.createTooltip("Die maximale Länge der ISIN beträgt 50 Zeichen."));
-            newIsinField.getStyleClass().add("bad-input");
+            addTooltip(newIsinField,"Die maximale Länge der ISIN beträgt 50 Zeichen.");
+            return false;
         }
 
         return true;
+    }
+
+    /**
+     * validates the "r_par" value
+     *
+     * @return true if its a numerical value
+     */
+    private boolean isValidNumber() {
+        newSortOrderField.getStyleClass().remove("bad-input");
+        newSortOrderField.setTooltip(null);
+
+        String text = newSortOrderField.getText();
+
+        if(text == null || text.isBlank()) {
+            addTooltip(newSortOrderField,"Dieses Feld darf nicht leer sein!" );
+            return false;
+        } else if (!text.trim().matches("^[+-]?[0-9]+$")) {
+            addTooltip(newSortOrderField,"Es muss eine gültige Ganzzahl angegeben werden.");
+            return false;
+        }
+        return true;
+    }
+
+    private void addTooltip(Control control, String text) {
+        control.setTooltip(PrimaryTabManager.createTooltip(text));
+        control.getStyleClass().add("bad-input");
     }
 }

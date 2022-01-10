@@ -4,6 +4,8 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -91,4 +93,16 @@ public abstract class StockAndCourseManager extends DataManager {
         }
         return true;
     }
+
+    @Override
+    protected void setDataTableInitialSort(TableView<CustomRow> dataTable) {
+        dataTable.getSortOrder().clear();
+        dataTable.getColumns().forEach(c ->  {
+            if(c.getText().equals("datum") ) {
+                c.setSortType(TableColumn.SortType.DESCENDING);
+                dataTable.getSortOrder().add(c);
+            } else if (c.getText().equals("r_par")) dataTable.getSortOrder().add(c);
+        });
+    }
+
 }

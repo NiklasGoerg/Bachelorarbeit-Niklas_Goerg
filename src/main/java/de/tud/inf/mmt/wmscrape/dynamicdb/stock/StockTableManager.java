@@ -18,9 +18,10 @@ import java.util.List;
 public class StockTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "wertpapier_stammdaten";
-    public static final List<String> KEY_COLUMNS = List.of("datum","isin");
-    public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin", "wkn", "name", "typ");
-    public static final List<String> COLUMN_ORDER = List.of("datum","isin","wkn","name","typ");
+    // r_par is not actually inside the table but joined with the wertpapier table when displayed in the data tab
+    public static final List<String> KEY_COLUMNS = List.of("datum", "isin", "r_par");
+    public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin", "r_par");
+    public static final List<String> COLUMN_ORDER = List.of("isin", "datum", "r_par");
 
     @Autowired
     StockColumnRepository stockColumnRepository;

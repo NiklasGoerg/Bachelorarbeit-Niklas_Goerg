@@ -91,11 +91,11 @@ public class ExcelCorrelation {
         this.dbColVisualType = column.getColumnVisualDatatype();
     }
 
-    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, ColumnDatatype columnDatatype, String colName) {
+    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, VisualDatatype visualDatatype, String colName) {
         this(correlationType, excelSheet);
         this.dbColTitle = colName;
-        this.dbColType = columnDatatype;
-        this.dbColVisualType = DbTableManger.translateVisualDatatype(columnDatatype);
+        this.dbColType = DbTableManger.translateDataType(visualDatatype);
+        this.dbColVisualType = visualDatatype;
     }
 
     public int getId() {
