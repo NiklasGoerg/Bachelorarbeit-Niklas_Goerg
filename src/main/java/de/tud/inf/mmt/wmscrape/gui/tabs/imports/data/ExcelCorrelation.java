@@ -38,10 +38,6 @@ public class ExcelCorrelation {
     @Column(name = "db_col_title", updatable = false, nullable = false)
     private String dbColTitle;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "db_col_type", updatable = false, nullable = false)
-    private ColumnDatatype dbColType;
-
     // redundant
     @Enumerated(EnumType.STRING)
     @Column(name = "db_col_visual_type", updatable = false, nullable = false)
@@ -58,6 +54,11 @@ public class ExcelCorrelation {
     private CorrelationType correlationType;
 
 
+    //@Enumerated(EnumType.STRING)
+    //@Column(name = "db_col_type", updatable = false, nullable = false)
+    // is implicitly known through the visual datatype
+    @Transient
+    private ColumnDatatype dbColType;
     @Transient
     private final SimpleStringProperty excelColTitle = new SimpleStringProperty();
     @Transient
@@ -150,6 +151,7 @@ public class ExcelCorrelation {
     private void setPropertiesFromPersistence() {
         excelColTitle.set(_excelColTitle);
         excelColNumber.set(_excelColNumber);
+        dbColType = DbTableManger.translateDataType(dbColVisualType);
         initListener();
     }
 

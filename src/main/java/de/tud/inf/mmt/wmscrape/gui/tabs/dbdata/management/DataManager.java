@@ -497,6 +497,10 @@ public abstract class DataManager {
         stockRepository.delete(stock);
     }
 
+    public void deleteDepot(Depot depot) {
+        depotRepository.delete(depot);
+    }
+
     public boolean createStock(String isin, String wkn, String name, String type, String sortOrder) {
         if(isin == null || isin.isBlank()) return false;
 

@@ -22,6 +22,8 @@ import java.util.Optional;
 /**
  * controller for the data tab. manages all pseudo tabs inside the data tab by changing the datasource and manager
  * responsible for filling the selection table, data table and executing operation based on the current manager
+ *
+ * as the size incereased over time this controller should be split up and "real" tabs should be used
  */
 @Controller
 public class DataTabController {
@@ -43,6 +45,7 @@ public class DataTabController {
     @FXML private MenuItem createStockMenuItem;
     @FXML private MenuItem deleteStockMenuItem;
     @FXML private MenuItem addEmptyRowMenuItem;
+    @FXML private MenuItem deleteDepotMenuItem;
 
     @FXML private TabPane sectionTabPane;
     @FXML private Tab stockTab;
@@ -112,6 +115,7 @@ public class DataTabController {
         reloadAllDataRows();
         handleViewEverythingButton();
         registerTabChangeListener();
+        hideNonDepotRelated(true);
     }
 
     /**
@@ -139,6 +143,24 @@ public class DataTabController {
 
         // delete returns void
         createAlert("Löschen erfolgreich!", "Das Wertpapier wurde gelöscht.",
+                Alert.AlertType.INFORMATION, true, ButtonType.OK);
+    }
+
+    @FXML
+    private void handleDeleteDepotButton() {
+
+        Alert alert = confirmationAlert("Depot entfernen?", "Soll das ausgewählte Depot entfernt werden?.");
+        if(wrongResponse(alert)) return;
+
+
+        var selected = depotSelectionTable.getSelectionModel().getSelectedItem();
+        if( selected == null) return;
+        tabManager.deleteDepot(selected);
+        depotSelectionTable.getSelectionModel().selectFirst();
+        handleResetButton();
+
+        // delete returns void
+        createAlert("Löschen erfolgreich!", "Das Depot wurde gelöscht.",
                 Alert.AlertType.INFORMATION, true, ButtonType.OK);
     }
 
@@ -349,6 +371,7 @@ public class DataTabController {
 
     /**
      * handles the switching between the pseudo "tabs" by changing the manager and showing/hiding elements
+     * it's not tly nice and should be split into separate tabs
      */
     private void registerTabChangeListener() {
         sectionTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
@@ -358,17 +381,20 @@ public class DataTabController {
                     tabManager = stockDataManager;
                     selectionPane.setCenter(stockSelectionTable);
                     hideNonStockRelated(false);
+                    hideNonDepotRelated(true);
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(true);
                 } else if (nv.equals(courseTab)) {
                     tabManager = courseDataManager;
                     selectionPane.setCenter(stockSelectionTable);
                     hideNonStockRelated(false);
+                    hideNonDepotRelated(true);
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(true);
                 } else if(nv.equals(exchangeTab)) {
                     tabManager = exchangeDataManager;
                     hideNonStockRelated(true);
+                    hideNonDepotRelated(true);
                     hideSelectionTable(true);
                     addEmptyRowMenuItem.setVisible(true);
                     handleViewEverythingButton();
@@ -376,6 +402,7 @@ public class DataTabController {
                     tabManager = transactionDataManager;
                     selectionPane.setCenter(depotSelectionTable);
                     hideNonStockRelated(true);
+                    hideNonDepotRelated(false);
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(false);
                     handleViewEverythingButton();
@@ -496,6 +523,10 @@ public class DataTabController {
         createStockMenuItem.setVisible(!hide);
         deleteStockMenuItem.setVisible(!hide);
         showStockSubMenu(false);
+    }
+
+    private void hideNonDepotRelated(boolean hide) {
+        deleteDepotMenuItem.setVisible(!hide);
     }
 
     /**

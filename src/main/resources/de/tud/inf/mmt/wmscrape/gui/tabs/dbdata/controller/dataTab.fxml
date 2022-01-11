@@ -41,10 +41,8 @@
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#handleDeleteRowsButton" text="Zeilen löschen" />
                       <MenuItem mnemonicParsing="false" onAction="#handleDeleteAllInTableButton" text="Alle Zeilen löschen" />
-                        <MenuItem fx:id="deleteStockMenuItem" mnemonicParsing="false" onAction="#handleDeleteStockButton" text="Wertpapier löschen">
-                           <accelerator>
-                              <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                           </accelerator></MenuItem>
+                        <MenuItem fx:id="deleteDepotMenuItem" mnemonicParsing="false" onAction="#handleDeleteDepotButton" text="Depot entfernen" />
+                        <MenuItem fx:id="deleteStockMenuItem" mnemonicParsing="false" onAction="#handleDeleteStockButton" text="Wertpapier löschen" />
                     </items>
                   </MenuButton>
                   <MenuButton alignment="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Inhalte anpassen">
