@@ -9,6 +9,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -111,6 +112,8 @@ public class DataTabController {
         newIsinField.textProperty().addListener(x -> isValidIsin());
         newSortOrderField.textProperty().addListener(x -> isValidNumber());
 
+        // when changing the columns inside the data table new listeners are added that register column sort changes
+        customRowTableView.getColumns().addListener((ListChangeListener<TableColumn<CustomRow, ?>>) c -> tabManager.addColumnSortSync(customRowTableView, stockSelectionTable));
 
         reloadAllDataRows();
         handleViewEverythingButton();

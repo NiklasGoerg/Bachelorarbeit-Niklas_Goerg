@@ -443,7 +443,7 @@ public abstract class DataManager {
         TableColumn<Stock, String> isinCol =  new TableColumn<>("ISIN");
         TableColumn<Stock, String> wknCol =  new TableColumn<>("WKN");
         TableColumn<Stock, String> typCol =  new TableColumn<>("Typ");
-        TableColumn<Stock, String> sortCol =  new TableColumn<>("R-Par");
+        TableColumn<Stock, String> sortCol =  new TableColumn<>("R_Par");
 
         nameCol.setCellValueFactory(param -> param.getValue().nameProperty());
         isinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIsin()));
@@ -527,5 +527,68 @@ public abstract class DataManager {
 
     public boolean removeColumn(String colName) {
         return dbTableManger.removeColumn(colName);
+    }
+
+    /**
+     * adds a synchronisation between the selection and the data tab columns
+     *
+     * @param dataTable the javafx data table
+     * @param selectionTable the javafx selection table
+     */
+    public void addColumnSortSync(TableView<CustomRow> dataTable, TableView<Stock> selectionTable) {
+        syncDataColToSelectCol( dataTable, selectionTable);
+        syncSelectToDataCol( dataTable,  selectionTable);
+    }
+
+    /**
+     * synchronizes in the direction dataTable -> selectionTable
+     *
+     * @param dataTable the javafx data table
+     * @param selectionTable the javafx selection table
+     */
+    private void syncDataColToSelectCol(TableView<CustomRow> dataTable, TableView<Stock> selectionTable) {
+        for (TableColumn<CustomRow, ?> dataColumn : dataTable.getColumns()) { // for every column in the data table
+            dataColumn.sortTypeProperty().addListener((o, ov, nv) -> { // add a listener to the sort property
+                if(ov == nv) return;
+
+                for(TableColumn<Stock, ?> selectionColumn : selectionTable.getColumns()) {
+                    // check for a matching column name inside the selection table
+                    if(dataColumn.getText().equals(selectionColumn.getText().toLowerCase())) {
+                        // set to the same sort type
+                        selectionColumn.setSortType(nv);
+                        selectionTable.getSortOrder().clear();
+                        selectionTable.getSortOrder().add(selectionColumn);
+                        break;
+                    }
+                }
+                selectionTable.sort();
+            });
+        }
+    }
+
+    /**
+    * synchronizes in the direction selectionTable -> dataTable
+     *
+     * @param dataTable the javafx data table
+     * @param selectionTable the javafx selection table
+     */
+    private void syncSelectToDataCol(TableView<CustomRow> dataTable, TableView<Stock> selectionTable) {
+        for(TableColumn<Stock, ?> selectionColumn : selectionTable.getColumns()) {
+            selectionColumn.sortTypeProperty().addListener((o, ov, nv) -> {
+                if(ov == nv) return;
+
+                for (TableColumn<CustomRow, ?> dataColumn : dataTable.getColumns()) {
+
+                    if(selectionColumn.getText().toLowerCase().equals(dataColumn.getText())) {
+                        dataColumn.setSortType(nv);
+                        dataTable.getSortOrder().clear();
+                        dataTable.getSortOrder().add(dataColumn);
+                        break;
+                    }
+                }
+
+                dataTable.sort();
+            });
+        }
     }
 }
