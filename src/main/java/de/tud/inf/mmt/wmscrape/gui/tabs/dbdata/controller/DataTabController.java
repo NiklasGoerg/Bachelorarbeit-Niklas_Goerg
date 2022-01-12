@@ -376,6 +376,8 @@ public class DataTabController {
     private void registerTabChangeListener() {
         sectionTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
 
+            columnDatatypeChoiceBox.setDisable(false);
+
             if(nv != null) {
                 if(nv.equals(stockTab)) {
                     tabManager = stockDataManager;
@@ -384,8 +386,6 @@ public class DataTabController {
                     hideNonDepotRelated(true);
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(true);
-                    
-                    columnDatatypeChoiceBox.setDisable(false);
                 } else if (nv.equals(courseTab)) {
                     tabManager = courseDataManager;
                     selectionPane.setCenter(stockSelectionTable);
@@ -393,9 +393,6 @@ public class DataTabController {
                     hideNonDepotRelated(true);
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(true);
-
-                    columnDatatypeChoiceBox.setDisable(false);
-
                 } else if(nv.equals(exchangeTab)) {
                     tabManager = exchangeDataManager;
                     hideNonStockRelated(true);
@@ -404,9 +401,9 @@ public class DataTabController {
                     addEmptyRowMenuItem.setVisible(true);
                     handleViewEverythingButton();
 
+                    // only double values are allowed
                     columnDatatypeChoiceBox.setValue(VisualDatatype.Double);
                     columnDatatypeChoiceBox.setDisable(true);
-
                 } else if(nv.equals(transactionTab)) {
                     tabManager = transactionDataManager;
                     selectionPane.setCenter(depotSelectionTable);
@@ -415,9 +412,6 @@ public class DataTabController {
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(false);
                     handleViewEverythingButton();
-
-                    columnDatatypeChoiceBox.setDisable(false);
-
                 }
 
                 updateColumnComboBox();

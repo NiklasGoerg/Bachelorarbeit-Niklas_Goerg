@@ -28,11 +28,7 @@ public class ScrapingTabController {
         Parent parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingScrapeTab.fxml", scrapingScrapeTabController);
         Tab tab = new Tab("Scrapen" , parent);
 
-        tab.selectedProperty().addListener((o,ov,nv) -> {
-            if(nv) {
-                scrapingScrapeTabController.restoreSettings();
-            }
-        });
+        tab.selectedProperty().addListener((o,ov,nv) -> scrapingScrapeTabController.refresh());
         scrapingSubTabPane.getTabs().add(tab);
 
 

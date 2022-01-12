@@ -54,7 +54,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
 
     /**
      * the carriers are reused for multiple selection as the column and table names of the db do not change in the
-     * scraping process. so the only thing changing are some key values and the saved extracted data is reset.
+     * scraping process. so the only thing changing are some key values.
      *
      * @param carrierMap the carriers mapped to their column name
      * @param selection the selection that contains the information to update the carrier
@@ -126,12 +126,12 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         logMatches(elementSelections, element.getDescription());
     }
 
-    //TODO doc ws element
     /**
      * creates all carriers and prepared statements and fills them with the basic information.
      *
      * @param task the task to allow canceling the task
-     * @param websiteElement for every correlation a carrier and statement is created
+     * @param websiteElement some extraction implementations need only the IdentCorreletions other also the selections.
+     *                       by giving the WebsiteElement total freedom is given.
      * @param preparedCarrierMap a map of carriers that hold the information for specific database columns
      * @return false if not canceled
      */
@@ -195,8 +195,8 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
                 updateStatements(preparedStatements, selection);
 
                 // set the correct values from the db like isin/wkn/description
-                // e.g. a matching wkn has a false isin
-                // the isin hast to be corrected in the carrier
+                // e.g. for a matching wkn the actual key (isin) has to be set
+                // or the db-column is changed
                 correctCarrierValues(carrierMap, selection);
 
                 // sets the actual data to the prepared statements
@@ -213,6 +213,10 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
     }
 
 
+    /**
+     * sets the extracted data to null in all carriers
+     * @param carriers all carriers
+     */
     private void resetCarriers(Map<String, InformationCarrier> carriers) {
         carriers.values().forEach(c -> c.setExtractedData(null));
     }

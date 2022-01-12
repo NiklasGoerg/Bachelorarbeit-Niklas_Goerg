@@ -404,8 +404,8 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     private boolean isEmptyTask() {
-        if(selectedFromMenuTree == null || selectedFromMenuTree.isEmpty()) {
-            addToLog("INFO:\tKeine Elemente zum Scrapen ausgewählt.");
+        if(selectedFromMenuTree == null || selectedFromMenuTree.isEmpty() || emptyMapValues(selectedFromMenuTree)) {
+            addToLog("INFO:\tEs wurden keine Elemente zum scrapen ausgewählt.");
             quit();
             return true;
         }
@@ -500,5 +500,12 @@ public class WebsiteScraper extends WebsiteHandler {
                 }
             }
         });
+    }
+
+    private boolean emptyMapValues(Map<Website, List<WebsiteElement>> map) {
+        for (var list : map.values()) {
+            if (!list.isEmpty()) return false;
+        }
+        return true;
     }
 }

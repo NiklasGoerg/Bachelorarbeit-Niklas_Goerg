@@ -181,6 +181,11 @@ public class ScrapingScrapeTabController {
         startButton.setManaged(b);
     }
 
+    public void refresh() {
+        handleAbortButton();
+        restoreSettings();
+    }
+
     /**
      * restores the scraping settings from properties
      */

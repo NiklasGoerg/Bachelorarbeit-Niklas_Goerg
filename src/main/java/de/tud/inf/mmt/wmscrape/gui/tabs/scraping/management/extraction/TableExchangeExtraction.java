@@ -42,9 +42,13 @@ public class TableExchangeExtraction extends TableExtraction {
 
     @Override
     protected InformationCarrier extendCarrier(InformationCarrier carrier, ElementIdentCorrelation correlation, ElementSelection selection) {
-        // selection description == column name in exchanges
+        // the carrier stays as is if created for the "kurs" identCorrelation
         if(selection == null) return carrier;
 
+        // the column/table names have to be set here only for the statement creation
+        // the flow is prepareCarrierAndStatements -> extendCarrier -> prepareStatement
+        // prepareStatement uses the dbColName to create the statement for each selection whose description is
+        // actually a column name
         carrier.setDbColName(selection.getDescription());
         carrier.setDbTableName(correlation.getDbTableName());
         return carrier;
@@ -72,47 +76,49 @@ public class TableExchangeExtraction extends TableExtraction {
 
     @Override
     protected void correctCarrierValues(Map<String, InformationCarrier> carrierMap, ElementSelection selection) {
-        // todo only set db col for "kurs"
+        // the column name is the description of the selection
         carrierMap.get("kurs").setDbColName(selection.getDescription());
+
+        // by setting the column to null. there is no statement found inside the "setStatementExtractedData" function
+        // therefore no value will be stored for "name"
         carrierMap.get("name").setDbColName(null);
-//
-//        for(InformationCarrier carrier : carrierMap.values()) {
-//            carrier.setDbColName(selection.getDescription());
-//        }
     }
 
 
-    // todo
     @Override
     protected boolean prepareCarrierAndStatements(Task<Void> task, WebsiteElement websiteElement, Map<String, InformationCarrier> preparedCarrierMap) {
+        // this one needs special handling as there are no entities attached to the selections. the selections are the
+        // columns of the table.
+        // the identCorrelations are static and only two (name, kurs) exist
 
         for(var correlation : websiteElement.getElementIdentCorrelations()) {
-            // create an information carrier with the basic information for name, kurs
-
-
             if(correlation.getDbColName().equals("name")) {
                 for (var selection : websiteElement.getElementSelections()) {
-                    //if(task.isCancelled()) return true;
+                    if(task.isCancelled()) return true;
 
 
+                    // prepares the carrier and extends it with the column name which is the description from
+                    // the selection as the selection is the database column
+                    // the carrier is here actually only used to create sql statements without modifying
+                    // the creation process
                     var informationCarrier = prepareCarrier(correlation, selection);
 
-                    // selection description == column name in exchanges
+                    // this step could be done only once as the currently set column name does not matter
+                    // the column name is updated when needed in the "correctCarrierValues" function
                     preparedCarrierMap.put(correlation.getDbColName(), informationCarrier);
 
-                    // create a sql statement with the basic information
-                    // row names stay the same
+                    // saves the statement for each selected column name like
+                    // (colName, date) -> ("data from matching row", "today")
                     var statement = prepareStatement(connection, informationCarrier);
-                    if (statement != null) {
-                        preparedStatements.put(selection.getDescription(), statement);
-                    }
+                    if (statement != null) preparedStatements.put(selection.getDescription(), statement);
                 }
-            } //else {
-                var informationCarrier = prepareCarrier(correlation, null);
-                preparedCarrierMap.put(correlation.getDbColName(), informationCarrier);
-            //}
+            } else {
+                // create the carrier for "kurs"
+                // this one doesn't need the selection to retrieve the column name
+                // no statements are created fot this as there is no need to store it in the database
+                preparedCarrierMap.put(correlation.getDbColName(), prepareCarrier(correlation, null));
+            }
         }
-
 
         return false;
     }

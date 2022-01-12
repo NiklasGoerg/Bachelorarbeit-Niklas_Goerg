@@ -371,7 +371,7 @@ public abstract class ExtractionGeneral {
             default -> valid = true;
         }
 
-        if(!valid) log("ERR:\t\tUnpassender Datentyp "+datatype+" für '"+data+"' des Elements "+colName);
+        if(!valid) log("ERR:\t\tDie extrahierten Daten '"+data+"' haben einen unpassenden Datentyp "+datatype+" für "+colName);
 
         return valid;
     }

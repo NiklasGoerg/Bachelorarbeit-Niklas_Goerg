@@ -95,7 +95,6 @@ public class TableCourseOrStockExtraction extends TableExtraction {
 
     }
 
-    // todo
     @Override
     protected boolean prepareCarrierAndStatements(Task<Void> task, WebsiteElement websiteElement, Map<String, InformationCarrier> preparedCarrierMap) {
 
@@ -103,11 +102,16 @@ public class TableCourseOrStockExtraction extends TableExtraction {
             if(task.isCancelled()) return true;
 
             // create an information carrier with the basic information
+            // each correlation is a database table column for which a carrier and a statement is created
             var informationCarrier = prepareCarrier(correlation, null);
             preparedCarrierMap.put(correlation.getDbColName(), informationCarrier);
 
             // create a sql statement with the basic information
             // row names stay the same
+            // by excluding some column names at the statement creation stage the information of these carriers is
+            // ignored in the "setStatementExtractedData" function
+            // the ignored columns are in general whose that are only used for matching purposes and o not exist inside
+            // the table the data is inserted to
             var statement = prepareStatement(connection, informationCarrier);
             if (statement != null && !ignoreIdentCorrelationColumns.contains(correlation.getDbColName())) {
                 preparedStatements.put(correlation.getDbColName(), statement);
