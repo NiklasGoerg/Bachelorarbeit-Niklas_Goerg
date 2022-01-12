@@ -51,7 +51,6 @@ import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.ID
  */
 public abstract class ElementManager {
 
-    private final static String[] EXCHANGE_COLS = {"name", "kurs"};
     private final static String[] HIDDEN_SINGLE_STOCK = {"isin", "wkn","name", "typ"};
     private final static String[] EXTRA_STOCK = {"wkn","name"};
     private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_TABLE);
@@ -383,12 +382,14 @@ public abstract class ElementManager {
             addedStockColumns.add(elementIdentCorrelation.getDbColName());
         }
 
-        for(String column : EXCHANGE_COLS) {
-            if(!addedStockColumns.contains(column)) {
-                addedStockColumns.add(column);
-                exchangeCorrelations.add(new ElementIdentCorrelation(
-                        websiteElement, ColumnDatatype.DOUBLE, ExchangeTableManager.TABLE_NAME, column));
-            }
+        if(!addedStockColumns.contains("name")) {
+            exchangeCorrelations.add(new ElementIdentCorrelation(
+                    websiteElement, ColumnDatatype.TEXT, ExchangeTableManager.TABLE_NAME, "name"));
+        }
+
+        if(!addedStockColumns.contains("kurs")) {
+            exchangeCorrelations.add(new ElementIdentCorrelation(
+                    websiteElement, ColumnDatatype.DOUBLE, ExchangeTableManager.TABLE_NAME, "kurs"));
         }
 
         table.getItems().addAll(exchangeCorrelations);
