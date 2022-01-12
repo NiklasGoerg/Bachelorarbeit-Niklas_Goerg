@@ -71,6 +71,9 @@
                                  <BorderPane.margin>
                                     <Insets />
                                  </BorderPane.margin>
+                                 <padding>
+                                    <Insets left="5.0" />
+                                 </padding>
                               </Label>
                            </left>
                            <bottom>
@@ -137,9 +140,6 @@
                                  </children>
                               </HBox>
                            </bottom>
-                           <padding>
-                              <Insets left="5.0" />
-                           </padding>
                            <GridPane.margin>
                               <Insets top="5.0" />
                            </GridPane.margin>
