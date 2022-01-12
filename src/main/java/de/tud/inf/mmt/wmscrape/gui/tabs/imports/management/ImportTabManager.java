@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheet;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelSheetRepository;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -111,7 +112,7 @@ public class ImportTabManager {
      * @param line the message text
      */
     public void addToLog(String line) {
-        logText.set(this.logText.getValue() +"\n" + line);
+        Platform.runLater(() -> logText.set(this.logText.getValue() +"\n" + line));
     }
 
     /**
