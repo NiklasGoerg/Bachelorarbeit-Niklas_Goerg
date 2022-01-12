@@ -18,8 +18,6 @@ import java.util.*;
 
 public abstract class TableExtraction extends ExtractionGeneral implements Extraction {
 
-    private final static List<String> doNotSaveColumns = List.of("isin", "wkn", "name", "typ");
-
     protected TableExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         super(connection, logText, scraper, date);
     }
@@ -75,10 +73,8 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         var identCorrelations = element.getElementIdentCorrelations();
         var elementSelections = element.getElementSelections();
         Map<String, InformationCarrier> preparedCarrierMap = new HashMap<>();
-        InformationCarrier informationCarrier;
         preparedStatements = new HashMap<>();
         List<WebElementInContext> rows;
-        PreparedStatement statement;
         double currentProgress;
         double maxProgress;
 
@@ -87,7 +83,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         // e.g. stock/course needs isin or wkn or the name
         if(!validIdentCorrelations(element, identCorrelations)) return;
 
-        if (prepareCarrierAndStatements(task, identCorrelations, preparedCarrierMap)) return;
+        if (prepareCarrierAndStatements(task, element, preparedCarrierMap)) return;
 
         // get the table
         WebElementInContext table = getTable(element);
@@ -100,7 +96,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         rows = getRows(table);
 
         if(rows == null || rows.isEmpty()) {
-            log("ERR:\t\tTabelle für "+element.getInformationUrl()+" enhält keine Zeilen (<tr>)");
+            log("ERR:\t\tTabelle für "+element.getInformationUrl()+" enthält keine Zeilen (<tr>)");
             return;
         }
 
@@ -130,34 +126,17 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         logMatches(elementSelections, element.getDescription());
     }
 
+    //TODO doc ws element
     /**
      * creates all carriers and prepared statements and fills them with the basic information.
      *
      * @param task the task to allow canceling the task
-     * @param identCorrelations for every correlation a carrier and statement is created
+     * @param websiteElement for every correlation a carrier and statement is created
      * @param preparedCarrierMap a map of carriers that hold the information for specific database columns
      * @return false if not canceled
      */
-    private boolean prepareCarrierAndStatements(Task<Void> task, List<ElementIdentCorrelation> identCorrelations,
-                                                Map<String, InformationCarrier> preparedCarrierMap) {
-        PreparedStatement statement;
-        InformationCarrier informationCarrier;
-        for (var correlation : identCorrelations) {
-            if(task.isCancelled()) return true;
-
-            // create an information carrier with the basic information
-            informationCarrier = prepareCarrier(correlation, null);
-            preparedCarrierMap.put(correlation.getDbColName(), informationCarrier);
-
-            // create a sql statement with the basic information
-            // row names stay the same
-            statement = prepareStatement(connection, informationCarrier);
-            if (statement != null && !doNotSaveColumns.contains(correlation.getDbColName())) {
-                preparedStatements.put(correlation.getDbColName(), statement);
-            }
-        }
-        return false;
-    }
+    protected abstract boolean prepareCarrierAndStatements(Task<Void> task, WebsiteElement websiteElement,
+                                                Map<String, InformationCarrier> preparedCarrierMap);
 
     /**
      * called at the end of the scraping process to show all found selections in the website table
@@ -239,13 +218,15 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
     }
 
     /**
-     * sets the data for all prepared statements given the carriers containing the data
+     * sets the data for all prepared statements given the carriers containing the data.
+     * the data is inserted into the previously prepared statements at position 1
      *
      * @param carrierMap the carriers containing the data
      */
     private void setStatementExtractedData(Map<String, InformationCarrier> carrierMap) {
         for(var carrier : carrierMap.values()) {
             var statement = preparedStatements.getOrDefault(carrier.getDbColName(), null);
+            // don't create statements for identCorrelations if those should not be inserted
             if(statement != null) {
                 fillStatement(1, statement, carrier.getExtractedData(), carrier.getDatatype());
             }

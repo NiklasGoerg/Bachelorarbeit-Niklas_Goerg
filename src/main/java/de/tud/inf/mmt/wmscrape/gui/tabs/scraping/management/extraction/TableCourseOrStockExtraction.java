@@ -7,6 +7,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 public class TableCourseOrStockExtraction extends TableExtraction {
+
+    private final static List<String> ignoreIdentCorrelationColumns = List.of("isin", "wkn", "name");
 
     public TableCourseOrStockExtraction(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         super(connection, logText, scraper, date);
@@ -90,6 +93,27 @@ public class TableCourseOrStockExtraction extends TableExtraction {
             carrier.setIsin(selection.getIsin());
         }
 
+    }
+
+    // todo
+    @Override
+    protected boolean prepareCarrierAndStatements(Task<Void> task, WebsiteElement websiteElement, Map<String, InformationCarrier> preparedCarrierMap) {
+
+        for (var correlation : websiteElement.getElementIdentCorrelations()) {
+            if(task.isCancelled()) return true;
+
+            // create an information carrier with the basic information
+            var informationCarrier = prepareCarrier(correlation, null);
+            preparedCarrierMap.put(correlation.getDbColName(), informationCarrier);
+
+            // create a sql statement with the basic information
+            // row names stay the same
+            var statement = prepareStatement(connection, informationCarrier);
+            if (statement != null && !ignoreIdentCorrelationColumns.contains(correlation.getDbColName())) {
+                preparedStatements.put(correlation.getDbColName(), statement);
+            }
+        }
+        return false;
     }
 
 }

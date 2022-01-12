@@ -384,6 +384,8 @@ public class DataTabController {
                     hideNonDepotRelated(true);
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(true);
+                    
+                    columnDatatypeChoiceBox.setDisable(false);
                 } else if (nv.equals(courseTab)) {
                     tabManager = courseDataManager;
                     selectionPane.setCenter(stockSelectionTable);
@@ -391,6 +393,9 @@ public class DataTabController {
                     hideNonDepotRelated(true);
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(true);
+
+                    columnDatatypeChoiceBox.setDisable(false);
+
                 } else if(nv.equals(exchangeTab)) {
                     tabManager = exchangeDataManager;
                     hideNonStockRelated(true);
@@ -398,6 +403,10 @@ public class DataTabController {
                     hideSelectionTable(true);
                     addEmptyRowMenuItem.setVisible(true);
                     handleViewEverythingButton();
+
+                    columnDatatypeChoiceBox.setValue(VisualDatatype.Double);
+                    columnDatatypeChoiceBox.setDisable(true);
+
                 } else if(nv.equals(transactionTab)) {
                     tabManager = transactionDataManager;
                     selectionPane.setCenter(depotSelectionTable);
@@ -406,6 +415,9 @@ public class DataTabController {
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(false);
                     handleViewEverythingButton();
+
+                    columnDatatypeChoiceBox.setDisable(false);
+
                 }
 
                 updateColumnComboBox();
