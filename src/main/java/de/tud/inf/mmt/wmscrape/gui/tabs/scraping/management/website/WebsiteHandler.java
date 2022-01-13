@@ -557,7 +557,7 @@ public abstract class WebsiteHandler extends Service<Void> {
 
     protected void addToLog(String line) {
         // not doing this would we be a problem due to the multithreaded execution
-        Platform.runLater(() -> logText.set(this.logText.getValue() + "\n" + line));
+        Platform.runLater(() -> logText.set(logText.getValue() + "\n" + line));
     }
 
 }

@@ -95,6 +95,11 @@ public class ScrapingManager {
                             SimpleStringProperty logText, Boolean headless,
                             ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems) {
 
+        if(checkedItems.isEmpty() || emptyMapValues(checkedItems)) {
+            logText.set("\nINFO:\tEs wurden keine Elemente zum scrapen ausgewählt.");
+            return;
+        }
+
         if(scrapingService != null) {
             if(scrapingService.stateProperty().get() == Worker.State.RUNNING ||
                     scrapingService.stateProperty().get() == Worker.State.SCHEDULED) return;
@@ -187,5 +192,12 @@ public class ScrapingManager {
         elements.progressProperty().bindBidirectional(scrapingService.singleElementProgressProperty());
         selections.progressProperty().bindBidirectional(scrapingService.elementSelectionProgressProperty());
         waitProgress.progressProperty().bindBidirectional(scrapingService.waitProgressProperty());
+    }
+
+    public static boolean emptyMapValues(ObservableMap<Website, ObservableSet<WebsiteElement>> map) {
+        for (var list : map.values()) {
+            if (!list.isEmpty()) return false;
+        }
+        return true;
     }
 }

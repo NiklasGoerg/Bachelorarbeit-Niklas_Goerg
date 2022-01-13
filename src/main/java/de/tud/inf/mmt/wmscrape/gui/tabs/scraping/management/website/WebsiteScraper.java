@@ -23,10 +23,10 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WebsiteScraper extends WebsiteHandler {
@@ -45,7 +45,7 @@ public class WebsiteScraper extends WebsiteHandler {
     private final Extraction tableExchangeExtraction;
     private final Extraction tableCourseOrStockExtraction;
 
-    private volatile Map<Website, List<WebsiteElement>> selectedFromMenuTree;
+    private volatile Map<Website, Set<WebsiteElement>> selectedFromMenuTree;
     private Map<Website, Double> progressElementMax;
     private volatile Map<Website, Double> progressElementCurrent;
     private boolean loggedInToWebsite = false;
@@ -234,13 +234,13 @@ public class WebsiteScraper extends WebsiteHandler {
      */
     public void resetTaskData(Map<Website, ObservableSet<WebsiteElement>> selectedElements) {
         // making a shallow copy to not touch the treeView
-        Map<Website, List<WebsiteElement>> dereferenced = new HashMap<>();
+        Map<Website, Set<WebsiteElement>> dereferenced = new HashMap<>();
         // resetting progress
         progressElementMax = new HashMap<>();
         progressElementCurrent = new HashMap<>();
 
         for(var key : selectedElements.keySet()) {
-            dereferenced.put(key, new ArrayList<>(selectedElements.get(key)));
+            dereferenced.put(key, new HashSet<>(selectedElements.get(key)));
             progressElementCurrent.put(key, 0.0);
             progressElementMax.put(key, (double) selectedElements.get(key).size());
         }
@@ -287,7 +287,7 @@ public class WebsiteScraper extends WebsiteHandler {
             return null;
         }
 
-        return selectedFromMenuTree.get(website).get(0);
+        return selectedFromMenuTree.get(website).iterator().next();
     }
 
     /**
@@ -324,7 +324,7 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     /**
-     * the task that runs in a second thread and control the data extraction process.
+     * the task that runs in a second thread and controls the data extraction process.
      * if pausing is activated the task cancels itself after processing each website element
      *
      */
@@ -405,7 +405,6 @@ public class WebsiteScraper extends WebsiteHandler {
 
     private boolean isEmptyTask() {
         if(selectedFromMenuTree == null || selectedFromMenuTree.isEmpty() || emptyMapValues(selectedFromMenuTree)) {
-            addToLog("INFO:\tEs wurden keine Elemente zum scrapen ausgewählt.");
             quit();
             return true;
         }
@@ -502,7 +501,7 @@ public class WebsiteScraper extends WebsiteHandler {
         });
     }
 
-    private boolean emptyMapValues(Map<Website, List<WebsiteElement>> map) {
+    public static boolean emptyMapValues(Map<Website, Set<WebsiteElement>> map) {
         for (var list : map.values()) {
             if (!list.isEmpty()) return false;
         }
