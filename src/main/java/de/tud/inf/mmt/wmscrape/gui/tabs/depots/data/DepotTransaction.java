@@ -43,16 +43,4 @@ public class DepotTransaction {
         this.depot = depot;
         this.stock = stock;
     }
-
-    public Stock getStock() {
-        return stock;
-    }
-
-    public void setStock(Stock stock) {
-        this.stock = stock;
-    }
-
-    public Date getDate() {
-        return date;
-    }
 }

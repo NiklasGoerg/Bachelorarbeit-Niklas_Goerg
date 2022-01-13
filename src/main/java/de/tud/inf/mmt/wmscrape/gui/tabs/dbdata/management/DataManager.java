@@ -109,6 +109,8 @@ public abstract class DataManager {
      * the commented out code below had to be moved down to the actual implementation to allow
      * joining tables (used for the "r_par").
      *
+     *         return repository.findAll();
+     *
      * can therefore be used to add colums that normally don't fall into the administration of the current
      * column entity manager
      *
@@ -116,12 +118,7 @@ public abstract class DataManager {
      * @param <T> subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn}
      * @return all column entities based on the repository
      */
-    protected abstract <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(DbTableColumnRepository<T, Integer> repository);
-    /*
-    private  <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(DbTableColumnRepository<T, Integer> repository) {
-        return repository.findAll();
-    }
-    */
+    protected abstract <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(@SuppressWarnings("unused") DbTableColumnRepository<T, Integer> repository);
 
     /**
      * moves the creation of the "select all" statement to the implementations to allow joining tables

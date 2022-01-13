@@ -19,6 +19,7 @@ public class StockDataManager extends StockAndCourseManager {
     @Autowired
     StockTableManager stockDataDbManager;
 
+    @SuppressWarnings("unused")
     @Override
     protected void setColumnRepositoryAndManager(){
         dbTableColumnRepository = stockColumnRepository;

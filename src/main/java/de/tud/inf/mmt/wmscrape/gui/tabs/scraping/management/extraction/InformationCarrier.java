@@ -2,12 +2,15 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 
 import java.sql.Date;
+import java.util.Map;
 
 /**
  * is a uniform data object containing all the necessary information for the complete extraction process.
- * one carrier holds the information for one data element, where to save it in the database and where to find on the website
+ * one carrier holds the information for one data element, where to save it in the database and where to find on the website.
+ * a carrier may be "reused" by changing key information by {@link TableExtraction#correctCarrierValues(Map, ElementSelection)}
  */
 public class InformationCarrier {
 

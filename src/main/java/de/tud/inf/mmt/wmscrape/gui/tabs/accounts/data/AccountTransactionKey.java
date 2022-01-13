@@ -6,6 +6,7 @@ import java.util.Objects;
 /**
  * one of two possibilities used by hibernate to allow composite primary keys
  */
+@SuppressWarnings("unused")
 public class AccountTransactionKey implements Serializable {
     private int accountId;
     private int id;

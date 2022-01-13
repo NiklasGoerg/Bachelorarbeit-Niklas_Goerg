@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.util.Locale;
 
 /**
- * the annotation enables spring boot configuration (e.g bean search, datasource config, ...).
+ * the annotation enables spring boot configuration (e.g. bean search, datasource config, ...).
  * more information is inside the written part (section spring-boot)
  */
 @SpringBootApplication

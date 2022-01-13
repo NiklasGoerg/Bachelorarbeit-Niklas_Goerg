@@ -45,10 +45,6 @@ public abstract class DbTableColumn {
         this.visualDatatype = visualDatatype;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
     }
@@ -61,6 +57,7 @@ public abstract class DbTableColumn {
         return visualDatatype;
     }
 
+    @SuppressWarnings("unused")
     public abstract String getTableName();
 
     @Override

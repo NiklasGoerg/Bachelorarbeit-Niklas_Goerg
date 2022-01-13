@@ -77,10 +77,6 @@ public class ElementSelection {
         setPropertiesFromPersistence();
     }
 
-    public int getId() {
-        return id;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -93,14 +89,6 @@ public class ElementSelection {
         return wkn;
     }
 
-    public WebsiteElement getWebsiteElement() {
-        return websiteElement;
-    }
-
-    public void setWebsiteElement(WebsiteElement websiteElement) {
-        this.websiteElement = websiteElement;
-    }
-
     public boolean isSelected() {
         return selected.get();
     }
@@ -111,10 +99,6 @@ public class ElementSelection {
 
     public void setSelected(boolean selected) {
         this.selected.set(selected);
-    }
-
-    public Stock getStock() {
-        return stock;
     }
 
     public boolean isChanged() {

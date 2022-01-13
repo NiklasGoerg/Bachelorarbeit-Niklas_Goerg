@@ -401,7 +401,7 @@ public class ExtractionManager {
 
     /**
      *
-     * @param value the value fetched from the excel sheet
+     * @param value the value fetched from the Excel sheet
      * @return null if the input is null or empty
      */
     private Integer getNullInteger(String value) {

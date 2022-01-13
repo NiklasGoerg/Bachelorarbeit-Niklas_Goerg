@@ -81,8 +81,8 @@ public abstract class ElementManager {
     }
 
     /**
-     * non non table website element configurations aka single element configurations allow only one selection.
-     * this deselects all other selected elements inside the list.
+     * non table website element configurations aka single element configurations allow only one selection.
+     * this deselects all the other selected elements inside the list.
      * @param row the row which was selected inside the table
      */
     private void deselectOther(TableColumn.CellDataFeatures<ElementSelection, Boolean> row) {

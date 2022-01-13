@@ -33,7 +33,7 @@ public abstract class ExtractionGeneral {
      * @param connection jdbc connection used for every database access
      * @param logText some text property where errors/infos will be written into
      * @param scraper the scraper that manages the abstract process of scraping
-     * @param date the date used for information that is saved for a specific date (atm always today
+     * @param date the date used for information that is saved for a specific date (atm. always today)
      */
     protected ExtractionGeneral(Connection connection, SimpleStringProperty logText, WebsiteScraper scraper, Date date) {
         this.connection = connection;
@@ -56,7 +56,7 @@ public abstract class ExtractionGeneral {
 
     /**
      * second step after {@link #prepareCarrier(ElementIdentCorrelation, ElementSelection)}
-     * adds additional information that is needed to the carrier (e.g. statement creation)
+     * adds additional information that is needed to the carrier (e.g. statement creation).
      *
      * @param carrier the information carrier
      * @param correlation the element correlation used to extend the carrier
@@ -82,7 +82,7 @@ public abstract class ExtractionGeneral {
     }
 
     /**
-     * adds the basic information that do not varie between element types
+     * adds the basic information that do not vary between element types
      *
      * @param selection the selection used to extend the carrier
      * @param correlation the element correlation used to extend the carrier
@@ -219,9 +219,8 @@ public abstract class ExtractionGeneral {
      * @param x the index of day or month
      * @param y the index of day or month
      */
-    private void assumeDMOrder(String[] array, int x, int y) {
+    private void assumeDMOrder(String[] array, int x, @SuppressWarnings("SameParameterValue") int y) {
         // Assume Date Month array
-        String tmp;
 
         int a = Integer.parseInt(array[x]);
         int b = Integer.parseInt(array[y]);
@@ -248,7 +247,7 @@ public abstract class ExtractionGeneral {
      * splits a date in text form into its daym month and year parts
      *
      * @param text the text containing the date
-     * @return the splitted date
+     * @return the split date
      */
     private String[] getDateSubstringParts(String text) {
         // pattern to extract the substrings
@@ -384,7 +383,8 @@ public abstract class ExtractionGeneral {
      * @param data the extracted text data from the website
      * @param datatype the known datatype of the text string
      */
-    protected void fillStatement(int index, PreparedStatement statement, String data, ColumnDatatype datatype) {
+    protected void fillStatement(@SuppressWarnings("SameParameterValue") int index, PreparedStatement statement,
+                                 String data, ColumnDatatype datatype) {
         try {
             fillByDataType(index, datatype, statement, data);
             statement.addBatch();

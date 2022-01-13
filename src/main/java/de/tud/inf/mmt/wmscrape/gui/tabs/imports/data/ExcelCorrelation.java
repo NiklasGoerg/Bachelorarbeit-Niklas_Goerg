@@ -11,7 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javax.persistence.*;
 
 /**
- * holds a single mapping between a database column and an excel sheet column
+ * holds a single mapping between a database column and an Excel sheet column
  */
 @Entity
 @Table(name = "excel_spaltenzuordnung")
@@ -97,10 +97,6 @@ public class ExcelCorrelation {
         this.dbColTitle = colName;
         this.dbColType = DbTableManger.translateDataType(visualDatatype);
         this.dbColVisualType = visualDatatype;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getDbColTitle() {

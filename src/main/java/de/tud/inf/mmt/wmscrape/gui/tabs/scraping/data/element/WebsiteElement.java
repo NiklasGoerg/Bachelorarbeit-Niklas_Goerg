@@ -77,10 +77,6 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Website getWebsite() {
         return website;
     }

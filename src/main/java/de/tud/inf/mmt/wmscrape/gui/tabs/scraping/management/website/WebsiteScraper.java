@@ -461,7 +461,7 @@ public class WebsiteScraper extends WebsiteHandler {
      * selects the fitting extraction process for a website element configuration
      *
      * @param element the website element configuration to process
-     * @param multiplicityType if its a table or single element
+     * @param multiplicityType if it's a table or single element
      * @param contentType stock data, course, ...
      * @param task the task the extraction runs in
      */

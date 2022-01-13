@@ -29,6 +29,7 @@ public class ExchangeColumn extends DbTableColumn {
         super(name, visualDatatype);
     }
 
+    @SuppressWarnings("unused")
     @Override
     public String getTableName() {
         return ExchangeTableManager.TABLE_NAME;

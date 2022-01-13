@@ -10,46 +10,42 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.login.controller.ChangeDbPathPopupController">
-   <children>
-      <VBox alignment="CENTER" prefHeight="30.0" prefWidth="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <Region prefHeight="200.0" prefWidth="200.0" />
-            <Label text="Änderung des Datenbankpfades">
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-            </Label>
-            <Region prefHeight="200.0" prefWidth="200.0" />
-            <Separator prefWidth="200.0" />
-         </children>
-      </VBox>
-      <VBox alignment="CENTER" layoutY="26.0" prefWidth="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
-         <children>
-            <Label text="Datenbankpfad" />
-            <TextField fx:id="dbPathField" onAction="#handleConfirmButton">
-               <VBox.margin>
-                  <Insets left="20.0" right="20.0" top="10.0" />
-               </VBox.margin>
-            </TextField>
-         </children>
-         <padding>
-            <Insets top="60.0" />
-         </padding></VBox>
-      <VBox alignment="BOTTOM_CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-         <children>
-            <HBox alignment="BOTTOM_CENTER" spacing="20.0">
-               <children>
-                  <Button cancelButton="true" mnemonicParsing="false" onAction="#closeWindow" text="Abbrechen" />
-                  <Button defaultButton="true" mnemonicParsing="false" onAction="#handleConfirmButton" text="Speichern" />
-               </children>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-               <padding>
-                  <Insets bottom="20.0" />
-               </padding>
-            </HBox>
-         </children></VBox>
-   </children>
+<AnchorPane prefHeight="400.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.login.controller.ChangeDbPathPopupController">
+    <VBox alignment="CENTER" prefHeight="30.0" prefWidth="300.0" AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <Region prefHeight="200.0" prefWidth="200.0"/>
+        <Label text="Änderung des Datenbankpfades">
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+        </Label>
+        <Region prefHeight="200.0" prefWidth="200.0"/>
+        <Separator prefWidth="200.0"/>
+    </VBox>
+    <VBox alignment="CENTER" layoutY="26.0" prefWidth="300.0" AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
+        <padding>
+            <Insets top="60.0"/>
+        </padding>
+        <Label text="Datenbankpfad"/>
+        <TextField fx:id="dbPathField" onAction="#handleConfirmButton">
+            <VBox.margin>
+                <Insets left="20.0" right="20.0" top="10.0"/>
+            </VBox.margin>
+        </TextField>
+    </VBox>
+    <VBox alignment="BOTTOM_CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0">
+        <HBox alignment="BOTTOM_CENTER" spacing="20.0">
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+            <padding>
+                <Insets bottom="20.0"/>
+            </padding>
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#closeWindow" text="Abbrechen"/>
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#handleConfirmButton" text="Speichern"/>
+        </HBox>
+    </VBox>
 </AnchorPane>

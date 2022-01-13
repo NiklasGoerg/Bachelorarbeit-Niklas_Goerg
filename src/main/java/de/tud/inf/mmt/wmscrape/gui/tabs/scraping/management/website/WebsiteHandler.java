@@ -111,6 +111,7 @@ public abstract class WebsiteHandler extends Service<Void> {
      *
      * @return true if successful
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean startBrowser() {
         try {
             if(driver != null && browserIsOpen()) {
@@ -149,6 +150,7 @@ public abstract class WebsiteHandler extends Service<Void> {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean loadLoginPage() {
         return loadPage(website.getUrl());
     }
@@ -158,6 +160,7 @@ public abstract class WebsiteHandler extends Service<Void> {
      *
      * @return true if successful
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean acceptCookies() {
         IdentType type = website.getCookieAcceptIdentType();
         if (type == IdentType.DEAKTIVIERT) return true;
@@ -176,6 +179,7 @@ public abstract class WebsiteHandler extends Service<Void> {
      *
      * @return true if successful
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean fillLoginInformation() {
 
         WebElement username = extractElementFromRoot(website.getUsernameIdentType(), website.getUsernameIdent());
@@ -195,6 +199,7 @@ public abstract class WebsiteHandler extends Service<Void> {
      *
      * @return true if successful
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean login() {
         if (website.getLoginButtonIdentType() == IdentType.ENTER) {
             WebElement password = extractElementFromRoot(website.getPasswordIdentType(), website.getPasswordIdent());
@@ -219,6 +224,7 @@ public abstract class WebsiteHandler extends Service<Void> {
      *
      * @return true if successful
      */
+    @SuppressWarnings("UnusedReturnValue")
     protected boolean logout() {
         if(website == null) return false;
 
@@ -259,7 +265,7 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     /**
-     * tries to load a url and resets the identifiers
+     * tries to load an url and resets the identifiers
      *
      * @param url the website url
      * @return true if successful
@@ -464,7 +470,8 @@ public abstract class WebsiteHandler extends Service<Void> {
     /**
      * searches for elements inside multiple html iframes
      *
-     * todo: using the parent id attribute makes no sense when switching frames
+     * todo: using the parent id attribute makes no sense when switching frames as the element with the id does
+     *       not exist inside the other frame
      *
      * @param context some {@link WebElement} as reference point
      * @param type the {@link IdentType} used to find the element

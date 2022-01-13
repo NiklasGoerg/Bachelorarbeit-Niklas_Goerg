@@ -30,7 +30,7 @@ public class DbTransactionManager {
     @Autowired
     private CorrelationManager correlationManager;
 
-    String dateToday;
+    final String dateToday;
 
     /**
      * constructor called at bean creation.
@@ -43,7 +43,7 @@ public class DbTransactionManager {
 
     /**
      * based on the column and repository type statements are created which are later used to store the
-     * excel data to the database
+     * Excel data to the database
      *
      * @param tableManger the responsible subclass of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger}
      * @param repository the responsible subinterface of {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository}
@@ -222,7 +222,7 @@ public class DbTransactionManager {
      * @param index at which position the data will be inserted inside the statement
      * @param physicalNull if true an actual "null" value will be inserted. should not be used with primitive datatype.
      */
-    private void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int index, boolean physicalNull)
+    private void fillNullByDataType(ColumnDatatype datatype, PreparedStatement statement, int index, @SuppressWarnings("SameParameterValue") boolean physicalNull)
             throws SQLException {
 
         // setting number values to 0 instead of null because otherwise I would have to use

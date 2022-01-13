@@ -61,10 +61,6 @@ public class CustomCell {
         return column.getName();
     }
 
-    public String getTableName() {
-        return column.getTableName();
-    }
-
     public SimpleBooleanProperty isChangedProperty() {
         return isChanged;
     }

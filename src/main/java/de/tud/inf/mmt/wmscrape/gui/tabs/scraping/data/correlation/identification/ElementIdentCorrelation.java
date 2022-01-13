@@ -152,10 +152,6 @@ public class ElementIdentCorrelation {
         return identification.get();
     }
 
-    public void setIdentification(String identification) {
-        this.identification.set(identification);
-    }
-
     public String getRegex() {
         return regex.get();
     }
@@ -166,10 +162,6 @@ public class ElementIdentCorrelation {
 
     public SimpleStringProperty identificationProperty() {
         return identification;
-    }
-
-    public WebsiteElement getWebsiteElement() {
-        return websiteElement;
     }
 
     public ColumnDatatype getColumnDatatype() {

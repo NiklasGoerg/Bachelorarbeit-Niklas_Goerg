@@ -153,10 +153,6 @@ public class WebsiteTree {
             }
 
             @Override
-            public void setDescription(String description) {
-            }
-
-            @Override
             public List<Website> getChildren() {
                 return websites;
             }

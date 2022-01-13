@@ -11,7 +11,5 @@ public abstract class WebRepresentation<T extends WebRepresentation<?>> {
 
     public abstract String getDescription();
 
-    public abstract void setDescription(String description);
-
     public abstract List<T> getChildren();
 }

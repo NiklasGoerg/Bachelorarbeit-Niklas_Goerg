@@ -184,7 +184,7 @@ public class ImportTabController {
     }
 
     /**
-     * starts the preview process -> parsing the excel sheet, process the data, filling the preview tables
+     * starts the preview process -> parsing the Excel sheet, process the data, filling the preview tables
      */
     @FXML
     private void previewExcel() {
@@ -427,7 +427,7 @@ public class ImportTabController {
     /**
      * outsourced the preview msg handling
      *
-     * @param excelSheet the used excel configuration
+     * @param excelSheet the used Excel configuration
      * @param result the result value from the process
      * @return returns true if a critical error occurred and no preview will be displayed
      */

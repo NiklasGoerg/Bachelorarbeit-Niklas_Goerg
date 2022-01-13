@@ -30,6 +30,7 @@ public class TransactionColumn extends DbTableColumn {
     }
 
 
+    @SuppressWarnings("unused")
     @Override
     public String getTableName() {
         return TransactionTableManager.TABLE_NAME;

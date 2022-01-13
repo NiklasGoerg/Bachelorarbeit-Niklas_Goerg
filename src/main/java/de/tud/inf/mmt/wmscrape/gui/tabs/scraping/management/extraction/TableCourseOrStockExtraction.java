@@ -110,7 +110,7 @@ public class TableCourseOrStockExtraction extends TableExtraction {
             // row names stay the same
             // by excluding some column names at the statement creation stage the information of these carriers is
             // ignored in the "setStatementExtractedData" function
-            // the ignored columns are in general whose that are only used for matching purposes and o not exist inside
+            // the ignored columns are in general whose that are only used for matching purposes and do not exist inside
             // the table the data is inserted to
             var statement = prepareStatement(connection, informationCarrier);
             if (statement != null && !ignoreIdentCorrelationColumns.contains(correlation.getDbColName())) {

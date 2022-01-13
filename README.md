@@ -23,6 +23,6 @@ Achtung: Maven und die Java Environment-Variablen müssen auf Version 17 gesetzt
 
 ## Tips
 
-- Der externe JavaFX-Scene-Builder ist besser als der in IntelliJ integrierte und erlaubt die Vorschau mit Strg+P (Rechtsklick auf FXML-Datei -> open in SceneBuilder) https://gluonhq.com/products/scene-builder/
+- Der externe JavaFX-Scene-Builder ist besser als der in IntelliJ integrierte und erlaubt die Vorschau mit Strg+P (Rechtsklick auf FXML-Datei ⇾ open in SceneBuilder) https://gluonhq.com/products/scene-builder/
 - Um die Funktionsweise einzelner Komponenten verstehen zu können, ist es am einfachsten mit den GUI-Elementen zu starten und deren Verknüpfung mit den Controllern nachzuvollziehen.
 - Spring startet erst mit dem Login-Prozess

@@ -18,127 +18,105 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane fx:id="rootNode" dividerPositions="0.15" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController">
-  <items>
+<SplitPane fx:id="rootNode" dividerPositions="0.15" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+           prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController">
+    <padding>
+        <Insets bottom="-1.0" top="7.0"/>
+    </padding>
     <AnchorPane maxWidth="500.0" prefHeight="653.0" prefWidth="170.0">
-         <children>
-            <VBox alignment="CENTER" minWidth="0.0" prefHeight="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <children>
-                  <Label text="Konfigurationen">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                     <font>
-                        <Font name="System Bold" size="13.0" />
-                     </font>
-                  </Label>
-               </children>
-            </VBox>
-            <ListView fx:id="elementList" minWidth="0.0" prefWidth="165.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="34.0" />
-            <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewElementButton" prefHeight="30.0" text="Neue Element Konfig." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-         </children>
-      </AnchorPane>
-      <BorderPane fx:id="rightPanelBox">
-         <top>
+        <VBox alignment="CENTER" minWidth="0.0" prefHeight="34.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <Label text="Konfigurationen">
+                <VBox.margin>
+                    <Insets/>
+                </VBox.margin>
+                <font>
+                    <Font name="System Bold" size="13.0"/>
+                </font>
+            </Label>
+        </VBox>
+        <ListView fx:id="elementList" minWidth="0.0" prefWidth="165.0" AnchorPane.bottomAnchor="30.0"
+                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="34.0"/>
+        <Button minWidth="0.0" mnemonicParsing="false" onAction="#handleNewElementButton" prefHeight="30.0"
+                text="Neue Element Konfig." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0"/>
+    </AnchorPane>
+    <BorderPane fx:id="rightPanelBox">
+        <top>
             <VBox BorderPane.alignment="CENTER">
-               <children>
-                  <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="34.0">
-                     <items>
-                        <Button mnemonicParsing="false" onAction="#handleDeleteElementButton" text="Konfig. entfernen" />
-                        <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
-                      <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern" />
-                     </items>
-                     <VBox.margin>
-                        <Insets right="-3.0" />
-                     </VBox.margin>
-                  </ToolBar>
-                  <GridPane>
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                        <ColumnConstraints hgrow="NEVER" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <children>
-                        <VBox>
-                           <children>
-                              <BorderPane>
-                                 <padding>
-                                    <Insets bottom="-1.0" />
-                                 </padding>
-                              </BorderPane>
-                              <HBox>
-                                 <children>
-                                    <VBox minWidth="-Infinity" prefWidth="706.0">
-                                       <children>
-                                          <HBox alignment="CENTER_LEFT">
-                                             <children>
-                                                <HBox alignment="CENTER_RIGHT" prefWidth="145.0">
-                                                   <children>
-                                                      <Label text="Webseite" />
-                                                   </children>
-                                                </HBox>
-                                                <ChoiceBox fx:id="websiteChoiceBox" prefWidth="510.0">
-                                                   <HBox.margin>
-                                                      <Insets left="10.0" />
-                                                   </HBox.margin>
-                                                </ChoiceBox>
-                                             </children>
-                                             <VBox.margin>
-                                                <Insets left="15.0" top="5.0" />
-                                             </VBox.margin>
-                                          </HBox>
-                                          <HBox alignment="CENTER_LEFT">
-                                             <children>
-                                                <HBox alignment="CENTER_RIGHT" prefWidth="145.0">
-                                                   <children>
-                                                      <Label text="Informations-URL" />
-                                                   </children>
-                                                </HBox>
-                                                <TextField fx:id="urlField" prefWidth="510.0">
-                                                   <HBox.margin>
-                                                      <Insets left="10.0" />
-                                                   </HBox.margin>
-                                                </TextField>
-                                             </children>
-                                             <VBox.margin>
-                                                <Insets left="15.0" top="5.0" />
-                                             </VBox.margin>
-                                          </HBox>
-                                       </children>
-                                    </VBox>
-                                 </children>
-                              </HBox>
-                              <Separator prefWidth="200.0">
-                                 <VBox.margin>
-                                    <Insets top="5.0" />
-                                 </VBox.margin>
-                              </Separator>
-                           </children>
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                        </VBox>
-                        <AnchorPane GridPane.columnIndex="1">
-                           <children>
-                              <VBox alignment="TOP_RIGHT" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-3.0" />
-                           </children>
-                        </AnchorPane>
-                     </children>
-                  </GridPane>
-               </children>
+                <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="34.0">
+                    <VBox.margin>
+                        <Insets right="-3.0"/>
+                    </VBox.margin>
+                    <Button mnemonicParsing="false" onAction="#handleDeleteElementButton" text="Konfig. entfernen"/>
+                    <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen"/>
+                    <Button mnemonicParsing="false" onAction="#handleSaveButton" text="Speichern"/>
+                </ToolBar>
+                <GridPane>
+                    <VBox.margin>
+                        <Insets/>
+                    </VBox.margin>
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="NEVER"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <VBox>
+                        <GridPane.margin>
+                            <Insets/>
+                        </GridPane.margin>
+                        <BorderPane>
+                            <padding>
+                                <Insets bottom="-1.0"/>
+                            </padding>
+                        </BorderPane>
+                        <HBox>
+                            <VBox minWidth="-Infinity" prefWidth="706.0">
+                                <HBox alignment="CENTER_LEFT">
+                                    <VBox.margin>
+                                        <Insets left="15.0" top="5.0"/>
+                                    </VBox.margin>
+                                    <HBox alignment="CENTER_RIGHT" prefWidth="145.0">
+                                        <Label text="Webseite"/>
+                                    </HBox>
+                                    <ChoiceBox fx:id="websiteChoiceBox" prefWidth="510.0">
+                                        <HBox.margin>
+                                            <Insets left="10.0"/>
+                                        </HBox.margin>
+                                    </ChoiceBox>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT">
+                                    <VBox.margin>
+                                        <Insets left="15.0" top="5.0"/>
+                                    </VBox.margin>
+                                    <HBox alignment="CENTER_RIGHT" prefWidth="145.0">
+                                        <Label text="Informations-URL"/>
+                                    </HBox>
+                                    <TextField fx:id="urlField" prefWidth="510.0">
+                                        <HBox.margin>
+                                            <Insets left="10.0"/>
+                                        </HBox.margin>
+                                    </TextField>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets top="5.0"/>
+                            </VBox.margin>
+                        </Separator>
+                    </VBox>
+                    <AnchorPane GridPane.columnIndex="1">
+                        <VBox alignment="TOP_RIGHT" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-3.0"/>
+                    </AnchorPane>
+                </GridPane>
             </VBox>
-         </top>
-         <center>
-            <BorderPane fx:id="subPane" BorderPane.alignment="CENTER" />
-         </center>
-      </BorderPane>
-  </items>
-   <padding>
-      <Insets bottom="-1.0" top="7.0" />
-   </padding>
+        </top>
+        <center>
+          <BorderPane fx:id="subPane" BorderPane.alignment="CENTER"/>
+        </center>
+    </BorderPane>
 </SplitPane>

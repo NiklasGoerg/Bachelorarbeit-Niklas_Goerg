@@ -337,7 +337,7 @@ public class ScrapingWebsiteTabController {
     }
 
     /**
-     * if the password or username identification is set to deactivated some fields are no longer editable
+     * if the password or username identification is set to deactivate some fields are no longer editable
      *
      * @param oldIdentType the previous set {@link de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType}
      * @param newIdentType the now set {@link de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType}

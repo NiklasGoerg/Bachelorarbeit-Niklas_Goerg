@@ -60,16 +60,8 @@ public class  ElementDescCorrelation {
         initListener();
     }
 
-    public int getId() {
-        return id;
-    }
-
     public ElementSelection getElementSelection() {
         return elementSelection;
-    }
-
-    public void setElementSelection(ElementSelection elementSelection) {
-        this.elementSelection = elementSelection;
     }
 
     public String getWsDescription() {

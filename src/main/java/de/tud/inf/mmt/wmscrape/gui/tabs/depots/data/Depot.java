@@ -16,7 +16,7 @@ public class Depot {
     private String name;
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy ="depot",  orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<DepotTransaction> depotTransactions = new ArrayList<>();
+    private final List<DepotTransaction> depotTransactions = new ArrayList<>();
 
     // depot doesn't have to have an account atm
     @ManyToOne(fetch=FetchType.LAZY)
@@ -40,41 +40,6 @@ public class Depot {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Date getOpened() {
-        return opened;
-    }
-
-    public void setOpened(Date opened) {
-        this.opened = opened;
-    }
-
-    public Date getClosed() {
-        return closed;
-    }
-
-    public void setClosed(Date closed) {
-        this.closed = closed;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
-    public List<DepotTransaction> getDepotTransactions() {
-        return depotTransactions;
-    }
-
-    public void setDepotTransactions(List<DepotTransaction> depotTransactions) {
-        this.depotTransactions = depotTransactions;
-    }
 
     /**
      * due to the fact that hibernate creates proxies (subclasses of the actual entities) one has to use "instanceof" to compare

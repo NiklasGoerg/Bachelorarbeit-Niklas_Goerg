@@ -10,55 +10,54 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane minWidth="500.0" prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.login.controller.ExistingUserLoginController">
-   <children>
-      <ToolBar layoutX="508.0" layoutY="14.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="0.0">
-        <items>
-          <Button mnemonicParsing="false" onAction="#handleChangeDbPathButton" text="Datenbank wechseln" />
-        </items>
-      </ToolBar>
-      <VBox alignment="CENTER" layoutX="537.0" layoutY="192.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="34.0">
-         <children>
-            <Label text="Nutzername">
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-            </Label>
-            <TextField fx:id="usernameField" maxWidth="-Infinity" prefWidth="250.0">
-               <VBox.margin>
-                  <Insets top="5.0" />
-               </VBox.margin>
-            </TextField>
-            <Label text="Passwort">
-               <VBox.margin>
-                  <Insets top="15.0" />
-               </VBox.margin>
-            </Label>
-            <PasswordField fx:id="passwordField" maxWidth="-Infinity" onAction="#handleLoginButton" prefWidth="250.0">
-               <VBox.margin>
-                  <Insets top="5.0" />
-               </VBox.margin>
-            </PasswordField>
-            <VBox alignment="BOTTOM_CENTER" minHeight="63.0">
-               <children>
-                  <ProgressIndicator fx:id="progress" progress="0.0">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </ProgressIndicator>
-                  <Button fx:id="loginButton" defaultButton="true" maxWidth="-Infinity" mnemonicParsing="false" onAction="#handleLoginButton" prefWidth="200.0" text="Login">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </Button>
-               </children>
-            </VBox>
-            <Button maxWidth="-Infinity" mnemonicParsing="false" onAction="#handleNewUserButton" prefWidth="200.0" text="Neuen Benutzer anlegen">
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
+<AnchorPane minWidth="500.0" prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.login.controller.ExistingUserLoginController">
+    <ToolBar layoutX="508.0" layoutY="14.0" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="200.0"
+             AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="0.0">
+        <Button mnemonicParsing="false" onAction="#handleChangeDbPathButton" text="Datenbank wechseln"/>
+    </ToolBar>
+    <VBox alignment="CENTER" layoutX="537.0" layoutY="192.0" style="-fx-background-color: white;"
+          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="34.0">
+        <Label text="Nutzername">
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+        </Label>
+        <TextField fx:id="usernameField" maxWidth="-Infinity" prefWidth="250.0">
+            <VBox.margin>
+                <Insets top="5.0"/>
+            </VBox.margin>
+        </TextField>
+        <Label text="Passwort">
+            <VBox.margin>
+                <Insets top="15.0"/>
+            </VBox.margin>
+        </Label>
+        <PasswordField fx:id="passwordField" maxWidth="-Infinity" onAction="#handleLoginButton" prefWidth="250.0">
+            <VBox.margin>
+                <Insets top="5.0"/>
+            </VBox.margin>
+        </PasswordField>
+        <VBox alignment="BOTTOM_CENTER" minHeight="63.0">
+            <ProgressIndicator fx:id="progress" progress="0.0">
+                <VBox.margin>
+                    <Insets/>
+                </VBox.margin>
+            </ProgressIndicator>
+            <Button fx:id="loginButton" defaultButton="true" maxWidth="-Infinity" mnemonicParsing="false"
+                    onAction="#handleLoginButton" prefWidth="200.0" text="Login">
+                <VBox.margin>
+                    <Insets/>
+                </VBox.margin>
             </Button>
-         </children>
-      </VBox>
-   </children>
+        </VBox>
+        <Button maxWidth="-Infinity" mnemonicParsing="false" onAction="#handleNewUserButton" prefWidth="200.0"
+                text="Neuen Benutzer anlegen">
+            <VBox.margin>
+                <Insets top="10.0"/>
+            </VBox.margin>
+        </Button>
+    </VBox>
 </AnchorPane>

@@ -19,6 +19,7 @@ public class CourseDataManager extends StockAndCourseManager {
     @Autowired
     CourseTableManager courseTableManager;
 
+    @SuppressWarnings("unused")
     @Override
     protected void setColumnRepositoryAndManager(){
         dbTableColumnRepository = courseColumnRepository;

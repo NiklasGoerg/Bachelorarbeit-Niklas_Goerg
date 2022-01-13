@@ -8,5 +8,4 @@ import java.util.List;
 @Repository
 public interface ExcelCorrelationRepository extends JpaRepository<ExcelCorrelation, Integer> {
     List<ExcelCorrelation> findAllByExcelSheetId(Integer id);
-    void deleteAllBy_excelColNumber(int excelColNumber);
 }

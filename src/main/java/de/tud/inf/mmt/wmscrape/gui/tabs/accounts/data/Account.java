@@ -47,43 +47,4 @@ public class Account {
         this.accountType = accountType;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getIdentificationNumber() {
-        return identificationNumber;
-    }
-
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public Date getOpened() {
-        return opened;
-    }
-
-    public void setOpened(Date opened) {
-        this.opened = opened;
-    }
-
-    public Date getClosed() {
-        return closed;
-    }
-
-    public void setClosed(Date closed) {
-        this.closed = closed;
-    }
-
-    public AccountType getAccountType() {
-        return accountType;
-    }
-
-    public void setAccountType(AccountType accountType) {
-        this.accountType = accountType;
-    }
 }

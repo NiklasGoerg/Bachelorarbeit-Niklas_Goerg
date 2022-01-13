@@ -87,10 +87,6 @@ public class Website extends WebRepresentation<WebsiteElement>{
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getUrl() {
         return url;
     }
@@ -209,7 +205,7 @@ public class Website extends WebRepresentation<WebsiteElement>{
     // TODO change when hibernate/jpa adds option for "on delete set null" when cascading persist
     /**
      * hibernate does not offer an option to set foreign key fields to null as MySQL does. this emulates the behaviour
-     * by setting all fields to null before deleting the entity. if this wouldn't be done website
+     * by setting all fields to null before deleting the entity. if this wouldn't be done, website
      * element configurations would have invalid reverences to website configurations that do not exist anymore.
      */
     @PreRemove
@@ -225,7 +221,7 @@ public class Website extends WebRepresentation<WebsiteElement>{
 
     /**
      * due to the fact that hibernate creates proxies (subclasses of the actual entities) one has to use "instanceof" to compare
-     * objects. normally checking of equality can cause unexpected results.
+     * objects. normal checking of equality can cause unexpected results.
      * lazy loaded fields are omitted because one can not know if a session is still attached.
      *
      * @param o the object to compare to

@@ -76,6 +76,7 @@ public class ExchangeDataManager extends DataManager {
         fillByDataType(stmt, keys.get("datum"), ColumnDatatype.DATE, 2);
     }
 
+    @SuppressWarnings("unused")
     @Override
     protected void setColumnRepositoryAndManager() {
         dbTableColumnRepository = exchangeColumnRepository;

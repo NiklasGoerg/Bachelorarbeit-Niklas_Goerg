@@ -53,7 +53,7 @@ public class ImportTabManager {
     }
 
     /**
-     * fills the excel configuration selection list inside the import tab
+     * fills the Excel configuration selection list inside the import tab
      *
      * @param excelSheetList the javafx list object
      * @return a list of all excel configurations
@@ -69,10 +69,10 @@ public class ImportTabManager {
     }
 
     /**
-     * note that the flush in saveAndFlush is necessary because otherwise it can happen that no excel configuration
+     * note that the flush in saveAndFlush is necessary because otherwise it can happen that no excels configuration
      * has been persisted yet but correlations refer to them (constraint error)
      *
-     * @param excelSheet the excel configuration
+     * @param excelSheet the Excel configuration
      */
     public void saveExcelConfig(ExcelSheet excelSheet) {
         excelSheetRepository.saveAndFlush(excelSheet);
@@ -87,9 +87,9 @@ public class ImportTabManager {
     }
 
     /**
-     * checks if an excel sheet file exsits under the set path in the excel configuration
+     * checks if an Excel sheet file exists under the set path in the Excel configuration
      *
-     * @param excelSheet the excel configuration
+     * @param excelSheet the Excel configuration
      * @return true if it exists
      */
     public boolean sheetExists(ExcelSheet excelSheet) {
@@ -116,7 +116,7 @@ public class ImportTabManager {
     }
 
     /**
-     * starts the excel parsing by creating a separate task where the actual process is running in
+     * starts the Excel parsing by creating a separate task where the actual process is running in
      *
      * @param sheetPreviewTable the javaFX preview table
      * @param excelSheet the configuration used for the parsing
@@ -183,7 +183,7 @@ public class ImportTabManager {
      * prepares the row preview table including the checkboxes
      *
      * @param sheetPreviewTable the javafx preview table
-     * @param excelSheet the excel configuration
+     * @param excelSheet the Excel configuration
      */
     public void preparePreviewTable(TableView<List<String>> sheetPreviewTable, ExcelSheet excelSheet) {
         Map<Integer, String> titles = parsingManager.getIndexToExcelTitle();
@@ -287,7 +287,7 @@ public class ImportTabManager {
      * @param name the name of the database column name
      * @return true if set
      */
-    private boolean incorrectStockCorr(String name) {
+    private boolean incorrectStockCorr(@SuppressWarnings("SameParameterValue") String name) {
         return parsingManager.getColNrByName(name, importTabController.getStockDataCorrelations()) == -1;
     }
 

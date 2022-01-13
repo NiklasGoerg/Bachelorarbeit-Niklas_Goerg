@@ -61,9 +61,9 @@ public class ParsingManager {
 
 
     /**
-     * using the parameters inside the excel configuration to open and decrypt the excel sheet file
+     * using the parameters inside the Excel configuration to open and decrypt the Excel sheet file
      *
-     * @param excelSheet the excel configuration
+     * @param excelSheet the Excel configuration
      */
     private XSSFWorkbook decryptAndGetWorkbook(ExcelSheet excelSheet) throws EncryptedDocumentException {
         try {
@@ -75,9 +75,9 @@ public class ParsingManager {
     }
 
     /**
-     * does all the necessary operations to process the excel sheet
+     * does all the necessary operations to process the Excel sheet
      *
-     * @param excelSheet the excel configuration
+     * @param excelSheet the Excel configuration
      * @param task the task the function is running is. used to react to task cancellation
      * @return the integer return code representing errors
      */
@@ -146,10 +146,10 @@ public class ParsingManager {
     }
 
     /**
-     * extracts the excel sheet information cell by cell and stores it temporarily.
+     * extracts the Excel sheet information cell by cell and stores it temporarily.
      *
-     * @param workbook the apache poi representation of an opened excel sheet file
-     * @param startRow the row containing the excel sheet titles (note: that poi index starts with 0 excel with 1)
+     * @param workbook the apache poi representation of an opened Excel sheet file
+     * @param startRow the row containing the Excel sheet titles (note: that poi index starts with 0 excel with 1)
      * @param excelData the list where the data is stored
      * @return returns true if there were errors while parsing the file
      */
@@ -252,7 +252,7 @@ public class ParsingManager {
     /**
      * Remove rows which are empty
      *
-     * @param excelData all excel sheet data rows mapped to the row index
+     * @param excelData all Excel sheet data rows mapped to the row index
      */
     private void removeEmptyRows(Map<Integer, ArrayList<String>> excelData) {
         List<Integer> rowsToRemove = new ArrayList<>();
@@ -285,8 +285,8 @@ public class ParsingManager {
      * removes empty columns.
      * note: the list has to be unified beforehand ({@link #unifyRows(Map)}
      *
-     * @param rowMap all excel sheet data rows mapped to the row index
-     * @param excelSheet the excel configuration
+     * @param rowMap all Excel sheet data rows mapped to the row index
+     * @param excelSheet the Excel configuration
      */
     private void removeEmptyCols(Map<Integer, ArrayList<String>> rowMap, ExcelSheet excelSheet) {
 
@@ -323,7 +323,7 @@ public class ParsingManager {
     /**
      * adds columns to create uniform rows of the same length
      *
-     * @param rowMap all excel sheet data rows mapped to the row index
+     * @param rowMap all Excel sheet data rows mapped to the row index
      */
     private void unifyRows(Map<Integer, ArrayList<String>> rowMap) {
         // Adds columns to create uniform rows of the same length
@@ -347,9 +347,9 @@ public class ParsingManager {
     /**
      * looks up all correlations to find the one witch the matching title.
      *
-     * @param title the excel column name
-     * @param titles all titles mapped to the column id inside the excel sheet file
-     * @return the column index of the excel sheet if found, otherwise -1
+     * @param title the Excel column name
+     * @param titles all titles mapped to the column id inside the Excel sheet file
+     * @return the column index of the Excel sheet if found, otherwise -1
      */
     private int getColNumberByName(Map<Integer, String> titles, String title) {
         if(title == null | titles == null) return -1;
@@ -363,7 +363,7 @@ public class ParsingManager {
     }
 
     /**
-     * extract the excel column titles given the row number
+     * extract the Excel column titles given the row number
      *
      * @param rowNumber the index of the row containing the titles
      * @param rows the list with the titles in order
@@ -440,9 +440,9 @@ public class ParsingManager {
     }
 
     /**
-     * selects those rows, that are marked inside the excel sheet for import
+     * selects those rows, that are marked inside the Excel sheet for import
      *
-     * @param excelData all extracted excel sheet rows
+     * @param excelData all extracted Excel sheet rows
      * @param selectionColNr the column index which defines if they should be imported
      * @param removeUnselected if true, not marked rows are deleted from the list
      * @return a mapping between the row index and a boolean property. this property is used for the
@@ -472,9 +472,9 @@ public class ParsingManager {
     /**
      * looks up all correlations to find the one with the matching title.
      *
-     * @param name the excel column name
-     * @param correlations all correlations for the excel configuration
-     * @return the column index of the excel sheet if found, otherwise -1
+     * @param name the Excel column name
+     * @param correlations all correlations for the Excel configuration
+     * @return the column index of the Excel sheet if found, otherwise -1
      */
     public int getColNrByName(String name, ObservableList<ExcelCorrelation> correlations) {
         for (ExcelCorrelation correlation : correlations) {

@@ -96,6 +96,7 @@ public class TransactionDataManager extends DataManager {
         fillByDataType(stmt, keys.get("wertpapier_isin"), ColumnDatatype.TEXT, 4);
     }
 
+    @SuppressWarnings("unused")
     @Override
     protected void setColumnRepositoryAndManager() {
         dbTableColumnRepository = transactionColumnRepository;

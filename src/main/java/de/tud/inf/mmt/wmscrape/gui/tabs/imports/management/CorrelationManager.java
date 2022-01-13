@@ -68,8 +68,8 @@ public class CorrelationManager {
      *
      * @param stockDataCorrelationTable the stock correlation table
      * @param transactionCorrelationTable the transaction correlation table
-     * @param excelSheet the excel configuration
-     * @return true if all existing correlations matched with the columns in the excel sheet
+     * @param excelSheet the Excel configuration
+     * @return true if all existing correlations matched with the columns in the Excel sheet
      */
     public boolean fillCorrelationTables(TableView<ExcelCorrelation> stockDataCorrelationTable,
                                       TableView<ExcelCorrelation> transactionCorrelationTable, ExcelSheet excelSheet) {
@@ -87,7 +87,7 @@ public class CorrelationManager {
     }
 
     /**
-     * validate that the correlations still match (right name/title at the correct excel column index)
+     * validate that the correlations still match (right name/title at the correct Excel column index)
      */
     public boolean validateCorrelations(List<ExcelCorrelation> correlations) {
         Map<String, Integer> titleIndexMap = parsingManager.getTitleToExcelIndex();
@@ -113,8 +113,8 @@ public class CorrelationManager {
      * adds the objects for the stock correlation table
      *
      * @param stockDataCorrelationTable the javafx table
-     * @param excelSheet the excel configuration
-     * @param correlations all correlations for the excel configuration. only those of type "stock" are used
+     * @param excelSheet the Excel configuration
+     * @param correlations all correlations for the Excel configuration. only those of type "stock" are used
      */
     @Transactional
     public void fillStockDataCorrelationTable(TableView<ExcelCorrelation> stockDataCorrelationTable, ExcelSheet excelSheet,
@@ -125,7 +125,7 @@ public class CorrelationManager {
 
         ArrayList<String> addedStockDbCols = new ArrayList<>();
 
-        // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
+        // using excelSheet.getExcelCorrelations() accesses the Excel correlations inside the excelSheet object
         // therefore the values persist until a new db transaction is done
         for (ExcelCorrelation excelCorrelation : correlations) {
             if (excelCorrelation.getCorrelationType() == CorrelationType.STOCKDATA) {
@@ -157,7 +157,7 @@ public class CorrelationManager {
      *
      * @param stockDataCorrelationTable the stock javafx correlation table
      * @param added columns already added to the table
-     * @param sheet the excel configuration
+     * @param sheet the Excel configuration
      * @param cols the map which holds the datatypes given the column name
      * @param type stock or transaction correlation type
      */
@@ -175,8 +175,8 @@ public class CorrelationManager {
 
     /**
      *
-     * @param title the name of the column title inside the excel sheet
-     * @return the column index for the title inside the excel sheet
+     * @param title the name of the column title inside the Excel sheet
+     * @return the column index for the title inside the Excel sheet
      */
     private Integer getExcelColNumber(String title) {
         return parsingManager.getTitleToExcelIndex().getOrDefault(title, -1);
@@ -234,8 +234,8 @@ public class CorrelationManager {
      * adds the objects for the transaction correlation table
      *
      * @param transactionCorrelationTable the javafx table
-     * @param excelSheet the excel configuration
-     * @param correlations all correlations for the excel configuration. only those of type "stock" are used
+     * @param excelSheet the Excel configuration
+     * @param correlations all correlations for the Excel configuration. only those of type "stock" are used
      */
     public void fillTransactionCorrelationTable(TableView<ExcelCorrelation> transactionCorrelationTable,
                                                 ExcelSheet excelSheet, List<ExcelCorrelation> correlations) {
@@ -245,7 +245,7 @@ public class CorrelationManager {
         // don't need the key of depot
         addedTransDbCols.add("depot_id");
 
-        // using excelSheet.getExcelCorrelations() accesses the excel correlations inside the excelSheet object
+        // using excelSheet.getExcelCorrelations() accesses the Excel correlations inside the excelSheet object
         // therefore the values persist until a new db transaction is done
         // therefore I have to fetch them manually
         for (ExcelCorrelation excelCorrelation : correlations) {

@@ -71,10 +71,6 @@ public class Stock {
         return isin;
     }
 
-    public void setIsin(String isin) {
-        this.isin = isin;
-    }
-
     public String getWkn() {
         return wkn.get();
     }
@@ -83,20 +79,12 @@ public class Stock {
         return wkn;
     }
 
-    public void setWkn(String wkn) {
-        this.wkn.set(wkn);
-    }
-
     public String getName() {
         return name.get();
     }
 
     public SimpleStringProperty nameProperty() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name.set(name);
     }
 
     public SimpleStringProperty stockTypeProperty() {

@@ -33,7 +33,7 @@ public class NewExcelPopupController {
     }
 
     /**
-     * on confirmation a new excel configuration is added
+     * on confirmation a new Excel configuration is added
      */
     @FXML
     private void handleConfirmButton() {
