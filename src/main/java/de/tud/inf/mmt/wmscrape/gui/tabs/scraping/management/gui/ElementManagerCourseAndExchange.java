@@ -1,7 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
-import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourseOrStockSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchangeSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
@@ -57,7 +57,7 @@ public class ElementManagerCourseAndExchange extends ElementManager {
 
         // add new if not saved
         if(!added.contains("kurs")) {
-            var newCorrelation = new ElementIdentCorrelation(websiteElement, ColumnDatatype.DOUBLE, CourseTableManager.TABLE_NAME,"kurs");
+            var newCorrelation = new ElementIdentCorrelation(websiteElement, ColumnDatatype.DOUBLE, ExchangeTableManager.TABLE_NAME,"kurs");
             elementIdentCorrelations.add(newCorrelation);
             bindExchangeFieldsToCorrelation(exchangeChoiceBox, exchangeIdentField, regexField, newCorrelation);
             exchangeChoiceBox.setValue(IdentType.XPATH);

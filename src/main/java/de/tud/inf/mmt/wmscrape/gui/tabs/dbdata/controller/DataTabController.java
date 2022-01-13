@@ -319,7 +319,8 @@ public class DataTabController {
                     Alert.AlertType.INFORMATION, true, ButtonType.OK);
             reloadSelectionTable();
         } else  {
-            createAlert("Wertpapier nicht angelegt!", "Kein Wertpapier wurde angelegt.",
+            createAlert("Wertpapier nicht angelegt!", "Kein Wertpapier wurde angelegt. Wahrscheinlich existiert für " +
+                            "die angegebene ISIN ein Wertpapier im System",
                     Alert.AlertType.ERROR, true, ButtonType.CLOSE);
         }
     }
@@ -359,7 +360,11 @@ public class DataTabController {
         } else if (noError) {
             createAlert("Zeile nicht hinzugefügt!", "Keine Zeile wurde hinzugefügt. " +
                     "Wahrscheinlich existiert für das heutige Datum bereits eine Zeile.",
-                    Alert.AlertType.WARNING, true, ButtonType.OK);
+                    Alert.AlertType.WARNING, true, ButtonType.CLOSE);
+        }  else if (viewEverything) {
+            createAlert("Zeile nicht hinzugefügt!", "Es muss vorher eine Auswahl aus der linken " +
+                            "Tabelle getroffen werden.",
+                    Alert.AlertType.ERROR, true, ButtonType.CLOSE);
         } else {
             createAlert("Zeile nicht hinzugefügt!", "Keine Zeile wurde hinzugefügt.",
                         Alert.AlertType.ERROR, true, ButtonType.CLOSE);
@@ -559,8 +564,8 @@ public class DataTabController {
             return badTooltip("Dieses Feld darf nicht leer sein!");
         } else if (text.length()>=64) {
             return badTooltip("Die maximale Länge eines Spaltennamens ist 64 Zeichen.");
-        } else if (!text.matches("^[a-zA-Z0-9üä][a-zA-Z0-9_\\-äöüß]*$")) {
-            return badTooltip("Der Name enthält unzulässige Symbole. Nur a-z,0-9,ä,ö,ü,ß,-,_, sind erlaubt.");
+        } else if (!text.matches("^[a-zA-Z0-9üä][a-zA-Z0-9_äöüß]*$")) {
+            return badTooltip("Der Name enthält unzulässige Symbole. Nur a-z,0-9,ä,ö,ü,ß,_, sind erlaubt.");
         }
 
         return true;

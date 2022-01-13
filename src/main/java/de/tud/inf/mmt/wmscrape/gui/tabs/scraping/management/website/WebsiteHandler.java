@@ -170,6 +170,7 @@ public abstract class WebsiteHandler extends Service<Void> {
         if (element == null) return false;
 
         clickElement(element);
+        waitLoadEvent();
         addToLog("INFO:\tCookies akzeptiert");
         return true;
     }
@@ -257,7 +258,7 @@ public abstract class WebsiteHandler extends Service<Void> {
     protected void waitLoadEvent() {
         try {
             // sleep otherwise it possibly checks the current side which is ready bcs. it takes some time to respond
-            Thread.sleep(1000);
+            Thread.sleep(2500);
             wait.until(webDriver -> driver.executeScript("return document.readyState").equals("complete"));
         } catch (Exception e) {
             System.out.println(e.getMessage()+" "+ e.getCause());
@@ -376,7 +377,7 @@ public abstract class WebsiteHandler extends Service<Void> {
 
 
             if (webElementInContexts != null) return webElementInContexts;
-            addToLog("ERR:\t\tKeine Elemente unter '" + ident + "' gefunden");
+            addToLog("ERR:\t\tKeine Elemente unter '" + ident + "' gefunden. Suche mit: "+type);
 
         } catch (InvalidSelectorException e) {
             e.printStackTrace();

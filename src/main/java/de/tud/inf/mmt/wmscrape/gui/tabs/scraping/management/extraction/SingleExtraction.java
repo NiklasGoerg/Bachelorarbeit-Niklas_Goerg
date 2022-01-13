@@ -55,7 +55,7 @@ public abstract class SingleExtraction extends ExtractionGeneral implements Extr
                     data = getTextData(null, carrier);
 
                     if (data.isBlank()) {
-                        log("ERR:\t\tKeine Daten enthalten für " + carrier.getDbColName() + " unter '" + ident + "'");
+                        log("ERR:\t\tKeine Daten enthalten für " + carrier.getDbColName() + " unter '" + ident.getIdentification() + "'");
                     }
 
                     data = processData(carrier, data);

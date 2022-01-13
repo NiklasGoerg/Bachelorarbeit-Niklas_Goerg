@@ -107,6 +107,8 @@ public class WebsiteScraper extends WebsiteHandler {
      * @return true if all successful
      */
     private boolean doLoginRoutine() {
+        //driver.manage().deleteAllCookies(); doest seem to work
+
         if(!usesLogin()) return true;
         if(!loadLoginPage()) return false;
         delayRandom();
@@ -144,6 +146,10 @@ public class WebsiteScraper extends WebsiteHandler {
 
     @Override
     public void quit() {
+        // fix to show start button again if something went wrong
+        websiteProgress.set(1);
+        singleElementProgress.set(1);
+
         super.quit();
         try {
             if(!dbConnection.isClosed()) {

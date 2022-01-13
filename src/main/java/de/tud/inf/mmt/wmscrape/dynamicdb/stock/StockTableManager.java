@@ -95,7 +95,7 @@ public class StockTableManager extends DbTableManger {
 
     @Override
     public PreparedStatement getPreparedDataStatement(String colName, Connection connection) throws SQLException {
-        String sql = "INSERT INTO "+TABLE_NAME+" (isin, datum, `"+colName+"`) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `"+
+        String sql = "INSERT INTO `"+TABLE_NAME+"` (isin, datum, `"+colName+"`) VALUES(?,?,?) ON DUPLICATE KEY UPDATE `"+
                 colName+"`=VALUES(`"+colName+"`);";
         return connection.prepareStatement(sql);
 

@@ -73,7 +73,7 @@ public class TableCourseOrStockExtraction extends TableExtraction {
             if(corr.getDbColName().equals("name") && corr.getIdentType() != IdentType.DEAKTIVIERT) return true;
         }
 
-        log("ERR:\t\tWeder ISIN, WKN noch Namen aktiv für "+element.getDescription());
+        log("ERR:\t\tWeder ISIN, WKN noch Namen aktiviert für '"+element.getDescription()+"'");
         return false;
     }
 
