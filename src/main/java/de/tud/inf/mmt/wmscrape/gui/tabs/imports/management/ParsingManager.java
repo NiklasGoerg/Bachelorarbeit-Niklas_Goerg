@@ -69,7 +69,7 @@ public class ParsingManager {
         try {
             return (new XSSFWorkbookFactory()).create(new File(excelSheet.getPath()), excelSheet.getPassword(), true);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return null;
         }
     }
@@ -87,7 +87,7 @@ public class ParsingManager {
         try {
             workbook = decryptAndGetWorkbook(excelSheet);
         } catch (EncryptedDocumentException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             // cant decrypt
             return -1;
         }
@@ -202,8 +202,10 @@ public class ParsingManager {
                                 stringValue = cellValue.getStringValue();
                                 break;
                             case NUMERIC:
-                                if (DateUtil.isCellDateFormatted(cell)) {
-
+                                if (cell.getCellStyle().getDataFormatString().contains("%")) {
+                                    // percent format. excel stores them as decimal 0.1 == 10%
+                                    stringValue = String.format("%.6f", cellValue.getNumberValue()*100).replace(",", ".");
+                                } else if (DateUtil.isCellDateFormatted(cell)) {
                                     // copied from org.apache.poi.xssf.usermodel.XSSFCell # getDateCellValue()
                                     // because cell.getDateCellValue().getTime() is not offered for CellValue
                                     double value = cellValue.getNumberValue();
@@ -213,16 +215,17 @@ public class ParsingManager {
                                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                                     stringValue = dateFormat.format(date);
                                 } else {
-                                    stringValue = String.format("%.6f", cellValue.getNumberValue()).replace(",", ".")
-                                            .replace("(Infinity|NaN)","");
+                                    stringValue = String.format("%.6f", cellValue.getNumberValue()).replace(",", ".");
                                 }
                                 break;
                             case BOOLEAN:
                                 stringValue = String.valueOf(cellValue.getBooleanValue());
                                 break;
-                            case ERROR:
-                                stringValue = String.valueOf(cellValue.getErrorValue());
-                                break;
+                            // commented out bcs. it makes no sense to include the error codes. like NaN is code 42
+                            // which would be set instead and imported
+                            //case ERROR:
+                            //    stringValue = String.valueOf(cellValue.getErrorValue());
+                            //    break;
                             default:
                                 stringValue = "";
                                 break;

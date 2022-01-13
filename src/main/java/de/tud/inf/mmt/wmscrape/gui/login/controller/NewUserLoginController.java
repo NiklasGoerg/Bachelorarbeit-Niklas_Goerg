@@ -52,16 +52,16 @@ public class NewUserLoginController {
                             + "_wms_db wurde angelegt.\nOk drücken zum Einloggen.";
             }
             case -1 -> {
-                alertHeaderText = "Administratordaten fehlerhaft";
+                alertHeaderText = "Administrator-Daten fehlerhaft";
                 alertText = "Überprüfen Sie die Anmeldedaten des Administrators und den Pfad!";
             }
             case -2 -> {
                 alertHeaderText = "Nicht als Administrator verbunden!";
-                alertText = "Die Rechte des Administrators sind nicht ausreichend.";
+                alertText = "Die Rechte des \"Administrators\" sind nicht ausreichend.";
             }
             case -3 -> {
-                alertText = "Wählen Sie einen anderen Nutzernahmen.";
-                alertHeaderText = "Der Nutzer mit dem Namen " + newUsernameField.getText().trim() +
+                alertHeaderText = "Wählen Sie einen anderen Nutzernahmen.";
+                alertText = "Der Nutzer mit dem Namen " + newUsernameField.getText().trim() +
                         " existiert bereits!";
             }
             case -4 -> {
@@ -118,7 +118,9 @@ public class NewUserLoginController {
     }
 
     private boolean validRootUsernameField() {
-        return emptyValidator(rootUsernameField) && usernameValidator(rootUsernameField);
+        // no username validation as the user will be created otherwise and could have other symbols
+        // doesnt matter in this case
+        return emptyValidator(rootUsernameField); //&& usernameValidator(rootUsernameField);
     }
 
     private boolean validRootPasswordField() {

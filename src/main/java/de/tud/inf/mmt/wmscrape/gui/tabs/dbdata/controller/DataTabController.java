@@ -229,7 +229,7 @@ public class DataTabController {
     @FXML
     private void handleDeleteAllInTableButton() {
 
-        Alert alert = confirmationAlert("Tabellendaten löschen?", "Sollen alle Zeilen in der Tabelle gelöscht werden?.");
+        Alert alert = confirmationAlert("Tabellendaten löschen?", "Sollen alle Zeilen in der angezeigten Tabelle gelöscht werden?.");
         if(wrongResponse(alert)) return;
 
         Object selected = ((TableView<?>) selectionPane.getCenter()).getSelectionModel().getSelectedItem();
