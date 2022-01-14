@@ -111,7 +111,7 @@ public abstract class DataManager {
      *
      *         return repository.findAll();
      *
-     * can therefore be used to add colums that normally don't fall into the administration of the current
+     * can therefore be used to add columns that normally don't fall into the administration of the current
      * column entity manager
      *
      * @param repository defines which db table columns will we returned
@@ -177,16 +177,36 @@ public abstract class DataManager {
 
             if(reserved.contains(colName)) tableColumn.setEditable(false);
 
-            // moving important to front
-            if(order.contains(colName) && (table.getColumns().size() >= order.indexOf(colName))) {
-                table.getColumns().add(order.indexOf(colName), tableColumn);
-            } else table.getColumns().add(tableColumn);
+            table.getColumns().add(tableColumn);
         }
 
+        sortTableColumnsByName(table.getColumns(), order);
     }
 
     /**
-     * adds sorting columns based on the datatype
+     * sorts (horizontal) a list of table columns based on an ordered string list
+     *
+     * @param cols the javafx columns to be sorted
+     * @param order the column names in order
+     */
+    private void sortTableColumnsByName(ObservableList<TableColumn<CustomRow, ?>> cols, List<String> order) {
+        cols.sort((a, b) -> {
+            String aText = a.getText();
+            String bText = b.getText();
+
+            boolean containsA = order.contains(aText);
+            boolean containsB = order.contains(bText);
+
+            if(!containsA && containsB) return 1;
+            if(containsA && !containsB) return -1;
+            if(!containsA) return 0;
+
+            return Integer.compare(order.indexOf(aText), order.indexOf(bText));
+        });
+    }
+
+    /**
+     * adds sorting (vertical) column values based on the datatype
      *
      * @param column the column to be sorted
      * @param datatype the column datatype
@@ -327,7 +347,7 @@ public abstract class DataManager {
      */
     public ObservableList<CustomRow> updateDataTable(TableView<CustomRow> table) {
         List<? extends DbTableColumn> dbTableColumns = getTableColumns(dbTableColumnRepository);
-        prepareTable(table, dbTableColumns, dbTableManger.getKeyColumns(), dbTableManger.getColumnOrder());
+        prepareTable(table, dbTableColumns, dbTableManger.getNotEditableColumns(), dbTableManger.getColumnOrder());
         setDataTableInitialSort(table);
         return getAllRows(dbTableColumns);
     }

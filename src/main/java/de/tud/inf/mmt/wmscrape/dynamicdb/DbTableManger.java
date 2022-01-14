@@ -43,7 +43,7 @@ public abstract class DbTableManger {
      * used in the data tab to disallow modification
      * @return the keys as string value
      */
-    public abstract List<String> getKeyColumns();
+    public abstract List<String> getNotEditableColumns();
 
     /**
      * reserved columns have some special meaning and should not be removed.

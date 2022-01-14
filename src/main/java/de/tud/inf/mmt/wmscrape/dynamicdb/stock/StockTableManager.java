@@ -18,10 +18,10 @@ import java.util.List;
 public class StockTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "wertpapier_stammdaten";
-    // r_par is not actually inside the table but joined with the wertpapier table when displayed in the data tab
-    public static final List<String> KEY_COLUMNS = List.of("datum", "isin", "r_par");
-    public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin", "r_par");
-    public static final List<String> COLUMN_ORDER = List.of("isin", "datum", "r_par");
+    // r_par,wkn,name,typ is not actually inside the table but joined with the wertpapier table when displayed in the data tab
+    public static final List<String> NOT_EDITABLE_COLUMNS = List.of("isin", "name", "wkn", "typ", "r_par", "datum");
+    public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin");
+    public static final List<String> COLUMN_ORDER = List.of("isin", "name", "wkn", "typ", "r_par", "datum");
 
     @Autowired
     StockColumnRepository stockColumnRepository;
@@ -74,8 +74,8 @@ public class StockTableManager extends DbTableManger {
     }
 
     @Override
-    public List<String> getKeyColumns() {
-        return KEY_COLUMNS;
+    public List<String> getNotEditableColumns() {
+        return NOT_EDITABLE_COLUMNS;
     }
 
     @Override

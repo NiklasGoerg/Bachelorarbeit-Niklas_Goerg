@@ -30,6 +30,9 @@ public class StockDataManager extends StockAndCourseManager {
     protected <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(DbTableColumnRepository<T, Integer> repository) {
         List<StockColumn> cols = stockColumnRepository.findAll();
         cols.add(new StockColumn("r_par", VisualDatatype.Int));
+        cols.add(new StockColumn("name", VisualDatatype.Text));
+        cols.add(new StockColumn("wkn", VisualDatatype.Text));
+        cols.add(new StockColumn("typ", VisualDatatype.Text));
         return cols;
     }
 
@@ -37,6 +40,6 @@ public class StockDataManager extends StockAndCourseManager {
     protected String getSelectionStatement() {
         // for every stock in the stock table exists a stock so there can't be any null values
         // adds the r_par column to the table
-        return "SELECT WP.r_par , SD.* FROM wertpapier WP RIGHT OUTER JOIN `"+StockTableManager.TABLE_NAME+"` SD ON WP.isin = SD.isin";
+        return "SELECT WP.* , SD.* FROM wertpapier WP RIGHT OUTER JOIN `"+StockTableManager.TABLE_NAME+"` SD ON WP.isin = SD.isin";
     }
 }

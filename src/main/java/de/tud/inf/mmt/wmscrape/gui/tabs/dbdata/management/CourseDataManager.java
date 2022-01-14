@@ -29,6 +29,9 @@ public class CourseDataManager extends StockAndCourseManager {
     protected <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(DbTableColumnRepository<T, Integer> repository) {
         List<CourseColumn> cols = courseColumnRepository.findAll();
         cols.add(new CourseColumn("r_par", VisualDatatype.Int));
+        cols.add(new CourseColumn("name", VisualDatatype.Text));
+        cols.add(new CourseColumn("wkn", VisualDatatype.Text));
+        cols.add(new CourseColumn("typ", VisualDatatype.Text));
         return cols;
     }
 
@@ -36,6 +39,6 @@ public class CourseDataManager extends StockAndCourseManager {
     protected String getSelectionStatement() {
         // for every stock in the course table exists a stock so there can't be any null values
         // adds the r_par column to the table
-        return "SELECT WP.r_par , KD.* FROM wertpapier WP RIGHT OUTER JOIN `"+CourseTableManager.TABLE_NAME+"` KD ON WP.isin = KD.isin";
+        return "SELECT WP.* , KD.* FROM wertpapier WP RIGHT OUTER JOIN `"+CourseTableManager.TABLE_NAME+"` KD ON WP.isin = KD.isin";
     }
 }

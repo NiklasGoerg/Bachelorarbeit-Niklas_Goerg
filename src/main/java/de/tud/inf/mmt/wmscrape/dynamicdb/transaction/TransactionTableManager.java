@@ -49,7 +49,7 @@ public class TransactionTableManager extends DbTableManger {
     }
 
     @Override
-    public List<String> getKeyColumns() {
+    public List<String> getNotEditableColumns() {
         return KEY_COLUMNS;
     }
 
