@@ -272,7 +272,8 @@ public class ExtractionManager {
             // stocks are created beforehand
             if (!knownStockIsins.contains(isin)) {
                 importTabManager.addToLog("ERR:\t\tDas passende Wertpapier zur Transaktion aus Zeile " + (row+OFFSET) +
-                        " konnte nicht gefunden werden. Angegebene ISIN: '" + isin + "'");
+                        " konnte nicht gefunden werden. Legen Sie es im Datenbereich an oder importieren Sie zunächst die Stammdaten." +
+                        " Angegebene ISIN: '" + isin + "'");
                 silentError = true;
                 continue;
             }

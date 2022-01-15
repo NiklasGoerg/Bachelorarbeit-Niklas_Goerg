@@ -104,14 +104,15 @@ public class ParsingManager {
         excelSheetRows.clear();
         boolean evalFaults = getExcelSheetData(workbook, excelSheet.getTitleRow(), excelSheetRows, task);
 
-        // return value doesn't matter because canceling is canted extra
-        if(task.isCancelled()) return -10;
-
         try {
             workbook.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // return value doesn't matter
+        if(task.isCancelled()) return -10;
+
 
         if (excelSheetRows.isEmpty()) return -3;
 
@@ -121,10 +122,10 @@ public class ParsingManager {
         if(!excelSheetRows.containsKey(excelSheet.getTitleRow() - 1)) return -4;
 
         unifyRows(excelSheetRows);
-        removeEmptyCols(excelSheetRows, excelSheet);
-        indexToExcelTitle = extractColTitles(excelSheet.getTitleRow() - 1, excelSheetRows);
 
-        createNormalizedTitles(indexToExcelTitle);
+        indexToExcelTitle = extractColTitles(excelSheet.getTitleRow() - 1, excelSheetRows);
+        removeEmptyColTitles(indexToExcelTitle);
+
         // checks that every title is unique
         if (!titlesAreUnique(indexToExcelTitle)) return -5;
 
@@ -285,42 +286,20 @@ public class ParsingManager {
     }
 
     /**
-     * removes empty columns.
+     * removes empty column titles.
      * note: the list has to be unified beforehand ({@link #unifyRows(Map)}
      *
-     * @param rowMap all Excel sheet data rows mapped to the row index
-     * @param excelSheet the Excel configuration
+     * @param titles all titles mapped to their column index
      */
-    private void removeEmptyCols(Map<Integer, ArrayList<String>> rowMap, ExcelSheet excelSheet) {
+    private void removeEmptyColTitles(Map<Integer, String> titles) {
 
         List<Integer> colsToRemove = new ArrayList<>();
 
-        boolean hasContent;
-
-        for (int col = 1; col < rowMap.get(excelSheet.getTitleRow() - 1).size(); col++) {
-            hasContent = false;
-
-            for (ArrayList<String> row : rowMap.values()) {
-                if (!row.get(col).isBlank()) {
-                    hasContent = true;
-                    break;
-                }
-            }
-            if (!hasContent) {
-                colsToRemove.add(col);
-            }
+        for(Map.Entry<Integer, String> title : titles.entrySet()) {
+            if(title.getValue().isBlank()) colsToRemove.add(title.getKey());
         }
 
-        int counterShrinkage;
-        for (int row : rowMap.keySet()) {
-            counterShrinkage = 0;
-            for (int col : colsToRemove) {
-                ArrayList<String> rowData = rowMap.get(row);
-                rowData.remove(col - counterShrinkage);
-                rowMap.put(row, rowData);
-                counterShrinkage++;
-            }
-        }
+        colsToRemove.forEach(titles::remove);
     }
 
     /**
@@ -401,29 +380,6 @@ public class ParsingManager {
     }
 
     /**
-     * handle malformed titles. at the moment only empty titles are replaced with "LEER"+NumberOfOccurrence
-     *
-     * @param titles a map containing all titles mapped to the column index
-     */
-    private void createNormalizedTitles(Map<Integer, String> titles) {
-        Map<Integer, String> replacements = new HashMap<>();
-        int emptyCount = 1;
-
-        String title;
-        for (int key : titles.keySet()) {
-            title = titles.get(key).trim();
-            if (title.isBlank()) {
-                title = "LEER" + emptyCount;
-                emptyCount++;
-            }
-
-            replacements.put(key, title);
-        }
-
-        titles.putAll(replacements);
-    }
-
-    /**
      * non-unique titles would be problematic if one has to choose from the Combo-Box inside the javafx correlation table
      * between columns with the same name.
      *
@@ -433,9 +389,9 @@ public class ParsingManager {
     private boolean titlesAreUnique(Map<Integer, String> titles) {
         Set<String> set = new HashSet<>();
         var unique = true;
-        for (String title : titles.values()) {
-            if (!set.add(title)) {
-                importTabManager.addToLog("ERR:\t\t Titel mehrfach vorhanden: "+title);
+        for (Map.Entry<Integer, String> title : titles.entrySet()) {
+            if (!set.add(title.getValue())) {
+                importTabManager.addToLog("ERR:\t\t Titel mehrfach vorhanden: "+title.getValue()+" Spaltennummer:"+title.getKey());
                 unique = false;
             }
         }

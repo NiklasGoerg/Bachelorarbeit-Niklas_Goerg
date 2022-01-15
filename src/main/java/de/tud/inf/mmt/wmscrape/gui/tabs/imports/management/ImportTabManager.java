@@ -203,7 +203,6 @@ public class ImportTabManager {
             TableColumn<List<String>, String> tableCol = new TableColumn<>(titles.get(col));
             tableCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().get(col)));
             tableCol.prefWidthProperty().bind(sheetPreviewTable.widthProperty().multiply(0.12));
-            //tableCol.setSortable(false);
             sheetPreviewTable.getColumns().add(tableCol);
         }
     }
