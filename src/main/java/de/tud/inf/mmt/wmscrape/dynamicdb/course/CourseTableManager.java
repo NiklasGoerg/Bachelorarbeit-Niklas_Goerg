@@ -16,7 +16,7 @@ public class CourseTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "wertpapier_kursdaten";
     // r_par is not actually inside the table but joined with the wertpapier table when displayed in the data tab
-    public static final List<String> KEY_COLUMNS = List.of("isin", "name", "wkn", "typ", "r_par", "datum");
+    public static final List<String> NOT_EDITABLE_COLUMNS = List.of("isin", "name", "wkn", "typ", "r_par", "datum");
     public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin");
     public static final List<String> COLUMN_ORDER = List.of("isin", "name", "wkn", "typ", "r_par", "datum");
 
@@ -68,7 +68,7 @@ public class CourseTableManager extends DbTableManger {
 
     @Override
     public List<String> getNotEditableColumns() {
-        return KEY_COLUMNS;
+        return NOT_EDITABLE_COLUMNS;
     }
 
     @Override

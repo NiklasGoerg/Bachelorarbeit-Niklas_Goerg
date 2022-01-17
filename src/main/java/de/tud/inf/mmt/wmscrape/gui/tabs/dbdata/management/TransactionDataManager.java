@@ -3,10 +3,13 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -110,16 +113,27 @@ public class TransactionDataManager extends DataManager {
 
     @Override
     protected <T extends DbTableColumn> List<? extends DbTableColumn> getTableColumns(DbTableColumnRepository<T, Integer> repository) {
-        return transactionColumnRepository.findAll();
+        List<TransactionColumn> cols =  transactionColumnRepository.findAll();
+        cols.add(new TransactionColumn("r_par", VisualDatatype.Int));
+        cols.add(new TransactionColumn("name", VisualDatatype.Text));
+        cols.add(new TransactionColumn("wkn", VisualDatatype.Text));
+        cols.add(new TransactionColumn("typ", VisualDatatype.Text));
+        return cols;
     }
 
     @Override
     protected String getSelectionStatement() {
-        return "SELECT * FROM "+ TransactionTableManager.TABLE_NAME;
+        return "SELECT WP.* , TA.* FROM wertpapier WP RIGHT OUTER JOIN `"+ TransactionTableManager.TABLE_NAME+"` TA ON WP.isin = TA.wertpapier_isin";
     }
 
     @Override
     protected void setDataTableInitialSort(TableView<CustomRow> dataTable) {
-        // nothing to sort
+        dataTable.getSortOrder().clear();
+        dataTable.getColumns().forEach(c ->  {
+            if(c.getText().equals("transaktions_datum") ) {
+                c.setSortType(TableColumn.SortType.DESCENDING);
+                dataTable.getSortOrder().add(c);
+            } else if (c.getText().equals("r_par")) dataTable.getSortOrder().add(c);
+        });
     }
 }

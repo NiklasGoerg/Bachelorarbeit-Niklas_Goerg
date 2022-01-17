@@ -16,9 +16,9 @@ import java.util.List;
 public class TransactionTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "depot_transaktion";
-    public static final List<String> KEY_COLUMNS = List.of("depot_name", "transaktions_datum", "wertpapier_isin");
+    public static final List<String> NOT_EDITABLE_COLUMNS = List.of("isin", "name", "wkn", "typ", "r_par", "depot_name", "transaktions_datum", "wertpapier_isin");
     public static final List<String> RESERVED_COLUMNS = List.of("depot_name", "transaktions_datum", "wertpapier_isin", "transaktionstyp");
-    public static final List<String> COLUMN_ORDER = List.of("transaktions_datum", "depot_name", "wertpapier_isin", "transaktionstyp");
+    public static final List<String> COLUMN_ORDER = List.of("isin", "name", "wkn", "typ", "r_par", "transaktions_datum", "depot_name", "wertpapier_isin", "transaktionstyp");
 
     @Autowired
     TransactionColumnRepository transactionColumnRepository;
@@ -50,7 +50,7 @@ public class TransactionTableManager extends DbTableManger {
 
     @Override
     public List<String> getNotEditableColumns() {
-        return KEY_COLUMNS;
+        return NOT_EDITABLE_COLUMNS;
     }
 
     @Override
