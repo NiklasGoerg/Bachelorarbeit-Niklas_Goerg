@@ -271,11 +271,12 @@ public class ExtractionManager {
 
             // stocks are created beforehand
             if (!knownStockIsins.contains(isin)) {
-                importTabManager.addToLog("ERR:\t\tDas passende Wertpapier zur Transaktion aus Zeile " + (row+OFFSET) +
-                        " konnte nicht gefunden werden. Legen Sie es im Datenbereich an oder importieren Sie zunächst die Stammdaten." +
-                        " Angegebene ISIN: '" + isin + "'");
+                stockRepository.saveAndFlush(new Stock(isin, null, null,null,-1));
+                importTabManager.addToLog("WARN:\tFür das Wertpapier der Transaktion aus Zeile "+(row+OFFSET)+
+                        " wurden zuvor keine Stammdaten importiert. \n\t\t" +
+                        "Ein neues Wertpapier mit der ISIN: '"+isin+"' wurde angelegt, um die Transaktionsdaten importieren zu können. \n\t\t" +
+                        "Die restlichen Wertpapierdaten (Name, WKN, R-Par, Typ) können im Daten-Bereich ergänzt werden.");
                 silentError = true;
-                continue;
             }
 
             // search if the depot already exists or creates a new one
@@ -299,7 +300,6 @@ public class ExtractionManager {
 
                 // -1 is default and can't be set another way meaning it's not set
                 if (correlationColNumber == -1) {
-                    //addToLog("INFO:\tDie Spalte '" + dbColName +"' hat keine Zuordnung.");
                     colData = null;
                 } else {
                     colData = rowData.get(correlationColNumber);

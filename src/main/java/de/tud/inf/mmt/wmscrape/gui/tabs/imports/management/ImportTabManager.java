@@ -193,7 +193,7 @@ public class ImportTabManager {
             // ignore row index
             if (col == 0) continue;
 
-            if (titles.get(col).equals(excelSheet.getSelectionColTitle())) {
+            if (titles.get(col).equals(excelSheet.getStockSelectionColTitle())) {
                 setColumnCheckboxFactory(sheetPreviewTable, "Stammdaten", parsingManager.getSelectedStockDataRows());
                 setColumnCheckboxFactory(sheetPreviewTable, "Transaktionen", parsingManager.getSelectedTransactionRows());
                 continue;

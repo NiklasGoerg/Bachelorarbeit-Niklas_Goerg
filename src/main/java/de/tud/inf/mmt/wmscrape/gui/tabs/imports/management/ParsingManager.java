@@ -131,19 +131,41 @@ public class ParsingManager {
 
         titleToExcelIndex = reverseMap(indexToExcelTitle);
 
-        int selectionColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getSelectionColTitle());
+        int stockSelectionColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getStockSelectionColTitle());
         // selection col not found
-        if (selectionColNumber == -1) return -6;
+        if (stockSelectionColNumber == -1) return -6;
 
-        int depotColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getDepotColTitle());
+        int transactionSelectionColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getTransactionSelectionColTitle());
         // depot col not found
-        if (depotColNumber == -1) return -7;
+        if (transactionSelectionColNumber == -1) return -7;
 
-        selectedStockDataRows = getSelectedInitially(excelSheetRows, selectionColNumber, true);
-        selectedTransactionRows = getSelectedInitially(excelSheetRows, depotColNumber, false);
+        selectedStockDataRows = getSelectedInitially(stockSelectionColNumber);
+        selectedTransactionRows = getSelectedInitially(transactionSelectionColNumber);
+        removeUnselectedRows();
 
         if (evalFaults) return -8;
         return 0;
+    }
+
+    /**
+     * removes the Excel data rows that are neither selected for stock data import nor transaction data import.
+     * also removed from the selection property maps
+     */
+    private void removeUnselectedRows() {
+        List<Integer> toDelete =  new ArrayList<>();
+
+        for (int rowNr : excelSheetRows.keySet()) {
+            if (!(selectedStockDataRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get() &&
+                !(selectedTransactionRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get()) {
+                toDelete.add(rowNr);
+            }
+        }
+
+        toDelete.forEach(rowNr -> {
+            excelSheetRows.remove(rowNr);
+            selectedStockDataRows.remove(rowNr);
+            selectedTransactionRows.remove(rowNr);
+        });
     }
 
     /**
@@ -222,11 +244,8 @@ public class ParsingManager {
                             case BOOLEAN:
                                 stringValue = String.valueOf(cellValue.getBooleanValue());
                                 break;
-                            // commented out bcs. it makes no sense to include the error codes. like NaN is code 42
-                            // which would be set instead and imported
+                            // commented out bcs. it makes no sense to import the error codes. like NaN is code 42
                             //case ERROR:
-                            //    stringValue = String.valueOf(cellValue.getErrorValue());
-                            //    break;
                             default:
                                 stringValue = "";
                                 break;
@@ -401,30 +420,23 @@ public class ParsingManager {
     /**
      * selects those rows, that are marked inside the Excel sheet for import
      *
-     * @param excelData all extracted Excel sheet rows
      * @param selectionColNr the column index which defines if they should be imported
-     * @param removeUnselected if true, not marked rows are deleted from the list
      * @return a mapping between the row index and a boolean property. this property is used for the
      * checkboxes in the javafx preview table and can be changed
      */
-    private Map<Integer, SimpleBooleanProperty> getSelectedInitially(ObservableMap<Integer, ArrayList<String>> excelData,
-                                                                     int selectionColNr, boolean removeUnselected) {
+    private Map<Integer, SimpleBooleanProperty> getSelectedInitially(int selectionColNr) {
         HashMap<Integer, SimpleBooleanProperty> selectedRows = new HashMap<>();
-        List<Integer> toDelete =  new ArrayList<>();
 
-        for (int rowNr : excelData.keySet()) {
-            ArrayList<String> row = excelData.get(rowNr);
+        for (int rowNr : excelSheetRows.keySet()) {
+            ArrayList<String> row = excelSheetRows.get(rowNr);
             // same as for the checkbox -> not blank == checked
             if (!row.get(selectionColNr).isBlank()) {
                 selectedRows.put(rowNr, new SimpleBooleanProperty(true));
-            } else if(!removeUnselected){
-                selectedRows.put(rowNr, new SimpleBooleanProperty(false));
             } else {
-                toDelete.add(rowNr);
+                selectedRows.put(rowNr, new SimpleBooleanProperty(false));
             }
         }
 
-        for (int rowNr : toDelete) excelData.remove(rowNr);
         return selectedRows;
     }
 

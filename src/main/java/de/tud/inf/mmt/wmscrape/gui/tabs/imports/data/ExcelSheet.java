@@ -27,10 +27,10 @@ public class ExcelSheet {
     private int titleRow = 1;
 
     @Column(name = "selection_col_title")
-    private String selectionColTitle;
+    private String stockSelectionColTitle;
 
     @Column(name = "depot_col_title")
-    private String depotColTitle;
+    private String transactionSelectionColTitle;
 
     /**
      * only used by hibernate. do not save an instance without setting the necessary fields
@@ -65,20 +65,20 @@ public class ExcelSheet {
         this.titleRow = titleRow;
     }
 
-    public String getSelectionColTitle() {
-        return selectionColTitle;
+    public String getStockSelectionColTitle() {
+        return stockSelectionColTitle;
     }
 
-    public void setSelectionColTitle(String selectionColTitle) {
-        this.selectionColTitle = selectionColTitle;
+    public void setStockSelectionColTitle(String stockSelectionColTitle) {
+        this.stockSelectionColTitle = stockSelectionColTitle;
     }
 
-    public String getDepotColTitle() {
-        return depotColTitle;
+    public String getTransactionSelectionColTitle() {
+        return transactionSelectionColTitle;
     }
 
-    public void setDepotColTitle(String depotColTitle) {
-        this.depotColTitle = depotColTitle;
+    public void setTransactionSelectionColTitle(String transactionSelectionColTitle) {
+        this.transactionSelectionColTitle = transactionSelectionColTitle;
     }
 
     /**

@@ -154,8 +154,8 @@ public class ImportTabController {
         excelSheet.setPath(pathField.getText());
         excelSheet.setPassword(passwordField.getText());
         excelSheet.setTitleRow(titleRowSpinner.getValue());
-        excelSheet.setSelectionColTitle(selectionColTitleField.getText());
-        excelSheet.setDepotColTitle(depotColTitleField.getText());
+        excelSheet.setStockSelectionColTitle(selectionColTitleField.getText());
+        excelSheet.setTransactionSelectionColTitle(depotColTitleField.getText());
 
         importTabManager.saveExcelConfig(excelSheet);
 
@@ -302,8 +302,8 @@ public class ImportTabController {
         pathField.setText(excelSheet.getPath());
         passwordField.setText(excelSheet.getPassword());
         titleRowSpinner.getValueFactory().setValue(excelSheet.getTitleRow());
-        selectionColTitleField.setText(excelSheet.getSelectionColTitle());
-        depotColTitleField.setText(excelSheet.getDepotColTitle());
+        selectionColTitleField.setText(excelSheet.getStockSelectionColTitle());
+        depotColTitleField.setText(excelSheet.getTransactionSelectionColTitle());
 
         sheetPreviewTable.getColumns().clear();
         sheetPreviewTable.getItems().clear();
@@ -474,7 +474,7 @@ public class ImportTabController {
                 createAlert("Übernahmespalte nicht gefunden!",
                         "In der Zeile " + excelSheet.getTitleRow() + " " +
                                 "existiert keine Spalte mit dem Namen '" +
-                                excelSheet.getSelectionColTitle() + "'",
+                                excelSheet.getStockSelectionColTitle() + "'",
                         Alert.AlertType.ERROR);
                 return true;
             }
@@ -483,7 +483,7 @@ public class ImportTabController {
                 createAlert("Depotspalte nicht gefunden!",
                         "In der Zeile " + excelSheet.getTitleRow() + " " +
                                 "existiert keine Spalte mit dem Namen '" +
-                                excelSheet.getDepotColTitle() + "'",
+                                excelSheet.getTransactionSelectionColTitle() + "'",
                         Alert.AlertType.ERROR);
                 return true;
             }
