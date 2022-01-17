@@ -226,6 +226,7 @@ public abstract class DataManager {
                     case INTEGER -> {return Integer.valueOf(cleanNumber(x)).compareTo(Integer.valueOf(cleanNumber(y)));}
                     case DOUBLE -> {return Double.valueOf(cleanNumber(x)).compareTo(Double.valueOf(cleanNumber(y)));}
                     case DATE -> {return Date.valueOf(x).compareTo(Date.valueOf(y));}
+                    case DATETIME -> {return Timestamp.valueOf(x).compareTo(Timestamp.valueOf(y));}
                 }
             } catch (NumberFormatException e) {
                 System.out.println(e.getMessage());

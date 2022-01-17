@@ -225,9 +225,9 @@ public abstract class DbTableManger {
 
             return switch (type) {
                 case 91 -> ColumnDatatype.DATE;
+                case 93 -> ColumnDatatype.DATETIME; // atm only an addition for the depot transaction ate column -> only necessary for comparing in the data tab
                 case 4 -> ColumnDatatype.INTEGER;
-//                case 2014 -> ColumnDatatype.DATETIME;
-                case 93, 8 -> ColumnDatatype.DOUBLE;
+                case 8 -> ColumnDatatype.DOUBLE;
                 default -> ColumnDatatype.TEXT;
             };
         } catch (SQLException e) {
@@ -338,7 +338,7 @@ public abstract class DbTableManger {
     public static VisualDatatype translateVisualDatatype(ColumnDatatype datatype) {
         switch (datatype) {
             case TEXT -> {return VisualDatatype.Text;}
-            case DATE -> {return VisualDatatype.Datum;}
+            case DATE, DATETIME -> {return VisualDatatype.Datum;}
             case DOUBLE -> {return VisualDatatype.Double;}
             case INTEGER -> {return VisualDatatype.Int;}
         }
