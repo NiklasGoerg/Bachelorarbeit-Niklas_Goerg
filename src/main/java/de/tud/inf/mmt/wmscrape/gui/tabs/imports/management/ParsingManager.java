@@ -235,7 +235,7 @@ public class ParsingManager {
                                     boolean date1904 = cell.getSheet().getWorkbook().isDate1904();
                                     Date date = DateUtil.getJavaDate(value, date1904);
 
-                                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                     stringValue = dateFormat.format(date);
                                 } else {
                                     stringValue = String.format("%.6f", cellValue.getNumberValue()).replace(",", ".");

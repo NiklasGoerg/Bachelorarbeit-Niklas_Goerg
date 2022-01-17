@@ -11,9 +11,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
 @Service
@@ -151,7 +150,7 @@ public class DbTransactionManager {
             importTabManager.addToLog("ERR:\t\tBei dem Setzen der Statementwerte sind Fehler aufgetreten: "
                     + e.getMessage() + " _ CAUSE_ " + e.getCause());
             return true;
-        } catch (NumberFormatException | DateTimeParseException e) {
+        } catch (NumberFormatException | ParseException e) {
             e.printStackTrace();
             importTabManager.addToLog("ERR:\t\tBei dem Parsen des Wertes '" + data + "' in das Format "
                     + datatype.name() + " ist ein Fehler aufgetreten. " + e.getMessage() + " _ CAUSE_ " + e.getCause());
@@ -187,14 +186,13 @@ public class DbTransactionManager {
      * @param data the inserted data
      */
     private void fillByDataType(ColumnDatatype datatype, PreparedStatement statement, int number, String data)
-            throws SQLException, NumberFormatException, DateTimeParseException {
+            throws SQLException, NumberFormatException, ParseException {
 
         switch (datatype) {
             case DATE -> {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                LocalDate dataToDate = LocalDate.from(formatter.parse(data));
-                //LocalDate dataToDate = LocalDate.parse(data);
-                statement.setDate(number, Date.valueOf(dataToDate));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                Timestamp timestamp = new Timestamp(dateFormat.parse(data).getTime());
+                statement.setTimestamp(number, timestamp);
             }
             case TEXT -> statement.setString(number, data);
             case INTEGER ->

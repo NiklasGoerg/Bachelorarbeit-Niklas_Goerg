@@ -4,7 +4,7 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 
 import javax.persistence.*;
-import java.sql.Date;
+import java.util.Date;
 
 @Entity
 @IdClass(DepotTransactionKey.class)
@@ -15,7 +15,8 @@ public class DepotTransaction {
     private String depotName;
 
     @Id
-    @Column(name = "transaktions_datum")
+    @Column(name = "transaktions_datum", columnDefinition = "DATETIME")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
     @Id
@@ -37,10 +38,4 @@ public class DepotTransaction {
      * only used by hibernate. do not save an instance without setting the necessary fields
      */
     public DepotTransaction() {}
-
-    public DepotTransaction(Date date, Depot depot, Stock stock) {
-        this.date = date;
-        this.depot = depot;
-        this.stock = stock;
-    }
 }

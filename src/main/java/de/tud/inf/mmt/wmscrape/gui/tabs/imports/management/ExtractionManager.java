@@ -363,7 +363,8 @@ public class ExtractionManager {
             return false;
         } else if (colDatatype == ColumnDatatype.DOUBLE && colData.matches("^[\\-+]?[0-9]+([.]?[0-9]+)?$")) {
             return false;
-        } else if (colDatatype == ColumnDatatype.DATE && colData.matches("^[1-9][0-9]{3}-[0-9]{2}-[0-9]{2}$")) {
+        } else if (colDatatype == ColumnDatatype.DATE && colData.matches("^[1-9][0-9]{3}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$")) {
+            // yyyy-MM-dd HH:mm:ss
             return false;
         } else return colDatatype != ColumnDatatype.TEXT;
     }
