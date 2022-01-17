@@ -139,7 +139,7 @@ public class DataTabController {
         if(wrongResponse(alert)) return;
 
 
-        var selected = stockSelectionTable.getSelectionModel().getSelectedItem();
+        var selected = stockSelectionTable.getSelectionModel().getSelectedItems();
         if( selected == null) return;
         tabManager.deleteStock(selected);
         scrapingElementsTabController.refresh();
@@ -158,7 +158,7 @@ public class DataTabController {
         if(wrongResponse(alert)) return;
 
 
-        var selected = depotSelectionTable.getSelectionModel().getSelectedItem();
+        var selected = depotSelectionTable.getSelectionModel().getSelectedItems();
         if( selected == null) return;
         tabManager.deleteDepot(selected);
         depotSelectionTable.getSelectionModel().selectFirst();

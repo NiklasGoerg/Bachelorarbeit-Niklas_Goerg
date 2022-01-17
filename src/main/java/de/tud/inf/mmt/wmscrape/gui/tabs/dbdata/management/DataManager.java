@@ -11,6 +11,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -489,6 +490,7 @@ public abstract class DataManager {
         table.getColumns().add(sortCol);
 
         table.setEditable(true);
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     public void updateStockSelectionTable(TableView<Stock> table) {
@@ -501,6 +503,7 @@ public abstract class DataManager {
         nameCol.setEditable(false);
         table.getColumns().add(nameCol);
         table.setEditable(true);
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     public void updateDepotSelectionTable(TableView<Depot> table) {
@@ -511,12 +514,12 @@ public abstract class DataManager {
         stockRepository.saveAllAndFlush(stocks);
     }
 
-    public void deleteStock(Stock stock) {
-        stockRepository.delete(stock);
+    public void deleteStock(ObservableList<Stock> stock) {
+        stockRepository.deleteAll(stock);
     }
 
-    public void deleteDepot(Depot depot) {
-        depotRepository.delete(depot);
+    public void deleteDepot(ObservableList<Depot> depot) {
+        depotRepository.deleteAll(depot);
     }
 
     public boolean createStock(String isin, String wkn, String name, String type, String sortOrder) {
