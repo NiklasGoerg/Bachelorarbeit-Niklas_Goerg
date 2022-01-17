@@ -136,8 +136,8 @@ public class ImportTabManager {
         };
 
         task.setOnSucceeded(event -> importTabController.onPreviewTaskFinished(task.getValue()));
-        task.setOnCancelled(event -> importTabController.onPreviewTaskFinished(-9));
-        task.setOnFailed(event -> importTabController.onPreviewTaskFinished(-10));
+        task.setOnCancelled(event -> importTabController.onPreviewTaskFinished(-10));
+        task.setOnFailed(event -> importTabController.onPreviewTaskFinished(-11));
         startTask(task);
     }
 
@@ -188,14 +188,18 @@ public class ImportTabManager {
     public void preparePreviewTable(TableView<List<String>> sheetPreviewTable, ExcelSheet excelSheet) {
         Map<Integer, String> titles = parsingManager.getIndexToExcelTitle();
 
+        setColumnCheckboxFactory(sheetPreviewTable, "TBD.", parsingManager.getSelectedPreviewRows());
+        setColumnCheckboxFactory(sheetPreviewTable, "Stammdaten", parsingManager.getSelectedStockDataRows());
+        setColumnCheckboxFactory(sheetPreviewTable, "Transaktionen", parsingManager.getSelectedTransactionRows());
+
         for (Integer col : titles.keySet()) {
 
             // ignore row index
             if (col == 0) continue;
 
-            if (titles.get(col).equals(excelSheet.getStockSelectionColTitle())) {
-                setColumnCheckboxFactory(sheetPreviewTable, "Stammdaten", parsingManager.getSelectedStockDataRows());
-                setColumnCheckboxFactory(sheetPreviewTable, "Transaktionen", parsingManager.getSelectedTransactionRows());
+            if (titles.get(col).equals(excelSheet.getPreviewSelectionColTitle()) ||
+                    titles.get(col).equals(excelSheet.getStockSelectionColTitle()) ||
+                    titles.get(col).equals(excelSheet.getTransactionSelectionColTitle())) {
                 continue;
             }
 

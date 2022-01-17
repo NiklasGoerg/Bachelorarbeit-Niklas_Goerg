@@ -36,8 +36,9 @@ public class ParsingManager {
     private Map<Integer, String> indexToExcelTitle;
     private Map<String, Integer> titleToExcelIndex;
 
-    private Map<Integer, SimpleBooleanProperty> selectedStockDataRows;
-    private Map<Integer, SimpleBooleanProperty> selectedTransactionRows;
+    private Map<Integer, SimpleBooleanProperty> selectedPreviewRows; // Ü-Par
+    private Map<Integer, SimpleBooleanProperty> selectedStockDataRows; // S-Par
+    private Map<Integer, SimpleBooleanProperty> selectedTransactionRows; // T-Par
 
     public ObservableMap<Integer, ArrayList<String>> getExcelSheetRows() {
         return excelSheetRows;
@@ -49,6 +50,10 @@ public class ParsingManager {
 
     public Map<String, Integer> getTitleToExcelIndex() {
         return titleToExcelIndex;
+    }
+
+    public Map<Integer, SimpleBooleanProperty> getSelectedPreviewRows() {
+        return selectedPreviewRows;
     }
 
     public Map<Integer, SimpleBooleanProperty> getSelectedStockDataRows() {
@@ -131,19 +136,24 @@ public class ParsingManager {
 
         titleToExcelIndex = reverseMap(indexToExcelTitle);
 
+        int previewSelectionColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getPreviewSelectionColTitle());
+        // preview col not found
+        if (previewSelectionColNumber == -1) return -6;
+
         int stockSelectionColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getStockSelectionColTitle());
-        // selection col not found
-        if (stockSelectionColNumber == -1) return -6;
+        // stock data selection col not found
+        if (stockSelectionColNumber == -1) return -7;
 
         int transactionSelectionColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getTransactionSelectionColTitle());
-        // depot col not found
-        if (transactionSelectionColNumber == -1) return -7;
+        // transaction col not found
+        if (transactionSelectionColNumber == -1) return -8;
 
+        selectedPreviewRows = getSelectedInitially(previewSelectionColNumber);
         selectedStockDataRows = getSelectedInitially(stockSelectionColNumber);
         selectedTransactionRows = getSelectedInitially(transactionSelectionColNumber);
         removeUnselectedRows();
 
-        if (evalFaults) return -8;
+        if (evalFaults) return -9;
         return 0;
     }
 
@@ -155,14 +165,14 @@ public class ParsingManager {
         List<Integer> toDelete =  new ArrayList<>();
 
         for (int rowNr : excelSheetRows.keySet()) {
-            if (!(selectedStockDataRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get() &&
-                !(selectedTransactionRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get()) {
+            if (!(selectedPreviewRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get()) {
                 toDelete.add(rowNr);
             }
         }
 
         toDelete.forEach(rowNr -> {
             excelSheetRows.remove(rowNr);
+            selectedPreviewRows.remove(rowNr);
             selectedStockDataRows.remove(rowNr);
             selectedTransactionRows.remove(rowNr);
         });

@@ -289,6 +289,7 @@ public class ExtractionManager {
             if (!knownDepots.contains(depotName)) {
                 importTabManager.addToLog("INFO:\tErstelle Depot mit dem Namen: " + depotName);
                 depotRepository.saveAndFlush(new Depot(depotName));
+                knownDepots.add(depotName);
             }
 
             for (ExcelCorrelation correlation : transactionColumnRelations) {

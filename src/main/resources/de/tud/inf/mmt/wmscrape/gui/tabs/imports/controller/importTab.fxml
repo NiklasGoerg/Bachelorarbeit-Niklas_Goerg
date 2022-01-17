@@ -77,7 +77,9 @@
             <center>
                 <GridPane BorderPane.alignment="CENTER">
                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" />
+                  <ColumnConstraints hgrow="SOMETIMES" />
+                  <ColumnConstraints hgrow="SOMETIMES" />
                     </columnConstraints>
                     <rowConstraints>
                         <RowConstraints minHeight="30.0" vgrow="NEVER" />
@@ -86,95 +88,120 @@
                     <BorderPane.margin>
                         <Insets bottom="5.0" top="10.0" />
                     </BorderPane.margin>
-                    <HBox alignment="CENTER">
+                    <HBox alignment="CENTER_LEFT">
                         <GridPane.margin>
                             <Insets bottom="5.0" />
                         </GridPane.margin>
                         <padding>
-                            <Insets right="10.0" />
+                            <Insets left="10.0" right="10.0" />
                         </padding>
-                        <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="150.0">
+                        <HBox alignment="CENTER_RIGHT" minWidth="130.0" prefWidth="130.0" HBox.hgrow="NEVER">
                             <Label text="Dateipfad">
                                 <HBox.margin>
-                                    <Insets left="10.0" right="10.0" />
+                                    <Insets right="10.0" />
                                 </HBox.margin>
                             </Label>
                         </HBox>
-                        <TextField fx:id="pathField" prefWidth="360.0">
+                        <TextField fx:id="pathField" minWidth="100.0" HBox.hgrow="SOMETIMES">
                             <HBox.margin>
                                 <Insets />
                             </HBox.margin>
                         </TextField>
-                        <Button mnemonicParsing="false" onAction="#handleFileSelectionButton" prefWidth="90.0" text="Auswählen">
+                        <Button minWidth="90.0" mnemonicParsing="false" onAction="#handleFileSelectionButton" prefWidth="90.0" text="Auswählen" HBox.hgrow="NEVER">
                             <HBox.margin>
                                 <Insets left="-1.0" />
                             </HBox.margin>
                         </Button>
-                        <HBox alignment="CENTER_LEFT">
-                            <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="80.0">
-                                <Label text="Passwort">
-                                    <HBox.margin>
-                                        <Insets left="10.0" right="10.0" />
-                                    </HBox.margin>
-                                </Label>
-                            </HBox>
-                            <PasswordField fx:id="passwordField" prefWidth="391.0" promptText="optional">
-                                <HBox.margin>
-                                    <Insets />
-                                </HBox.margin>
-                            </PasswordField>
-                        </HBox>
                     </HBox>
-                    <HBox alignment="CENTER" GridPane.rowIndex="1">
+                    <HBox alignment="CENTER_LEFT" GridPane.rowIndex="1">
                         <GridPane.margin>
                             <Insets />
                         </GridPane.margin>
                         <padding>
-                            <Insets right="10.0" />
+                            <Insets left="10.0" right="10.0" />
                         </padding>
-                        <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="150.0">
-                            <HBox.margin>
-                                <Insets />
-                            </HBox.margin>
-                            <Label text="Titelzeilen-Nummer">
+                        <HBox alignment="CENTER_RIGHT" minWidth="130.0" prefWidth="130.0" HBox.hgrow="NEVER">
+                            <Label text="Slektion Vorschau">
                                 <HBox.margin>
-                                    <Insets left="10.0" right="10.0" />
+                                    <Insets right="10.0"/>
                                 </HBox.margin>
                             </Label>
                         </HBox>
-                        <Spinner fx:id="titleRowSpinner" minWidth="80.0" prefWidth="100.0">
+                  <TextField fx:id="previewSelectionColField" minWidth="100.0" promptText="Ü-Par" HBox.hgrow="SOMETIMES" />
+                    </HBox>
+                     <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                         <HBox alignment="CENTER_RIGHT" minWidth="210.0" prefWidth="210.0" HBox.hgrow="NEVER">
+                             <Label text="Passwort">
+                                 <HBox.margin>
+                                     <Insets right="10.0" />
+                                 </HBox.margin>
+                             </Label>
+                         </HBox>
+                         <PasswordField fx:id="passwordField" minWidth="100.0" promptText="optional" HBox.hgrow="SOMETIMES">
+                             <HBox.margin>
+                                 <Insets />
+                             </HBox.margin>
+                         </PasswordField>
+                  <padding>
+                     <Insets right="10.0" />
+                  </padding>
+                     </HBox>
+                      <HBox alignment="CENTER_RIGHT" minWidth="220.0" prefWidth="220.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                          <HBox alignment="CENTER_RIGHT" minWidth="200.0" prefWidth="200.0">
+                              <HBox.margin>
+                                  <Insets/>
+                              </HBox.margin>
+                              <Label text="Slektion Stammdaten">
+                                  <HBox.margin>
+                                      <Insets right="10.0"/>
+                                  </HBox.margin>
+                              </Label>
+                          </HBox>
+                         <TextField fx:id="stockdataSelectionColField" minWidth="100.0" promptText="S-Par" HBox.hgrow="SOMETIMES">
+                             <HBox.margin>
+                                 <Insets right="10.0" />
+                             </HBox.margin>
+                         </TextField>
+                  <padding>
+                     <Insets right="10.0" />
+                  </padding>
+                      </HBox>
+                      <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="225.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                          <HBox alignment="CENTER_RIGHT" minWidth="210.0" HBox.hgrow="NEVER">
+                              <HBox.margin>
+                                  <Insets/>
+                              </HBox.margin>
+                              <Label text="Selektion Transaktionen">
+                                  <HBox.margin>
+                                      <Insets right="10.0"/>
+                                  </HBox.margin>
+                              </Label>
+                          </HBox>
+                         <TextField fx:id="transactionSelectionColField" minWidth="100.0" promptText="T-Par" HBox.hgrow="SOMETIMES">
+                             <HBox.margin>
+                                 <Insets />
+                             </HBox.margin>
+                         </TextField>
+                  <padding>
+                     <Insets right="10.0" />
+                  </padding>
+                      </HBox>
+                    <HBox alignment="CENTER_LEFT" GridPane.columnIndex="2" GridPane.hgrow="SOMETIMES">
+                        <padding>
+                            <Insets right="10.0"/>
+                        </padding>
+                        <HBox alignment="CENTER_RIGHT" minWidth="200.0" prefWidth="200.0">
+                            <Label text="Titelzeilen-Nummer">
+                                <HBox.margin>
+                                    <Insets right="10.0"/>
+                                </HBox.margin>
+                            </Label>
+                        </HBox>
+                        <Spinner fx:id="titleRowSpinner" minWidth="100.0" HBox.hgrow="SOMETIMES">
                             <HBox.margin>
-                                <Insets />
+                                <Insets right="10.0"/>
                             </HBox.margin>
                         </Spinner>
-                        <HBox alignment="CENTER_LEFT">
-                            <HBox alignment="CENTER_RIGHT" prefWidth="220.0">
-                                <Label text="Titel Stammdaten-Übernahme">
-                                    <HBox.margin>
-                                        <Insets left="10.0" right="10.0" />
-                                    </HBox.margin>
-                                </Label>
-                            </HBox>
-                            <TextField fx:id="selectionColTitleField" prefWidth="190.0">
-                                <HBox.margin>
-                                    <Insets />
-                                </HBox.margin>
-                            </TextField>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT">
-                            <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="220.0">
-                                <Label text="Titel Transaktions-Übernahme">
-                                    <HBox.margin>
-                                        <Insets left="10.0" right="10.0" />
-                                    </HBox.margin>
-                                </Label>
-                            </HBox>
-                            <TextField fx:id="depotColTitleField" prefWidth="190.0">
-                                <HBox.margin>
-                                    <Insets />
-                                </HBox.margin>
-                            </TextField>
-                        </HBox>
                     </HBox>
                 </GridPane>
             </center>

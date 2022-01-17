@@ -31,8 +31,9 @@ public class ImportTabController {
     @FXML private TextField pathField;
     @FXML private PasswordField passwordField;
     @FXML private Spinner<Integer> titleRowSpinner;
-    @FXML private TextField selectionColTitleField;
-    @FXML private TextField depotColTitleField;
+    @FXML private TextField previewSelectionColField; // Ü-Par
+    @FXML private TextField stockdataSelectionColField; // S-Par
+    @FXML private TextField transactionSelectionColField; // T-Par
     @FXML private TableView<List<String>> sheetPreviewTable;
     @FXML private TableView<ExcelCorrelation> stockDataCorrelationTable;
     @FXML private TableView<ExcelCorrelation> transactionCorrelationTable;
@@ -87,8 +88,9 @@ public class ImportTabController {
 
         pathField.textProperty().addListener((o,ov,nv) -> validPath());
         titleRowSpinner.valueProperty().addListener((o, ov, nv) -> validTitleColNr());
-        selectionColTitleField.textProperty().addListener((o,ov,nv) -> emptyValidator(selectionColTitleField));
-        depotColTitleField.textProperty().addListener((o,ov,nv) -> emptyValidator(depotColTitleField));
+        previewSelectionColField.textProperty().addListener((o, ov, nv) -> emptyValidator(previewSelectionColField));
+        stockdataSelectionColField.textProperty().addListener((o, ov, nv) -> emptyValidator(stockdataSelectionColField));
+        transactionSelectionColField.textProperty().addListener((o, ov, nv) -> emptyValidator(transactionSelectionColField));
 
         logText = new SimpleStringProperty("");
         logTextArea = new TextArea();
@@ -154,8 +156,9 @@ public class ImportTabController {
         excelSheet.setPath(pathField.getText());
         excelSheet.setPassword(passwordField.getText());
         excelSheet.setTitleRow(titleRowSpinner.getValue());
-        excelSheet.setStockSelectionColTitle(selectionColTitleField.getText());
-        excelSheet.setTransactionSelectionColTitle(depotColTitleField.getText());
+        excelSheet.setPreviewSelectionColTitle(previewSelectionColField.getText().trim());
+        excelSheet.setStockSelectionColTitle(stockdataSelectionColField.getText().trim());
+        excelSheet.setTransactionSelectionColTitle(transactionSelectionColField.getText().trim());
 
         importTabManager.saveExcelConfig(excelSheet);
 
@@ -235,7 +238,7 @@ public class ImportTabController {
             createAlert("Zuordnung unvollständig!",
                     """
                             Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind
-                             Stammdaten:   datum, isin
+                            Stammdaten:   datum, isin
                             Transaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp""",
                     Alert.AlertType.ERROR);
             return;
@@ -302,8 +305,9 @@ public class ImportTabController {
         pathField.setText(excelSheet.getPath());
         passwordField.setText(excelSheet.getPassword());
         titleRowSpinner.getValueFactory().setValue(excelSheet.getTitleRow());
-        selectionColTitleField.setText(excelSheet.getStockSelectionColTitle());
-        depotColTitleField.setText(excelSheet.getTransactionSelectionColTitle());
+        previewSelectionColField.setText(excelSheet.getPreviewSelectionColTitle());
+        stockdataSelectionColField.setText(excelSheet.getStockSelectionColTitle());
+        transactionSelectionColField.setText(excelSheet.getTransactionSelectionColTitle());
 
         sheetPreviewTable.getColumns().clear();
         sheetPreviewTable.getItems().clear();
@@ -328,8 +332,9 @@ public class ImportTabController {
         // need all methods executed to highlight errors
         boolean valid = validPath();
         valid &= validTitleColNr();
-        valid &= emptyValidator(selectionColTitleField);
-        valid &= emptyValidator(depotColTitleField);
+        valid &= emptyValidator(previewSelectionColField);
+        valid &= emptyValidator(stockdataSelectionColField);
+        valid &= emptyValidator(transactionSelectionColField);
         return valid;
     }
 
@@ -471,7 +476,7 @@ public class ImportTabController {
             }
             case -6 -> {
                 // Selection column not found
-                createAlert("Übernahmespalte nicht gefunden!",
+                createAlert("Übernahmespalte (Ü-Par) nicht gefunden!",
                         "In der Zeile " + excelSheet.getTitleRow() + " " +
                                 "existiert keine Spalte mit dem Namen '" +
                                 excelSheet.getStockSelectionColTitle() + "'",
@@ -480,14 +485,23 @@ public class ImportTabController {
             }
             case -7 -> {
                 // Selection column not found
-                createAlert("Depotspalte nicht gefunden!",
+                createAlert("Stammdatenspalte (S-Par) nicht gefunden!",
+                        "In der Zeile " + excelSheet.getTitleRow() + " " +
+                                "existiert keine Spalte mit dem Namen '" +
+                                excelSheet.getStockSelectionColTitle() + "'",
+                        Alert.AlertType.ERROR);
+                return true;
+            }
+            case -8 -> {
+                // transaction column not found
+                createAlert("Transaktionsspalte (T-Par) nicht gefunden!",
                         "In der Zeile " + excelSheet.getTitleRow() + " " +
                                 "existiert keine Spalte mit dem Namen '" +
                                 excelSheet.getTransactionSelectionColTitle() + "'",
                         Alert.AlertType.ERROR);
                 return true;
             }
-            case -8 -> {
+            case -9 -> {
                 // Cell evaluation error
                 alert = new Alert(
                         Alert.AlertType.WARNING,
@@ -511,14 +525,14 @@ public class ImportTabController {
                 alert.show();
                 return false;
             }
-            case -9 -> {
-                // occurs only on a failed task
+            case -10 -> {
+                // occurs only on a canceled task
                 createAlert("Prozess abgebrochen!",
                         "Der laufende Prozess wurde durch den Abbruch-Button abgebrochen.",
                         Alert.AlertType.INFORMATION);
                 return true;
             }
-            case -10 -> {
+            case -11 -> {
                 // occurs only on a failed task
                 createAlert("Unbekannter Fehler!",
                         "Bei dem Erstellen der Vorschau kam es zu einem unbekannten Fehler.",

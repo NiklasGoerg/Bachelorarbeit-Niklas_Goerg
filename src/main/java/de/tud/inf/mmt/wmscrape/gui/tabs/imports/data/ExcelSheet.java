@@ -26,11 +26,14 @@ public class ExcelSheet {
     @Column(name = "title_row")
     private int titleRow = 1;
 
-    @Column(name = "selection_col_title")
+    @Column(name = "stockdata_col_title")
     private String stockSelectionColTitle;
 
-    @Column(name = "depot_col_title")
+    @Column(name = "transaction_col_title")
     private String transactionSelectionColTitle;
+
+    @Column(name = "preview_col_title")
+    private String previewSelectionColTitle;
 
     /**
      * only used by hibernate. do not save an instance without setting the necessary fields
@@ -79,6 +82,14 @@ public class ExcelSheet {
 
     public void setTransactionSelectionColTitle(String transactionSelectionColTitle) {
         this.transactionSelectionColTitle = transactionSelectionColTitle;
+    }
+
+    public String getPreviewSelectionColTitle() {
+        return previewSelectionColTitle;
+    }
+
+    public void setPreviewSelectionColTitle(String previewSelectionColTitle) {
+        this.previewSelectionColTitle = previewSelectionColTitle;
     }
 
     /**
