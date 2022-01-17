@@ -95,7 +95,7 @@
                         <padding>
                             <Insets left="10.0" right="10.0" />
                         </padding>
-                        <HBox alignment="CENTER_RIGHT" minWidth="130.0" prefWidth="130.0" HBox.hgrow="NEVER">
+                        <HBox alignment="CENTER_RIGHT" prefWidth="135.0" HBox.hgrow="NEVER">
                             <Label text="Dateipfad">
                                 <HBox.margin>
                                     <Insets right="10.0" />
@@ -120,17 +120,17 @@
                         <padding>
                             <Insets left="10.0" right="10.0" />
                         </padding>
-                        <HBox alignment="CENTER_RIGHT" minWidth="130.0" prefWidth="130.0" HBox.hgrow="NEVER">
-                            <Label text="Slektion Vorschau">
+                        <HBox alignment="CENTER_RIGHT" prefWidth="135.0" HBox.hgrow="NEVER">
+                            <Label text="Selektion Vorschau">
                                 <HBox.margin>
-                                    <Insets right="10.0"/>
+                                    <Insets right="10.0" />
                                 </HBox.margin>
                             </Label>
                         </HBox>
                   <TextField fx:id="previewSelectionColField" minWidth="100.0" promptText="Ü-Par" HBox.hgrow="SOMETIMES" />
                     </HBox>
                      <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
-                         <HBox alignment="CENTER_RIGHT" minWidth="210.0" prefWidth="210.0" HBox.hgrow="NEVER">
+                         <HBox alignment="CENTER_RIGHT" prefWidth="160.0" HBox.hgrow="NEVER">
                              <Label text="Passwort">
                                  <HBox.margin>
                                      <Insets right="10.0" />
@@ -143,37 +143,37 @@
                              </HBox.margin>
                          </PasswordField>
                   <padding>
-                     <Insets right="10.0" />
+                     <Insets left="10.0" />
                   </padding>
                      </HBox>
-                      <HBox alignment="CENTER_RIGHT" minWidth="220.0" prefWidth="220.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                          <HBox alignment="CENTER_RIGHT" minWidth="200.0" prefWidth="200.0">
+                      <HBox alignment="CENTER_RIGHT" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                          <HBox alignment="CENTER_RIGHT" prefWidth="160.0">
                               <HBox.margin>
-                                  <Insets/>
+                                  <Insets />
                               </HBox.margin>
-                              <Label text="Slektion Stammdaten">
+                              <Label text="Selektion Stammdaten">
                                   <HBox.margin>
-                                      <Insets right="10.0"/>
+                                      <Insets right="10.0" />
                                   </HBox.margin>
                               </Label>
                           </HBox>
                          <TextField fx:id="stockdataSelectionColField" minWidth="100.0" promptText="S-Par" HBox.hgrow="SOMETIMES">
                              <HBox.margin>
-                                 <Insets right="10.0" />
+                                 <Insets />
                              </HBox.margin>
                          </TextField>
                   <padding>
-                     <Insets right="10.0" />
+                     <Insets left="10.0" />
                   </padding>
                       </HBox>
-                      <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="225.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                          <HBox alignment="CENTER_RIGHT" minWidth="210.0" HBox.hgrow="NEVER">
+                      <HBox alignment="CENTER_RIGHT" prefWidth="225.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                          <HBox alignment="CENTER_RIGHT" prefWidth="180.0" HBox.hgrow="NEVER">
                               <HBox.margin>
-                                  <Insets/>
+                                  <Insets />
                               </HBox.margin>
                               <Label text="Selektion Transaktionen">
                                   <HBox.margin>
-                                      <Insets right="10.0"/>
+                                      <Insets right="10.0" />
                                   </HBox.margin>
                               </Label>
                           </HBox>
@@ -183,23 +183,23 @@
                              </HBox.margin>
                          </TextField>
                   <padding>
-                     <Insets right="10.0" />
+                     <Insets left="10.0" right="10.0" />
                   </padding>
                       </HBox>
-                    <HBox alignment="CENTER_LEFT" GridPane.columnIndex="2" GridPane.hgrow="SOMETIMES">
+                    <HBox alignment="CENTER_LEFT" GridPane.columnIndex="2">
                         <padding>
-                            <Insets right="10.0"/>
+                            <Insets left="10.0" right="10.0" />
                         </padding>
-                        <HBox alignment="CENTER_RIGHT" minWidth="200.0" prefWidth="200.0">
+                        <HBox alignment="CENTER_RIGHT" prefWidth="180.0">
                             <Label text="Titelzeilen-Nummer">
                                 <HBox.margin>
-                                    <Insets right="10.0"/>
+                                    <Insets right="10.0" />
                                 </HBox.margin>
                             </Label>
                         </HBox>
                         <Spinner fx:id="titleRowSpinner" minWidth="100.0" HBox.hgrow="SOMETIMES">
                             <HBox.margin>
-                                <Insets right="10.0"/>
+                                <Insets />
                             </HBox.margin>
                         </Spinner>
                     </HBox>
