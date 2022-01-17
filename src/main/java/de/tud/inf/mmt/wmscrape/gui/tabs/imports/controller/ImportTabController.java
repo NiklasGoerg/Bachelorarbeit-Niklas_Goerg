@@ -235,7 +235,7 @@ public class ImportTabController {
             createAlert("Zuordnung unvollständig!",
                     """
                             Es sind nicht alles notwendigen Zuordnungen gesetzt. Notwendig sind
-                             Stammdaten:   isin
+                             Stammdaten:   datum, isin
                             Transaktionen: wertpapier_isin, transaktions_datum, depot_name, transaktionstyp""",
                     Alert.AlertType.ERROR);
             return;

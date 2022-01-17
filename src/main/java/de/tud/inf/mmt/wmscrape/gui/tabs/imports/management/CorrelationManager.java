@@ -54,6 +54,7 @@ public class CorrelationManager {
         importantTransactionCorrelations.put("wertpapier_isin", VisualDatatype.Text);
         importantTransactionCorrelations.put("transaktions_datum", VisualDatatype.Datum);
 
+        importantStockCorrelations.put("datum", VisualDatatype.Datum);
         importantStockCorrelations.put("isin", VisualDatatype.Text);
         importantStockCorrelations.put("wkn", VisualDatatype.Text);
         importantStockCorrelations.put("name", VisualDatatype.Text);
@@ -141,10 +142,9 @@ public class CorrelationManager {
 
         // add correlation for missing stock db columns
         for (StockColumn stockColumn : stockColumnRepository.findAll()) {
-            //datum is set automatically
             String name = stockColumn.getName();
 
-            if (!name.equals("datum") && !addedStockDbCols.contains(name)) {
+            if (!addedStockDbCols.contains(name)) {
                 ExcelCorrelation excelCorrelation = new ExcelCorrelation(CorrelationType.STOCKDATA, excelSheet, stockColumn);
                 addedStockDbCols.add(name);
                 stockDataCorrelationTable.getItems().add(excelCorrelation);

@@ -160,7 +160,7 @@ public class ImportTabManager {
         task.exceptionProperty().addListener((o, ov, nv) ->  {
             if(nv != null) {
                 Exception e = (Exception) nv;
-                System.out.println(e.getMessage()+" "+e.getCause());
+                e.printStackTrace();
             }
         });
 
@@ -264,7 +264,7 @@ public class ImportTabManager {
      * @return true if all necessary correlations are set
      */
     public boolean correlationsHaveValidState() {
-        if (incorrectStockCorr("isin")) return false;
+        if (incorrectStockCorr("isin") || incorrectStockCorr("datum")) return false;
 
         return correctTransactionCorr("wertpapier_isin") && correctTransactionCorr("transaktions_datum") &&
                 correctTransactionCorr("transaktionstyp") && correctTransactionCorr("depot_name");

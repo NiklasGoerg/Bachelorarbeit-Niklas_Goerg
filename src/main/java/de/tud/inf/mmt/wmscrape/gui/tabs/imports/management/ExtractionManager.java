@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class ExtractionManager {
     // POI: index 0, EXCEL Index: 1
     private final static int OFFSET = 1;
-    private static final List<String> ignoreInStockData = List.of("isin", "wkn", "name", "typ", "r_par");
+    private static final List<String> ignoreInStockData = List.of("datum", "isin", "wkn", "name", "typ", "r_par");
 
     @Autowired
     private ImportTabManager importTabManager;
@@ -110,21 +110,27 @@ public class ExtractionManager {
             if(task.isCancelled()) return -3;
 
             // skip rows if not selected
-            if (!(selected.get(row).get())) {
-                //addToLog("INFO:\tStammdaten von Zeile: " + (row+OFFSET) + " ist nicht markiert.");
-                continue;
-            }
+            if (!(selected.get(row).get())) continue;
 
             // the columns for one row
             ArrayList<String> rowData = excelSheetRows.get(row);
 
             int isinCol = parsingManager.getColNrByName("isin", stockColumnRelations);
+            int dateCol = parsingManager.getColNrByName("datum", stockColumnRelations);
 
             // check if isin valid
             String isin = rowData.get(isinCol);
             if (isin == null || isin.isBlank() || isin.length() >= 50) {
                 silentError = true;
                 importTabManager.addToLog("ERR:\t\tIsin der Zeile " + (row+OFFSET) + " leer oder länger als 50 Zeichen. ->'" + isin + "'");
+                continue;
+            }
+
+            // validate stockdata date value
+            String date = rowData.get(dateCol);
+            if (date == null || date.isBlank() || notMatchingDataType(ColumnDatatype.DATE, date)) {
+                importTabManager.addToLog("ERR:\t\tStammdaten-Datum '"+date+"' der Zeile "+(row+OFFSET)+" ist fehlerhaft oder leer.");
+                silentError = true;
                 continue;
             }
 
@@ -181,12 +187,12 @@ public class ExtractionManager {
 
                 if (statement == null) {
                     silentError = true;
-                    importTabManager.addToLog("ERR:\t\tSql-Statment für die Spalte '" + correlation.getExcelColTitle() +
+                    importTabManager.addToLog("ERR:\t\tSql-Statement für die Spalte '" + correlation.getExcelColTitle() +
                             "' nicht gefunden");
                     continue;
                 }
 
-                silentError |= dbTransactionManager.fillStockStatementAddToBatch(isin, statement, colData, datatype);
+                silentError |= dbTransactionManager.fillStockStatementAddToBatch(isin, date, statement, colData, datatype);
             }
 
         }

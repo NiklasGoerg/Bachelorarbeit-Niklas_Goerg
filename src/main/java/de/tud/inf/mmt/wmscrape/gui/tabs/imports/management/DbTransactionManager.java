@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -30,15 +28,11 @@ public class DbTransactionManager {
     @Autowired
     private CorrelationManager correlationManager;
 
-    final String dateToday;
-
     /**
      * constructor called at bean creation.
      * sets the current date as the one for the import
      */
     public DbTransactionManager() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateToday = dateFormat.format(Date.valueOf(LocalDate.now()));
     }
 
     /**
@@ -104,11 +98,11 @@ public class DbTransactionManager {
      * @param datatype the datatype of the data
      * @return false if no error
      */
-    public boolean fillStockStatementAddToBatch(String isin, PreparedStatement statement,
+    public boolean fillStockStatementAddToBatch(String isin, String date, PreparedStatement statement,
                                                 String data, ColumnDatatype datatype) {
 
         if (setStatementValue(1, isin, ColumnDatatype.TEXT, statement)) return true;
-        if (setStatementValue(2, dateToday, ColumnDatatype.DATE, statement)) return true;
+        if (setStatementValue(2, date, ColumnDatatype.DATE, statement)) return true;
         if (setStatementValue(3, data, datatype, statement)) return true;
         return addBatch(statement);
     }
