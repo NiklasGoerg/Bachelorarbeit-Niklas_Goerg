@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 public class DataSourceConfig {
 
     /**
-     * the creates and overrides the standard DataSource-Bean where parameters can change.
+     * this creates and overrides the standard DataSource-Bean where parameters can change.
      * this datasource is used by spring for all database connections and handles connection pooling.
      * that means it manages multiple connections that won't have to be closed and opened when needed but
      * the datasource provides a free connection.

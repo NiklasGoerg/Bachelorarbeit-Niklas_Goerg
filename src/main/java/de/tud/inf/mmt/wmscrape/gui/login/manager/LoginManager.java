@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.login.manager;
 
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.concurrent.Task;
@@ -177,6 +178,8 @@ public class LoginManager {
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
 
         return 1;

@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableColumnRepository;
@@ -93,6 +94,8 @@ public class ExchangeDataManager extends DataManager {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
         return true;
     }

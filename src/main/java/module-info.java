@@ -27,6 +27,7 @@ module de.tud.inf.mmt.wmscrape {
     requires org.seleniumhq.selenium.support;
     requires org.seleniumhq.selenium.remote_driver;
 
+    requires mysql.connector.java;
     // #######################
 
     exports de.tud.inf.mmt.wmscrape;

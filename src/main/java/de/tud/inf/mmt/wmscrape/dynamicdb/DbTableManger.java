@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.dynamicdb;
 
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.TransactionStatus;
@@ -96,6 +97,8 @@ public abstract class DbTableManger {
             pst.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
 
         return columns;
@@ -134,6 +137,8 @@ public abstract class DbTableManger {
         } catch (SQLException e) {
             e.printStackTrace();
             return;
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
 
         if(repository.findByName(colName).isEmpty()) {
@@ -169,6 +174,8 @@ public abstract class DbTableManger {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
         return true;
     }
@@ -198,6 +205,8 @@ public abstract class DbTableManger {
         } catch (SQLException e) {
             e.printStackTrace();
             return true;
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
         return false;
     }
@@ -232,6 +241,8 @@ public abstract class DbTableManger {
             };
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
         return null;
     }
@@ -261,6 +272,8 @@ public abstract class DbTableManger {
         } catch (SQLException e) {
             e.printStackTrace();
             return true;
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
         return true;
     }

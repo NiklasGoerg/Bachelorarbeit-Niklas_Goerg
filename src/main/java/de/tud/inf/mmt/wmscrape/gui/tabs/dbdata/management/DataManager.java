@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.tud.inf.mmt.wmscrape.dynamicdb.*;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
@@ -308,6 +309,8 @@ public abstract class DataManager {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
         return true;
     }
@@ -403,6 +406,8 @@ public abstract class DataManager {
             statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
 
         return allRows;
@@ -448,6 +453,8 @@ public abstract class DataManager {
         } catch (SQLException | NumberFormatException | DateTimeParseException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
         return true;
     }
