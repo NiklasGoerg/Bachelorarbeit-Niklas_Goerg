@@ -100,7 +100,6 @@ public class DataTabController {
         tabManager.prepareStockSelectionTable(stockSelectionTable);
         tabManager.prepareDepotSelectionTable(depotSelectionTable);
         selectionPane.setCenter(stockSelectionTable);
-        reloadSelectionTable();
 
         stockSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
             if(nv != null) onSelection(nv);
@@ -117,8 +116,8 @@ public class DataTabController {
         // when changing the columns inside the data table new listeners are added that register column sort changes
         customRowTableView.getColumns().addListener((ListChangeListener<TableColumn<CustomRow, ?>>) c -> tabManager.addColumnSortSync(customRowTableView, stockSelectionTable));
 
-        reloadAllDataRows();
-        handleViewEverythingButton();
+        viewEverything = true;
+        reloadSelectionTable();
         registerTabChangeListener();
         hideNonDepotRelated(true);
     }
@@ -128,8 +127,8 @@ public class DataTabController {
      */
     @FXML
     public void handleResetButton() {
+        viewEverything = true;
         reloadSelectionTable();
-        reloadAllDataRows();
     }
 
     @FXML
@@ -409,8 +408,6 @@ public class DataTabController {
                     hideNonDepotRelated(true);
                     hideSelectionTable(true);
                     addEmptyRowMenuItem.setVisible(true);
-                    handleViewEverythingButton();
-
                     // only double values are allowed
                     columnDatatypeChoiceBox.setValue(VisualDatatype.Double);
                     columnDatatypeChoiceBox.setDisable(true);
@@ -421,7 +418,6 @@ public class DataTabController {
                     hideNonDepotRelated(false);
                     hideSelectionTable(false);
                     addEmptyRowMenuItem.setVisible(false);
-                    handleViewEverythingButton();
                 }
 
                 updateColumnComboBox();
