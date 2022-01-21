@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="build run" type="MavenRunConfiguration" factoryName="Maven">
+  <configuration default="false" name="Build JAR" type="MavenRunConfiguration" factoryName="Maven">
     <MavenSettings>
       <option name="myGeneralSettings" />
       <option name="myRunnerSettings" />
@@ -11,7 +11,8 @@
           <option name="goals">
             <list>
               <option value="clean" />
-              <option value="javafx:run" />
+              <option value="package" />
+              <option value="spring-boot:repackage" />
             </list>
           </option>
           <option name="pomFileName" />

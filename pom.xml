@@ -102,7 +102,9 @@
     </dependencies>
 
     <build>
+        <finalName>WMScrape-1.0</finalName>
         <plugins>
+            <!-- used for compilation when run with: mvn clean javafx:run-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -119,6 +121,8 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
+            <!-- run with: mvn clean javafx:run -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -126,6 +130,52 @@
                 <configuration>
                     <mainClass>de.tud.inf.mmt.wmscrape.WMScrape</mainClass>
                 </configuration>
+            </plugin>
+
+            <!-- create jar with: mvn clean package spring-boot:repackage  -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.6.2</version>
+                <configuration>
+                    <fork>true</fork>
+                    <mainClass>de.tud.inf.mmt.wmscrape.WMScrape</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
+
+            <!-- copy user.resources to outside of jar (cant write into resources inside a jar)-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-resource-one</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/src/main/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <includes>
+                                        <include>user.properties</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
