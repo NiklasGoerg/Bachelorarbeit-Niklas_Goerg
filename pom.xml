@@ -103,6 +103,18 @@
 
     <build>
         <finalName>WMScrape-1.0</finalName>
+
+        <!-- excluding them from the jar because there are copied extra -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>user.properties</exclude>
+                    <exclude>geckodriver/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
         <plugins>
             <!-- used for compilation when run with: mvn clean javafx:run-->
             <plugin>
@@ -170,6 +182,7 @@
                                     <directory>${basedir}/src/main/resources</directory>
                                     <includes>
                                         <include>user.properties</include>
+                                        <include>geckodriver/**</include>
                                     </includes>
                                 </resource>
                             </resources>

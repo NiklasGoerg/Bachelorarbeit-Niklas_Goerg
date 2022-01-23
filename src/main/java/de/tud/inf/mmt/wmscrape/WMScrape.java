@@ -22,11 +22,11 @@ public class WMScrape {
 
         String OS = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
         if ((OS.contains("mac")) || (OS.contains("darwin"))) {
-            System.setProperty("webdriver.gecko.driver","libs/geckodriver/mac_x86_64/geckodriver");
+            System.setProperty("webdriver.gecko.driver","src/main/resources/geckodriver/mac_x86_64/geckodriver");
         } else if (OS.contains("win")) {
-            System.setProperty("webdriver.gecko.driver","libs/geckodriver/win_64/geckodriver.exe");
+            System.setProperty("webdriver.gecko.driver","src/main/resources/geckodriver/win_64/geckodriver.exe");
         } else if (OS.contains("nux")) {
-            System.setProperty("webdriver.gecko.driver","libs/geckodriver/nux_64/geckodriver");
+            System.setProperty("webdriver.gecko.driver","src/main/resources/geckodriver/nux_64/geckodriver");
         } else {
             throw new InvalidPropertyException(WMScrape.class,
                     "webdriver.gecko.driver", "Für dieses Betriebssystem steht kein Geckodriver bereit.");
