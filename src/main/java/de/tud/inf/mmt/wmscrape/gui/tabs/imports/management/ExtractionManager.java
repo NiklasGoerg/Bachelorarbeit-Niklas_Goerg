@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -222,7 +219,7 @@ public class ExtractionManager {
         // execution is not stopped at a silent error but a log message is added
         boolean silentError = false;
 
-        Set<String> knownStockIsins = getStockIsins();
+        Map<String, Stock> knownStockIsins = getKnownStocks();
         Set<String> knownDepots = getDepotNames();
 
 
@@ -276,7 +273,7 @@ public class ExtractionManager {
             }
 
             // stocks are created beforehand
-            if (!knownStockIsins.contains(isin)) {
+            if (!knownStockIsins.containsKey(isin)) {
                 stockRepository.saveAndFlush(new Stock(isin, null, null,null,-1));
                 importTabManager.addToLog("WARN:\tFür das Wertpapier der Transaktion aus Zeile "+(row+OFFSET)+
                         " wurden zuvor keine Stammdaten importiert. \n\t\t" +
@@ -376,32 +373,45 @@ public class ExtractionManager {
      * note that these have to be created before the data can be inserted, otherwise the constaint will not be fullfilled.
      * constraint between the "wertpapier" table and the "wertpapier_stammdaten" table.
      * the latter refers to entities in the first.
+     * 
+     * PS: existing stocks values are now also overridden as there is no longer a check if a stock exists.
+     *      the reason is to update the r-par value
      *
      * @param task the task the process is running in. only used for reacting to task cancellation
      */
     private boolean createMissingStocks(Task<Integer> task) {
-        Set<String> knownStock = getStockIsins();
+        Map<String, Stock> knownStocks = getKnownStocks();
 
         for(var ks : potentialNewStocks.entrySet()) {
             if(task.isCancelled()) return false;
 
-            if(!knownStock.contains(ks.getKey())) {
-                Stock stock = new Stock(ks.getKey(),
-                ks.getValue().getOrDefault("wkn",null),
-                ks.getValue().getOrDefault("name",null),
-                ks.getValue().getOrDefault("typ",null),
-                getNullInteger(ks.getValue().getOrDefault("r_par",null)));
+            String wkn = ks.getValue().getOrDefault("wkn", null);
+            String name = ks.getValue().getOrDefault("name", null);
+            String typ = ks.getValue().getOrDefault("typ", null);
+            Integer r = getNullInteger(ks.getValue().getOrDefault("r_par", null));
+            Stock s;
 
-                stockRepository.save(stock);
+            if(knownStocks.containsKey(ks.getKey())) {
+                // update values
+                s = knownStocks.get(ks.getKey());
+                s.set_wkn(wkn);
+                s.set_name(name);
+                s.set_stockType(typ);
+                s.set_sortOrder(r);
+            } else {
+                s = new Stock(ks.getKey(), wkn, name, typ, r);
             }
+            stockRepository.save(s);
         }
 
         stockRepository.flush();
         return true;
     }
 
-    private Set<String> getStockIsins() {
-        return stockRepository.findAll().stream().map(Stock::getIsin).collect(Collectors.toSet());
+    private Map<String, Stock> getKnownStocks() {
+        Map<String, Stock> map = new HashMap<>();
+        stockRepository.findAll().forEach(s -> map.put(s.getIsin(), s));
+        return map;
     }
 
     private Set<String> getDepotNames() {

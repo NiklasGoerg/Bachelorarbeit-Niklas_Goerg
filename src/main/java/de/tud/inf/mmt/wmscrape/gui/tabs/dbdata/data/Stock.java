@@ -95,6 +95,22 @@ public class Stock {
         return sortOrder;
     }
 
+    public void set_wkn(String _wkn) {
+        this._wkn = _wkn;
+    }
+
+    public void set_name(String _name) {
+        this._name = _name;
+    }
+
+    public void set_stockType(String _stockType) {
+        this._stockType = _stockType;
+    }
+
+    public void set_sortOrder(Integer _sortOrder) {
+        this._sortOrder = _sortOrder;
+    }
+
     /**
      * due to the fact that hibernate creates proxies (subclasses of the actual entities) one has to use "instanceof" to compare
      * objects. normally checking of equality can cause unexpected results.

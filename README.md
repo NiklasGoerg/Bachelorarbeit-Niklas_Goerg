@@ -16,7 +16,7 @@ IntelliJ "default" Run-Configuration
 
 oder
 ```bash
-maven clean javafx:run
+mvn clean javafx:run
 ```
 
 Achtung: Maven und die Java Environment-Variablen müssen auf Version 17 gesetzt werden.
