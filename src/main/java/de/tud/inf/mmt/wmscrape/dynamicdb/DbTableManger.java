@@ -8,10 +8,14 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * provides the basic functions for db table manipulation
@@ -53,11 +57,42 @@ public abstract class DbTableManger {
      */
     public abstract List<String> getReservedColumns();
 
+    public abstract List<String> getDefaultColumnOrder();
+
     /**
      * column order defines the displayed column order in some javaFX tables
      * @return the column names in a list
      */
-    public abstract List<String> getColumnOrder();
+    public List<String> getColumnOrder() {
+        Properties properties = new Properties();
+
+        try {
+            properties.load(new FileInputStream("src/main/resources/user.properties"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        String columnOrder = properties.getProperty(getTableName() + "ColumnOrder", null);
+
+        if(columnOrder == null) {
+            return getDefaultColumnOrder();
+        } else {
+            return List.of(columnOrder.split(","));
+        }
+    }
+
+    public void setColumnOrder(List<String> columns) {
+        Properties properties = new Properties();
+        var columnsString = String.join(",", columns);
+
+        try {
+            properties.load(new FileInputStream("src/main/resources/user.properties"));
+            properties.setProperty(getTableName() + "ColumnOrder", columnsString);
+            properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
     /**
      * used for storing column entities in the right repository
