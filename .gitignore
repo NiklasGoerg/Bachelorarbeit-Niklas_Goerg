@@ -5,4 +5,3 @@ target/
 .idea/
 .attach_pid*
 *.iml
-src/main/resources/user.properties
