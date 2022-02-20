@@ -75,6 +75,12 @@ public class DataTabController {
 
     private DataManager tabManager;
 
+    private final ListChangeListener<? super TableColumn<CustomRow, ?>> reorderColumnsListener = (ListChangeListener.Change<? extends TableColumn<CustomRow,?>> change) -> {
+        var columnOrder = customRowTableView.getColumns().stream().map(TableColumnBase::getText).toList();
+
+        tabManager.setColumnOrder(columnOrder);
+    };
+
     /**
      * called when loading the fxml file
      *
@@ -173,6 +179,8 @@ public class DataTabController {
      */
     @FXML
     private void handleViewEverythingButton() {
+        customRowTableView.getColumns().removeListener(reorderColumnsListener);
+
         customRowTableView.getColumns().clear();
         customRowTableView.getItems().clear();
         allRows = tabManager.updateDataTable(customRowTableView);
@@ -182,6 +190,8 @@ public class DataTabController {
         viewEverything = true;
         stockSelectionTable.getSelectionModel().clearSelection();
         depotSelectionTable.getSelectionModel().clearSelection();
+
+        customRowTableView.getColumns().addListener(reorderColumnsListener);
     }
 
     /**
