@@ -1,6 +1,6 @@
 # Übersicht
 
-Dies ist der praktische Teil der Bachelorarbeit von Felix Rülke.
+Dies ist der praktische Teil der Bachelorarbeit von Jonas Hönisch, aufbauend auf der Arbeit von Felix Rülke.
 
 ## Vorraussetzungen
 
