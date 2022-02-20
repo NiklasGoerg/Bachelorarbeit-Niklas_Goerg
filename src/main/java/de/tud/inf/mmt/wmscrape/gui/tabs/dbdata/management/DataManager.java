@@ -291,6 +291,10 @@ public abstract class DataManager {
         }
     }
 
+    public void setColumnOrder(List<String> columns) {
+        dbTableManger.setColumnOrder(columns);
+    }
+
     /**
      * general process of deleting rows
      *
