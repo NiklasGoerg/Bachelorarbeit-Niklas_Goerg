@@ -68,9 +68,7 @@ public class ExchangeTableManager extends DbTableManger {
     }
 
     @Override
-    public List<String> getColumnOrder() {
-        return COLUMN_ORDER;
-    }
+    public List<String> getDefaultColumnOrder() { return COLUMN_ORDER; }
 
     @Override
     protected void saveNewInRepository(String colName, ColumnDatatype datatype) {
