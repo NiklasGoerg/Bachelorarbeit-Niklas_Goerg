@@ -57,6 +57,10 @@ public abstract class DbTableManger {
      */
     public abstract List<String> getReservedColumns();
 
+    /**
+     * default column order defines the displayed column order in case the user hasn't rearanged them
+     * @return the column names in a list
+     */
     public abstract List<String> getDefaultColumnOrder();
 
     /**
@@ -81,6 +85,10 @@ public abstract class DbTableManger {
         }
     }
 
+    /**
+     * used for persisting the column order
+     * @param columns the column order which should be saved to the .properties file
+     */
     public void setColumnOrder(List<String> columns) {
         Properties properties = new Properties();
         var columnsString = String.join(",", columns);
