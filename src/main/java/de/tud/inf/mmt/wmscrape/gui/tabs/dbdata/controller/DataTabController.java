@@ -191,12 +191,6 @@ public class DataTabController {
         stockSelectionTable.getSelectionModel().clearSelection();
         depotSelectionTable.getSelectionModel().clearSelection();
 
-        customRowTableView.getColumns().forEach(customRowTableColumn -> {
-            customRowTableColumn.widthProperty().addListener(((ov, t, t1) -> {
-                tabManager.setColumnWidth(customRowTableColumn.getText(), t1.doubleValue());
-            }));
-        });
-
         customRowTableView.getColumns().addListener(reorderColumnsListener);
     }
 
@@ -209,6 +203,10 @@ public class DataTabController {
         tabManager.saveStockListChanges(stockSelectionTable.getItems());
         scrapingElementsTabController.refresh();
         changedRows.clear();
+
+        customRowTableView.getColumns().forEach(customRowTableColumn -> {
+            tabManager.setColumnWidth(customRowTableColumn.getText(), customRowTableColumn.getWidth());
+        });
 
         handleResetButton();
         messageOnSuccess(success, "Speichern erfolgreich!", "Alle Daten wurden gespeichert.",
