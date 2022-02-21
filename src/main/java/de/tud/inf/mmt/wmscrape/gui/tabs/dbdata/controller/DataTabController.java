@@ -191,6 +191,12 @@ public class DataTabController {
         stockSelectionTable.getSelectionModel().clearSelection();
         depotSelectionTable.getSelectionModel().clearSelection();
 
+        customRowTableView.getColumns().forEach(customRowTableColumn -> {
+            customRowTableColumn.widthProperty().addListener(((ov, t, t1) -> {
+                tabManager.setColumnWidth(customRowTableColumn.getText(), t1.doubleValue());
+            }));
+        });
+
         customRowTableView.getColumns().addListener(reorderColumnsListener);
     }
 

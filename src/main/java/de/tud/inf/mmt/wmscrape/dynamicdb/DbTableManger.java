@@ -12,10 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * provides the basic functions for db table manipulation
@@ -96,6 +93,55 @@ public abstract class DbTableManger {
         try {
             properties.load(new FileInputStream("src/main/resources/user.properties"));
             properties.setProperty(getTableName() + "ColumnOrder", columnsString);
+            properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * used for retrieving the column widths from the user.properties file
+     */
+    public Map<String, Double> getColumnWidths() {
+        Map<String, Double> columnWidths = new HashMap<>();
+        Properties properties = new Properties();
+
+        try {
+
+            properties.load(new FileInputStream("src/main/resources/user.properties"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        List<String> columns = getColumnOrder();
+
+        for (String column : columns) {
+            try {
+                var propertiesWidth = properties.getProperty(getTableName() + column + "Width", null);
+
+                if(propertiesWidth != null) {
+                    var width = Double.valueOf(propertiesWidth);
+                    columnWidths.put(column, width);
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        return columnWidths;
+    }
+
+    /**
+     * used for setting a specific column width
+     * @param columnName the column which width should be updated
+     * @param width the width the user has set the column to
+     */
+    public void setColumnWidth(String columnName, Double width) {
+        Properties properties = new Properties();
+
+        try {
+            properties.load(new FileInputStream("src/main/resources/user.properties"));
+            properties.setProperty(getTableName() + columnName + "Width", String.valueOf(width));
             properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
         } catch (IOException e) {
             System.out.println(e.getMessage());

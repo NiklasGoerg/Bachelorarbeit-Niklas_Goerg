@@ -148,7 +148,7 @@ public abstract class DataManager {
      */
     protected <T extends DbTableColumn> void prepareTable(TableView<CustomRow> table,
                                                           List<T> columns,
-                                                          List<String> reserved, List<String> order) {
+                                                          List<String> reserved, List<String> order, Map<String, Double> columnWidths) {
 
         for(DbTableColumn dbColumn : columns) {
             String colName = dbColumn.getName();
@@ -175,7 +175,8 @@ public abstract class DataManager {
             tableColumn.setCellValueFactory(param -> param.getValue().getCells().get(colName).visualizedDataProperty());
             tableColumn.setCellFactory(TextFieldTableCell.forTableColumn());
             setComparator(tableColumn, datatype);
-            tableColumn.setPrefWidth(150);
+
+            tableColumn.setPrefWidth(columnWidths.getOrDefault(colName, 150d));
 
             if(reserved.contains(colName)) tableColumn.setEditable(false);
 
@@ -295,6 +296,8 @@ public abstract class DataManager {
         dbTableManger.setColumnOrder(columns);
     }
 
+    public void setColumnWidth(String columnName, Double width) { dbTableManger.setColumnWidth(columnName, width); }
+
     /**
      * general process of deleting rows
      *
@@ -356,7 +359,7 @@ public abstract class DataManager {
      */
     public ObservableList<CustomRow> updateDataTable(TableView<CustomRow> table) {
         List<? extends DbTableColumn> dbTableColumns = getTableColumns(dbTableColumnRepository);
-        prepareTable(table, dbTableColumns, dbTableManger.getNotEditableColumns(), dbTableManger.getColumnOrder());
+        prepareTable(table, dbTableColumns, dbTableManger.getNotEditableColumns(), dbTableManger.getColumnOrder(), dbTableManger.getColumnWidths());
         setDataTableInitialSort(table);
         return getAllRows(dbTableColumns);
     }
