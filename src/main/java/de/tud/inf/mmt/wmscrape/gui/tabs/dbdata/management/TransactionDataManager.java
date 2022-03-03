@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,8 +123,13 @@ public class TransactionDataManager extends DataManager {
     }
 
     @Override
-    protected String getSelectionStatement() {
-        return "SELECT WP.* , TA.* FROM wertpapier WP RIGHT OUTER JOIN `"+ TransactionTableManager.TABLE_NAME+"` TA ON WP.isin = TA.wertpapier_isin";
+    protected String getSelectionStatement(LocalDate startDate, LocalDate endDate) {
+        return "SELECT WP.* , TA.* FROM wertpapier WP RIGHT OUTER JOIN `"+ TransactionTableManager.TABLE_NAME+"` TA ON WP.isin = TA.wertpapier_isin" + getStartAndEndDateQueryPart(startDate, endDate, "transaktions_datum");
+    }
+
+    @Override
+    protected String getSelectionStatementOnlyLatestRows() {
+        return "SELECT WP.* , TA.* FROM wertpapier WP RIGHT OUTER JOIN(select * from `"+ TransactionTableManager.TABLE_NAME+"` DT inner join ( select wertpapier_isin as isin_kd, max(transaktions_datum) as MaxDate from `"+ TransactionTableManager.TABLE_NAME+"` group by wertpapier_isin) WPL on DT.wertpapier_isin = WPL.isin_kd and DT.transaktions_datum = WPL.MaxDate ) TA ON WP.isin = TA.wertpapier_isin";
     }
 
     @Override

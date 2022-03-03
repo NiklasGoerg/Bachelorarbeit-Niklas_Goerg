@@ -67,11 +67,14 @@ public class DataTabController {
     @FXML private TextField newTypeField;
     @FXML private TextField newSortOrderField;
 
+    @FXML private DatePicker startDate;
+    @FXML private DatePicker endDate;
 
     private final ObservableList<CustomRow> changedRows = FXCollections.observableArrayList();
     private ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
     private Object lastViewed;
     private boolean viewEverything = false;
+    private boolean loadEverything = false;
 
     private DataManager tabManager;
 
@@ -134,6 +137,11 @@ public class DataTabController {
     @FXML
     public void handleResetButton() {
         viewEverything = true;
+        loadEverything = false;
+
+        startDate.setValue(null);
+        endDate.setValue(null);
+
         reloadSelectionTable();
     }
 
@@ -179,11 +187,16 @@ public class DataTabController {
      */
     @FXML
     private void handleViewEverythingButton() {
+        loadEverything = true;
+        loadDataFromDatabase();
+    }
+
+    private void loadDataFromDatabase() {
         customRowTableView.getColumns().removeListener(reorderColumnsListener);
 
         customRowTableView.getColumns().clear();
         customRowTableView.getItems().clear();
-        allRows = tabManager.updateDataTable(customRowTableView);
+        allRows = tabManager.updateDataTable(customRowTableView, loadEverything, startDate.getValue(), endDate.getValue());
         customRowTableView.getItems().addAll(allRows);
         customRowTableView.sort();
         addRowChangeListeners();
@@ -488,7 +501,7 @@ public class DataTabController {
     private void reloadAllDataRows() {
         customRowTableView.getColumns().clear();
         customRowTableView.getItems().clear(); // also clears selection. useful when switching tabs
-        allRows = tabManager.updateDataTable(customRowTableView);
+        allRows = tabManager.updateDataTable(customRowTableView, loadEverything, startDate.getValue(), endDate.getValue());
         redoSelection();
         changedRows.clear();
     }
@@ -500,7 +513,7 @@ public class DataTabController {
         TableView<?> table = (TableView<?>) selectionPane.getCenter();
 
         if(viewEverything) {
-            handleViewEverythingButton();
+            loadDataFromDatabase();
         } else if (lastViewed != null && (
                 // TODO refactor
                 (table == stockSelectionTable && lastViewed instanceof Stock && stockSelectionTable.getItems().contains((Stock) lastViewed)) ||

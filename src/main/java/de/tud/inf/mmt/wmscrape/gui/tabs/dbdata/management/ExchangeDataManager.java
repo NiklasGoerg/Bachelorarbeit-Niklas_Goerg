@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,8 +107,13 @@ public class ExchangeDataManager extends DataManager {
     }
 
     @Override
-    protected String getSelectionStatement() {
-        return "SELECT * FROM "+ExchangeTableManager.TABLE_NAME;
+    protected String getSelectionStatement(LocalDate startDate, LocalDate endDate) {
+        return "SELECT * FROM "+ExchangeTableManager.TABLE_NAME + getStartAndEndDateQueryPart(startDate, endDate, "datum");
+    }
+
+    @Override
+    protected String getSelectionStatementOnlyLatestRows() {
+        return getSelectionStatement(null, null);
     }
 
     @Override

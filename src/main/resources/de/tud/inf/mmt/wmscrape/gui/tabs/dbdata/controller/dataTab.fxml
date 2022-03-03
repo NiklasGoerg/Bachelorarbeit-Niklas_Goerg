@@ -23,6 +23,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.text.Text?>
 
 <GridPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController">
@@ -69,6 +71,10 @@
                 </MenuButton>
                 <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen"/>
                 <Button mnemonicParsing="false" onAction="#handleViewEverythingButton" text="Alles anzeigen"/>
+                <DatePicker fx:id="endDate" nodeOrientation="LEFT_TO_RIGHT" />
+                <Text nodeOrientation="LEFT_TO_RIGHT">Enddatum:</Text>
+                <DatePicker fx:id="startDate" nodeOrientation="LEFT_TO_RIGHT" />
+                <Text nodeOrientation="LEFT_TO_RIGHT">Startdatum:</Text>
             </ToolBar>
         </top>
         <center>

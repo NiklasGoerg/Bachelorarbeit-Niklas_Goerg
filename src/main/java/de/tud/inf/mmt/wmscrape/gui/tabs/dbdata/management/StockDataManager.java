@@ -9,6 +9,7 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -37,9 +38,14 @@ public class StockDataManager extends StockAndCourseManager {
     }
 
     @Override
-    protected String getSelectionStatement() {
+    protected String getSelectionStatement(LocalDate startDate, LocalDate endDate) {
         // for every stock in the stock table exists a stock so there can't be any null values
         // adds the r_par column to the table
-        return "SELECT WP.* , SD.* FROM wertpapier WP RIGHT OUTER JOIN `"+StockTableManager.TABLE_NAME+"` SD ON WP.isin = SD.isin";
+        return "SELECT WP.* , SD.* FROM wertpapier WP RIGHT OUTER JOIN `"+StockTableManager.TABLE_NAME+"` SD ON WP.isin = SD.isin" + getStartAndEndDateQueryPart(startDate, endDate, "datum");
+    }
+
+    @Override
+    protected String getSelectionStatementOnlyLatestRows() {
+        return "SELECT WP.* , SD.* FROM wertpapier WP RIGHT OUTER JOIN(select * from `"+StockTableManager.TABLE_NAME+"` WP inner join ( select isin as isin_kd, max(datum) as MaxDate from `"+StockTableManager.TABLE_NAME+"` group by isin) WPL on WP.isin = WPL.isin_kd and WP.datum = WPL.MaxDate ) SD ON WP.isin = SD.isin";
     }
 }

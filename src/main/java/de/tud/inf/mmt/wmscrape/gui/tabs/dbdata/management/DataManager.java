@@ -128,7 +128,21 @@ public abstract class DataManager {
      * @return the sql statement used to fetch data for the data table. uses {@link DbTableColumn}s to extract the
      * data from the sql results.
      */
-    protected abstract String getSelectionStatement();
+    protected abstract String getSelectionStatement(LocalDate startDate, LocalDate endDate);
+
+    protected abstract String getSelectionStatementOnlyLatestRows();
+
+    protected String getStartAndEndDateQueryPart(LocalDate startDate, LocalDate endDate, String dateColumnName) {
+        if(startDate != null && endDate != null) {
+            return String.format(" WHERE '%s' <= %s AND %s <= '%s'", startDate, dateColumnName, dateColumnName, endDate);
+        } else if(startDate != null) {
+            return String.format(" WHERE '%s' <= %s", startDate, dateColumnName);
+        } else if(endDate != null) {
+            return String.format(" WHERE %s <= '%s'", dateColumnName, endDate);
+        }
+
+        return "";
+    }
 
     /**
      * allows adding table specific sorting
@@ -357,11 +371,11 @@ public abstract class DataManager {
      * @param table the javafx table
      * @return a list of all database data fpr a table converted into custom rows/cells
      */
-    public ObservableList<CustomRow> updateDataTable(TableView<CustomRow> table) {
+    public ObservableList<CustomRow> updateDataTable(TableView<CustomRow> table, boolean loadEverything, LocalDate startDate, LocalDate endDate) {
         List<? extends DbTableColumn> dbTableColumns = getTableColumns(dbTableColumnRepository);
         prepareTable(table, dbTableColumns, dbTableManger.getNotEditableColumns(), dbTableManger.getColumnOrder(), dbTableManger.getColumnWidths());
         setDataTableInitialSort(table);
-        return getAllRows(dbTableColumns);
+        return getRows(dbTableColumns, loadEverything, startDate, endDate);
     }
 
     /**
@@ -391,13 +405,15 @@ public abstract class DataManager {
      * @param columns the column entitys used for cell generation
      * @return all data rows as custom rows
      */
-    public ObservableList<CustomRow> getAllRows(List<? extends DbTableColumn> columns) {
+    public ObservableList<CustomRow> getRows(List<? extends DbTableColumn> columns, boolean loadEverything, LocalDate startDate, LocalDate endDate) {
 
         ObservableList<CustomRow> allRows = FXCollections.observableArrayList();
 
+        String queryStatement = loadEverything ? getSelectionStatement(startDate, endDate) : getSelectionStatementOnlyLatestRows();
+
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(getSelectionStatement());
+            ResultSet results = statement.executeQuery(queryStatement);
 
             // for each db row create new custom row
             while (results.next()) {
