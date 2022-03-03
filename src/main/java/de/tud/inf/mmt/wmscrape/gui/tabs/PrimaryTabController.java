@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
@@ -32,6 +33,8 @@ public class PrimaryTabController {
     private ScrapingTabController scrapingTabController;
     @Autowired
     private DataTabController dataTabController;
+    @Autowired
+    private HistoricTabController historicTabController;
 
     /**
      * called when loading the fxml file
@@ -51,6 +54,10 @@ public class PrimaryTabController {
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);
         Tab tab = new Tab("Scraping" , parent);
         primaryTabPane.getTabs().add(tab);
+
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/historic/controller/historicTab.fxml", historicTabController);
+        Tab historicTab = new Tab("Historisch" , parent);
+        primaryTabPane.getTabs().add(historicTab);
 
         primaryTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
             // can't know when the scraping service finished so refresh on select
