@@ -443,7 +443,7 @@ public class WebsiteScraper extends WebsiteHandler {
      */
     private boolean logInError() {
         if(!doLoginRoutine()) {
-            addToLog("ERR:\t\tLogin nicht korrekt durchgeführt für " + website.getUrl());
+            addToLog("ERR:\t\tLogin nicht korrekt durchgeführt für " + website.getLoginUrl());
             removeFinishedWebsite();
             return true;
         }

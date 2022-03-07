@@ -1,7 +1,7 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website;
+package de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.website;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingWebsiteTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricWebsiteTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.WebsiteManager;
 import javafx.fxml.FXML;
@@ -12,14 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class NewWebsitePopupController {
-    @FXML
-    private TextField descriptionField;
+public class NewHistoricWebsitePopupController {
+    @FXML private TextField descriptionField;
 
-    @Autowired
-    private WebsiteManager websiteManager;
-    @Autowired
-    private ScrapingWebsiteTabController scrapingWebsiteTabController;
+    @Autowired private WebsiteManager websiteManager;
+    @Autowired private HistoricWebsiteTabController historicWebsiteTabController;
 
     /**
      * called when loading the fxml file
@@ -40,9 +37,9 @@ public class NewWebsitePopupController {
             return;
         }
 
-        Website website = websiteManager.createNewWebsite(descriptionField.getText(), false);
-        scrapingWebsiteTabController.reloadWebsiteList();
-        scrapingWebsiteTabController.selectWebsite(website);
+        Website website = websiteManager.createNewWebsite(descriptionField.getText(), true);
+        historicWebsiteTabController.reloadWebsiteList();
+        historicWebsiteTabController.selectWebsite(website);
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Eine leere Webseitenbeschreibung wurde angelegt", ButtonType.OK);
         alert.setHeaderText("Webseite angelegt!");

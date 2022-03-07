@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.website.NewHistoricWebsitePopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.NewWebsitePopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.WebsiteTestPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
@@ -209,7 +210,7 @@ public class ScrapingWebsiteTabController {
     }
 
     private void setFieldDataToWebsite(Website website) {
-        website.setUrl(urlField.getText());
+        website.setLoginUrl(urlField.getText());
         website.setUsername(usernameField.getText());
         website.setPassword(passwordField.getText());
         website.setUsernameIdentType(usernameIdentChoiceBox.getValue());
@@ -250,7 +251,7 @@ public class ScrapingWebsiteTabController {
 
         deselectOnDeactivated(passwordIdentChoiceBox.getValue(), website.getPasswordIdentType());
 
-        urlField.setText(website.getUrl());
+        urlField.setText(website.getLoginUrl());
         usernameField.setText(website.getUsername());
         passwordField.setText(website.getPassword());
         usernameIdentChoiceBox.setValue(website.getUsernameIdentType());

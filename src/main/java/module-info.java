@@ -59,6 +59,7 @@ module de.tud.inf.mmt.wmscrape {
 
     // historic
     exports de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller to spring.beans;
+    exports de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.website to spring.beans;
 //    exports de.tud.inf.mmt.wmscrape.gui.tabs.historic.data to spring.beans;
 //    exports de.tud.inf.mmt.wmscrape.gui.tabs.historic.management to spring.beans;
 
@@ -107,7 +108,8 @@ module de.tud.inf.mmt.wmscrape {
 
     // historic
     opens de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller to spring.core, javafx.fxml;
-//    opens de.tud.inf.mmt.wmscrape.gui.tabs.historic.data to spring.core, javafx.fxml;
+    opens de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.website to spring.core, javafx.fxml;
+//    opens de.tud.inf.mmt.wmscrape.gui.tabs.historic.data to org.hibernate.orm.core, spring.core, javafx.fxml;
 //    opens de.tud.inf.mmt.wmscrape.gui.tabs.historic.management to spring.core, javafx.fxml;
 
     // data visualization

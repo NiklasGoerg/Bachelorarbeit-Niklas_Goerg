@@ -26,8 +26,8 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Column(nullable = false, updatable = false)
     private String description;
 
-    @Column(columnDefinition = "TEXT")
-    private String url;
+    @Column(columnDefinition = "TEXT", name = "login_url")
+    private String loginUrl;
 
     @Column(columnDefinition = "TEXT")
     private String username;
@@ -73,6 +73,44 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Column(columnDefinition = "BOOLEAN", name = "is_historic")
     private boolean isHistoric = false;
 
+    @Column(columnDefinition = "TEXT")
+    private String searchUrl;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "search_field_ident_type", nullable = false)
+    private IdentType searchFieldIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "search_field_ident")
+    private String searchFieldIdent;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "historic_link_ident_type", nullable = false)
+    private IdentType historicLinkIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "historic_link_ident")
+    private String historicLinkIdent;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "date_from_ident_type", nullable = false)
+    private IdentType dateFromIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "date_from_ident")
+    private String dateFromIdent;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "date_until_ident_type", nullable = false)
+    private IdentType dateUntilIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "date_until_ident")
+    private String dateUntilIdent;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "load_button_ident_type", nullable = false)
+    private IdentType loadButtonIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "load_button_ident")
+    private String loadButtonIdent;
+
     /**
      * only used by hibernate. do not save an instance without setting the necessary fields
      */
@@ -90,12 +128,12 @@ public class Website extends WebRepresentation<WebsiteElement>{
         return description;
     }
 
-    public String getUrl() {
-        return url;
+    public String getLoginUrl() {
+        return loginUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setLoginUrl(String url) {
+        this.loginUrl = url;
     }
 
     public String getUsername() {
@@ -235,7 +273,7 @@ public class Website extends WebRepresentation<WebsiteElement>{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Website website = (Website) o;
-        return id == website.id && Objects.equals(description, website.description) && Objects.equals(url, website.url) && Objects.equals(username, website.username) && Objects.equals(password, website.password) && usernameIdentType == website.usernameIdentType && Objects.equals(usernameIdent, website.usernameIdent) && passwordIdentType == website.passwordIdentType && Objects.equals(passwordIdent, website.passwordIdent) && loginButtonIdentType == website.loginButtonIdentType && Objects.equals(loginButtonIdent, website.loginButtonIdent) && logoutIdentType == website.logoutIdentType && Objects.equals(logoutIdent, website.logoutIdent) && cookieAcceptIdentType == website.cookieAcceptIdentType && Objects.equals(cookieAcceptIdent, website.cookieAcceptIdent);
+        return id == website.id && Objects.equals(description, website.description) && Objects.equals(loginUrl, website.loginUrl) && Objects.equals(username, website.username) && Objects.equals(password, website.password) && usernameIdentType == website.usernameIdentType && Objects.equals(usernameIdent, website.usernameIdent) && passwordIdentType == website.passwordIdentType && Objects.equals(passwordIdent, website.passwordIdent) && loginButtonIdentType == website.loginButtonIdentType && Objects.equals(loginButtonIdent, website.loginButtonIdent) && logoutIdentType == website.logoutIdentType && Objects.equals(logoutIdent, website.logoutIdent) && cookieAcceptIdentType == website.cookieAcceptIdentType && Objects.equals(cookieAcceptIdent, website.cookieAcceptIdent);
     }
 
     /**
@@ -254,5 +292,93 @@ public class Website extends WebRepresentation<WebsiteElement>{
 
     public void setHistoric(boolean historic) {
         isHistoric = historic;
+    }
+
+    public String getSearchUrl() {
+        return searchUrl;
+    }
+
+    public void setSearchUrl(String searchUrl) {
+        this.searchUrl = searchUrl;
+    }
+
+    public IdentType getSearchFieldIdentType() {
+        return searchFieldIdentType;
+    }
+
+    public void setSearchFieldIdentType(IdentType searchFieldIdentType) {
+        this.searchFieldIdentType = searchFieldIdentType;
+    }
+
+    public String getSearchFieldIdent() {
+        return searchFieldIdent;
+    }
+
+    public void setSearchFieldIdent(String searchFieldIdent) {
+        this.searchFieldIdent = searchFieldIdent;
+    }
+
+    public IdentType getHistoricLinkIdentType() {
+        return historicLinkIdentType;
+    }
+
+    public void setHistoricLinkIdentType(IdentType historicLinkIdentType) {
+        this.historicLinkIdentType = historicLinkIdentType;
+    }
+
+    public String getHistoricLinkIdent() {
+        return historicLinkIdent;
+    }
+
+    public void setHistoricLinkIdent(String historicLinkIdent) {
+        this.historicLinkIdent = historicLinkIdent;
+    }
+
+    public IdentType getDateFromIdentType() {
+        return dateFromIdentType;
+    }
+
+    public void setDateFromIdentType(IdentType dateFromIdentType) {
+        this.dateFromIdentType = dateFromIdentType;
+    }
+
+    public String getDateFromIdent() {
+        return dateFromIdent;
+    }
+
+    public void setDateFromIdent(String dateFromIdent) {
+        this.dateFromIdent = dateFromIdent;
+    }
+
+    public IdentType getDateUntilIdentType() {
+        return dateUntilIdentType;
+    }
+
+    public void setDateUntilIdentType(IdentType dateUntilIdentType) {
+        this.dateUntilIdentType = dateUntilIdentType;
+    }
+
+    public String getDateUntilIdent() {
+        return dateUntilIdent;
+    }
+
+    public void setDateUntilIdent(String dateUntilIdent) {
+        this.dateUntilIdent = dateUntilIdent;
+    }
+
+    public IdentType getLoadButtonIdentType() {
+        return loadButtonIdentType;
+    }
+
+    public void setLoadButtonIdentType(IdentType loadButtonIdentType) {
+        this.loadButtonIdentType = loadButtonIdentType;
+    }
+
+    public String getLoadButtonIdent() {
+        return loadButtonIdent;
+    }
+
+    public void setLoadButtonIdent(String loadButtonIdent) {
+        this.loadButtonIdent = loadButtonIdent;
     }
 }

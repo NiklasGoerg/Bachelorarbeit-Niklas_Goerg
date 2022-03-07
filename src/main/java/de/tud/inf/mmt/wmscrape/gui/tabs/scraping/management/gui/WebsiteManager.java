@@ -16,8 +16,9 @@ public class WebsiteManager {
     @Autowired
     private WebsiteRepository websiteRepository;
 
-    public Website createNewWebsite(String description) {
+    public Website createNewWebsite(String description, boolean historic) {
         Website website = new Website(description);
+        website.setHistoric(historic);
         websiteRepository.save(website);
         return website;
     }

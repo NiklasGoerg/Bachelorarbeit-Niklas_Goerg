@@ -152,7 +152,7 @@ public abstract class WebsiteHandler extends Service<Void> {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean loadLoginPage() {
-        return loadPage(website.getUrl());
+        return loadPage(website.getLoginUrl());
     }
 
     /**
