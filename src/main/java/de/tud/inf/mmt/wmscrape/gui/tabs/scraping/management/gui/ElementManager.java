@@ -35,6 +35,7 @@ import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -513,15 +514,23 @@ public abstract class ElementManager {
     }
 
 
-    public ObservableList<WebsiteElement> initWebsiteElementList(ListView<WebsiteElement> elementListView) {
-        ObservableList<WebsiteElement> elementObservableList = FXCollections.observableList(websiteElementRepository.findAll());
+    public ObservableList<WebsiteElement> initWebsiteElementList(ListView<WebsiteElement> elementListView, boolean historic) {
+        ObservableList<WebsiteElement> elementObservableList = FXCollections.observableList(getElements(historic));
         elementListView.setItems(elementObservableList);
         return elementObservableList;
     }
 
 
-    public List<WebsiteElement> getElements() {
-        return websiteElementRepository.findAll();
+    public List<WebsiteElement> getElements(boolean historic) {
+        return websiteElementRepository.findAll().stream().filter(element -> {
+            loadWebsite(element);
+
+            return element.getWebsite() == null || element.getWebsite().isHistoric() == historic;
+        }).collect(Collectors.toList());
     }
 
+    @Transactional
+    void loadWebsite(WebsiteElement element) {
+        Hibernate.initialize(element.getWebsite());
+    }
 }

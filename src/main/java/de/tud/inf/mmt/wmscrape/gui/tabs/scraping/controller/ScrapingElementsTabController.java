@@ -58,7 +58,7 @@ public class ScrapingElementsTabController {
     @FXML
     private void initialize() {
         setRightPanelBoxVisible(false);
-        elementObservableList = scrapingTableManager.initWebsiteElementList(elementList);
+        elementObservableList = scrapingTableManager.initWebsiteElementList(elementList, false);
         elementList.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldWs, newWs) -> loadSpecificElement(newWs));
 
@@ -175,7 +175,7 @@ public class ScrapingElementsTabController {
 
     public void reloadElementList() {
         elementObservableList.clear();
-        elementObservableList.addAll(scrapingTableManager.getElements());
+        elementObservableList.addAll(scrapingTableManager.getElements(false));
     }
 
     private void reloadWebsiteList() {
