@@ -26,16 +26,18 @@ public class WebsiteManager {
         websiteRepository.delete(website);
     }
 
-    public List<Website> getWebsites() {
-        return websiteRepository.findAll();
+    public List<Website> getWebsites(boolean historic) {
+        return historic ?
+                websiteRepository.findAllByIsHistoricTrue() :
+                websiteRepository.findAllByIsHistoricFalse();
     }
 
     public void saveWebsite(Website website) {
         websiteRepository.save(website);
     }
 
-    public ObservableList<Website> initWebsiteList(ListView<Website> websiteListView) {
-        ObservableList<Website> websiteObservableList = FXCollections.observableList(websiteRepository.findAll());
+    public ObservableList<Website> initWebsiteList(ListView<Website> websiteListView, boolean historic) {
+        ObservableList<Website> websiteObservableList = FXCollections.observableList(getWebsites(historic));
         websiteListView.setItems(websiteObservableList);
         return websiteObservableList;
     }

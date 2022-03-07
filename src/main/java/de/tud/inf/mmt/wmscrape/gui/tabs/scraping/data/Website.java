@@ -70,6 +70,9 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Column(columnDefinition = "TEXT", name = "cookie_accept_ident")
     private String cookieAcceptIdent;
 
+    @Column(columnDefinition = "BOOLEAN", name = "is_historic")
+    private boolean isHistoric = false;
+
     /**
      * only used by hibernate. do not save an instance without setting the necessary fields
      */
@@ -243,5 +246,13 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Override
     public int hashCode() {
         return Objects.hash(id, description, 2);
+    }
+
+    public boolean isHistoric() {
+        return isHistoric;
+    }
+
+    public void setHistoric(boolean historic) {
+        isHistoric = historic;
     }
 }

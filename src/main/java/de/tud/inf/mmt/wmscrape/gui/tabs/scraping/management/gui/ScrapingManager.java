@@ -2,7 +2,6 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebRepresentation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteTree;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScraper;
@@ -32,7 +31,7 @@ public class ScrapingManager {
 
     @Autowired private AutowireCapableBeanFactory beanFactory;
     @Autowired private DataSource dataSource;
-    @Autowired private WebsiteRepository websiteRepository;
+    @Autowired private WebsiteManager websiteManager;
     private WebsiteScraper scrapingService;
     private Connection dbConnection;
     private Properties properties;
@@ -47,7 +46,7 @@ public class ScrapingManager {
     @Transactional
     public TreeView<WebRepresentation<?>> createSelectionTree(
             ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems, Set<Integer> restored) {
-        var websites = websiteRepository.findAll();
+        var websites = websiteManager.getWebsites(false);
         return (new WebsiteTree(websites, checkedItems, restored)).getTreeView();
     }
 

@@ -61,7 +61,7 @@ public class ScrapingWebsiteTabController {
     private void initialize() {
 
         setRightPanelBoxVisible(false);
-        websiteObservableList = websiteManager.initWebsiteList(websiteList);
+        websiteObservableList = websiteManager.initWebsiteList(websiteList, false);
         websiteList.getSelectionModel().selectedItemProperty().addListener(
                 (ov, oldWs, newWs) -> loadSpecificWebsite(newWs));
 
@@ -222,6 +222,7 @@ public class ScrapingWebsiteTabController {
         website.setLogoutIdent(logoutIdentField.getText());
         website.setCookieAcceptIdentType(cookieAcceptIdentChoiceBox.getValue());
         website.setCookieAcceptIdent(cookieAcceptIdentField.getText());
+        website.setHistoric(false);
     }
 
     public void selectWebsite(Website website) {
@@ -237,7 +238,7 @@ public class ScrapingWebsiteTabController {
 
     public void reloadWebsiteList() {
         websiteObservableList.clear();
-        websiteObservableList.addAll(websiteManager.getWebsites());
+        websiteObservableList.addAll(websiteManager.getWebsites(false));
     }
 
     private void loadSpecificWebsite(Website website) {

@@ -180,7 +180,7 @@ public class ScrapingElementsTabController {
 
     private void reloadWebsiteList() {
         websiteObservableList.clear();
-        websiteObservableList.addAll(websiteManager.getWebsites());
+        websiteObservableList.addAll(websiteManager.getWebsites(false));
     }
 
     /**
