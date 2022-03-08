@@ -76,6 +76,7 @@ module de.tud.inf.mmt.wmscrape {
     exports de.tud.inf.mmt.wmscrape.dynamicdb.course;
     exports de.tud.inf.mmt.wmscrape.dynamicdb.exchange;
     exports de.tud.inf.mmt.wmscrape.dynamicdb.stock;
+    exports de.tud.inf.mmt.wmscrape.dynamicdb.historic;
     exports de.tud.inf.mmt.wmscrape.dynamicdb.transaction to spring.beans;
 
     // #######################
@@ -127,4 +128,5 @@ module de.tud.inf.mmt.wmscrape {
     opens de.tud.inf.mmt.wmscrape.dynamicdb.exchange;
     opens de.tud.inf.mmt.wmscrape.dynamicdb.stock;
     opens de.tud.inf.mmt.wmscrape.dynamicdb.transaction to spring.core, org.hibernate.orm.core;
+    opens de.tud.inf.mmt.wmscrape.dynamicdb.historic;
 }

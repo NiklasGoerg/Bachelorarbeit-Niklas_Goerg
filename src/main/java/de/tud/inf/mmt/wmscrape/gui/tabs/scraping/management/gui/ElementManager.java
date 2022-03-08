@@ -8,6 +8,9 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.historic.HistoricColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.historic.HistoricColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.historic.HistoricTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager;
@@ -53,6 +56,7 @@ public abstract class ElementManager {
 
     private final static String[] HIDDEN_SINGLE_STOCK = {"isin", "wkn","name", "typ"};
     private final static String[] EXTRA_STOCK = {"wkn","name"};
+    private final static String[] EXTRA_HISTORIC = {};
     private final static ObservableList<String> identTypeDeactivatedObservable = getObservableList(IDENT_TYPE_TABLE);
 
     @Autowired
@@ -63,6 +67,8 @@ public abstract class ElementManager {
     private StockColumnRepository stockColumnRepository;
     @Autowired
     private ExchangeColumnRepository exchangeColumnRepository;
+    @Autowired
+    private HistoricColumnRepository historicColumnRepository;
     @Autowired
     protected WebsiteElementRepository websiteElementRepository;
     @Autowired
@@ -225,6 +231,8 @@ public abstract class ElementManager {
             fillStockIdentCorrelationTable(websiteElement,table, multiplicityType);
         } else if(type == ContentType.WECHSELKURS) {
             fillExchangeIdentCorrelationTable(websiteElement, table);
+        } else if(type == ContentType.HISTORISCH) {
+            fillHistoricIdentCorrelationTable(websiteElement, table);
         }
     }
 
@@ -393,6 +401,41 @@ public abstract class ElementManager {
         }
 
         table.getItems().addAll(exchangeCorrelations);
+    }
+
+    /**
+     * adds all identification correlation rows for all columns of the historic database table ({@link HistoricTableManager#TABLE_NAME}).
+     * previously saved ones are added first
+     *
+     * @param websiteElement the website element configuration
+     * @param table the javafx selection table
+     */
+    private void fillHistoricIdentCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table) {
+        ObservableList<ElementIdentCorrelation> historicCorrelations = FXCollections.observableArrayList();
+        ArrayList<String> addedStockColumns = new ArrayList<>();
+
+        for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
+            historicCorrelations.add(elementIdentCorrelation);
+            addedStockColumns.add(elementIdentCorrelation.getDbColName());
+        }
+
+        // add these for scraping identification purposes
+        for(String column : EXTRA_HISTORIC) {
+            if(!addedStockColumns.contains(column)) {
+                addedStockColumns.add(column);
+                historicCorrelations.add(new ElementIdentCorrelation(
+                        websiteElement, ColumnDatatype.TEXT, CourseTableManager.TABLE_NAME ,column));
+            }
+        }
+
+        for(HistoricColumn column : historicColumnRepository.findAll()) {
+            if(!addedStockColumns.contains(column.getName())) {
+                addedStockColumns.add(column.getName());
+                historicCorrelations.add(new ElementIdentCorrelation(websiteElement, column));
+            }
+        }
+
+        table.getItems().addAll(historicCorrelations);
     }
 
 

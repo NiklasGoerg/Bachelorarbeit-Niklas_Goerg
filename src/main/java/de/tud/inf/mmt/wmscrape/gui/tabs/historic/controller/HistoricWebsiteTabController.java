@@ -105,8 +105,8 @@ public class HistoricWebsiteTabController {
 
         addTypeToChoiceBox(searchIdentChoiceBox, IDENT_TYPE_DEACTIVATED_ENTER);
         addTypeToChoiceBox(historicLinkIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
-        addTypeToChoiceBox(dateFromIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
-        addTypeToChoiceBox(dateUntilIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
+        addTypeToChoiceBox(dateFromIdentChoiceBox, IDENT_TYPE_DATE);
+        addTypeToChoiceBox(dateUntilIdentChoiceBox, IDENT_TYPE_DATE);
         addTypeToChoiceBox(loadButtonIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
 
         addDeselectListener(usernameIdentChoiceBox);
