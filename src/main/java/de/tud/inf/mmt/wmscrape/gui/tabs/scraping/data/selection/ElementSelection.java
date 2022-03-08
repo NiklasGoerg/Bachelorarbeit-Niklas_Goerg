@@ -165,4 +165,8 @@ public class ElementSelection {
             _selected = nv;
         });
     }
+
+    public WebsiteElement getWebsiteElement() {
+        return websiteElement;
+    }
 }

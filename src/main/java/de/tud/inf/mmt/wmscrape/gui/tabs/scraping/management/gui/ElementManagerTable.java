@@ -1,11 +1,14 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.element.HistoricTableSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelationRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -20,6 +23,8 @@ public class ElementManagerTable extends ElementManager {
     private ElementDescCorrelationRepository elementDescCorrelationRepository;
     @Autowired
     private TableSubController tableSubController;
+    @Autowired
+    private HistoricTableSubController historicTableSubController;
 
     /**
      * used by the {@link TableSubController} to initialize and fill the description correlations for the stock or course type.
@@ -135,21 +140,22 @@ public class ElementManagerTable extends ElementManager {
      * @param elementSelection the selected element
      */
     protected void addNewElementDescCorrelation(ElementSelection elementSelection) {
+        var correlations = GetElementDescCorrelations(elementSelection.getWebsiteElement());
 
-        for(ElementDescCorrelation correlation : tableSubController.getElementDescCorrelations()) {
+        for(ElementDescCorrelation correlation : correlations) {
             if(correlation.getElementSelection().equals(elementSelection)) {
                 return;
             }
         }
 
         if(elementSelection.getElementDescCorrelation() != null) {
-            tableSubController.getElementDescCorrelations().add(elementSelection.getElementDescCorrelation());
+            correlations.add(elementSelection.getElementDescCorrelation());
             return;
         }
 
         var correlation = new ElementDescCorrelation(elementSelection);
         elementSelection.setElementDescCorrelation(correlation);
-        tableSubController.getElementDescCorrelations().add(correlation);
+        correlations.add(correlation);
     }
 
     /**
@@ -160,7 +166,7 @@ public class ElementManagerTable extends ElementManager {
     protected void removeElementDescCorrelation(ElementSelection elementSelection) {
         ElementDescCorrelation correlation = elementSelection.getElementDescCorrelation();
         if (correlation == null) return;
-        tableSubController.getElementDescCorrelations().remove(correlation);
+        GetElementDescCorrelations(elementSelection.getWebsiteElement()).remove(correlation);
         elementSelection.setElementDescCorrelation(null);
     }
 
@@ -179,27 +185,33 @@ public class ElementManagerTable extends ElementManager {
     public void saveTableSettings(WebsiteElement websiteElement) {
         websiteElementRepository.saveAndFlush(websiteElement);
 
-        for (var selection : tableSubController.getSelections()) {
+        var controller = websiteElement.getContentType() == ContentType.HISTORISCH ? historicTableSubController : tableSubController;
+
+        for (var selection : controller.getSelections()) {
             if(selection.isChanged()) {
                 elementSelectionRepository.save(selection);
             }
         }
         elementSelectionRepository.flush();
 
-        for(var correlation : tableSubController.getElementDescCorrelations()) {
+        for(var correlation : GetElementDescCorrelations(websiteElement)) {
             if(correlation.isChanged()) {
                 elementDescCorrelationRepository.save(correlation);
             }
         }
         elementDescCorrelationRepository.flush();
 
-        for (var identCorrelation : tableSubController.getDbCorrelations()) {
+        for (var identCorrelation : controller.getDbCorrelations()) {
             if(identCorrelation.isChanged()) {
                 elementIdentCorrelationRepository.save(identCorrelation);
             }
         }
 
         elementSelectionRepository.deleteAllBy_selected(false);
+    }
+
+    private ObservableList<ElementDescCorrelation> GetElementDescCorrelations(WebsiteElement websiteElement) {
+        return websiteElement.getContentType() == ContentType.HISTORISCH ? historicTableSubController.getElementDescCorrelations() : tableSubController.getElementDescCorrelations();
     }
 
     private void textFieldCellFactory(TableColumn<ElementDescCorrelation, String> column) {

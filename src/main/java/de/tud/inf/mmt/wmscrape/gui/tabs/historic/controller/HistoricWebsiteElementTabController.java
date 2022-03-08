@@ -119,7 +119,6 @@ public class HistoricWebsiteElementTabController {
         WebsiteElement websiteElement = getSelectedElement();
         websiteElement.setWebsite(websiteChoiceBox.getValue());
 
-        scrapingCourseAndExchangeManager.saveSingleCourseOrStockSettings(websiteElement);
         scrapingTableManager.saveTableSettings(websiteElement);
 
         Alert alert = new Alert(

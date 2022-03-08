@@ -41,7 +41,7 @@ public class NewHistoricElementPopupController {
             return;
         }
 
-        WebsiteElement element = elementManagerTable.createNewElement(descriptionField.getText(), ContentType.HISTORISCH, MultiplicityType.EINZELWERT);
+        WebsiteElement element = elementManagerTable.createNewElement(descriptionField.getText(), ContentType.HISTORISCH, MultiplicityType.TABELLE);
         historicWebsiteElementTabController.reloadElementList();
         historicWebsiteElementTabController.selectElement(element);
 
