@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricWebsiteElementTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.NewElementPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleCourseOrStockSubController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.SingleExchangeSubController;
@@ -44,6 +45,8 @@ public class ScrapingElementsTabController {
     private SingleCourseOrStockSubController singleCourseOrStockSubController;
     @Autowired
     private TableSubController tableSubController;
+    @Autowired
+    private HistoricWebsiteElementTabController historicWebsiteElementTabController;
 
     private ObservableList<WebsiteElement> elementObservableList;
     private final ObservableList<Website> websiteObservableList = FXCollections.observableArrayList();
@@ -111,6 +114,8 @@ public class ScrapingElementsTabController {
         reloadElementList();
         setRightPanelBoxVisible(false);
         elementList.getSelectionModel().selectFirst();
+
+        historicWebsiteElementTabController.refresh();
     }
 
     @FXML
@@ -140,6 +145,8 @@ public class ScrapingElementsTabController {
         alert.setHeaderText("Daten gespeichert!");
         PrimaryTabManager.setAlertPosition(alert , urlField);
         alert.showAndWait();
+
+        historicWebsiteElementTabController.refresh();
     }
 
     /**

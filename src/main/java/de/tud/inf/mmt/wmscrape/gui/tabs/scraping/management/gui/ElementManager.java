@@ -35,7 +35,6 @@ import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -496,7 +495,11 @@ public abstract class ElementManager {
         var newElement = getFreshWebsiteElement(staleElement);
         staleElement.setTableIdent(newElement.getTableIdent());
         staleElement.setTableIdenType(newElement.getTableIdenType());
-        urlField.setText(newElement.getInformationUrl());
+
+        if(urlField != null) {
+            urlField.setText(newElement.getInformationUrl());
+        }
+
         choiceBox.setValue(newElement.getWebsite());
     }
 
@@ -522,15 +525,6 @@ public abstract class ElementManager {
 
 
     public List<WebsiteElement> getElements(boolean historic) {
-        return websiteElementRepository.findAll().stream().filter(element -> {
-            loadWebsite(element);
-
-            return element.getWebsite() == null || element.getWebsite().isHistoric() == historic;
-        }).collect(Collectors.toList());
-    }
-
-    @Transactional
-    void loadWebsite(WebsiteElement element) {
-        Hibernate.initialize(element.getWebsite());
+        return websiteElementRepository.findAll().stream().filter(element -> (element.getContentType() == ContentType.HISTORISCH) == historic).collect(Collectors.toList());
     }
 }

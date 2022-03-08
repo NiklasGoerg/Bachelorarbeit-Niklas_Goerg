@@ -26,7 +26,7 @@ public class WebsiteElement extends WebRepresentation<WebRepresentation<?>> {
     private int id;
 
     // set to null if website config is removed -> no cascading delete
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "website_id", referencedColumnName = "id")
     private Website website;
 

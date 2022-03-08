@@ -1,4 +1,4 @@
-package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element;
+package de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.element;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricWebsiteElementTabController;
@@ -10,27 +10,22 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.ElementManagerTa
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 
-
 @Controller
-@Lazy
-public class NewElementPopupController {
-    @FXML private TextField descriptionField;
-    @FXML private ChoiceBox<ContentType> contentTypeChoiceBox;
-    @FXML private ChoiceBox<MultiplicityType> multiplicityChoiceBox;
+public class NewHistoricElementPopupController {
+    @FXML
+    private TextField descriptionField;
 
     /* doesn't matter which manager as all have the needed methods */
     @Autowired
     private ElementManagerTable elementManagerTable;
     @Autowired
-    private ScrapingElementsTabController scrapingElementsTabController;
-    @Autowired
     private HistoricWebsiteElementTabController historicWebsiteElementTabController;
+    @Autowired
+    private ScrapingElementsTabController scrapingElementsTabController;
 
     /**
      * called when loading the fxml file
@@ -38,10 +33,6 @@ public class NewElementPopupController {
     @FXML
     private void initialize() {
         descriptionField.textProperty().addListener((o,ov,nv) -> { if (nv != null) isValidDescription();});
-        contentTypeChoiceBox.getItems().addAll(ContentType.values());
-        multiplicityChoiceBox.getItems().addAll(MultiplicityType.values());
-        contentTypeChoiceBox.setValue(ContentType.AKTIENKURS);
-        multiplicityChoiceBox.setValue(MultiplicityType.TABELLE);
     }
 
     @FXML
@@ -50,12 +41,9 @@ public class NewElementPopupController {
             return;
         }
 
-        WebsiteElement element = elementManagerTable.createNewElement(
-                descriptionField.getText(),
-                contentTypeChoiceBox.getValue(),
-                multiplicityChoiceBox.getValue());
-        scrapingElementsTabController.reloadElementList();
-        scrapingElementsTabController.selectElement(element);
+        WebsiteElement element = elementManagerTable.createNewElement(descriptionField.getText(), ContentType.HISTORISCH, MultiplicityType.EINZELWERT);
+        historicWebsiteElementTabController.reloadElementList();
+        historicWebsiteElementTabController.selectElement(element);
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Eine neues Webseiten-Element wurde angelegt", ButtonType.OK);
         alert.setHeaderText("Element angelegt!");
@@ -65,7 +53,7 @@ public class NewElementPopupController {
         alert.showAndWait();
 
         window.hide();
-        historicWebsiteElementTabController.refresh();
+        scrapingElementsTabController.refresh();
     }
 
     @FXML
@@ -85,3 +73,4 @@ public class NewElementPopupController {
         return true;
     }
 }
+

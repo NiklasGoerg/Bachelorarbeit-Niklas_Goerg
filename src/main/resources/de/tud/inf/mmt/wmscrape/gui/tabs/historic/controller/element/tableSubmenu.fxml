@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="499.0" prefWidth="1145.0" xmlns="http://javafx.com/javafx/16"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController">
+    <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <HBox alignment="CENTER_LEFT" prefHeight="30.0">
+            <VBox.margin>
+                <Insets bottom="1.0"/>
+            </VBox.margin>
+            <HBox alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="160.0">
+                <HBox.margin>
+                    <Insets right="10.0"/>
+                </HBox.margin>
+                <Label text="Tabellenidentifikation"/>
+            </HBox>
+            <ChoiceBox fx:id="tableIdentChoiceBox" prefWidth="150.0">
+                <HBox.margin>
+                    <Insets right="10.0"/>
+                </HBox.margin>
+            </ChoiceBox>
+            <TextField fx:id="tableIdentField" prefWidth="350.0"/>
+        </HBox>
+        <Separator/>
+    </VBox>
+    <SplitPane dividerPositions="0.35" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="33.0">
+        <AnchorPane maxWidth="750.0">
+            <HBox alignment="CENTER" prefHeight="20.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="0.0"
+                  AnchorPane.topAnchor="0.0">
+                <padding>
+                    <Insets bottom="2.0"/>
+                </padding>
+                <Label text="Auswahl"/>
+            </HBox>
+            <TableView fx:id="selectionTable" editable="true" AnchorPane.bottomAnchor="0.0"
+                       AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0"/>
+        </AnchorPane>
+        <AnchorPane>
+            <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0"
+                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                       AnchorPane.topAnchor="0.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                    <HBox alignment="CENTER" prefHeight="20.0" AnchorPane.leftAnchor="0.0"
+                          AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
+                        <Label text="Anpassung der Datenbank-Bezeichnungen an die Webseite">
+                            <padding>
+                                <Insets bottom="2.0"/>
+                            </padding>
+                        </Label>
+                    </HBox>
+                    <TableView fx:id="elementDescCorrelationTableView" editable="true"
+                               tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0"
+                               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0"
+                               AnchorPane.topAnchor="20.0"/>
+                </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                    <HBox alignment="CENTER" prefHeight="20.0" AnchorPane.leftAnchor="0.0"
+                          AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0">
+                        <Label text="Zuordnung zu den Zeilenelementen"/>
+                    </HBox>
+                    <TableView fx:id="columnCorrelationTable" editable="true" AnchorPane.bottomAnchor="0.0"
+                               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="5.0"
+                               AnchorPane.topAnchor="20.0"/>
+                </AnchorPane>
+            </SplitPane>
+        </AnchorPane>
+    </SplitPane>
+</AnchorPane>
