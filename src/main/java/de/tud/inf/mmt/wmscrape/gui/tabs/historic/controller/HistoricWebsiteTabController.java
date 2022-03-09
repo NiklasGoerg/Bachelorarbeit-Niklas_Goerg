@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.website.HistoricWebsiteTestPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.website.NewHistoricWebsitePopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.WebsiteTestPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
@@ -66,7 +67,7 @@ public class HistoricWebsiteTabController {
     @Autowired
     private NewHistoricWebsitePopupController newHistoricWebsitePopupController;
     @Autowired
-    private WebsiteTestPopupController websiteTestPopupController;
+    private HistoricWebsiteTestPopupController historicWebsiteTestPopupController;
 
     /**
      * called when loading the fxml file
@@ -190,13 +191,13 @@ public class HistoricWebsiteTabController {
     private void handleTestButton() {
         if(noWebsiteSelected()) return;
         inlineValidation = true;
-        if(!isValidInput() || urlField.getText().equals("-")) return;
+//        if(!isValidInput() || urlField.getText().equals("-")) return;
 
         PrimaryTabManager.loadFxml(
                 "gui/tabs/scraping/controller/website/websiteTestPopup.fxml",
                 "Login Test",
                 websiteList,
-                true, websiteTestPopupController);
+                true, historicWebsiteTestPopupController);
     }
 
     private boolean noWebsiteSelected() {

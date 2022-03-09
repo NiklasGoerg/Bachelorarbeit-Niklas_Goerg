@@ -10,6 +10,7 @@ import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxDriverLogLevel;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
@@ -561,4 +562,79 @@ public abstract class WebsiteHandler extends Service<Void> {
         Platform.runLater(() -> logText.set(logText.getValue() + "\n" + line));
     }
 
+    protected boolean loadSearchPage() {
+        addToLog("INFO:\tZu Such-Unterseite navigiert");
+        return loadPage(website.getSearchUrl());
+    }
+
+    protected boolean searchForStock(String isin) {
+        WebElement element = extractElementFromRoot(website.getSearchFieldIdentType(), website.getSearchFieldIdent());
+        if (element == null) return false;
+
+        setText(element, isin);
+        submit(element);
+
+        addToLog("INFO:\tZu Wertpapier-Unterseite navigiert");
+
+        return true;
+    }
+
+    protected boolean loadHistoricPage() {
+        WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), website.getHistoricLinkIdent());
+
+        if (element == null) return false;
+
+        clickElement(element);
+        waitLoadEvent();
+        addToLog("INFO:\tZu historischen Daten navigiert");
+        return true;
+    }
+
+    protected boolean setDate() {
+        if(website.getDateFromIdentType() == IdentType.DATUM && website.getDateUntilIdentType() == IdentType.DATUM) {
+            var dateFromIdents = website.getDateFromIdent().split(";");
+            for(String ident : dateFromIdents) {
+                WebElement element = extractElementFromRoot(IdentType.XPATH, ident);
+
+                new Select(element).selectByIndex(0);
+            }
+
+            var dateUntilIdents = website.getDateUntilIdent().split(";");
+            for(String ident : dateUntilIdents) {
+                WebElement element = extractElementFromRoot(IdentType.XPATH, ident);
+
+                var select = new Select(element);
+
+                select.selectByIndex(select.getOptions().size() - 1);
+            }
+
+            addToLog("INFO:\tDatum gesetzt");
+
+            return true;
+        }
+
+        return false;
+    }
+
+    protected boolean declineNotifications() {
+        WebElement element = extractElementFromRoot(IdentType.XPATH, "//*[@id='finWebpushNotificationModal']/div/div[5]/span[1]");
+
+        if (element == null) return true;
+
+        clickElement(element);
+
+        return true;
+    }
+
+    protected boolean loadHistoricData() {
+        WebElement element = extractElementFromRoot(website.getLoadButtonIdentType(), website.getLoadButtonIdent());
+
+        if (element == null) return false;
+
+        clickElement(element);
+
+        addToLog("INFO:\tHistorische Daten geladen");
+
+        return true;
+    }
 }
