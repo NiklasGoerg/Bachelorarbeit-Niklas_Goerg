@@ -70,6 +70,13 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Column(columnDefinition = "TEXT", name = "cookie_accept_ident")
     private String cookieAcceptIdent;
 
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "notification_decline_ident_type", nullable = false)
+    private IdentType declineNotificationIdentType = IdentType.XPATH;
+
+    @Column(columnDefinition = "TEXT", name = "notification_decline_ident")
+    private String notificationDeclineIdent;
+
     @Column(columnDefinition = "BOOLEAN", name = "is_historic")
     private boolean isHistoric = false;
 
@@ -84,6 +91,13 @@ public class Website extends WebRepresentation<WebsiteElement>{
     private String searchFieldIdent;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "search_button_ident_type", nullable = false)
+    private IdentType searchButtonIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "search_button_ident")
+    private String searchButtonIdent;
+
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "historic_link_ident_type", nullable = false)
     private IdentType historicLinkIdentType = IdentType.ID;
 
@@ -91,18 +105,49 @@ public class Website extends WebRepresentation<WebsiteElement>{
     private String historicLinkIdent;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "date_from_ident_type", nullable = false)
-    private IdentType dateFromIdentType = IdentType.ID;
+    @Column(name = "date_from_day_ident_type", nullable = false)
+    private IdentType dateFromDayIdentType = IdentType.ID;
 
-    @Column(columnDefinition = "TEXT", name = "date_from_ident")
-    private String dateFromIdent;
+    @Column(columnDefinition = "TEXT", name = "date_from_day_ident")
+    private String dateFromDayIdent;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "date_until_ident_type", nullable = false)
-    private IdentType dateUntilIdentType = IdentType.ID;
+    @Column(name = "date_from_month_ident_type", nullable = false)
+    private IdentType dateFromMonthIdentType = IdentType.ID;
 
-    @Column(columnDefinition = "TEXT", name = "date_until_ident")
-    private String dateUntilIdent;
+    @Column(columnDefinition = "TEXT", name = "date_from_month_ident")
+    private String dateFromMonthIdent;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "date_from_year_ident_type", nullable = false)
+    private IdentType dateFromYearIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "date_from_year_ident")
+    private String dateFromYearIdent;
+
+    @Column(columnDefinition = "TEXT", name = "date_from")
+    private String dateFrom;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "date_until_day_ident_type", nullable = false)
+    private IdentType dateUntilDayIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "date_until_day_ident")
+    private String dateUntilDayIdent;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "date_until_month_ident_type", nullable = false)
+    private IdentType dateUntilMonthIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "date_until_month_ident")
+    private String dateUntilMonthIdent;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "date_until_year_ident_type", nullable = false)
+    private IdentType dateUntilYearIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "date_until_year_ident")
+    private String dateUntilYearIdent;
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "load_button_ident_type", nullable = false)
@@ -334,38 +379,6 @@ public class Website extends WebRepresentation<WebsiteElement>{
         this.historicLinkIdent = historicLinkIdent;
     }
 
-    public IdentType getDateFromIdentType() {
-        return dateFromIdentType;
-    }
-
-    public void setDateFromIdentType(IdentType dateFromIdentType) {
-        this.dateFromIdentType = dateFromIdentType;
-    }
-
-    public String getDateFromIdent() {
-        return dateFromIdent;
-    }
-
-    public void setDateFromIdent(String dateFromIdent) {
-        this.dateFromIdent = dateFromIdent;
-    }
-
-    public IdentType getDateUntilIdentType() {
-        return dateUntilIdentType;
-    }
-
-    public void setDateUntilIdentType(IdentType dateUntilIdentType) {
-        this.dateUntilIdentType = dateUntilIdentType;
-    }
-
-    public String getDateUntilIdent() {
-        return dateUntilIdent;
-    }
-
-    public void setDateUntilIdent(String dateUntilIdent) {
-        this.dateUntilIdent = dateUntilIdent;
-    }
-
     public IdentType getLoadButtonIdentType() {
         return loadButtonIdentType;
     }
@@ -380,5 +393,141 @@ public class Website extends WebRepresentation<WebsiteElement>{
 
     public void setLoadButtonIdent(String loadButtonIdent) {
         this.loadButtonIdent = loadButtonIdent;
+    }
+
+    public IdentType getDeclineNotificationIdentType() {
+        return declineNotificationIdentType;
+    }
+
+    public void setDeclineNotificationIdentType(IdentType declineNotificationIdentType) {
+        this.declineNotificationIdentType = declineNotificationIdentType;
+    }
+
+    public String getNotificationDeclineIdent() {
+        return notificationDeclineIdent;
+    }
+
+    public void setNotificationDeclineIdent(String notificationDeclineIdent) {
+        this.notificationDeclineIdent = notificationDeclineIdent;
+    }
+
+    public IdentType getDateFromDayIdentType() {
+        return dateFromDayIdentType;
+    }
+
+    public void setDateFromDayIdentType(IdentType dateFromDayIdentType) {
+        this.dateFromDayIdentType = dateFromDayIdentType;
+    }
+
+    public String getDateFromDayIdent() {
+        return dateFromDayIdent;
+    }
+
+    public void setDateFromDayIdent(String dateFromDayIdent) {
+        this.dateFromDayIdent = dateFromDayIdent;
+    }
+
+    public IdentType getDateFromMonthIdentType() {
+        return dateFromMonthIdentType;
+    }
+
+    public void setDateFromMonthIdentType(IdentType dateFromMonthIdentType) {
+        this.dateFromMonthIdentType = dateFromMonthIdentType;
+    }
+
+    public String getDateFromMonthIdent() {
+        return dateFromMonthIdent;
+    }
+
+    public void setDateFromMonthIdent(String dateFromMonthIdent) {
+        this.dateFromMonthIdent = dateFromMonthIdent;
+    }
+
+    public IdentType getDateFromYearIdentType() {
+        return dateFromYearIdentType;
+    }
+
+    public void setDateFromYearIdentType(IdentType dateFromYearIdentType) {
+        this.dateFromYearIdentType = dateFromYearIdentType;
+    }
+
+    public String getDateFromYearIdent() {
+        return dateFromYearIdent;
+    }
+
+    public void setDateFromYearIdent(String dateFromYearIdent) {
+        this.dateFromYearIdent = dateFromYearIdent;
+    }
+
+    public String getDateFrom() {
+        return dateFrom;
+    }
+
+    public void setDateFrom(String dateFrom) {
+        this.dateFrom = dateFrom;
+    }
+
+    public IdentType getDateUntilDayIdentType() {
+        return dateUntilDayIdentType;
+    }
+
+    public void setDateUntilDayIdentType(IdentType dateUntilDayIdentType) {
+        this.dateUntilDayIdentType = dateUntilDayIdentType;
+    }
+
+    public IdentType getDateUntilMonthIdentType() {
+        return dateUntilMonthIdentType;
+    }
+
+    public void setDateUntilMonthIdentType(IdentType dateUntilMonthIdentType) {
+        this.dateUntilMonthIdentType = dateUntilMonthIdentType;
+    }
+
+    public String getDateUntilMonthIdent() {
+        return dateUntilMonthIdent;
+    }
+
+    public void setDateUntilMonthIdent(String dateUntilMonthIdent) {
+        this.dateUntilMonthIdent = dateUntilMonthIdent;
+    }
+
+    public String getDateUntilDayIdent() {
+        return dateUntilDayIdent;
+    }
+
+    public void setDateUntilDayIdent(String dateUntilDayIdent) {
+        this.dateUntilDayIdent = dateUntilDayIdent;
+    }
+
+    public IdentType getDateUntilYearIdentType() {
+        return dateUntilYearIdentType;
+    }
+
+    public void setDateUntilYearIdentType(IdentType dateUntilYearIdentType) {
+        this.dateUntilYearIdentType = dateUntilYearIdentType;
+    }
+
+    public String getDateUntilYearIdent() {
+        return dateUntilYearIdent;
+    }
+
+    public void setDateUntilYearIdent(String dateUntilYearIdent) {
+        this.dateUntilYearIdent = dateUntilYearIdent;
+    }
+
+    public IdentType getSearchButtonIdentType() {
+        return searchButtonIdentType;
+    }
+
+    public void setSearchButtonIdentType(IdentType searchButtonIdentType) {
+        this.searchButtonIdentType = searchButtonIdentType;
+    }
+
+    public String getSearchButtonIdent() {
+        return searchButtonIdent;
+    }
+
+    public void setSearchButtonIdent(String searchButtonIdent) {
+        this.searchButtonIdent = searchButtonIdent;
     }
 }

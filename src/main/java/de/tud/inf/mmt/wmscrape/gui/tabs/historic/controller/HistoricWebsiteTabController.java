@@ -43,16 +43,34 @@ public class HistoricWebsiteTabController {
     @FXML private VBox rightPanelBox;
     @FXML private SplitPane rootNode;
 
+    @FXML private ChoiceBox<IdentType> notificationDeclineIdentChoiceBox;
+    @FXML private TextField notificationDeclineIdentField;
+
     @FXML private TextField informationUrlField;
 
     @FXML private ChoiceBox<IdentType> searchIdentChoiceBox;
     @FXML private TextField searchIdentField;
+    @FXML private ChoiceBox<IdentType> searchButtonIdentChoiceBox;
+    @FXML private TextField searchButtonIdentField;
     @FXML private ChoiceBox<IdentType> historicLinkIdentChoiceBox;
     @FXML private TextField historicLinkIdentField;
-    @FXML private ChoiceBox<IdentType> dateFromIdentChoiceBox;
-    @FXML private TextField dateFromIdentField;
-    @FXML private ChoiceBox<IdentType> dateUntilIdentChoiceBox;
-    @FXML private TextField dateUntilIdentField;
+
+    @FXML private ChoiceBox<IdentType> dateFromDayIdentChoiceBox;
+    @FXML private TextField dateFromDayIdentField;
+    @FXML private ChoiceBox<IdentType> dateFromMonthIdentChoiceBox;
+    @FXML private TextField dateFromMonthIdentField;
+    @FXML private ChoiceBox<IdentType> dateFromYearIdentChoiceBox;
+    @FXML private TextField dateFromYearIdentField;
+
+    @FXML private TextField dateFromField;
+
+    @FXML private ChoiceBox<IdentType> dateUntilDayIdentChoiceBox;
+    @FXML private TextField dateUntilDayIdentField;
+    @FXML private ChoiceBox<IdentType> dateUntilMonthIdentChoiceBox;
+    @FXML private TextField dateUntilMonthIdentField;
+    @FXML private ChoiceBox<IdentType> dateUntilYearIdentChoiceBox;
+    @FXML private TextField dateUntilYearIdentField;
+
     @FXML private ChoiceBox<IdentType> loadButtonIdentChoiceBox;
     @FXML private TextField loadButtonIdentField;
 
@@ -89,12 +107,21 @@ public class HistoricWebsiteTabController {
         loginIdentField.textProperty().addListener((o,ov,nv) -> validIdentField(loginIdentField));
         logoutIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(logoutIdentField));
         cookieAcceptIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(cookieAcceptIdentField));
+        notificationDeclineIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(notificationDeclineIdentField));
 
         informationUrlField.textProperty().addListener((o, ov, nv) -> validUrlField(informationUrlField));
         searchIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(searchIdentField));
+        searchButtonIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(searchButtonIdentField));
         historicLinkIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(historicLinkIdentField));
-        dateFromIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromIdentField));
-        dateUntilIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilIdentField));
+
+        dateFromDayIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromDayIdentField));
+        dateFromMonthIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromMonthIdentField));
+        dateFromYearIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromYearIdentField));
+
+        dateUntilDayIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilDayIdentField));
+        dateUntilMonthIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilMonthIdentField));
+        dateUntilYearIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilYearIdentField));
+
         loadButtonIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(loadButtonIdentField));
 
         // set choicebox options
@@ -103,11 +130,19 @@ public class HistoricWebsiteTabController {
         addTypeToChoiceBox(loginIdentChoiceBox, IDENT_TYPE_DEACTIVATED_ENTER);
         addTypeToChoiceBox(logoutIdentChoiceBox, IDENT_TYPE_DEACTIVATED_URL);
         addTypeToChoiceBox(cookieAcceptIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
+        addTypeToChoiceBox(notificationDeclineIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
 
+        addTypeToChoiceBox(searchButtonIdentChoiceBox, IDENT_TYPE_DEACTIVATED_ENTER);
         addTypeToChoiceBox(searchIdentChoiceBox, IDENT_TYPE_DEACTIVATED_ENTER);
         addTypeToChoiceBox(historicLinkIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
-        addTypeToChoiceBox(dateFromIdentChoiceBox, IDENT_TYPE_DATE);
-        addTypeToChoiceBox(dateUntilIdentChoiceBox, IDENT_TYPE_DATE);
+
+        addTypeToChoiceBox(dateFromDayIdentChoiceBox, IDENT_TYPE_SIMPLE);
+        addTypeToChoiceBox(dateFromMonthIdentChoiceBox, IDENT_TYPE_SIMPLE);
+        addTypeToChoiceBox(dateFromYearIdentChoiceBox, IDENT_TYPE_SIMPLE);
+        addTypeToChoiceBox(dateUntilDayIdentChoiceBox, IDENT_TYPE_SIMPLE);
+        addTypeToChoiceBox(dateUntilMonthIdentChoiceBox, IDENT_TYPE_SIMPLE);
+        addTypeToChoiceBox(dateUntilYearIdentChoiceBox, IDENT_TYPE_SIMPLE);
+
         addTypeToChoiceBox(loadButtonIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
 
         addDeselectListener(usernameIdentChoiceBox);
@@ -225,19 +260,36 @@ public class HistoricWebsiteTabController {
         logoutIdentChoiceBox.setValue(null);
         cookieAcceptIdentChoiceBox.setValue(null);
 
+        notificationDeclineIdentField.clear();
+        notificationDeclineIdentChoiceBox.setValue(null);
+
         informationUrlField.clear();
 
         searchIdentField.clear();
         searchIdentChoiceBox.setValue(null);
 
+        searchButtonIdentField.clear();
+        searchButtonIdentChoiceBox.setValue(null);
+
         historicLinkIdentField.clear();
         historicLinkIdentChoiceBox.setValue(null);
 
-        dateFromIdentField.clear();
-        dateFromIdentChoiceBox.setValue(null);
+        dateFromDayIdentField.clear();
+        dateFromMonthIdentField.clear();
+        dateFromYearIdentField.clear();
+        dateFromDayIdentChoiceBox.setValue(null);
+        dateFromMonthIdentChoiceBox.setValue(null);
+        dateFromYearIdentChoiceBox.setValue(null);
 
-        dateUntilIdentField.clear();
-        dateUntilIdentChoiceBox.setValue(null);
+        dateUntilDayIdentField.clear();
+        dateUntilMonthIdentField.clear();
+        dateUntilYearIdentField.clear();
+
+        dateFromField.clear();
+
+        dateUntilDayIdentChoiceBox.setValue(null);
+        dateUntilMonthIdentChoiceBox.setValue(null);
+        dateUntilYearIdentChoiceBox.setValue(null);
 
         loadButtonIdentField.clear();
         loadButtonIdentChoiceBox.setValue(null);
@@ -267,17 +319,33 @@ public class HistoricWebsiteTabController {
         website.setLogoutIdent(logoutIdentField.getText());
         website.setCookieAcceptIdentType(cookieAcceptIdentChoiceBox.getValue());
         website.setCookieAcceptIdent(cookieAcceptIdentField.getText());
+        website.setDeclineNotificationIdentType(notificationDeclineIdentChoiceBox.getValue());
+        website.setNotificationDeclineIdent(notificationDeclineIdentField.getText());
+
         website.setHistoric(true);
 
         website.setSearchUrl(informationUrlField.getText());
         website.setSearchFieldIdentType(searchIdentChoiceBox.getValue());
+        website.setSearchButtonIdent(searchButtonIdentField.getText());
+        website.setSearchButtonIdentType(searchButtonIdentChoiceBox.getValue());
         website.setSearchFieldIdent(searchIdentField.getText());
         website.setHistoricLinkIdentType(historicLinkIdentChoiceBox.getValue());
         website.setHistoricLinkIdent(historicLinkIdentField.getText());
-        website.setDateFromIdentType(dateFromIdentChoiceBox.getValue());
-        website.setDateFromIdent(dateFromIdentField.getText());
-        website.setDateUntilIdentType(dateUntilIdentChoiceBox.getValue());
-        website.setDateUntilIdent(dateUntilIdentField.getText());
+        website.setDateFromDayIdentType(dateFromDayIdentChoiceBox.getValue());
+        website.setDateFromDayIdent(dateFromDayIdentField.getText());
+        website.setDateFromMonthIdentType(dateFromMonthIdentChoiceBox.getValue());
+        website.setDateFromMonthIdent(dateFromMonthIdentField.getText());
+        website.setDateFromYearIdentType(dateFromYearIdentChoiceBox.getValue());
+        website.setDateFromYearIdent(dateFromYearIdentField.getText());
+
+        website.setDateFrom(dateFromField.getText());
+
+        website.setDateUntilDayIdentType(dateUntilDayIdentChoiceBox.getValue());
+        website.setDateUntilDayIdent(dateUntilDayIdentField.getText());
+        website.setDateUntilMonthIdentType(dateUntilMonthIdentChoiceBox.getValue());
+        website.setDateUntilMonthIdent(dateUntilMonthIdentField.getText());
+        website.setDateUntilYearIdentType(dateUntilYearIdentChoiceBox.getValue());
+        website.setDateUntilYearIdent(dateUntilYearIdentField.getText());
         website.setLoadButtonIdentType(loadButtonIdentChoiceBox.getValue());
         website.setLoadButtonIdent(loadButtonIdentField.getText());
     }
@@ -321,15 +389,28 @@ public class HistoricWebsiteTabController {
         cookieAcceptIdentChoiceBox.setValue(website.getCookieAcceptIdentType());
         cookieAcceptIdentField.setText(website.getCookieAcceptIdent());
 
+        notificationDeclineIdentChoiceBox.setValue(website.getDeclineNotificationIdentType());
+        notificationDeclineIdentField.setText(website.getNotificationDeclineIdent());
         informationUrlField.setText(website.getSearchUrl());
         searchIdentChoiceBox.setValue(website.getSearchFieldIdentType());
         searchIdentField.setText(website.getSearchFieldIdent());
+        searchButtonIdentChoiceBox.setValue(website.getSearchButtonIdentType());
+        searchButtonIdentField.setText(website.getSearchButtonIdent());
         historicLinkIdentChoiceBox.setValue(website.getHistoricLinkIdentType());
         historicLinkIdentField.setText(website.getHistoricLinkIdent());
-        dateFromIdentChoiceBox.setValue(website.getDateFromIdentType());
-        dateFromIdentField.setText(website.getDateFromIdent());
-        dateUntilIdentChoiceBox.setValue(website.getDateUntilIdentType());
-        dateUntilIdentField.setText(website.getDateUntilIdent());
+        dateFromDayIdentChoiceBox.setValue(website.getDateFromDayIdentType());
+        dateFromMonthIdentChoiceBox.setValue(website.getDateFromMonthIdentType());
+        dateFromYearIdentChoiceBox.setValue(website.getDateFromYearIdentType());
+        dateFromDayIdentField.setText(website.getDateFromDayIdent());
+        dateFromMonthIdentField.setText(website.getDateFromMonthIdent());
+        dateFromYearIdentField.setText(website.getDateFromYearIdent());
+        dateFromField.setText(website.getDateFrom());
+        dateUntilDayIdentChoiceBox.setValue(website.getDateUntilDayIdentType());
+        dateUntilMonthIdentChoiceBox.setValue(website.getDateUntilMonthIdentType());
+        dateUntilYearIdentChoiceBox.setValue(website.getDateUntilYearIdentType());
+        dateUntilDayIdentField.setText(website.getDateUntilDayIdent());
+        dateUntilMonthIdentField.setText(website.getDateUntilMonthIdent());
+        dateUntilYearIdentField.setText(website.getDateUntilYearIdent());
         loadButtonIdentChoiceBox.setValue(website.getLoadButtonIdentType());
         loadButtonIdentField.setText(website.getLoadButtonIdent());
 
@@ -357,8 +438,12 @@ public class HistoricWebsiteTabController {
         valid &= validUrlField(informationUrlField);
         valid &= validIdentField(searchIdentField);
         valid &= validIdentField(historicLinkIdentField);
-        valid &= validIdentField(dateFromIdentField);
-        valid &= validIdentField(dateUntilIdentField);
+        valid &= validIdentField(dateFromDayIdentField);
+        valid &= validIdentField(dateFromMonthIdentField);
+        valid &= validIdentField(dateFromYearIdentField);
+        valid &= validIdentField(dateUntilDayIdentField);
+        valid &= validIdentField(dateUntilMonthIdentField);
+        valid &= validIdentField(dateUntilYearIdentField);
         valid &= validIdentField(loadButtonIdentField);
 
         return valid;

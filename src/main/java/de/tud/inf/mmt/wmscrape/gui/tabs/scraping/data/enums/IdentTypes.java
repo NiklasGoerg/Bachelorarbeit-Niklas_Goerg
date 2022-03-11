@@ -9,5 +9,4 @@ public abstract class IdentTypes {
     public final static IdentType[] IDENT_TYPE_DEACTIVATED = {IdentType.ID, IdentType.XPATH, IdentType.CSS, IdentType.DEAKTIVIERT};
     public final static IdentType[] IDENT_TYPE_TABLE = {IdentType.XPATH, IdentType.CSS, IdentType.DEAKTIVIERT};
     public final static IdentType[] IDENT_TYPE_SIMPLE = {IdentType.ID, IdentType.XPATH, IdentType.CSS};
-    public final static IdentType[] IDENT_TYPE_DATE = {IdentType.ID, IdentType.XPATH, IdentType.CSS, IdentType.DATUM};
 }

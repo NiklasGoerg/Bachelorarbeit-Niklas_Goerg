@@ -568,11 +568,17 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     protected boolean searchForStock(String isin) {
-        WebElement element = extractElementFromRoot(website.getSearchFieldIdentType(), website.getSearchFieldIdent());
-        if (element == null) return false;
+        WebElement searchInput = extractElementFromRoot(website.getSearchFieldIdentType(), website.getSearchFieldIdent());
+        WebElement searchButton = extractElementFromRoot(website.getSearchButtonIdentType(), website.getSearchButtonIdent());
+        if (searchInput == null || searchButton == null) return false;
 
-        setText(element, isin);
-        submit(element);
+        setText(searchInput, isin);
+
+        if(website.getSearchButtonIdentType() == IdentType.ENTER) {
+            submit(searchButton);
+        } else {
+            clickElement(searchButton);
+        }
 
         addToLog("INFO:\tZu Wertpapier-Unterseite navigiert");
 
@@ -591,33 +597,55 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     protected boolean setDate() {
-        if(website.getDateFromIdentType() == IdentType.DATUM && website.getDateUntilIdentType() == IdentType.DATUM) {
-            var dateFromIdents = website.getDateFromIdent().split(";");
-            for(String ident : dateFromIdents) {
-                WebElement element = extractElementFromRoot(IdentType.XPATH, ident);
+        var dateFromDayElement = extractElementFromRoot(website.getDateFromDayIdentType(), website.getDateFromDayIdent());
+        var dateFromMonthElement = extractElementFromRoot(website.getDateFromMonthIdentType(), website.getDateFromMonthIdent());
+        var dateFromYearElement = extractElementFromRoot(website.getDateFromYearIdentType(), website.getDateFromYearIdent());
 
-                new Select(element).selectByIndex(0);
-            }
+        var dateUntilDayElement = extractElementFromRoot(website.getDateUntilDayIdentType(), website.getDateUntilDayIdent());
+        var dateUntilMonthElement = extractElementFromRoot(website.getDateUntilMonthIdentType(), website.getDateUntilMonthIdent());
+        var dateUntilYearElement = extractElementFromRoot(website.getDateUntilYearIdentType(), website.getDateUntilYearIdent());
 
-            var dateUntilIdents = website.getDateUntilIdent().split(";");
-            for(String ident : dateUntilIdents) {
-                WebElement element = extractElementFromRoot(IdentType.XPATH, ident);
+        if(dateFromDayElement == null ||
+            dateFromMonthElement == null ||
+            dateFromYearElement == null ||
+            dateUntilDayElement == null ||
+            dateUntilMonthElement == null ||
+            dateUntilYearElement == null) {
 
-                var select = new Select(element);
-
-                select.selectByIndex(select.getOptions().size() - 1);
-            }
-
-            addToLog("INFO:\tDatum gesetzt");
-
-            return true;
+            return false;
         }
 
-        return false;
+        if(website.getDateFrom() != null && !website.getDateFrom().equals("")) {
+            var dateFrom = website.getDateFrom().split("#");
+
+            if(dateFrom.length != 3) return false;
+
+            new Select(dateFromDayElement).selectByValue(dateFrom[0]);
+            new Select(dateFromMonthElement).selectByValue(dateFrom[1]);
+            new Select(dateFromYearElement).selectByValue(dateFrom[2]);
+        } else {
+            new Select(dateFromDayElement).selectByIndex(0);
+            new Select(dateFromMonthElement).selectByIndex(0);
+            new Select(dateFromYearElement).selectByIndex(0);
+        }
+
+
+        var untilDaySelect = new Select(dateUntilDayElement);
+        untilDaySelect.selectByIndex(untilDaySelect.getOptions().size() - 1);
+
+        var untilMonthSelect = new Select(dateUntilMonthElement);
+        untilMonthSelect.selectByIndex(untilMonthSelect.getOptions().size() - 1);
+
+        var untilYearSelect = new Select(dateUntilYearElement);
+        untilYearSelect.selectByIndex(untilYearSelect.getOptions().size() - 1);
+
+        addToLog("INFO:\tDatum gesetzt");
+
+        return true;
     }
 
     protected boolean declineNotifications() {
-        WebElement element = extractElementFromRoot(IdentType.XPATH, "//*[@id='finWebpushNotificationModal']/div/div[5]/span[1]");
+        WebElement element = extractElementFromRoot(website.getDeclineNotificationIdentType(), website.getNotificationDeclineIdent());
 
         if (element == null) return true;
 

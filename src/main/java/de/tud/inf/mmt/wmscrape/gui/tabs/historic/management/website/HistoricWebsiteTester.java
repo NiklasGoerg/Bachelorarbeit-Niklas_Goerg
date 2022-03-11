@@ -60,7 +60,7 @@ public class HistoricWebsiteTester extends WebsiteHandler {
             }
             case 6 -> {
                 declineNotifications();
-                if (!searchForStock("US88160R1014")) {step = 11; return false;}
+                if (!searchForStock("DE0008469008")) {step = 11; return false;}
             }
             case 7 -> {
                 declineNotifications();
