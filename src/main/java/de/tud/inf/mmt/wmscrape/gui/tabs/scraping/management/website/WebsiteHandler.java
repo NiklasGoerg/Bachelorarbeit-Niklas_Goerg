@@ -15,6 +15,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public abstract class WebsiteHandler extends Service<Void> {
@@ -32,6 +34,8 @@ public abstract class WebsiteHandler extends Service<Void> {
     protected boolean waitForWsElementSecWasActive = true;
 
     private int uniqueElementId = 0;
+
+    private final String identDelimiter = ";";
 
     protected WebsiteHandler(SimpleStringProperty logText, Boolean headless) {
         this.headless = headless;
@@ -287,6 +291,10 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
+    public WebElement extractElementFromRoot(IdentType type, String identifier) {
+        return extractElementFromRoot(type, identifier, true);
+    }
+
     /**
      * tries to find an element straight from the website root
      *
@@ -294,9 +302,9 @@ public abstract class WebsiteHandler extends Service<Void> {
      * @param identifier the identifier of the specified type
      * @return the {@link WebElement} if found otherwise null
      */
-    public WebElement extractElementFromRoot(IdentType type, String identifier) {
+    public WebElement extractElementFromRoot(IdentType type, String identifier, boolean printErrorIfNotFound) {
         // solely the selenium element without iframe or relation context
-        var elements = extractAllFramesFromContext(type, identifier, null);
+        var elements = extractAllFramesFromContext(type, identifier, null, printErrorIfNotFound);
         if (elements != null && elements.size() > 0) return elements.get(0).get();
         return null;
     }
@@ -336,6 +344,10 @@ public abstract class WebsiteHandler extends Service<Void> {
         else driver.switchTo().defaultContent();
     }
 
+    public List<WebElementInContext> extractAllFramesFromContext(IdentType type, String ident, WebElementInContext parent) {
+        return extractAllFramesFromContext(type, ident, parent, true);
+    }
+
     /**
      * extracts all elements matching for an identifier (useful for rows from a table).
      * used by all other search options.
@@ -346,7 +358,7 @@ public abstract class WebsiteHandler extends Service<Void> {
      * @param parent null uses the driver context otherwise it's the reference point where the search begins
      * @return all elements found for the identifier
      */
-    public List<WebElementInContext> extractAllFramesFromContext(IdentType type, String ident, WebElementInContext parent) {
+    public List<WebElementInContext> extractAllFramesFromContext(IdentType type, String ident, WebElementInContext parent, boolean printErrorIfNotFound) {
 
         int parentId = 0;
         WebElement frame = null;
@@ -378,8 +390,10 @@ public abstract class WebsiteHandler extends Service<Void> {
 
 
             if (webElementInContexts != null) return webElementInContexts;
-            addToLog("ERR:\t\tKeine Elemente unter '" + ident + "' gefunden. Suche mit: "+type);
 
+            if(printErrorIfNotFound) {
+                addToLog("ERR:\t\tKeine Elemente unter '" + ident + "' gefunden. Suche mit: " + type);
+            }
         } catch (InvalidSelectorException e) {
             e.printStackTrace();
             addToLog("ERR:\t\tInvalider Identifizierer vom Typ "+type+": '"+ident+"'");
@@ -569,14 +583,19 @@ public abstract class WebsiteHandler extends Service<Void> {
 
     protected boolean searchForStock(String isin) {
         WebElement searchInput = extractElementFromRoot(website.getSearchFieldIdentType(), website.getSearchFieldIdent());
-        WebElement searchButton = extractElementFromRoot(website.getSearchButtonIdentType(), website.getSearchButtonIdent());
-        if (searchInput == null || searchButton == null) return false;
 
+        if (searchInput == null) return false;
+
+        clickElement(searchInput);
         setText(searchInput, isin);
 
         if(website.getSearchButtonIdentType() == IdentType.ENTER) {
-            submit(searchButton);
+            submit(searchInput);
         } else {
+            WebElement searchButton = extractElementFromRoot(website.getSearchButtonIdentType(), website.getSearchButtonIdent());
+
+            if (searchButton == null) return false;
+
             clickElement(searchButton);
         }
 
@@ -645,11 +664,12 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     protected boolean declineNotifications() {
-        WebElement element = extractElementFromRoot(website.getDeclineNotificationIdentType(), website.getNotificationDeclineIdent());
+        WebElement element = extractElementFromRoot(website.getDeclineNotificationIdentType(), website.getNotificationDeclineIdent(), false);
 
         if (element == null) return true;
 
         clickElement(element);
+        addToLog("INFO:\tBenachrichtigungen abgelehnt");
 
         return true;
     }

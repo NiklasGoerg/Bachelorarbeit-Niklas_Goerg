@@ -33,7 +33,7 @@ public class HistoricTableManager extends DbTableManger {
         // and has to be initialized by myself
 
         if (tableDoesNotExist(TABLE_NAME)) {
-            executeStatement("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (datum DATE, isin varchar(50), kurs decimal, PRIMARY KEY (datum, isin));");
+            executeStatement("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (datum DATE, isin varchar(50), kurs double, PRIMARY KEY (datum, isin));");
         }
 
         initTableColumns(historicColumnRepository, TABLE_NAME);

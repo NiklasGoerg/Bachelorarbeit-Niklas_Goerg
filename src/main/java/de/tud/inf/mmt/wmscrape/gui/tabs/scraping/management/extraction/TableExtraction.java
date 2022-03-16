@@ -3,6 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.identification.ElementIdentCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebElementInContext;
@@ -10,6 +11,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScrap
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
+import org.openqa.selenium.WebElement;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -61,6 +63,14 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
      */
     protected abstract void correctCarrierValues(Map<String, InformationCarrier> carrierMap, ElementSelection selection);
 
+    public void extract(WebsiteElement element, Task<Void> task, SimpleDoubleProperty progress) {
+        if(element.getContentType() == ContentType.HISTORISCH) {
+            doExtractHistoric(element, task, progress);
+        } else {
+            doExtract(element, task, progress);
+        }
+    }
+
     /**
      * defines the standard procedure of scraping a table including finding the table, extracting rows and matching
      * the content. abstract methods are used as gapes filled by the specific table extraction type implementation
@@ -69,7 +79,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
      * @param task the task the process is running in
      * @param progress the selection/row progress property bound to the javafx progress bar
      */
-    public void extract(WebsiteElement element, Task<Void> task, SimpleDoubleProperty progress) {
+    private void doExtract(WebsiteElement element, Task<Void> task, SimpleDoubleProperty progress) {
         var identCorrelations = element.getElementIdentCorrelations();
         var elementSelections = element.getElementSelections();
         Map<String, InformationCarrier> preparedCarrierMap = new HashMap<>();
@@ -127,6 +137,71 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
     }
 
     /**
+     * defines the standard procedure of scraping a table including finding the table, extracting rows and matching
+     * the content. abstract methods are used as gapes filled by the specific table extraction type implementation
+     *
+     * @param element the website element configuration to extract data for
+     * @param task the task the process is running in
+     * @param progress the selection/row progress property bound to the javafx progress bar
+     */
+    public void doExtractHistoric(WebsiteElement element, Task<Void> task, SimpleDoubleProperty progress) {
+        var identCorrelations = element.getElementIdentCorrelations();
+        Map<String, InformationCarrier> preparedCarrierMap = new HashMap<>();
+        preparedStatements = new HashMap<>();
+        List<WebElementInContext> rows;
+        double currentProgress;
+        double maxProgress;
+
+        logStart(element.getDescription());
+
+        // e.g. stock/course needs isin or wkn or the name
+        if(!validIdentCorrelations(element, identCorrelations)) return;
+
+        if (prepareCarrierAndStatements(task, element, preparedCarrierMap)) return;
+
+        // get the table
+        WebElementInContext table = getTable(element);
+        if(table == null) {
+            log("ERR:\t\tTabelle für "+element.getDescription()+" nicht gefunden.");
+            return;
+        }
+
+        // get rows
+        rows = getRows(table);
+
+        if(rows == null || rows.isEmpty()) {
+            log("ERR:\t\tTabelle für "+element.getDescription()+" enthält keine Zeilen (<tr>)");
+            return;
+        }
+
+        currentProgress = 0;
+        maxProgress = rows.size();
+
+        // don't wait for elements inside the table
+        scraper.waitForWsElements(false);
+
+        log("INFO:\tLese Daten aus Tabelle");
+        // search each row for a matching stock/exchange
+        for(var row : rows) {
+            // looks for the information inside one row
+            // adds it to the corresponding carriers
+            if(task.isCancelled()) return;
+            readRow(row, preparedCarrierMap);
+            setHistoricStatementExtractedData(preparedCarrierMap);
+            resetCarriers(preparedCarrierMap);
+
+            currentProgress++;
+            progress.set(currentProgress/maxProgress);
+            scraper.resetIdentDataBuffer();
+        }
+        log("INFO:\tDaten erfolgreich extrahiert");
+        scraper.waitForWsElements(true);
+
+        storeInDb();
+        log("INFO:\tDaten wurden in die Datenbank geschrieben");
+    }
+
+    /**
      * creates all carriers and prepared statements and fills them with the basic information.
      *
      * @param task the task to allow canceling the task
@@ -144,7 +219,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
      * @param selections all selection elements
      * @param description the description of the website element configuration
      */
-    private void logMatches(List<ElementSelection> selections, String description) {
+    public void logMatches(List<ElementSelection> selections, String description) {
 
         StringBuilder success = new StringBuilder("\n");
         StringBuilder fail = new StringBuilder("\n");
@@ -238,6 +313,26 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
     }
 
     /**
+     * sets the data for all prepared statements given the carriers containing the data.
+     * the data is inserted into the previously prepared statements at the corresponding position, 1 for the data, 2 for the date
+     *
+     * @param carrierMap the carriers containing the data
+     */
+    private void setHistoricStatementExtractedData(Map<String, InformationCarrier> carrierMap) {
+        for(var statementKey : preparedStatements.keySet()) {
+            var statement = preparedStatements.get(statementKey);
+
+            for (var carrier : carrierMap.values()) {
+                if(carrier.getDbColName().equals("datum")) {
+                    fillStatement(2, statement, carrier.getExtractedData(), carrier.getDatatype());
+                } else if(carrier.getDbColName().equals(statementKey)) {
+                    fillStatement(1, statement, carrier.getExtractedData(), carrier.getDatatype());
+                }
+            }
+        }
+    }
+
+    /**
      * searches for the html table
      *
      * @param websiteElement the website element configuration holding the reference (xpath/css) to the table
@@ -324,5 +419,17 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
 
     protected void partialMatchLog(String extracted, String field) {
         log("ERR:\t\t"+field+" stimmt nicht direkt mit '"+extracted+"' überein. Die Auswahl-Regex oder Bezeichnung sollte angepasst werden");
+    }
+
+    private void readRow(WebElementInContext row, Map<String, InformationCarrier> preparedCarrierMap) {
+        for (InformationCarrier carrier : preparedCarrierMap.values()) {
+            var data = scraper.findTextInContext(carrier.getIdentType(), carrier.getIdentifier(), carrier.getDbColName(), row);
+
+            data = processData(carrier, data);
+
+            if (isValid(data, carrier.getDatatype(), carrier.getDbColName())) {
+                carrier.setExtractedData(data);
+            }
+        }
     }
 }

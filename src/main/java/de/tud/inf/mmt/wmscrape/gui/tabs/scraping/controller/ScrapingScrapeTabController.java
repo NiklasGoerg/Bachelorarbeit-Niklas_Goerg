@@ -113,7 +113,8 @@ public class ScrapingScrapeTabController {
                 waitSpinner.getValue(),
                 pauseCheckBox.isSelected(),
                 logText,headlessCheckBox.isSelected(),
-                checkedItems);
+                checkedItems,
+                false);
 
         scrapingManager.bindProgressBars(websiteProgress, elementProgress, selectionProgress, waitProgress);
         saveSettings();
@@ -203,7 +204,7 @@ public class ScrapingScrapeTabController {
         Set<Integer> restoredSelected = Arrays.stream(r).boxed().collect(Collectors.toSet());
 
         // replacing the selection tree
-        var tree = scrapingManager.createSelectionTree(checkedItems ,restoredSelected);
+        var tree = scrapingManager.createSelectionTree(checkedItems ,restoredSelected, false);
         tree.setPadding(new Insets(15,1,1,1));
         borderPane.setCenter(tree);
     }

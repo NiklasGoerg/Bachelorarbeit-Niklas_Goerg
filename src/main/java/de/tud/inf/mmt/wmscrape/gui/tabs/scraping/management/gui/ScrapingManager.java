@@ -45,8 +45,8 @@ public class ScrapingManager {
      */
     @Transactional
     public TreeView<WebRepresentation<?>> createSelectionTree(
-            ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems, Set<Integer> restored) {
-        var websites = websiteManager.getWebsites(false);
+            ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems, Set<Integer> restored, boolean historic) {
+        var websites = websiteManager.getWebsites(historic);
         return (new WebsiteTree(websites, checkedItems, restored)).getTreeView();
     }
 
@@ -92,7 +92,7 @@ public class ScrapingManager {
      */
     public void startScrape(double minIntra, double maxIntra, double waitElement, boolean pauseAfterElement,
                             SimpleStringProperty logText, Boolean headless,
-                            ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems) {
+                            ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems, boolean historic) {
 
         if(checkedItems.isEmpty() || emptyMapValues(checkedItems)) {
             logText.set("\nINFO:\tEs wurden keine Elemente zum scrapen ausgewählt.");

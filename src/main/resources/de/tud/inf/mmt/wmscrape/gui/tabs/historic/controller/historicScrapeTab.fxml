@@ -1,10 +1,280 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricScrapeTabController"
-            prefHeight="400.0" prefWidth="600.0">
-
-</AnchorPane>
+<BorderPane prefHeight="655.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricScrapeTabController">
+    <center>
+        <SplitPane dividerPositions="0.3" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets bottom="-4.0" top="-3.0"/>
+            </BorderPane.margin>
+            <AnchorPane minWidth="250.0" prefWidth="400.0">
+                <VBox alignment="CENTER" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                      AnchorPane.topAnchor="0.0">
+                    <Label text="Auswahl">
+                        <padding>
+                            <Insets bottom="2.0"/>
+                        </padding>
+                    </Label>
+                    <Separator prefWidth="200.0"/>
+                </VBox>
+                <GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                          AnchorPane.topAnchor="22.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="ALWAYS"/>
+                        <RowConstraints vgrow="NEVER"/>
+                        <RowConstraints minHeight="35.0" vgrow="SOMETIMES"/>
+                        <RowConstraints vgrow="NEVER"/>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <BorderPane fx:id="borderPane" style="-fx-background-color: white;"/>
+                    <VBox alignment="BOTTOM_CENTER" GridPane.rowIndex="4">
+                        <padding>
+                            <Insets left="5.0" right="5.0"/>
+                        </padding>
+                        <HBox alignment="BOTTOM_CENTER">
+                            <VBox.margin>
+                                <Insets top="5.0"/>
+                            </VBox.margin>
+                            <HBox alignment="CENTER_LEFT" prefWidth="185.0">
+                                <Label minWidth="50.0" text="Intra Seiten-Delay">
+                                    <padding>
+                                        <Insets left="1.0"/>
+                                    </padding>
+                                </Label>
+                            </HBox>
+                            <Spinner fx:id="delayMinSpinner" minWidth="60.0" prefWidth="80.0"/>
+                            <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" minWidth="25.0">
+                                <Label text="bis">
+                                    <HBox.margin>
+                                        <Insets left="2.0" right="2.0"/>
+                                    </HBox.margin>
+                                </Label>
+                            </HBox>
+                            <Spinner fx:id="delayMaxSpinner" layoutX="250.0" layoutY="10.0" minWidth="60.0"
+                                     prefWidth="80.0"/>
+                        </HBox>
+                        <HBox alignment="BOTTOM_CENTER" layoutX="10.0" layoutY="10.0">
+                            <VBox.margin>
+                                <Insets top="5.0"/>
+                            </VBox.margin>
+                            <HBox alignment="CENTER_LEFT" prefWidth="290.0">
+                                <Label minWidth="50.0" text="Wartezeit auf Seitenobjekte">
+                                    <padding>
+                                        <Insets left="1.0"/>
+                                    </padding>
+                                </Label>
+                            </HBox>
+                            <Spinner fx:id="waitSpinner" minWidth="60.0" prefWidth="80.0"/>
+                        </HBox>
+                        <HBox alignment="BOTTOM_CENTER" layoutX="10.0" layoutY="10.0">
+                            <VBox.margin>
+                                <Insets top="5.0"/>
+                            </VBox.margin>
+                            <HBox alignment="CENTER_LEFT" prefWidth="290.0">
+                                <Label minWidth="50.0" text="Headless">
+                                    <padding>
+                                        <Insets left="1.0"/>
+                                    </padding>
+                                </Label>
+                            </HBox>
+                            <HBox alignment="CENTER" minWidth="60.0" prefWidth="80.0">
+                                <CheckBox fx:id="headlessCheckBox" mnemonicParsing="false">
+                                    <HBox.margin>
+                                        <Insets left="40.0" right="40.0"/>
+                                    </HBox.margin>
+                                </CheckBox>
+                            </HBox>
+                        </HBox>
+                        <HBox alignment="BOTTOM_CENTER" layoutX="10.0" layoutY="34.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="5.0"/>
+                            </VBox.margin>
+                            <HBox alignment="CENTER_LEFT" prefWidth="290.0">
+                                <Label minWidth="50.0" text="Anhalten nach jedem Element">
+                                    <padding>
+                                        <Insets left="1.0"/>
+                                    </padding>
+                                </Label>
+                            </HBox>
+                            <HBox alignment="CENTER" minWidth="60.0" prefWidth="80.0">
+                                <CheckBox fx:id="pauseCheckBox" mnemonicParsing="false" prefWidth="100.0">
+                                    <padding>
+                                        <Insets left="40.0" right="40.0"/>
+                                    </padding>
+                                </CheckBox>
+                            </HBox>
+                        </HBox>
+                        <HBox alignment="BOTTOM_CENTER" layoutX="10.0" layoutY="94.0">
+                            <Button fx:id="continueButton" mnemonicParsing="false" onAction="#handleNextButton"
+                                    prefHeight="30.0" prefWidth="370.0" text="Weiter">
+                                <HBox.margin>
+                                    <Insets/>
+                                </HBox.margin>
+                            </Button>
+                        </HBox>
+                        <HBox alignment="BOTTOM_CENTER" layoutX="10.0" layoutY="94.0">
+                            <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartButton"
+                                    prefHeight="30.0" prefWidth="370.0" text="Start">
+                                <HBox.margin>
+                                    <Insets top="1.0"/>
+                                </HBox.margin>
+                            </Button>
+                        </HBox>
+                        <HBox alignment="BOTTOM_CENTER" layoutX="10.0" layoutY="52.0">
+                            <Button cancelButton="true" mnemonicParsing="false" onAction="#handleAbortButton"
+                                    prefHeight="30.0" prefWidth="370.0" text="Abbrechen">
+                                <HBox.margin>
+                                    <Insets bottom="5.0" top="1.0"/>
+                                </HBox.margin>
+                            </Button>
+                        </HBox>
+                    </VBox>
+                    <GridPane GridPane.rowIndex="2">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="35.0" vgrow="SOMETIMES"/>
+                        </rowConstraints>
+                        <VBox alignment="CENTER" layoutX="110.0" layoutY="10.0">
+                            <padding>
+                                <Insets bottom="3.0" top="5.0"/>
+                            </padding>
+                            <GridPane.margin>
+                                <Insets left="10.0" right="5.0"/>
+                            </GridPane.margin>
+                            <GridPane>
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints vgrow="SOMETIMES"/>
+                                    <RowConstraints vgrow="SOMETIMES"/>
+                                </rowConstraints>
+                                <VBox alignment="CENTER">
+                                    <AnchorPane>
+                                        <ProgressBar fx:id="websiteProgress" progress="0.0"
+                                                     AnchorPane.leftAnchor="0.0"
+                                                     AnchorPane.rightAnchor="0.0"/>
+                                    </AnchorPane>
+                                </VBox>
+                                <VBox alignment="CENTER" GridPane.rowIndex="1">
+                                    <Label text="Webseiten"/>
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+                        <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" GridPane.columnIndex="1">
+                            <padding>
+                                <Insets bottom="3.0" top="5.0"/>
+                            </padding>
+                            <GridPane.margin>
+                                <Insets left="5.0" right="5.0"/>
+                            </GridPane.margin>
+                            <GridPane>
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints vgrow="SOMETIMES"/>
+                                    <RowConstraints vgrow="SOMETIMES"/>
+                                </rowConstraints>
+                                <VBox alignment="CENTER">
+                                    <AnchorPane>
+                                        <ProgressBar fx:id="elementProgress" progress="0.0"
+                                                     AnchorPane.leftAnchor="0.0"
+                                                     AnchorPane.rightAnchor="0.0"/>
+                                    </AnchorPane>
+                                </VBox>
+                                <VBox alignment="CENTER" GridPane.rowIndex="1">
+                                    <Label text="Elemente"/>
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+                        <VBox alignment="CENTER" layoutX="110.0" layoutY="10.0" GridPane.columnIndex="2">
+                            <padding>
+                                <Insets bottom="3.0" top="5.0"/>
+                            </padding>
+                            <GridPane.margin>
+                                <Insets left="5.0" right="10.0"/>
+                            </GridPane.margin>
+                            <GridPane>
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints vgrow="SOMETIMES"/>
+                                    <RowConstraints vgrow="SOMETIMES"/>
+                                </rowConstraints>
+                                <VBox alignment="CENTER">
+                                    <AnchorPane>
+                                        <ProgressBar fx:id="selectionProgress" progress="0.0"
+                                                     AnchorPane.leftAnchor="0.0"
+                                                     AnchorPane.rightAnchor="0.0"/>
+                                    </AnchorPane>
+                                </VBox>
+                                <VBox alignment="CENTER" GridPane.rowIndex="1">
+                                    <Label text="Zeilen"/>
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+                    </GridPane>
+                    <Separator prefWidth="200.0" GridPane.rowIndex="3"/>
+                    <Separator prefWidth="200.0" GridPane.rowIndex="1"/>
+                </GridPane>
+            </AnchorPane>
+            <AnchorPane>
+                <HBox alignment="CENTER" prefHeight="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                      AnchorPane.topAnchor="0.0">
+                    <Label text="Log">
+                        <padding>
+                            <Insets bottom="2.0"/>
+                        </padding>
+                    </Label>
+                </HBox>
+                <TextArea fx:id="logArea" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0"/>
+                <BorderPane pickOnBounds="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
+                    <center>
+                        <ProgressIndicator fx:id="waitProgress" minHeight="90.0" minWidth="90.0"
+                                           mouseTransparent="true" pickOnBounds="false" progress="0.0" visible="false"
+                                           BorderPane.alignment="CENTER">
+                            <opaqueInsets>
+                                <Insets/>
+                            </opaqueInsets>
+                            <BorderPane.margin>
+                                <Insets/>
+                            </BorderPane.margin>
+                        </ProgressIndicator>
+                    </center>
+                </BorderPane>
+            </AnchorPane>
+        </SplitPane>
+    </center>
+    <padding>
+        <Insets bottom="3.0" top="10.0" />
+    </padding>
+</BorderPane>

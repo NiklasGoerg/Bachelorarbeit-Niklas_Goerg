@@ -74,10 +74,17 @@ public abstract class ExtractionGeneral {
      * @return text data ready to be validated and parsed
      */
     protected String processData(InformationCarrier carrier, String data) {
-        log("INFO:\tDaten gefunden für "+carrier.getDbColName()+":\t\t'"+ data.replace("\n", "\\n") +"'");
+        if(!scraper.getWebsite().isHistoric()) {
+            log("INFO:\tDaten gefunden für "+carrier.getDbColName()+":\t\t'"+ data.replace("\n", "\\n") +"'");
+        }
+
         data = regexFilter(carrier.getRegexFilter(), data);
         data = sanitize(data, carrier.getDatatype());
-        log("INFO:\tDaten bereinigt für "+carrier.getDbColName()+":\t\t'"+ data.replace("\n", "\\n") +"'");
+
+        if(!scraper.getWebsite().isHistoric()) {
+            log("INFO:\tDaten bereinigt für "+carrier.getDbColName()+":\t\t'"+ data.replace("\n", "\\n") +"'");
+        }
+
         return data;
     }
 

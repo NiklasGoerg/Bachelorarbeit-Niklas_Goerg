@@ -1,11 +1,13 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.historic.management.extraction.TableHistoricExtraction;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElementRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.MultiplicityType;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection.ElementSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.extraction.*;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -43,6 +46,7 @@ public class WebsiteScraper extends WebsiteHandler {
     private final Extraction singleCourseOrStockExtraction;
     private final Extraction singleExchangeExtraction;
     private final Extraction tableExchangeExtraction;
+    private final TableHistoricExtraction tableHistoricExtraction;
     private final Extraction tableCourseOrStockExtraction;
 
     private volatile Map<Website, Set<WebsiteElement>> selectedFromMenuTree;
@@ -67,6 +71,7 @@ public class WebsiteScraper extends WebsiteHandler {
         singleCourseOrStockExtraction = new SingleCourseOrStockExtraction(dbConnection, logText, this, dateToday);
         singleExchangeExtraction = new SingleExchangeExtraction(dbConnection, logText, this, dateToday);
         tableExchangeExtraction = new TableExchangeExtraction(dbConnection, logText, this, dateToday);
+        tableHistoricExtraction = new TableHistoricExtraction(dbConnection, logText, this, dateToday);
         tableCourseOrStockExtraction = new TableCourseOrStockExtraction(dbConnection, logText, this, dateToday);
         this.dbConnection = dbConnection;
         this.pauseAfterElement = pauseAfterElement;
@@ -112,10 +117,47 @@ public class WebsiteScraper extends WebsiteHandler {
         if(!usesLogin()) return true;
         if(!loadLoginPage()) return false;
         delayRandom();
+        declineNotifications();
         if(!acceptCookies()) return false;
         if(!fillLoginInformation()) return false;
         if(!login()) return false;
         delayRandom();
+        declineNotifications();
+        return true;
+    }
+
+    private boolean doSearchRoutine(String isin) {
+        if(!loadSearchPage()) return false;
+        delayRandom();
+        declineNotifications();
+
+        if(!searchForStock(isin)) return false;
+        delayRandom();
+        declineNotifications();
+
+        return true;
+    }
+
+    private boolean doLoadHistoricData(WebsiteElement element) {
+        if(!loadHistoricPage()) return false;
+        delayRandom();
+        declineNotifications();
+        if(!setDate()) return false;
+        delayRandom();
+
+        if(!loadHistoricData()) return false;
+        delayRandom();
+        declineNotifications();
+
+        waitLoadEvent();
+
+        while(extractElementFromRoot(element.getTableIdenType(), element.getTableIdent(), false) == null) {
+            if(!loadHistoricData()) return false;
+            delayRandom();
+            declineNotifications();
+            waitLoadEvent();
+        }
+
         return true;
     }
 
@@ -184,7 +226,7 @@ public class WebsiteScraper extends WebsiteHandler {
         if(webElementInContext != null) {
             element = extractElementFromContext(type, identifier, webElementInContext);
         } else {
-            element = extractElementFromRoot(type, identifier);
+            element = extractElementFromRoot(type, identifier, true);
         }
 
         if(element == null) return "";
@@ -376,7 +418,11 @@ public class WebsiteScraper extends WebsiteHandler {
                         }
 
                         // the main action does happen here
-                        processWebsiteElement(element, element.getMultiplicityType(), element.getContentType(), this);
+                        if(website.isHistoric()) {
+                            processHistoricWebsiteElement(element, this);
+                        } else {
+                            processWebsiteElement(element, element.getMultiplicityType(), element.getContentType(), this);
+                        }
 
                         removeFinishedElement(element);
                         singleElementProgress.set(progressElementCurrent.get(website)/maxElementProgress);
@@ -418,18 +464,20 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     private boolean missingWebsiteSettings(WebsiteElement element) {
-        if (element.getWebsite() == null || element.getInformationUrl() == null || element.getInformationUrl().isBlank()) {
-            addToLog("ERR:\t\tKeine Webseite oder URl angegeben für " + element.getDescription());
-            removeFinishedElement(element);
-            updateWebsite();
-            return true;
+        if (element.getWebsite() == null) {
+            if(element.getContentType() != ContentType.HISTORISCH && (element.getInformationUrl() == null || element.getInformationUrl().isBlank())) {
+                addToLog("ERR:\t\tKeine Webseite oder URl angegeben für " + element.getDescription());
+                removeFinishedElement(element);
+                updateWebsite();
+                return true;
+            }
         }
         return false;
     }
 
     private boolean noPageLoadSuccess(WebsiteElement element) {
         // loading page here
-        if (!loadPage(element.getInformationUrl())) {
+        if (!loadPage(element.getContentType() == ContentType.HISTORISCH ? website.getSearchUrl() : element.getInformationUrl())) {
             addToLog("ERR:\t\tErfolgloser Zugriff auf " + element.getInformationUrl());
             removeFinishedElement(element);
             return true;
@@ -503,6 +551,35 @@ public class WebsiteScraper extends WebsiteHandler {
                         }
                     }
                 }
+            }
+        });
+    }
+
+    private void processHistoricWebsiteElement(WebsiteElement element, Task<Void> task) {
+        context.getBean(TransactionTemplate.class).execute(new TransactionCallbackWithoutResult() {
+            // have to create a session by my own because this is an unmanaged object
+            // otherwise no hibernate proxy is created
+            @Override
+            protected void doInTransactionWithoutResult(@NonNull TransactionStatus status) {
+                // have to re-fetch the element because the ones in the list have no proxy assigned.
+                // should not be that bad considering the wait time between page loads
+                WebsiteElement freshElement  = getFreshElement(element);
+
+                var elementSelections = freshElement.getElementSelections();
+
+                for(ElementSelection elementSelection : elementSelections) {
+                    var websiteIsin = elementSelection.getElementDescCorrelation().getWsIsin();
+
+                    doSearchRoutine(websiteIsin);
+                    doLoadHistoricData(freshElement);
+
+                    tableHistoricExtraction.setIsin(elementSelection.getIsin());
+                    addToLog("INFO:\tExtrahiere Daten für " + elementSelection.getIsin());
+                    tableHistoricExtraction.extract(freshElement, task, elementSelectionProgress);
+                    elementSelection.isExtracted();
+                }
+
+                tableHistoricExtraction.logMatches(elementSelections, element.getDescription());
             }
         });
     }

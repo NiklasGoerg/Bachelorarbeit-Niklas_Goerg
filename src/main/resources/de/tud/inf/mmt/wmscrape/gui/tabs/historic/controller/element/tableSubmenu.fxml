@@ -13,7 +13,7 @@
 
 <AnchorPane prefHeight="499.0" prefWidth="1145.0" xmlns="http://javafx.com/javafx/16"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.element.TableSubController">
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.element.HistoricTableSubController">
     <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <HBox alignment="CENTER_LEFT" prefHeight="30.0">
             <VBox.margin>
