@@ -664,6 +664,8 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     protected boolean declineNotifications() {
+        if(website.getNotificationDeclineIdent() == null) return true;
+
         WebElement element = extractElementFromRoot(website.getDeclineNotificationIdentType(), website.getNotificationDeclineIdent(), false);
 
         if (element == null) return true;
