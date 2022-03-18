@@ -322,7 +322,10 @@ public abstract class ExtractionGeneral {
         for (String format : DATE_FORMATS) {
             try {
                 LocalDate dataToDate = LocalDate.from(DateTimeFormatter.ofPattern(format).parse(date));
-                log("INFO:\tDatum "+date+" mit Format "+format+" geparsed.");
+
+                if(!scraper.getWebsite().isHistoric()) {
+                    log("INFO:\tDatum "+date+" mit Format "+format+" geparsed.");
+                }
                 return Date.valueOf(dataToDate);
             } catch (DateTimeParseException e) {
                 log("ERR:\t\tDatum "+date+" parsen mit Format "+format+ " nicht möglich.");
