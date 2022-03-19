@@ -113,8 +113,7 @@ public class ScrapingScrapeTabController {
                 waitSpinner.getValue(),
                 pauseCheckBox.isSelected(),
                 logText,headlessCheckBox.isSelected(),
-                checkedItems,
-                false);
+                checkedItems);
 
         scrapingManager.bindProgressBars(websiteProgress, elementProgress, selectionProgress, waitProgress);
         saveSettings();

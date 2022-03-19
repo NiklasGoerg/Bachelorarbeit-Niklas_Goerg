@@ -24,6 +24,7 @@ public class HistoricTabController {
     private void initialize() throws IOException {
         Parent parent = PrimaryTabManager.loadTabFxml("gui/tabs/historic/controller/historicScrapeTab.fxml", historicScrapeTabController);
         Tab tab = new Tab("Scrapen" , parent);
+        tab.selectedProperty().addListener((o,ov,nv) -> historicScrapeTabController.refresh());
         historicSubTabPane.getTabs().add(tab);
 
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/historic/controller/historicWebsitesTab.fxml", historicWebsiteTabController);
@@ -32,6 +33,7 @@ public class HistoricTabController {
 
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/historic/controller/historicElementsTab.fxml", historicWebsiteElementTabController);
         tab = new Tab("Elemente" , parent);
+        tab.selectedProperty().addListener((o,ov,nv) -> historicWebsiteElementTabController.refresh());
         historicSubTabPane.getTabs().add(tab);
     }
 }

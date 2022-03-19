@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.historic.management.extraction.TableHistoricExtraction;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.WebsiteRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElementRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.ContentType;
@@ -39,6 +40,8 @@ public class WebsiteScraper extends WebsiteHandler {
     ConfigurableApplicationContext context;
     @Autowired
     private WebsiteElementRepository repository;
+    @Autowired
+    private WebsiteRepository websiteRepository;
 
     private double minIntraSiteDelay = 4000;
     private double maxIntraSiteDelay = 6000;
@@ -318,6 +321,9 @@ public class WebsiteScraper extends WebsiteHandler {
         if (website == null && selectedFromMenuTree != null && selectedFromMenuTree.keySet().iterator().hasNext()) {
             loggedInToWebsite = false;
             website = selectedFromMenuTree.keySet().iterator().next();
+            var freshWebsite = websiteRepository.findById(website.getId());
+
+            freshWebsite.ifPresent(value -> website = value);
         }
     }
 

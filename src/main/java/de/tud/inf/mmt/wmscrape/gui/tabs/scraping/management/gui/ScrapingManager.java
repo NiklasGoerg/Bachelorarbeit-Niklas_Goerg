@@ -92,7 +92,7 @@ public class ScrapingManager {
      */
     public void startScrape(double minIntra, double maxIntra, double waitElement, boolean pauseAfterElement,
                             SimpleStringProperty logText, Boolean headless,
-                            ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems, boolean historic) {
+                            ObservableMap<Website, ObservableSet<WebsiteElement>> checkedItems) {
 
         if(checkedItems.isEmpty() || emptyMapValues(checkedItems)) {
             logText.set("\nINFO:\tEs wurden keine Elemente zum scrapen ausgewählt.");
