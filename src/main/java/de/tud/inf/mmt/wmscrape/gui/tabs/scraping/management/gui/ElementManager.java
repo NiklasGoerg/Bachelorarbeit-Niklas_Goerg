@@ -338,9 +338,10 @@ public abstract class ElementManager {
 
         // don't need isin, it's defined in selection nor datum
         if(multiplicityType == MultiplicityType.EINZELWERT) addedStockColumns.add("isin");
-        addedStockColumns.add("datum");
-        courseCorrelations.add(new ElementIdentCorrelation(
-                websiteElement, ColumnDatatype.DATE, CourseTableManager.TABLE_NAME , "datum"));
+
+        if(websiteElement.getContentType() != ContentType.HISTORISCH) {
+            addedStockColumns.add("datum");
+        }
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
             courseCorrelations.add(elementIdentCorrelation);
