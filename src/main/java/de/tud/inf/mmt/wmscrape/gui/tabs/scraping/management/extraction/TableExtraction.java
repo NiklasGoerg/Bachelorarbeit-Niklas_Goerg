@@ -11,11 +11,11 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScrap
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
-import org.openqa.selenium.WebElement;
 
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
 public abstract class TableExtraction extends ExtractionGeneral implements Extraction {
@@ -328,6 +328,13 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
                 } else if(carrier.getDbColName().equals(statementKey)) {
                     fillStatement(1, statement, carrier.getExtractedData(), carrier.getDatatype());
                 }
+            }
+
+            try {
+                statement.addBatch();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                log("ERR:\t\tSQL Statement:"+e.getMessage()+" <-> "+e.getCause());
             }
         }
     }

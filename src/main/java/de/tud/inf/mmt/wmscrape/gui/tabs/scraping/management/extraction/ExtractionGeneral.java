@@ -397,7 +397,10 @@ public abstract class ExtractionGeneral {
                                  String data, ColumnDatatype datatype) {
         try {
             fillByDataType(index, datatype, statement, data);
-            statement.addBatch();
+
+            if(!scraper.getWebsite().isHistoric()) {
+                statement.addBatch();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             log("ERR:\t\tSQL Statement:"+e.getMessage()+" <-> "+e.getCause());
