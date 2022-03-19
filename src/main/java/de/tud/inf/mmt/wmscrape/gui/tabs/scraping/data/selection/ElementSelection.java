@@ -1,7 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.selection;
 
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.historic.HistoricColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.correlation.description.ElementDescCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
@@ -37,11 +36,6 @@ public class ElementSelection {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exchange_column_id", referencedColumnName = "id", updatable = false)
     private ExchangeColumn exchangeColumn;
-
-    // optional for historic correlations
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "historic_column_id", referencedColumnName = "id", updatable = false)
-    private HistoricColumn historicColumn;
 
     @Column(name = "is_selected", nullable = false)
     private boolean _selected = false;

@@ -186,7 +186,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             // looks for the information inside one row
             // adds it to the corresponding carriers
             if(task.isCancelled()) return;
-            readRow(row, preparedCarrierMap);
+            searchInsideRow(preparedCarrierMap, row);
             setHistoricStatementExtractedData(preparedCarrierMap);
             resetCarriers(preparedCarrierMap);
 
@@ -419,17 +419,5 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
 
     protected void partialMatchLog(String extracted, String field) {
         log("ERR:\t\t"+field+" stimmt nicht direkt mit '"+extracted+"' überein. Die Auswahl-Regex oder Bezeichnung sollte angepasst werden");
-    }
-
-    private void readRow(WebElementInContext row, Map<String, InformationCarrier> preparedCarrierMap) {
-        for (InformationCarrier carrier : preparedCarrierMap.values()) {
-            var data = scraper.findTextInContext(carrier.getIdentType(), carrier.getIdentifier(), carrier.getDbColName(), row);
-
-            data = processData(carrier, data);
-
-            if (isValid(data, carrier.getDatatype(), carrier.getDbColName())) {
-                carrier.setExtractedData(data);
-            }
-        }
     }
 }

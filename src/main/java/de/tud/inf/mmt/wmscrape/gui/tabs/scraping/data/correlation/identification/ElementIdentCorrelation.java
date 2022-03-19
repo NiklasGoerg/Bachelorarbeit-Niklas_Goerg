@@ -4,7 +4,6 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
 import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.historic.HistoricColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
@@ -35,11 +34,6 @@ public class ElementIdentCorrelation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_column_id", referencedColumnName = "id", updatable = false)
     private CourseColumn courseColumn;
-
-    // optional for historic correlations
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "historic_column_id", referencedColumnName = "id", updatable = false)
-    private HistoricColumn historicColumn;
 
     @Column(name = "ident_type", columnDefinition = "TEXT", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -126,19 +120,6 @@ public class ElementIdentCorrelation {
         this.dbColName = courseColumn.getName();
         this.dbTableName = courseColumn.getTableName();
         this.visualDatatype = courseColumn.getColumnVisualDatatype();
-    }
-
-    /**
-     * @param websiteElement the corresponding website element configuration
-     * @param historicColumn the database column the correlation relates to in form of a column entity
-     */
-    public ElementIdentCorrelation(WebsiteElement websiteElement, HistoricColumn historicColumn) {
-        this(websiteElement);
-        this.historicColumn = historicColumn;
-        this.columnDatatype = historicColumn.getColumnDatatype();
-        this.dbColName = historicColumn.getName();
-        this.dbTableName = historicColumn.getTableName();
-        this.visualDatatype = historicColumn.getColumnVisualDatatype();
     }
 
     /**

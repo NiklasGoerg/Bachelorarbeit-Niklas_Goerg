@@ -8,9 +8,6 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.exchange.ExchangeTableManager;
-import de.tud.inf.mmt.wmscrape.dynamicdb.historic.HistoricColumn;
-import de.tud.inf.mmt.wmscrape.dynamicdb.historic.HistoricColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.historic.HistoricTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager;
@@ -67,8 +64,6 @@ public abstract class ElementManager {
     private StockColumnRepository stockColumnRepository;
     @Autowired
     private ExchangeColumnRepository exchangeColumnRepository;
-    @Autowired
-    private HistoricColumnRepository historicColumnRepository;
     @Autowired
     protected WebsiteElementRepository websiteElementRepository;
     @Autowired
@@ -232,7 +227,7 @@ public abstract class ElementManager {
         } else if(type == ContentType.WECHSELKURS) {
             fillExchangeIdentCorrelationTable(websiteElement, table);
         } else if(type == ContentType.HISTORISCH) {
-            fillHistoricIdentCorrelationTable(websiteElement, table);
+            fillCourseIdentCorrelationTable(websiteElement, table, multiplicityType);
         }
     }
 
@@ -344,6 +339,8 @@ public abstract class ElementManager {
         // don't need isin, it's defined in selection nor datum
         if(multiplicityType == MultiplicityType.EINZELWERT) addedStockColumns.add("isin");
         addedStockColumns.add("datum");
+        courseCorrelations.add(new ElementIdentCorrelation(
+                websiteElement, ColumnDatatype.DATE, CourseTableManager.TABLE_NAME , "datum"));
 
         for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
             courseCorrelations.add(elementIdentCorrelation);
@@ -402,42 +399,6 @@ public abstract class ElementManager {
 
         table.getItems().addAll(exchangeCorrelations);
     }
-
-    /**
-     * adds all identification correlation rows for all columns of the historic database table ({@link HistoricTableManager#TABLE_NAME}).
-     * previously saved ones are added first
-     *
-     * @param websiteElement the website element configuration
-     * @param table the javafx selection table
-     */
-    private void fillHistoricIdentCorrelationTable(WebsiteElement websiteElement, TableView<ElementIdentCorrelation> table) {
-        ObservableList<ElementIdentCorrelation> historicCorrelations = FXCollections.observableArrayList();
-        ArrayList<String> addedStockColumns = new ArrayList<>();
-
-        for (ElementIdentCorrelation elementIdentCorrelation : websiteElement.getElementIdentCorrelations()) {
-            historicCorrelations.add(elementIdentCorrelation);
-            addedStockColumns.add(elementIdentCorrelation.getDbColName());
-        }
-
-        // add these for scraping identification purposes
-        for(String column : EXTRA_HISTORIC) {
-            if(!addedStockColumns.contains(column)) {
-                addedStockColumns.add(column);
-                historicCorrelations.add(new ElementIdentCorrelation(
-                        websiteElement, ColumnDatatype.TEXT, CourseTableManager.TABLE_NAME ,column));
-            }
-        }
-
-        for(HistoricColumn column : historicColumnRepository.findAll()) {
-            if(!addedStockColumns.contains(column.getName())) {
-                addedStockColumns.add(column.getName());
-                historicCorrelations.add(new ElementIdentCorrelation(websiteElement, column));
-            }
-        }
-
-        table.getItems().addAll(historicCorrelations);
-    }
-
 
     /**
      * prepares and fills the exchange selection table based on the website configuration which contains the references
