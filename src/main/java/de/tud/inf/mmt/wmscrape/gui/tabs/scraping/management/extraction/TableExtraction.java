@@ -195,6 +195,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             scraper.resetIdentDataBuffer();
         }
         log("INFO:\tDaten erfolgreich extrahiert");
+        scraper.getCurrentSelection().isExtracted();
         scraper.waitForWsElements(true);
 
         storeInDb();

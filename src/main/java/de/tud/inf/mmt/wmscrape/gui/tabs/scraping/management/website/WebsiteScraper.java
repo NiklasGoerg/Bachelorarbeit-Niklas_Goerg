@@ -60,6 +60,8 @@ public class WebsiteScraper extends WebsiteHandler {
     private double progressWsCurrent = 0;
     private boolean pauseAfterElement;
 
+    public ElementSelection currentSelection = null;
+
     // using my own progress for the main task because the updateProgress method lags the ui
     private final SimpleDoubleProperty websiteProgress = new SimpleDoubleProperty(0);
     private final SimpleDoubleProperty singleElementProgress = new SimpleDoubleProperty(0);
@@ -344,6 +346,11 @@ public class WebsiteScraper extends WebsiteHandler {
         return selectedFromMenuTree.get(website).iterator().next();
     }
 
+
+    public ElementSelection getCurrentSelection() { return currentSelection; }
+
+    public void setCurrentSelection(ElementSelection currentSelection) { this.currentSelection = currentSelection; }
+
     /**
      * removes a website configuration as there are no more connected website element configurations to proceess
      */
@@ -574,15 +581,15 @@ public class WebsiteScraper extends WebsiteHandler {
                 var elementSelections = freshElement.getElementSelections();
 
                 for(ElementSelection elementSelection : elementSelections) {
+                    setCurrentSelection(elementSelection);
                     var websiteIsin = elementSelection.getElementDescCorrelation().getWsIsin();
 
-                    doSearchRoutine(websiteIsin);
-                    doLoadHistoricData(freshElement);
+                    if(!doSearchRoutine(websiteIsin)) continue;
+                    if(!doLoadHistoricData(freshElement)) continue;
 
                     tableHistoricExtraction.setIsin(elementSelection.getIsin());
                     addToLog("INFO:\tExtrahiere Daten für " + elementSelection.getIsin());
                     tableHistoricExtraction.extract(freshElement, task, elementSelectionProgress);
-                    elementSelection.isExtracted();
                 }
 
                 tableHistoricExtraction.logMatches(elementSelections, element.getDescription());
