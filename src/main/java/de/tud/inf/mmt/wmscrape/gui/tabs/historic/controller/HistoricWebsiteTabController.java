@@ -63,6 +63,7 @@ public class HistoricWebsiteTabController {
     @FXML private TextField dateFromYearIdentField;
 
     @FXML private TextField dateFromField;
+    @FXML private TextField dateUntilField;
 
     @FXML private ChoiceBox<IdentType> dateUntilDayIdentChoiceBox;
     @FXML private TextField dateUntilDayIdentField;
@@ -102,27 +103,27 @@ public class HistoricWebsiteTabController {
         urlField.textProperty().addListener((o,ov,nv) -> emptyValidator(urlField));
         usernameField.textProperty().addListener((o,ov,nv) -> emptyValidator(usernameField));
         passwordField.textProperty().addListener((o,ov,nv) -> emptyValidator(passwordField));
-        usernameIdentField.textProperty().addListener((o,ov,nv) -> validIdentField(usernameIdentField));
-        passwordIdentField.textProperty().addListener((o,ov,nv) -> validIdentField(passwordIdentField));
-        loginIdentField.textProperty().addListener((o,ov,nv) -> validIdentField(loginIdentField));
+        usernameIdentField.textProperty().addListener((o,ov,nv) -> validIdentField(usernameIdentField, true));
+        passwordIdentField.textProperty().addListener((o,ov,nv) -> validIdentField(passwordIdentField, true));
+        loginIdentField.textProperty().addListener((o,ov,nv) -> validIdentField(loginIdentField, true));
         logoutIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(logoutIdentField));
         cookieAcceptIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(cookieAcceptIdentField));
         notificationDeclineIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(notificationDeclineIdentField));
 
         informationUrlField.textProperty().addListener((o, ov, nv) -> validUrlField(informationUrlField));
-        searchIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(searchIdentField));
-        searchButtonIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(searchButtonIdentField));
-        historicLinkIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(historicLinkIdentField));
+        searchIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(searchIdentField, false));
+        searchButtonIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(searchButtonIdentField, false));
+        historicLinkIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(historicLinkIdentField, false));
 
-        dateFromDayIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromDayIdentField));
-        dateFromMonthIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromMonthIdentField));
-        dateFromYearIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromYearIdentField));
+        dateFromDayIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromDayIdentField, false));
+        dateFromMonthIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromMonthIdentField, true));
+        dateFromYearIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateFromYearIdentField, true));
 
-        dateUntilDayIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilDayIdentField));
-        dateUntilMonthIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilMonthIdentField));
-        dateUntilYearIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilYearIdentField));
+        dateUntilDayIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilDayIdentField, false));
+        dateUntilMonthIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilMonthIdentField, true));
+        dateUntilYearIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(dateUntilYearIdentField, true));
 
-        loadButtonIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(loadButtonIdentField));
+        loadButtonIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(loadButtonIdentField, false));
 
         // set choicebox options
         addTypeToChoiceBox(usernameIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
@@ -286,6 +287,7 @@ public class HistoricWebsiteTabController {
         dateUntilYearIdentField.clear();
 
         dateFromField.clear();
+        dateUntilField.clear();
 
         dateUntilDayIdentChoiceBox.setValue(null);
         dateUntilMonthIdentChoiceBox.setValue(null);
@@ -339,6 +341,7 @@ public class HistoricWebsiteTabController {
         website.setDateFromYearIdent(dateFromYearIdentField.getText());
 
         website.setDateFrom(dateFromField.getText());
+        website.setDateUntil(dateUntilField.getText());
 
         website.setDateUntilDayIdentType(dateUntilDayIdentChoiceBox.getValue());
         website.setDateUntilDayIdent(dateUntilDayIdentField.getText());
@@ -405,6 +408,7 @@ public class HistoricWebsiteTabController {
         dateFromMonthIdentField.setText(website.getDateFromMonthIdent());
         dateFromYearIdentField.setText(website.getDateFromYearIdent());
         dateFromField.setText(website.getDateFrom());
+        dateUntilField.setText(website.getDateUntil());
         dateUntilDayIdentChoiceBox.setValue(website.getDateUntilDayIdentType());
         dateUntilMonthIdentChoiceBox.setValue(website.getDateUntilMonthIdentType());
         dateUntilYearIdentChoiceBox.setValue(website.getDateUntilYearIdentType());
@@ -430,21 +434,21 @@ public class HistoricWebsiteTabController {
         boolean valid = validUrlField(urlField);
         valid &= emptyValidator(usernameField);
         valid &= emptyValidator(passwordField);
-        valid &= validIdentField(usernameIdentField);
-        valid &= validIdentField(passwordIdentField);
-        valid &= validIdentField(loginIdentField);
+        valid &= validIdentField(usernameIdentField, true);
+        valid &= validIdentField(passwordIdentField, true);
+        valid &= validIdentField(loginIdentField, true);
         valid &= escapeValidator(logoutIdentField);
         valid &= escapeValidator(cookieAcceptIdentField);
         valid &= validUrlField(informationUrlField);
-        valid &= validIdentField(searchIdentField);
-        valid &= validIdentField(historicLinkIdentField);
-        valid &= validIdentField(dateFromDayIdentField);
-        valid &= validIdentField(dateFromMonthIdentField);
-        valid &= validIdentField(dateFromYearIdentField);
-        valid &= validIdentField(dateUntilDayIdentField);
-        valid &= validIdentField(dateUntilMonthIdentField);
-        valid &= validIdentField(dateUntilYearIdentField);
-        valid &= validIdentField(loadButtonIdentField);
+        valid &= validIdentField(searchIdentField, false);
+        valid &= validIdentField(historicLinkIdentField, false);
+        valid &= validIdentField(dateFromDayIdentField, false);
+        valid &= validIdentField(dateFromMonthIdentField, true);
+        valid &= validIdentField(dateFromYearIdentField, true);
+        valid &= validIdentField(dateUntilDayIdentField, false);
+        valid &= validIdentField(dateUntilMonthIdentField, true);
+        valid &= validIdentField(dateUntilYearIdentField, true);
+        valid &= validIdentField(loadButtonIdentField, false);
 
         return valid;
     }
@@ -453,8 +457,8 @@ public class HistoricWebsiteTabController {
         return emptyValidator(identField) && urlValidator(identField);
     }
 
-    private boolean validIdentField(TextField identField) {
-        return emptyValidator(identField) && escapeValidator(identField);
+    private boolean validIdentField(TextField identField, boolean canBeEmpty) {
+        return (canBeEmpty || emptyValidator(identField)) && escapeValidator(identField);
     }
 
     private boolean emptyValidator(TextInputControl input) {

@@ -617,6 +617,19 @@
                             <VBox.margin>
                                 <Insets left="15.0" top="5.0"/>
                             </VBox.margin>
+                            <HBox alignment="CENTER_RIGHT" minHeight="-Infinity" prefWidth="130.0">
+                                <Label text="Datum bis"/>
+                            </HBox>
+                            <TextField fx:id="dateUntilField" prefWidth="410.0">
+                                <HBox.margin>
+                                    <Insets left="10.0"/>
+                                </HBox.margin>
+                            </TextField>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <VBox.margin>
+                                <Insets left="15.0" top="5.0"/>
+                            </VBox.margin>
                             <HBox alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="130.0">
                                 <Label text="Lade-Button"/>
                             </HBox>

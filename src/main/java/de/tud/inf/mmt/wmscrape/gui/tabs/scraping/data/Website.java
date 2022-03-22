@@ -149,6 +149,9 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Column(columnDefinition = "TEXT", name = "date_until_year_ident")
     private String dateUntilYearIdent;
 
+    @Column(columnDefinition = "TEXT", name = "date_until")
+    private String dateUntil;
+
     @Enumerated(value = EnumType.STRING)
     @Column(name = "load_button_ident_type", nullable = false)
     private IdentType loadButtonIdentType = IdentType.ID;
@@ -529,5 +532,13 @@ public class Website extends WebRepresentation<WebsiteElement>{
 
     public void setSearchButtonIdent(String searchButtonIdent) {
         this.searchButtonIdent = searchButtonIdent;
+    }
+
+    public String getDateUntil() {
+        return dateUntil;
+    }
+
+    public void setDateUntil(String dateUntil) {
+        this.dateUntil = dateUntil;
     }
 }
