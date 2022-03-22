@@ -605,13 +605,36 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     protected boolean loadHistoricPage() {
-        WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), website.getHistoricLinkIdent());
+        var linkIdent = website.getHistoricLinkIdent();
 
-        if (element == null) return false;
+        if(!linkIdent.contains(";")) {
 
-        clickElement(element);
-        waitLoadEvent();
-        addToLog("INFO:\tZu historischen Daten navigiert");
+            WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), website.getHistoricLinkIdent());
+
+            if (element == null) return false;
+
+            clickElement(element);
+            waitLoadEvent();
+            addToLog("INFO:\tZu historischen Daten navigiert");
+        } else {
+            var linkIdents = linkIdent.split(";");
+
+            for(String ident : linkIdents) {
+                WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), ident);
+
+                if (element == null) return false;
+
+                clickElement(element);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                waitLoadEvent();
+            }
+        }
+
+
         return true;
     }
 
@@ -624,43 +647,68 @@ public abstract class WebsiteHandler extends Service<Void> {
         var dateUntilMonthElement = extractElementFromRoot(website.getDateUntilMonthIdentType(), website.getDateUntilMonthIdent());
         var dateUntilYearElement = extractElementFromRoot(website.getDateUntilYearIdentType(), website.getDateUntilYearIdent());
 
-        if(dateFromDayElement == null ||
-            dateFromMonthElement == null ||
-            dateFromYearElement == null ||
-            dateUntilDayElement == null ||
-            dateUntilMonthElement == null ||
-            dateUntilYearElement == null) {
+        if(dateFromDayElement != null &&
+            dateFromMonthElement != null &&
+            dateFromYearElement != null &&
+            dateUntilDayElement != null &&
+            dateUntilMonthElement != null &&
+            dateUntilYearElement != null) {
 
+            if (website.getDateFrom() != null && !website.getDateFrom().equals("")) {
+                var dateFrom = website.getDateFrom().split("#");
+
+                if (dateFrom.length != 3) return false;
+
+                new Select(dateFromDayElement).selectByVisibleText(dateFrom[0]);
+                new Select(dateFromMonthElement).selectByVisibleText(dateFrom[1]);
+                new Select(dateFromYearElement).selectByVisibleText(dateFrom[2]);
+            } else {
+                new Select(dateFromDayElement).selectByIndex(0);
+                new Select(dateFromMonthElement).selectByIndex(0);
+                new Select(dateFromYearElement).selectByIndex(0);
+            }
+
+            var untilDaySelect = new Select(dateUntilDayElement);
+            var untilMonthSelect = new Select(dateUntilMonthElement);
+            var untilYearSelect = new Select(dateUntilYearElement);
+
+            if (website.getDateUntil() != null && !website.getDateUntil().equals("")) {
+                var dateUntil = website.getDateUntil().split("#");
+
+                if (dateUntil.length != 3) return false;
+
+                untilDaySelect.selectByVisibleText(dateUntil[0]);
+                untilMonthSelect.selectByVisibleText(dateUntil[1]);
+                untilYearSelect.selectByVisibleText(dateUntil[2]);
+            } else {
+                untilDaySelect.selectByIndex(untilDaySelect.getOptions().size() - 1);
+                untilMonthSelect.selectByIndex(untilMonthSelect.getOptions().size() - 1);
+                untilYearSelect.selectByIndex(untilYearSelect.getOptions().size() - 1);
+            }
+
+            addToLog("INFO:\tDatum gesetzt");
+            return true;
+        } else if(dateFromDayElement != null &&
+                dateFromMonthElement == null &&
+                dateFromYearElement == null &&
+                dateUntilDayElement != null &&
+                dateUntilMonthElement == null &&
+                dateUntilYearElement == null) {
+
+            var dateFrom = website.getDateFrom();
+            var dateUntil = website.getDateUntil();
+
+            clickElement(dateFromDayElement);
+            setText(dateFromDayElement, dateFrom);
+            clickElement(dateUntilDayElement);
+            setText(dateUntilDayElement, dateUntil);
+
+            addToLog("INFO:\tDatum gesetzt");
+            return true;
+        } else {
+            addToLog("INFO:\tDatum setzen fehlgeschlagen");
             return false;
         }
-
-        if(website.getDateFrom() != null && !website.getDateFrom().equals("")) {
-            var dateFrom = website.getDateFrom().split("#");
-
-            if(dateFrom.length != 3) return false;
-
-            new Select(dateFromDayElement).selectByValue(dateFrom[0]);
-            new Select(dateFromMonthElement).selectByValue(dateFrom[1]);
-            new Select(dateFromYearElement).selectByValue(dateFrom[2]);
-        } else {
-            new Select(dateFromDayElement).selectByIndex(0);
-            new Select(dateFromMonthElement).selectByIndex(0);
-            new Select(dateFromYearElement).selectByIndex(0);
-        }
-
-
-        var untilDaySelect = new Select(dateUntilDayElement);
-        untilDaySelect.selectByIndex(untilDaySelect.getOptions().size() - 1);
-
-        var untilMonthSelect = new Select(dateUntilMonthElement);
-        untilMonthSelect.selectByIndex(untilMonthSelect.getOptions().size() - 1);
-
-        var untilYearSelect = new Select(dateUntilYearElement);
-        untilYearSelect.selectByIndex(untilYearSelect.getOptions().size() - 1);
-
-        addToLog("INFO:\tDatum gesetzt");
-
-        return true;
     }
 
     protected boolean declineNotifications() {
@@ -677,13 +725,39 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     protected boolean loadHistoricData() {
-        WebElement element = extractElementFromRoot(website.getLoadButtonIdentType(), website.getLoadButtonIdent());
+        var buttonIdent = website.getLoadButtonIdent();
 
-        if (element == null) return false;
+        if(!buttonIdent.contains(";")) {
 
-        clickElement(element);
+            WebElement element = extractElementFromRoot(website.getLoadButtonIdentType(), website.getLoadButtonIdent());
 
-        addToLog("INFO:\tHistorische Daten geladen");
+            if (element == null) return false;
+
+            clickElement(element);
+
+            addToLog("INFO:\tHistorische Daten geladen");
+        } else {
+            var buttonIdents = buttonIdent.split(";");
+
+            for(String ident : buttonIdents) {
+                WebElement element = extractElementFromRoot(website.getLoadButtonIdentType(), ident);
+
+                if (element == null) return false;
+
+                clickElement(element);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                waitLoadEvent();
+            }
+
+            addToLog("INFO:\tHistorische Daten geladen");
+        }
+
 
         return true;
     }

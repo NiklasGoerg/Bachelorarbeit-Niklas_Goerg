@@ -490,7 +490,7 @@ public class WebsiteScraper extends WebsiteHandler {
 
     private boolean noPageLoadSuccess(WebsiteElement element) {
         // loading page here
-        if (!loadPage(element.getContentType() == ContentType.HISTORISCH ? website.getSearchUrl() : element.getInformationUrl())) {
+        if (element.getContentType() != ContentType.HISTORISCH || !loadPage(element.getInformationUrl())) {
             addToLog("ERR:\t\tErfolgloser Zugriff auf " + element.getInformationUrl());
             removeFinishedElement(element);
             return true;
@@ -569,6 +569,10 @@ public class WebsiteScraper extends WebsiteHandler {
     }
 
     private void processHistoricWebsiteElement(WebsiteElement element, Task<Void> task) {
+        if(!usesLogin()) {
+            acceptCookies();
+        }
+
         context.getBean(TransactionTemplate.class).execute(new TransactionCallbackWithoutResult() {
             // have to create a session by my own because this is an unmanaged object
             // otherwise no hibernate proxy is created
@@ -587,6 +591,8 @@ public class WebsiteScraper extends WebsiteHandler {
                     if(!doSearchRoutine(websiteIsin)) continue;
                     if(!doLoadHistoricData(freshElement)) continue;
 
+                    scrollToBottom(freshElement);
+
                     tableHistoricExtraction.setIsin(elementSelection.getIsin());
                     addToLog("INFO:\tExtrahiere Daten für " + elementSelection.getIsin());
                     tableHistoricExtraction.extract(freshElement, task, elementSelectionProgress);
@@ -595,6 +601,19 @@ public class WebsiteScraper extends WebsiteHandler {
                 tableHistoricExtraction.logMatches(elementSelections, element.getDescription());
             }
         });
+    }
+
+    private void scrollToBottom(WebsiteElement element) {
+        var table = extractElementFromRoot(element.getTableIdenType(), element.getTableIdent());
+
+        var tableHeight = 0L;
+
+        while(tableHeight < (Long) driver.executeScript("return arguments[0].scrollHeight", table)) {
+            tableHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", table);
+            driver.executeScript("arguments[0].scrollIntoView(false)", table);
+            driver.executeScript("window.scrollBy(0, 100)");
+            waitLoadEvent();
+        }
     }
 
     public static boolean emptyMapValues(Map<Website, Set<WebsiteElement>> map) {

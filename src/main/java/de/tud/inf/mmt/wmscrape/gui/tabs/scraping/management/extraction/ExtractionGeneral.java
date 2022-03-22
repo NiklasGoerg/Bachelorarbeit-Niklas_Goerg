@@ -150,6 +150,21 @@ public abstract class ExtractionGeneral {
      * @return the ordered date or an empty string
      */
     private String getDateInRegularFormat(String text) {
+        text = text.replace("Jan.", "01");
+        text = text.replace("Feb.", "02");
+        text = text.replace("März", "03");
+        text = text.replace("Apr.", "04");
+        text = text.replace("Mai", "05");
+        text = text.replace("Juni", "06");
+        text = text.replace("Juli", "07");
+        text = text.replace("Aug.", "08");
+        text = text.replace("Sept.", "09");
+        text = text.replace("Okt.", "10");
+        text = text.replace("Nov.", "11");
+        text = text.replace("Dez.", "12");
+
+        text = text.replaceAll("[.] ", ".");
+        text = text.replaceAll(" ", ".");
 
         // matches every date format
         String match = findFirst("(\\d{4}|\\d{1,2}|\\d)[^0-9]{1,3}\\d{1,2}[^0-9]{1,3}(\\d{4}|\\d{1,2}|\\d)", text);
