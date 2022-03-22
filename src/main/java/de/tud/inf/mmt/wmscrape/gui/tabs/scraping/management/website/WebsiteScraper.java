@@ -490,7 +490,7 @@ public class WebsiteScraper extends WebsiteHandler {
 
     private boolean noPageLoadSuccess(WebsiteElement element) {
         // loading page here
-        if (element.getContentType() != ContentType.HISTORISCH || !loadPage(element.getInformationUrl())) {
+        if (element.getContentType() != ContentType.HISTORISCH && !loadPage(element.getInformationUrl())) {
             addToLog("ERR:\t\tErfolgloser Zugriff auf " + element.getInformationUrl());
             removeFinishedElement(element);
             return true;
