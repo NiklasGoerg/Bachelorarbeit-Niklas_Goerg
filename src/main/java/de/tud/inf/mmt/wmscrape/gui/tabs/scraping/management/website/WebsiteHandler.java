@@ -170,13 +170,18 @@ public abstract class WebsiteHandler extends Service<Void> {
         IdentType type = website.getCookieAcceptIdentType();
         if (type == IdentType.DEAKTIVIERT) return true;
 
-        WebElement element = extractElementFromRoot(type, website.getCookieAcceptIdent());
+        var idents = website.getCookieAcceptIdent().split(";");
 
-        if (element == null) return false;
+        for(String ident : idents) {
+            WebElement element = extractElementFromRoot(type, ident);
 
-        clickElement(element);
-        waitLoadEvent();
-        addToLog("INFO:\tCookies akzeptiert");
+            if (element == null) return false;
+
+            clickElement(element);
+            waitLoadEvent();
+        }
+
+        addToLog("INFO:\tCookie-Einstellungen gespeichert");
         return true;
     }
 

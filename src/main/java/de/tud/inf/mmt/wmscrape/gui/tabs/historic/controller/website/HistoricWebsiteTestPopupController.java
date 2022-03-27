@@ -56,11 +56,11 @@ public class HistoricWebsiteTestPopupController {
         // next step
         switch (step) {
             case 1 -> nextStep.setText("Webseite laden");
-            case 2 -> nextStep.setText("Cookies akzeptieren");
+            case 2 -> nextStep.setText("Cookies akzeptieren/ablehnen");
             case 3 -> nextStep.setText("Login Informationen ausfüllen");
             case 4 -> nextStep.setText("Einloggen");
             case 5 -> nextStep.setText("Navigiere auf Such-Seite");
-            case 6 -> nextStep.setText("Suche nach DAX40");
+            case 6 -> nextStep.setText("Suche nach Deutsche Bank AG");
             case 7 -> nextStep.setText("Navigiere zu historischen Daten");
             case 8 -> nextStep.setText("Stelle Datum ein");
             case 9 -> nextStep.setText("Lade historische Daten");

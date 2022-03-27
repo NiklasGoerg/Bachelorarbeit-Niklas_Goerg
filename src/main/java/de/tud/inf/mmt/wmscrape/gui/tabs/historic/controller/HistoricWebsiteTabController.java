@@ -3,7 +3,6 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.website.HistoricWebsiteTestPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.website.NewHistoricWebsitePopupController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.website.WebsiteTestPopupController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.Website;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.gui.WebsiteManager;
@@ -38,8 +37,8 @@ public class HistoricWebsiteTabController {
     @FXML private TextField loginIdentField;
     @FXML private ChoiceBox<IdentType> logoutIdentChoiceBox;
     @FXML private TextField logoutIdentField;
-    @FXML private ChoiceBox<IdentType> cookieAcceptIdentChoiceBox;
-    @FXML private TextField cookieAcceptIdentField;
+    @FXML private ChoiceBox<IdentType> cookieConfigIdentChoiceBox;
+    @FXML private TextField cookieConfigIdentField;
     @FXML private VBox rightPanelBox;
     @FXML private SplitPane rootNode;
 
@@ -107,7 +106,7 @@ public class HistoricWebsiteTabController {
         passwordIdentField.textProperty().addListener((o,ov,nv) -> validIdentField(passwordIdentField, true));
         loginIdentField.textProperty().addListener((o,ov,nv) -> validIdentField(loginIdentField, true));
         logoutIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(logoutIdentField));
-        cookieAcceptIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(cookieAcceptIdentField));
+        cookieConfigIdentField.textProperty().addListener((o, ov, nv) -> escapeValidator(cookieConfigIdentField));
         notificationDeclineIdentField.textProperty().addListener((o,ov,nv) -> escapeValidator(notificationDeclineIdentField));
 
         informationUrlField.textProperty().addListener((o, ov, nv) -> validUrlField(informationUrlField));
@@ -130,7 +129,7 @@ public class HistoricWebsiteTabController {
         addTypeToChoiceBox(passwordIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
         addTypeToChoiceBox(loginIdentChoiceBox, IDENT_TYPE_DEACTIVATED_ENTER);
         addTypeToChoiceBox(logoutIdentChoiceBox, IDENT_TYPE_DEACTIVATED_URL);
-        addTypeToChoiceBox(cookieAcceptIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
+        addTypeToChoiceBox(cookieConfigIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
         addTypeToChoiceBox(notificationDeclineIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
 
         addTypeToChoiceBox(searchButtonIdentChoiceBox, IDENT_TYPE_DEACTIVATED_ENTER);
@@ -254,12 +253,12 @@ public class HistoricWebsiteTabController {
     private void clearFields() {
         clearTopFields();
 
-        cookieAcceptIdentField.clear();
+        cookieConfigIdentField.clear();
         usernameIdentChoiceBox.setValue(null);
         passwordIdentChoiceBox.setValue(null);
         loginIdentChoiceBox.setValue(null);
         logoutIdentChoiceBox.setValue(null);
-        cookieAcceptIdentChoiceBox.setValue(null);
+        cookieConfigIdentChoiceBox.setValue(null);
 
         notificationDeclineIdentField.clear();
         notificationDeclineIdentChoiceBox.setValue(null);
@@ -319,8 +318,8 @@ public class HistoricWebsiteTabController {
         website.setLoginButtonIdent(loginIdentField.getText());
         website.setLogoutIdentType(logoutIdentChoiceBox.getValue());
         website.setLogoutIdent(logoutIdentField.getText());
-        website.setCookieAcceptIdentType(cookieAcceptIdentChoiceBox.getValue());
-        website.setCookieAcceptIdent(cookieAcceptIdentField.getText());
+        website.setCookieAcceptIdentType(cookieConfigIdentChoiceBox.getValue());
+        website.setCookieAcceptIdent(cookieConfigIdentField.getText());
         website.setDeclineNotificationIdentType(notificationDeclineIdentChoiceBox.getValue());
         website.setNotificationDeclineIdent(notificationDeclineIdentField.getText());
 
@@ -389,8 +388,8 @@ public class HistoricWebsiteTabController {
         loginIdentField.setText(website.getLoginButtonIdent());
         logoutIdentChoiceBox.setValue(website.getLogoutIdentType());
         logoutIdentField.setText(website.getLogoutIdent());
-        cookieAcceptIdentChoiceBox.setValue(website.getCookieAcceptIdentType());
-        cookieAcceptIdentField.setText(website.getCookieAcceptIdent());
+        cookieConfigIdentChoiceBox.setValue(website.getCookieAcceptIdentType());
+        cookieConfigIdentField.setText(website.getCookieAcceptIdent());
 
         notificationDeclineIdentChoiceBox.setValue(website.getDeclineNotificationIdentType());
         notificationDeclineIdentField.setText(website.getNotificationDeclineIdent());
@@ -438,7 +437,7 @@ public class HistoricWebsiteTabController {
         valid &= validIdentField(passwordIdentField, true);
         valid &= validIdentField(loginIdentField, true);
         valid &= escapeValidator(logoutIdentField);
-        valid &= escapeValidator(cookieAcceptIdentField);
+        valid &= escapeValidator(cookieConfigIdentField);
         valid &= validUrlField(informationUrlField);
         valid &= validIdentField(searchIdentField, false);
         valid &= validIdentField(historicLinkIdentField, false);
