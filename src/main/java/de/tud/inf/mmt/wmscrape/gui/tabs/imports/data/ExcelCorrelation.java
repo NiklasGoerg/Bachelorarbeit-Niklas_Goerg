@@ -30,6 +30,10 @@ public class ExcelCorrelation {
     @JoinColumn(name="stock_column_id", referencedColumnName="id", updatable = false)
     private StockColumn stockColumn;
 
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="watchlist__column_id", referencedColumnName="id", updatable = false)
+    private StockColumn watchListColumn;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transaction_column_id", referencedColumnName="id", updatable = false)
     private TransactionColumn transactionColumn;

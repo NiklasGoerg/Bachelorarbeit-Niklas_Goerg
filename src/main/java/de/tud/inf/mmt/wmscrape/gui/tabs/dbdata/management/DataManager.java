@@ -3,10 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.tud.inf.mmt.wmscrape.dynamicdb.*;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomCell;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.DepotRepository;
 import javafx.beans.property.SimpleStringProperty;
@@ -34,6 +31,7 @@ public abstract class DataManager {
     @Autowired protected DataSource dataSource;
     @Autowired protected StockRepository stockRepository;
     @Autowired private DepotRepository depotRepository;
+    @Autowired private WatchListRepository watchListRepository;
     @Autowired private StockColumnRepository stockColumnRepository;
 
     protected DbTableColumnRepository<? extends DbTableColumn, Integer> dbTableColumnRepository;
@@ -525,6 +523,46 @@ public abstract class DataManager {
 
     public void updateStockSelectionTable(TableView<Stock> table) {
         table.getItems().addAll(stockRepository.findAll());
+    }
+
+    public void updateWatchListSelectionTable(TableView<WatchList> table) {
+        table.getItems().addAll(watchListRepository.findAll());
+    }
+
+    public void prepareWatchListSelectionTable(TableView<WatchList> table) {
+        TableColumn<WatchList, String> nameCol =  new TableColumn<>("Name");
+        TableColumn<WatchList, String> isinCol =  new TableColumn<>("ISIN");
+        TableColumn<WatchList, String> wknCol =  new TableColumn<>("WKN");
+        TableColumn<WatchList, String> typCol =  new TableColumn<>("Typ");
+        TableColumn<WatchList, String> sortCol =  new TableColumn<>("R_Par");
+
+        nameCol.setCellValueFactory(param -> param.getValue().nameProperty());
+        isinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIsin()));
+        wknCol.setCellValueFactory(param -> param.getValue().wknProperty());
+        typCol.setCellValueFactory(param -> param.getValue().stockTypeProperty());
+        sortCol.setCellValueFactory(param -> param.getValue().sortOrderProperty());
+
+        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        wknCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        typCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        sortCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        setComparator(sortCol, ColumnDatatype.INTEGER);
+
+        nameCol.setEditable(true);
+        isinCol.setEditable(false);
+        wknCol.setEditable(true);
+        typCol.setEditable(true);
+        sortCol.setEditable(true);
+
+        table.getColumns().add(isinCol);
+        table.getColumns().add(nameCol);
+        table.getColumns().add(wknCol);
+        table.getColumns().add(typCol);
+        table.getColumns().add(sortCol);
+
+        table.setEditable(true);
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     public void prepareDepotSelectionTable(TableView<Depot> table) {

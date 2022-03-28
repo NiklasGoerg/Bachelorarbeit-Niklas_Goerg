@@ -30,6 +30,11 @@ public class ElementIdentCorrelation {
     @JoinColumn(name = "stock_column_id", referencedColumnName = "id", updatable = false)
     private StockColumn stockColumn;
 
+    // optional for stock correlations
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "watchlist_column_id", referencedColumnName = "id", updatable = false)
+    private StockColumn watchListColumn;
+
     // optional for course correlations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_column_id", referencedColumnName = "id", updatable = false)
