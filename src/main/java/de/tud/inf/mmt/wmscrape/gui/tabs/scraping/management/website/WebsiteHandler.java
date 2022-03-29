@@ -594,6 +594,8 @@ public abstract class WebsiteHandler extends Service<Void> {
         clickElement(searchInput);
         setText(searchInput, isin);
 
+        waitLoadEvent();
+
         if(website.getSearchButtonIdentType() == IdentType.ENTER) {
             submit(searchInput);
         } else {

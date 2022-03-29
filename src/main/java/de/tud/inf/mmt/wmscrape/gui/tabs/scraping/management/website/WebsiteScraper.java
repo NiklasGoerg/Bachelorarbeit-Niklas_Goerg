@@ -570,6 +570,7 @@ public class WebsiteScraper extends WebsiteHandler {
 
     private void processHistoricWebsiteElement(WebsiteElement element, Task<Void> task) {
         if(!usesLogin()) {
+            loadSearchPage();
             acceptCookies();
         }
 
