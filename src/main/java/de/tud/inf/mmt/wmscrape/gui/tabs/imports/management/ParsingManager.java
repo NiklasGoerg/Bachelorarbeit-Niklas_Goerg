@@ -174,8 +174,12 @@ public class ParsingManager {
     private void removeUnselectedRows() {
         List<Integer> toDelete =  new ArrayList<>();
 
+
         for (int rowNr : excelSheetRows.keySet()) {
-            if (!(selectedPreviewRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get()) {
+            if (!(selectedPreviewRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get() &&
+                !(selectedStockDataRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get() &&
+                !(selectedTransactionRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get() &&
+                !(selectedWatchListRows.getOrDefault(rowNr, new SimpleBooleanProperty(false))).get()) {
                 toDelete.add(rowNr);
             }
         }
