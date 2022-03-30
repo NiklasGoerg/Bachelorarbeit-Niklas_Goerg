@@ -16,10 +16,9 @@ import java.util.List;
 public class WatchListTableManager extends DbTableManger {
 
     public static final String TABLE_NAME = "watch_list";
-    // r_par,wkn,name,typ is not actually inside the table but joined with the wertpapier table when displayed in the data tab
-    public static final List<String> NOT_EDITABLE_COLUMNS = List.of("isin", "name", "wkn", "typ", "r_par", "datum");
-    public static final List<String> RESERVED_COLUMNS = List.of("datum", "isin");
-    public static final List<String> COLUMN_ORDER = List.of("isin", "name", "wkn", "typ", "r_par", "datum");
+    public static final List<String> NOT_EDITABLE_COLUMNS = List.of("isin", "datum");
+    public static final List<String> RESERVED_COLUMNS = List.of("isin", "datum");
+    public static final List<String> COLUMN_ORDER = List.of("isin", "datum");
 
     @Autowired
     WatchListColumnRepository watchListColumnRepository;
@@ -31,9 +30,9 @@ public class WatchListTableManager extends DbTableManger {
      * <li> optional: predefined columns can be added to the db table with the {@link de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger}</li>
      */
     @PostConstruct
-    private void initStockData() {
+    private void initWatchListData() {
         // the stock data table is not managed by spring
-        // and has to be initialized by myself
+        // and has to be initialized by WMScrape
 
         if (tableDoesNotExist(TABLE_NAME)) {
             executeStatement("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");

@@ -5,7 +5,6 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.CustomRow;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
-import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.WatchList;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.management.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingElementsTabController;
@@ -42,7 +41,6 @@ public class DataTabController {
 
     private final TableView<Stock> stockSelectionTable = new TableView<>();
     private final TableView<Depot> depotSelectionTable = new TableView<>();
-    private final TableView<WatchList> watchListSelectionTable = new TableView<>();
     @FXML private BorderPane selectionPane;
 
     @FXML private TableView<CustomRow> customRowTableView;
@@ -112,7 +110,6 @@ public class DataTabController {
 
         tabManager.prepareStockSelectionTable(stockSelectionTable);
         tabManager.prepareDepotSelectionTable(depotSelectionTable);
-        tabManager.prepareWatchListSelectionTable(watchListSelectionTable);
         selectionPane.setCenter(stockSelectionTable);
 
         stockSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
@@ -120,10 +117,6 @@ public class DataTabController {
         });
 
         depotSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
-            if(nv != null) onSelection(nv);
-        });
-
-        watchListSelectionTable.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
             if(nv != null) onSelection(nv);
         });
 
@@ -456,7 +449,7 @@ public class DataTabController {
                     addEmptyRowMenuItem.setVisible(false);
                 } else if(nv.equals(watchListTab)) {
                     tabManager = watchListDataManager;
-                    selectionPane.setCenter(watchListSelectionTable);
+                    selectionPane.setCenter(stockSelectionTable);
                     hideNonStockRelated(false);
                     hideNonDepotRelated(true);
                     hideSelectionTable(false);
@@ -478,8 +471,6 @@ public class DataTabController {
             tabManager.updateStockSelectionTable(stockSelectionTable);
         } else if (table == depotSelectionTable) {
             tabManager.updateDepotSelectionTable(depotSelectionTable);
-        } else if(table == watchListSelectionTable) {
-            tabManager.updateWatchListSelectionTable(watchListSelectionTable);
         }
         redoSelection();
     }
@@ -510,8 +501,6 @@ public class DataTabController {
             rows = tabManager.getRowsBySelection("isin", ((Stock) o).getIsin(), allRows);
         } else if(o instanceof Depot) {
             rows = tabManager.getRowsBySelection("depot_name",((Depot) o).getName(), allRows);
-        } else if(o instanceof WatchList) {
-            rows = tabManager.getRowsBySelection("isin",((WatchList) o).getIsin(), allRows);
         }
 
         customRowTableView.getItems().addAll(rows);
@@ -537,8 +526,7 @@ public class DataTabController {
         } else if (lastViewed != null && (
                 // TODO refactor
                 (table == stockSelectionTable && lastViewed instanceof Stock && stockSelectionTable.getItems().contains((Stock) lastViewed)) ||
-                (table == depotSelectionTable && lastViewed instanceof Depot && depotSelectionTable.getItems().contains((Depot) lastViewed)) ||
-                (table == watchListSelectionTable && lastViewed instanceof WatchList && watchListSelectionTable.getItems().contains((WatchList) lastViewed)))) {
+                (table == depotSelectionTable && lastViewed instanceof Depot && depotSelectionTable.getItems().contains((Depot) lastViewed)))) {
             onSelection(lastViewed);
         } else ((TableView<?>) selectionPane.getCenter()).getSelectionModel().selectFirst();
     }
