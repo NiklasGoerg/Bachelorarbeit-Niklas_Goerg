@@ -429,7 +429,9 @@ public abstract class ExtractionGeneral {
     /**
      * executes all prepared statements
      */
-    protected void storeInDb() {
+    protected boolean storeInDb() {
+        var result = true;
+
         for(PreparedStatement statement : preparedStatements.values()) {
             try {
                 statement.executeBatch();
@@ -437,8 +439,11 @@ public abstract class ExtractionGeneral {
             } catch (SQLException e) {
                 log("ERR:\t\tSQL Statements konnten nicht ausgeführt werden. "+e.getMessage());
                 e.printStackTrace();
+                result = false;
             }
         }
+
+        return result;
     }
 
     /**

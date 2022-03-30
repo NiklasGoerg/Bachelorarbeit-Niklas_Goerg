@@ -647,12 +647,21 @@ public abstract class WebsiteHandler extends Service<Void> {
 
     protected boolean setDate() {
         var dateFromDayElement = extractElementFromRoot(website.getDateFromDayIdentType(), website.getDateFromDayIdent());
-        var dateFromMonthElement = extractElementFromRoot(website.getDateFromMonthIdentType(), website.getDateFromMonthIdent());
-        var dateFromYearElement = extractElementFromRoot(website.getDateFromYearIdentType(), website.getDateFromYearIdent());
+
+        WebElement dateFromMonthElement = null;
+        WebElement dateFromYearElement = null;
+        WebElement dateUntilMonthElement = null;
+        WebElement dateUntilYearElement = null;
+
+        if(website.getDateFromMonthIdent() != null && !website.getDateFromMonthIdent().equals("")) {
+            dateFromMonthElement = extractElementFromRoot(website.getDateFromMonthIdentType(), website.getDateFromMonthIdent());
+            dateFromYearElement = extractElementFromRoot(website.getDateFromYearIdentType(), website.getDateFromYearIdent());
+
+            dateUntilMonthElement = extractElementFromRoot(website.getDateUntilMonthIdentType(), website.getDateUntilMonthIdent());
+            dateUntilYearElement = extractElementFromRoot(website.getDateUntilYearIdentType(), website.getDateUntilYearIdent());
+        }
 
         var dateUntilDayElement = extractElementFromRoot(website.getDateUntilDayIdentType(), website.getDateUntilDayIdent());
-        var dateUntilMonthElement = extractElementFromRoot(website.getDateUntilMonthIdentType(), website.getDateUntilMonthIdent());
-        var dateUntilYearElement = extractElementFromRoot(website.getDateUntilYearIdentType(), website.getDateUntilYearIdent());
 
         if(dateFromDayElement != null &&
             dateFromMonthElement != null &&

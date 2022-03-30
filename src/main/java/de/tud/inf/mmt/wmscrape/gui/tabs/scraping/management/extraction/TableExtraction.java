@@ -195,10 +195,13 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             scraper.resetIdentDataBuffer();
         }
         log("INFO:\tDaten erfolgreich extrahiert");
-        scraper.getCurrentSelection().isExtracted();
+
         scraper.waitForWsElements(true);
 
-        storeInDb();
+        if(storeInDb()) {
+            scraper.getCurrentSelection().isExtracted();
+        }
+
         log("INFO:\tDaten wurden in die Datenbank geschrieben");
     }
 
@@ -324,6 +327,10 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             var statement = preparedStatements.get(statementKey);
 
             for (var carrier : carrierMap.values()) {
+                if(carrier.getExtractedData() == null) {
+                    return;
+                }
+
                 if(carrier.getDbColName().equals("datum")) {
                     fillStatement(2, statement, carrier.getExtractedData(), carrier.getDatatype());
                 } else if(carrier.getDbColName().equals(statementKey)) {
