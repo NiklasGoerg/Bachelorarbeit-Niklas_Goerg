@@ -5,6 +5,8 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.Stock;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.data.StockRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.depots.data.Depot;
@@ -27,6 +29,7 @@ public class ExtractionManager {
     // POI: index 0, EXCEL Index: 1
     private final static int OFFSET = 1;
     private static final List<String> ignoreInStockData = List.of("datum", "isin", "wkn", "name", "typ", "r_par");
+    private static final List<String> ignoreInWatchListData = List.of("datum", "isin");
 
     @Autowired
     private ImportTabManager importTabManager;
@@ -36,6 +39,8 @@ public class ExtractionManager {
     private DbTransactionManager dbTransactionManager;
     @Autowired
     private StockTableManager stockTableManager;
+    @Autowired
+    private WatchListTableManager watchListTableManager;
     @Autowired
     private ParsingManager parsingManager;
     @Autowired
@@ -48,6 +53,8 @@ public class ExtractionManager {
     private TransactionTableManager transactionTableManager;
     @Autowired
     private StockColumnRepository stockColumnRepository;
+    @Autowired
+    private WatchListColumnRepository watchListColumnRepository;
 
     private final HashMap<String, HashMap<String, String>> potentialNewStocks = new HashMap<>();
 
@@ -64,6 +71,13 @@ public class ExtractionManager {
         // don't break execution if silent
         // only silent and ok can pass
         if (stockExtractionResult < -1) return stockExtractionResult;
+        if (task.isCancelled()) return -3;
+
+        int watchListExtractionResult = extractWatchListData(task);
+        // 0-OK, -1-SilentError -> below other error
+        // don't break execution if silent
+        // only silent and ok can pass
+        if (watchListExtractionResult < -1) return watchListExtractionResult;
         if (task.isCancelled()) return -3;
 
         int transactionExtractionResult = extractTransactionData(task);
@@ -201,6 +215,122 @@ public class ExtractionManager {
 
         silentError |= dbTransactionManager.executeStatements(connection, statements);
         importTabManager.addToLog("\n##### Ende Stammdaten-Import #####\n");
+
+        if (silentError) return -1;
+        return 0;
+    }
+
+    /**
+     * does the complete watch list data import procedure including creating statements, filling them and executing them
+     *
+     * @param task the task the process is running in. only used for reacting to task cancellation
+     * @return error information as integer value
+     */
+    private int extractWatchListData(Task<Integer> task) {
+
+        importTabManager.addToLog("##### Start Watch-Liste-Import #####\n");
+
+        // execution is not stopped at a silent error but a log message is added
+        boolean silentError = false;
+        Connection connection = watchListTableManager.getConnection();
+        HashMap<String, PreparedStatement> statements = dbTransactionManager.createDataStatements(
+                watchListTableManager, watchListColumnRepository, connection);
+
+        var excelSheetRows = parsingManager.getExcelSheetRows();
+        var watchListColumnRelations = importTabController.getWatchListCorrelations();
+        var selected = parsingManager.getSelectedWatchListDataRows();
+
+
+        if (statements == null) return -2;
+
+        // go through all rows
+        for (int row : excelSheetRows.keySet()) {
+            if(task.isCancelled()) return -3;
+
+            // skip rows if not selected
+            if (!(selected.get(row).get())) continue;
+
+            // the columns for one row
+            ArrayList<String> rowData = excelSheetRows.get(row);
+
+            int isinCol = parsingManager.getColNrByName("isin", watchListColumnRelations);
+            int dateCol = parsingManager.getColNrByName("datum", watchListColumnRelations);
+
+            // check if isin valid
+            String isin = rowData.get(isinCol);
+            if (isin == null || isin.isBlank() || isin.length() >= 50) {
+                silentError = true;
+                importTabManager.addToLog("ERR:\t\tIsin der Zeile " + (row+OFFSET) + " leer oder länger als 50 Zeichen. ->'" + isin + "'");
+                continue;
+            }
+
+            // validate stockdata date value
+            String date = rowData.get(dateCol);
+            if (date == null || date.isBlank() || notMatchingDataType(ColumnDatatype.DATE, date)) {
+                importTabManager.addToLog("ERR:\t\tDatum '"+date+"' der Zeile "+(row+OFFSET)+" ist fehlerhaft oder leer.");
+                silentError = true;
+                continue;
+            }
+
+            // pick one column per relation from row
+            for (ExcelCorrelation correlation : watchListColumnRelations) {
+                if(task.isCancelled()) return -3;
+
+                String dbColName = correlation.getDbColTitle();
+
+                int correlationColNumber = correlation.getExcelColNumber();
+                String colData;
+
+                // -1 is default and can't be set another way meaning it's not set
+                if (correlationColNumber == -1) {
+                    //addToLog("INFO:\tDie Spalte '" + dbColName +"' hat keine Zuordnung.");
+                    colData = null;
+                } else {
+                    colData = rowData.get(correlationColNumber);
+                    if (colData.isBlank()) colData = null;
+                }
+
+                ColumnDatatype datatype = correlation.getDbColDataType();
+
+                if (datatype == null) {
+                    silentError = true;
+                    importTabManager.addToLog("ERR:\t\tDer Datenbankspalte " + dbColName
+                            + " ist kein Datentyp zugeordnet.");
+                    continue;
+                }
+
+                if (notMatchingDataType(datatype, colData)) {
+                    silentError = true;
+                    importTabManager.addToLog("ERR:\t\tDer Datentyp der Zeile " + (row+OFFSET) + " in der Spalte '" + correlation.getExcelColTitle() +
+                            "', stimmt nicht mit dem der Datenbankspalte " + dbColName + " vom Typ " + datatype.name() +
+                            " überein. Zellendaten: '" + colData + "'");
+                    continue;
+                }
+
+                // continue bcs the key value is not inserted with a prepared statement
+                // isin wkn name typ
+                if (ignoreInWatchListData.contains(dbColName)) {
+                    continue;
+                }
+
+                // statement exists bcs if there is an error at statement creation
+                // the program does not reach this line
+                PreparedStatement statement = statements.getOrDefault(dbColName, null);
+
+                if (statement == null) {
+                    silentError = true;
+                    importTabManager.addToLog("ERR:\t\tSql-Statement für die Spalte '" + correlation.getExcelColTitle() +
+                            "' nicht gefunden");
+                    continue;
+                }
+
+                silentError |= dbTransactionManager.fillStockStatementAddToBatch(isin, date, statement, colData, datatype);
+            }
+
+        }
+
+        silentError |= dbTransactionManager.executeStatements(connection, statements);
+        importTabManager.addToLog("\n##### Ende Watch-Liste-Import #####\n");
 
         if (silentError) return -1;
         return 0;

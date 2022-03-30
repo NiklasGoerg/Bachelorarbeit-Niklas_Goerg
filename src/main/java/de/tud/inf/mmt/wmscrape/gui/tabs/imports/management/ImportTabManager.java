@@ -77,13 +77,11 @@ public class ImportTabManager {
     public void saveExcelConfig(ExcelSheet excelSheet) {
         excelSheetRepository.saveAndFlush(excelSheet);
 
-        for(ExcelCorrelation excelCorrelation : importTabController.getStockDataCorrelations()) {
-            excelCorrelationRepository.save(excelCorrelation);
-        }
+        excelCorrelationRepository.saveAll(importTabController.getStockDataCorrelations());
 
-        for(ExcelCorrelation excelCorrelation : importTabController.getTransactionCorrelations()) {
-            excelCorrelationRepository.save(excelCorrelation);
-        }
+        excelCorrelationRepository.saveAll(importTabController.getTransactionCorrelations());
+
+        excelCorrelationRepository.saveAll(importTabController.getWatchListCorrelations());
     }
 
     /**
@@ -191,6 +189,7 @@ public class ImportTabManager {
         setColumnCheckboxFactory(sheetPreviewTable, "TBD.", parsingManager.getSelectedPreviewRows());
         setColumnCheckboxFactory(sheetPreviewTable, "Stammdaten", parsingManager.getSelectedStockDataRows());
         setColumnCheckboxFactory(sheetPreviewTable, "Transaktionen", parsingManager.getSelectedTransactionRows());
+        setColumnCheckboxFactory(sheetPreviewTable, "Watch-Liste", parsingManager.getSelectedWatchListDataRows());
 
         for (Integer col : titles.keySet()) {
 
@@ -199,6 +198,7 @@ public class ImportTabManager {
 
             if (titles.get(col).equals(excelSheet.getPreviewSelectionColTitle()) ||
                     titles.get(col).equals(excelSheet.getStockSelectionColTitle()) ||
+                    titles.get(col).equals(excelSheet.getWatchListSelectionColTitle()) ||
                     titles.get(col).equals(excelSheet.getTransactionSelectionColTitle())) {
                 continue;
             }

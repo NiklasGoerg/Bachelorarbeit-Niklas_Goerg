@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
 import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumn;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -31,8 +32,8 @@ public class ExcelCorrelation {
     private StockColumn stockColumn;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="watchlist__column_id", referencedColumnName="id", updatable = false)
-    private StockColumn watchListColumn;
+    @JoinColumn(name="watchlist_column_id", referencedColumnName="id", updatable = false)
+    private WatchListColumn watchListColumn;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transaction_column_id", referencedColumnName="id", updatable = false)
@@ -92,6 +93,14 @@ public class ExcelCorrelation {
         this(correlationType, excelSheet);
         this.dbColTitle = column.getName();
         this.transactionColumn = column;
+        this.dbColType = column.getColumnDatatype();
+        this.dbColVisualType = column.getColumnVisualDatatype();
+    }
+
+    public ExcelCorrelation(CorrelationType correlationType, ExcelSheet excelSheet, WatchListColumn column) {
+        this(correlationType, excelSheet);
+        this.dbColTitle = column.getName();
+        this.watchListColumn = column;
         this.dbColType = column.getColumnDatatype();
         this.dbColVisualType = column.getColumnVisualDatatype();
     }

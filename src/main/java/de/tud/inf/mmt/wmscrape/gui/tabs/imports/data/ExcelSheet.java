@@ -35,6 +35,9 @@ public class ExcelSheet {
     @Column(name = "preview_col_title")
     private String previewSelectionColTitle;
 
+    @Column(name = "watchlist_col_title")
+    private String watchListSelectionColTitle;
+
     /**
      * only used by hibernate. do not save an instance without setting the necessary fields
      */
@@ -99,5 +102,13 @@ public class ExcelSheet {
     @Override
     public String toString() {
         return this.description;
+    }
+
+    public String getWatchListSelectionColTitle() {
+        return watchListSelectionColTitle;
+    }
+
+    public void setWatchListSelectionColTitle(String watchListSelectionColTitle) {
+        this.watchListSelectionColTitle = watchListSelectionColTitle;
     }
 }

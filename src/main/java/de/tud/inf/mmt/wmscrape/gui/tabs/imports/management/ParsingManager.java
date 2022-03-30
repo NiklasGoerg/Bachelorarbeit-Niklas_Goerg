@@ -39,6 +39,7 @@ public class ParsingManager {
     private Map<Integer, SimpleBooleanProperty> selectedPreviewRows; // Ü-Par
     private Map<Integer, SimpleBooleanProperty> selectedStockDataRows; // S-Par
     private Map<Integer, SimpleBooleanProperty> selectedTransactionRows; // T-Par
+    private Map<Integer, SimpleBooleanProperty> selectedWatchListRows; // W-Par
 
     public ObservableMap<Integer, ArrayList<String>> getExcelSheetRows() {
         return excelSheetRows;
@@ -58,6 +59,10 @@ public class ParsingManager {
 
     public Map<Integer, SimpleBooleanProperty> getSelectedStockDataRows() {
         return selectedStockDataRows;
+    }
+
+    public Map<Integer, SimpleBooleanProperty> getSelectedWatchListDataRows() {
+        return selectedWatchListRows;
     }
 
     public Map<Integer, SimpleBooleanProperty> getSelectedTransactionRows() {
@@ -148,8 +153,13 @@ public class ParsingManager {
         // transaction col not found
         if (transactionSelectionColNumber == -1) return -8;
 
+        int watchListSelectionColNumber = getColNumberByName(indexToExcelTitle, excelSheet.getWatchListSelectionColTitle());
+        // stock data selection col not found
+        if (watchListSelectionColNumber == -1) return -12;
+
         selectedPreviewRows = getSelectedInitially(previewSelectionColNumber);
         selectedStockDataRows = getSelectedInitially(stockSelectionColNumber);
+        selectedWatchListRows = getSelectedInitially(watchListSelectionColNumber);
         selectedTransactionRows = getSelectedInitially(transactionSelectionColNumber);
         removeUnselectedRows();
 
@@ -175,6 +185,7 @@ public class ParsingManager {
             selectedPreviewRows.remove(rowNr);
             selectedStockDataRows.remove(rowNr);
             selectedTransactionRows.remove(rowNr);
+            selectedWatchListRows.remove(rowNr);
         });
     }
 

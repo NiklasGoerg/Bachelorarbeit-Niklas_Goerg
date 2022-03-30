@@ -34,9 +34,11 @@ public class ImportTabController {
     @FXML private TextField previewSelectionColField; // Ü-Par
     @FXML private TextField stockdataSelectionColField; // S-Par
     @FXML private TextField transactionSelectionColField; // T-Par
+    @FXML private TextField watchListSelectionColField; // W-Par
     @FXML private TableView<List<String>> sheetPreviewTable;
     @FXML private TableView<ExcelCorrelation> stockDataCorrelationTable;
     @FXML private TableView<ExcelCorrelation> transactionCorrelationTable;
+    @FXML private TableView<ExcelCorrelation> watchListCorrelationTable;
     @FXML private GridPane rightPanelBox;
     @FXML private SplitPane rootNode;
 
@@ -81,6 +83,7 @@ public class ImportTabController {
         sheetPreviewTable.setPlaceholder(getPlaceholder());
         stockDataCorrelationTable.setPlaceholder(getPlaceholder());
         transactionCorrelationTable.setPlaceholder(getPlaceholder());
+        watchListCorrelationTable.setPlaceholder(getPlaceholder());
 
         excelSheetObservableList = importTabManager.initExcelSheetList(excelSheetList);
         excelSheetList.getSelectionModel().selectedItemProperty().addListener(
@@ -159,6 +162,7 @@ public class ImportTabController {
         excelSheet.setPreviewSelectionColTitle(previewSelectionColField.getText().trim());
         excelSheet.setStockSelectionColTitle(stockdataSelectionColField.getText().trim());
         excelSheet.setTransactionSelectionColTitle(transactionSelectionColField.getText().trim());
+        excelSheet.setWatchListSelectionColTitle(watchListSelectionColField.getText().trim());
 
         importTabManager.saveExcelConfig(excelSheet);
 
@@ -227,7 +231,7 @@ public class ImportTabController {
     private void importExcel() {
         logText.set("");
 
-        if (transactionCorrelationTable.getItems().isEmpty() || stockDataCorrelationTable.getItems().size() == 0
+        if (transactionCorrelationTable.getItems().isEmpty() || stockDataCorrelationTable.getItems().size() == 0 || watchListCorrelationTable.getItems().isEmpty()
                 || !importTabManager.excelHasContentForImport()) {
             createAlert("Vorschau nicht geladen!", "Die Vorschau muss vor dem Import geladen werden.",
                     Alert.AlertType.INFORMATION);
@@ -308,6 +312,7 @@ public class ImportTabController {
         previewSelectionColField.setText(excelSheet.getPreviewSelectionColTitle());
         stockdataSelectionColField.setText(excelSheet.getStockSelectionColTitle());
         transactionSelectionColField.setText(excelSheet.getTransactionSelectionColTitle());
+        watchListSelectionColField.setText(excelSheet.getWatchListSelectionColTitle());
 
         sheetPreviewTable.getColumns().clear();
         sheetPreviewTable.getItems().clear();
@@ -315,6 +320,8 @@ public class ImportTabController {
         stockDataCorrelationTable.getItems().clear();
         transactionCorrelationTable.getColumns().clear();
         transactionCorrelationTable.getItems().clear();
+        watchListCorrelationTable.getColumns().clear();
+        watchListCorrelationTable.getItems().clear();
 
         // here to remove eventually existing error styling
         isValidInput();
@@ -399,6 +406,10 @@ public class ImportTabController {
         return transactionCorrelationTable.getItems();
     }
 
+    public ObservableList<ExcelCorrelation> getWatchListCorrelations() {
+        return watchListCorrelationTable.getItems();
+    }
+
     /**
      * called after the preview task exits which is started with {@link #previewExcel()}
      *
@@ -416,7 +427,7 @@ public class ImportTabController {
 
         // adds and validates the correlations
         boolean allValid = correlationManager.fillCorrelationTables(stockDataCorrelationTable,
-                transactionCorrelationTable, excelSheet);
+                transactionCorrelationTable, watchListCorrelationTable, excelSheet);
         if(!allValid) {
             createAlert("Excel-Sheet-Spalten wurden verändert!",
                     "Nicht alle gespeicherten Abbildungen stimmen mit dem Excel-Sheet überein. Die betroffenen Spalten wurden" +
@@ -427,6 +438,7 @@ public class ImportTabController {
         // refresh because otherwise the comboboxes are unreliable set
         stockDataCorrelationTable.refresh();
         transactionCorrelationTable.refresh();
+        watchListCorrelationTable.refresh();
     }
 
     /**
@@ -539,6 +551,15 @@ public class ImportTabController {
                         Alert.AlertType.ERROR);
                 return true;
             }
+            case -12 -> {
+                // Selection column not found
+                createAlert("Watch-Liste-Spalte (W-Par) nicht gefunden!",
+                        "In der Zeile " + excelSheet.getTitleRow() + " " +
+                                "existiert keine Spalte mit dem Namen '" +
+                                excelSheet.getWatchListSelectionColTitle() + "'",
+                        Alert.AlertType.ERROR);
+                return true;
+            }
         }
         return false;
     }
@@ -553,7 +574,7 @@ public class ImportTabController {
 
         switch (result) {
             case 0 -> createAlert("Import abgeschlossen!",
-                    "Alle Stammmdaten und Transaktionen wurden importiert.",
+                    "Alle Stammmdaten, Transaktionen, und Watch-Liste Einträge wurden importiert.",
                     Alert.AlertType.INFORMATION);
             case -1 -> createAlert("Import unvollständig!", "Nicht alle Zellen wurden " +
                             "importiert. Der Log enthält mehr Informationen.",

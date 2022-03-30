@@ -5,6 +5,8 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.CorrelationType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelation;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.ExcelCorrelationRepository;
@@ -38,9 +40,12 @@ public class CorrelationManager {
     private TransactionColumnRepository transactionColumnRepository;
     @Autowired
     private ImportTabManager importTabManager;
+    @Autowired
+    private WatchListColumnRepository watchListColumnRepository;
 
     private static final Map<String, VisualDatatype> importantStockCorrelations = new LinkedHashMap<>();
     private static final Map<String, VisualDatatype> importantTransactionCorrelations = new LinkedHashMap<>();
+    private static final Map<String, VisualDatatype> importantWatchListCorrelations = new LinkedHashMap<>();
 
     /**
      * called at bean creation.
@@ -61,6 +66,8 @@ public class CorrelationManager {
         importantStockCorrelations.put("typ", VisualDatatype.Text);
         importantStockCorrelations.put("r_par", VisualDatatype.Int);
 
+        importantWatchListCorrelations.put("isin", VisualDatatype.Text);
+        importantWatchListCorrelations.put("datum", VisualDatatype.Datum);
     }
 
 
@@ -73,7 +80,7 @@ public class CorrelationManager {
      * @return true if all existing correlations matched with the columns in the Excel sheet
      */
     public boolean fillCorrelationTables(TableView<ExcelCorrelation> stockDataCorrelationTable,
-                                      TableView<ExcelCorrelation> transactionCorrelationTable, ExcelSheet excelSheet) {
+                                      TableView<ExcelCorrelation> transactionCorrelationTable, TableView<ExcelCorrelation> watchListCorrelationTable, ExcelSheet excelSheet) {
         List<ExcelCorrelation> correlations = excelCorrelationRepository.findAllByExcelSheetId(excelSheet.getId());
         boolean allValid = validateCorrelations(correlations);
 
@@ -81,9 +88,12 @@ public class CorrelationManager {
         stockDataCorrelationTable.getItems().clear();
         transactionCorrelationTable.getColumns().clear();
         transactionCorrelationTable.getItems().clear();
+        watchListCorrelationTable.getColumns().clear();
+        watchListCorrelationTable.getItems().clear();
 
         fillStockDataCorrelationTable(stockDataCorrelationTable, excelSheet, correlations);
         fillTransactionCorrelationTable(transactionCorrelationTable,excelSheet, correlations);
+        fillWatchListCorrelationTable(watchListCorrelationTable,excelSheet, correlations);
         return allValid;
     }
 
@@ -267,6 +277,45 @@ public class CorrelationManager {
                 ExcelCorrelation excelCorrelation = new ExcelCorrelation(CorrelationType.TRANSACTION, excelSheet, column);
                 addedTransDbCols.add(name);
                 transactionCorrelationTable.getItems().add(excelCorrelation);
+            }
+        }
+    }
+
+    /**
+     * adds the objects for the watch list correlation table
+     *
+     * @param watchListCorrelationTable the javafx table
+     * @param excelSheet the Excel configuration
+     * @param correlations all correlations for the Excel configuration. only those of type "stock" are used
+     */
+    public void fillWatchListCorrelationTable(TableView<ExcelCorrelation> watchListCorrelationTable,
+                                                ExcelSheet excelSheet, List<ExcelCorrelation> correlations) {
+        prepareCorrelationTable(watchListCorrelationTable);
+
+        ArrayList<String> addedTransDbCols = new ArrayList<>();
+
+        // using excelSheet.getExcelCorrelations() accesses the Excel correlations inside the excelSheet object
+        // therefore the values persist until a new db transaction is done
+        // therefore I have to fetch them manually
+        for (ExcelCorrelation excelCorrelation : correlations) {
+            if (excelCorrelation.getCorrelationType() == CorrelationType.WATCH_LIST) {
+                watchListCorrelationTable.getItems().add(excelCorrelation);
+                addedTransDbCols.add(excelCorrelation.getDbColTitle());
+            }
+        }
+
+        // even if they are given in the db I want them on top
+        addImportantCorrelations(watchListCorrelationTable, addedTransDbCols, excelSheet,
+                importantWatchListCorrelations, CorrelationType.WATCH_LIST);
+
+
+        for (WatchListColumn column : watchListColumnRepository.findAll()) {
+            String name = column.getName();
+
+            if (!addedTransDbCols.contains(name)) {
+                ExcelCorrelation excelCorrelation = new ExcelCorrelation(CorrelationType.WATCH_LIST, excelSheet, column);
+                addedTransDbCols.add(name);
+                watchListCorrelationTable.getItems().add(excelCorrelation);
             }
         }
     }
