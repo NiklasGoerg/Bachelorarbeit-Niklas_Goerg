@@ -33,12 +33,11 @@ public class WatchListDataManager extends StockAndCourseManager {
     protected String getSelectionStatement(LocalDate startDate, LocalDate endDate) {
         // for every stock in the course table exists a stock so there can't be any null values
         // adds the r_par column to the table
-        return "SELECT * FROM watch_list" + getStartAndEndDateQueryPart(startDate, endDate, "datum");
+        return "SELECT * FROM " + WatchListTableManager.TABLE_NAME + getStartAndEndDateQueryPart(startDate, endDate, "datum");
     }
 
     @Override
     protected String getSelectionStatementOnlyLatestRows() {
-        return getSelectionStatement(LocalDate.now(), LocalDate.now());
-        //        return "SELECT WL.* FROM watch_list WL RIGHT OUTER JOIN(select * from `"+CourseTableManager.TABLE_NAME+"` WP inner join ( select isin as isin_kd, max(datum) as MaxDate from `"+CourseTableManager.TABLE_NAME+"` group by isin) WPL on WP.isin = WPL.isin_kd and WP.datum = WPL.MaxDate ) KD ON WP.isin = KD.isin";
+        return "SELECT WL.* FROM " + WatchListTableManager.TABLE_NAME + " WL INNER JOIN (SELECT isin AS isin_kd, max(datum) AS MaxDate FROM " + WatchListTableManager.TABLE_NAME + " GROUP BY isin) WPL WHERE WL.isin = WPL.isin_kd AND WL.datum = WPL.MaxDate";
     }
 }
