@@ -609,8 +609,7 @@ public class WebsiteScraper extends WebsiteHandler {
 
         var tableHeight = 0L;
 
-        while(tableHeight < (Long) driver.executeScript("return arguments[0].scrollHeight", table)) {
-            tableHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", table);
+        while(tableHeight < (tableHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", table))) {
             driver.executeScript("arguments[0].scrollIntoView(false)", table);
             driver.executeScript("window.scrollBy(0, 100)");
             waitLoadEvent();
