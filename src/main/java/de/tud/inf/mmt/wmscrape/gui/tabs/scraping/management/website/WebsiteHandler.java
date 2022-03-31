@@ -716,8 +716,10 @@ public abstract class WebsiteHandler extends Service<Void> {
 
             clickElement(dateFromDayElement);
             setText(dateFromDayElement, dateFrom);
+            driver.executeScript("arguments[0].blur()", dateFromDayElement);
             clickElement(dateUntilDayElement);
             setText(dateUntilDayElement, dateUntil);
+            driver.executeScript("arguments[0].blur()", dateUntilDayElement);
 
             addToLog("INFO:\tDatum gesetzt");
             return true;
