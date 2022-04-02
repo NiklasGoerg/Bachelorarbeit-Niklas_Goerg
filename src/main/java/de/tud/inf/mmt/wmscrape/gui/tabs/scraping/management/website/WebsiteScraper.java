@@ -52,6 +52,8 @@ public class WebsiteScraper extends WebsiteHandler {
     private final TableHistoricExtraction tableHistoricExtraction;
     private final Extraction tableCourseOrStockExtraction;
 
+    private static final int MAX_LOAD_HISTORIC_DATA_RETRY_COUNT = 20;
+
     private volatile Map<Website, Set<WebsiteElement>> selectedFromMenuTree;
     private Map<Website, Double> progressElementMax;
     private volatile Map<Website, Double> progressElementCurrent;
@@ -156,11 +158,18 @@ public class WebsiteScraper extends WebsiteHandler {
 
         waitLoadEvent();
 
+        var retryCount = 0;
         while(extractElementFromRoot(element.getTableIdenType(), element.getTableIdent(), false) == null) {
+            if(retryCount == MAX_LOAD_HISTORIC_DATA_RETRY_COUNT - 1) {
+                addToLog("ERR:\t\tHistorische Kursdaten konnten nicht geladen werden. ");
+                return false;
+            }
+
             if(!loadHistoricData()) return false;
             delayRandom();
             declineNotifications();
             waitLoadEvent();
+            retryCount++;
         }
 
         return true;
