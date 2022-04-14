@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Controller
 public class VisualizationTabController {
     @Autowired
@@ -58,10 +57,7 @@ public class VisualizationTabController {
         fillSelectionTable();
 
         prepareLineChart();
-        prepareCanvas();
     }
-
-
 
     @FXML
     public void openNewWindow() {
@@ -69,7 +65,7 @@ public class VisualizationTabController {
                 "gui/tabs/visualization/controller/visualizeTab.fxml",
                 "Darstellung",
                 openNewWindowButton,
-                true, null);
+                true, this);
     }
 
     private void prepareTools() {
@@ -166,11 +162,6 @@ public class VisualizationTabController {
                 return 0.0;
             }
         });
-    }
-
-    private void prepareCanvas() {
-        canvas.heightProperty().bind(lineChart.heightProperty());
-        canvas.widthProperty().bind(lineChart.widthProperty());
     }
 
     private void loadData() {

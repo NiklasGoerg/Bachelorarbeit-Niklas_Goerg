@@ -20,9 +20,10 @@
                     </padding>
                     <Label>
                         <padding>
-                            <Insets right="3" />
+                            <Insets right="3"/>
                         </padding>
-                        Normalisieren:</Label>
+                        Normalisieren:
+                    </Label>
                     <CheckBox fx:id="normalizeCheckbox" selected="true"/>
                 </HBox>
                 <Separator orientation="VERTICAL"/>
@@ -32,7 +33,7 @@
                     </padding>
                     <Label>
                         <padding>
-                            <Insets right="3" />
+                            <Insets right="3"/>
                         </padding>
                         Startdatum:
                     </Label>
@@ -45,9 +46,10 @@
                     </padding>
                     <Label>
                         <padding>
-                            <Insets right="3" />
+                            <Insets right="3"/>
                         </padding>
-                        Enddatum:</Label>
+                        Enddatum:
+                    </Label>
                     <DatePicker fx:id="endDatePicker"/>
                 </HBox>
                 <Separator orientation="VERTICAL"/>
@@ -63,19 +65,25 @@
         </VBox>
     </top>
     <center>
-        <SplitPane dividerPositions="0.205">
-            <TableView fx:id="selectionTable" editable="true"/>
-            <StackPane>
-                <LineChart fx:id="lineChart">
-                    <xAxis>
-                        <NumberAxis fx:id="xAxis"/>
-                    </xAxis>
-                    <yAxis>
-                        <NumberAxis/>
-                    </yAxis>
-                </LineChart>
-                <Canvas fx:id="canvas" height="${lineChart.height}" width="${lineChart.width}"/>
-            </StackPane>
-        </SplitPane>
+        <TabPane side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="40.0" tabMinWidth="145.0">
+            <Tab fx:id="courseTab" text="Kursdaten">
+                <SplitPane dividerPositions="0.205">
+                    <TableView fx:id="selectionTable" editable="true"/>
+                    <StackPane>
+                        <LineChart fx:id="lineChart">
+                            <xAxis>
+                                <NumberAxis fx:id="xAxis"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis/>
+                            </yAxis>
+                        </LineChart>
+                        <Canvas fx:id="canvas" />
+                    </StackPane>
+                </SplitPane>
+            </Tab>
+            <Tab text="Wertpapier-Parameter"></Tab>
+            <Tab text="Depot"></Tab>
+        </TabPane>
     </center>
 </BorderPane>
