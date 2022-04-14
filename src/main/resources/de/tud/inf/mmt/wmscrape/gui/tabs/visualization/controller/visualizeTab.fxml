@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.geometry.Insets?>
+<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizationTabController">
+    <top>
+        <VBox>
+            <HBox>
+                <padding>
+                    <Insets left="5" right="5"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT">
+                    <padding>
+                        <Insets top="5" bottom="5" left="5" right="5"/>
+                    </padding>
+                    <Label>
+                        <padding>
+                            <Insets right="3" />
+                        </padding>
+                        Normalisieren:</Label>
+                    <CheckBox fx:id="normalizeCheckbox" selected="true"/>
+                </HBox>
+                <Separator orientation="VERTICAL"/>
+                <HBox alignment="CENTER_LEFT">
+                    <padding>
+                        <Insets top="5" bottom="5" left="5" right="5"/>
+                    </padding>
+                    <Label>
+                        <padding>
+                            <Insets right="3" />
+                        </padding>
+                        Startdatum:
+                    </Label>
+                    <DatePicker fx:id="startDatePicker"/>
+                </HBox>
+                <Separator orientation="VERTICAL"/>
+                <HBox alignment="CENTER_LEFT">
+                    <padding>
+                        <Insets top="5" bottom="5" left="5" right="5"/>
+                    </padding>
+                    <Label>
+                        <padding>
+                            <Insets right="3" />
+                        </padding>
+                        Enddatum:</Label>
+                    <DatePicker fx:id="endDatePicker"/>
+                </HBox>
+                <Separator orientation="VERTICAL"/>
+                <HBox alignment="CENTER_LEFT">
+                    <padding>
+                        <Insets top="5" bottom="5" left="5" right="5"/>
+                    </padding>
+                    <Button fx:id="openNewWindowButton" onAction="#openNewWindow" alignment="CENTER_RIGHT">&#10697;
+                    </Button>
+                </HBox>
+            </HBox>
+            <Separator/>
+        </VBox>
+    </top>
+    <center>
+        <SplitPane dividerPositions="0.205">
+            <TableView fx:id="selectionTable" editable="true"/>
+            <StackPane>
+                <LineChart fx:id="lineChart">
+                    <xAxis>
+                        <NumberAxis fx:id="xAxis"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis/>
+                    </yAxis>
+                </LineChart>
+                <Canvas fx:id="canvas" height="${lineChart.height}" width="${lineChart.width}"/>
+            </StackPane>
+        </SplitPane>
+    </center>
+</BorderPane>

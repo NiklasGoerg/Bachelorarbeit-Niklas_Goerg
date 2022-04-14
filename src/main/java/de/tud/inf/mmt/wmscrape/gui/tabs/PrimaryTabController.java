@@ -4,6 +4,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizationTabController;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -35,6 +36,8 @@ public class PrimaryTabController {
     private DataTabController dataTabController;
     @Autowired
     private HistoricTabController historicTabController;
+    @Autowired
+    private VisualizationTabController visualizationTabController;
 
     /**
      * called when loading the fxml file
@@ -59,10 +62,18 @@ public class PrimaryTabController {
         Tab historicTab = new Tab("Historisch" , parent);
         primaryTabPane.getTabs().add(historicTab);
 
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/visualization/controller/visualizeTab.fxml", visualizationTabController);
+        Tab visualizeTab = new Tab("Darstellung" , parent);
+        primaryTabPane.getTabs().add(visualizeTab);
+
         primaryTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
             // can't know when the scraping service finished so refresh on select
             if (nv.equals(dataTab)) dataTabController.handleResetButton();
             if (nv.equals(importTab)) importTabController.refreshCorrelationTables();
+            if (nv.equals(visualizeTab)) {
+                visualizationTabController.fillSelectionTable();
+                visualizationTabController.resetChart();
+            };
         });
 
     }

@@ -308,7 +308,7 @@ public class ExtractionManager {
                 }
 
                 // continue bcs the key value is not inserted with a prepared statement
-                // isin wkn name typ
+                // isin, datum
                 if (ignoreInWatchListData.contains(dbColName)) {
                     continue;
                 }
