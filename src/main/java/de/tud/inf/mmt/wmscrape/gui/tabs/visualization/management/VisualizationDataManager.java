@@ -24,6 +24,16 @@ public class VisualizationDataManager {
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public XYChart.Series<Number, Number> getHistoricPricesForIsin(String isin, LocalDate startDate, LocalDate endDate) {
+        var foundCourseColumn = false;
+        for (var courseColumn : courseColumnRepository.findAll()) {
+               if(courseColumn.getName().equals("kurs")) {
+                   foundCourseColumn = true;
+                   break;
+               }
+        }
+
+        if(!foundCourseColumn) return null;
+
         ObservableList<XYChart.Data<Number, Number>> allRows = FXCollections.observableArrayList();
 
         var dateSubQueryStringBuilder = new StringBuilder();
