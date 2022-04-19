@@ -1,8 +1,11 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.management;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListTableManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,6 +17,8 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
 @Service
@@ -129,5 +134,115 @@ public class VisualizationDataManager {
         }
 
         return normalizedDataSet;
+    }
+
+    public ObservableList<ParameterSelection> getParameters() {
+        ObservableList<ParameterSelection> allRows = FXCollections.observableArrayList();
+
+        try (Connection connection = dataSource.getConnection()) {
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery("SELECT name, col_type, column_datatype FROM datenbank_spalte WHERE col_type = 'S' OR col_type = 'W'");
+
+            // for each db row create new custom row
+            while (results.next()) {
+                var parameter = results.getString("name");
+                if(parameter.equals("isin") || parameter.equals("datum")) continue;
+
+                var colType = results.getString("col_type");
+
+                var dataType = ColumnDatatype.valueOf(results.getString("column_datatype"));
+                if(dataType == ColumnDatatype.TEXT || dataType == ColumnDatatype.DATE || dataType == ColumnDatatype.DATETIME) continue;
+
+                allRows.add(new ParameterSelection(parameter, colType, dataType, false));
+            }
+
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
+        }
+
+        return allRows;
+    }
+
+    public XYChart.Series<Number, Number> getParameterDataForIsin(String isin, ParameterSelection parameter, LocalDate startDate, LocalDate endDate) {
+        ObservableList<XYChart.Data<Number, Number>> allRows = FXCollections.observableArrayList();
+
+        var dateSubQueryStringBuilder = new StringBuilder();
+
+        if(startDate != null) {
+            dateSubQueryStringBuilder.append(" AND datum >= '").append(startDate.format(dateTimeFormatter)).append("'");
+        }
+
+        if(endDate != null) {
+            dateSubQueryStringBuilder.append(" AND datum <= '").append(endDate.format(dateTimeFormatter)).append("'");
+        }
+
+        String extractionTable;
+        if(parameter.getColType().equals("W")) {
+            extractionTable = "watch_list";
+        } else if(parameter.getColType().equals("S")) {
+            extractionTable = "wertpapier_stammdaten";
+        } else {
+            return null;
+        }
+
+        try (Connection connection = dataSource.getConnection()) {
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery("SELECT " + parameter.getParameter() + ", datum FROM "+extractionTable+" WHERE isin = '" + isin + "'" + dateSubQueryStringBuilder);
+
+            // for each db row create new custom row
+            while (results.next()) {
+                var date = results.getDate("datum");
+
+                if(parameter.getDataType() == ColumnDatatype.DOUBLE) {
+                    var data = results.getDouble(parameter.getParameter());
+                    allRows.add(new XYChart.Data<>(date.getTime(), data));
+                } else if(parameter.getDataType() == ColumnDatatype.INTEGER) {
+                    var data = results.getInt(parameter.getParameter());
+                    allRows.add(new XYChart.Data<>(date.getTime(), data));
+                }
+            }
+
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
+        }
+
+        return new XYChart.Series<>(allRows);
+    }
+
+    public ObservableList<StockSelection> getStocksWithParameterData() {
+        ObservableList<StockSelection> allRows = FXCollections.observableArrayList();
+
+        var queryList = Arrays.asList(
+                "SELECT DISTINCT wp.name, wp.isin FROM watch_list wl LEFT JOIN wertpapier wp on wp.isin = wl.isin",
+                "SELECT DISTINCT wp.name, wp.isin FROM wertpapier_stammdaten ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
+
+        for(var query : queryList) {
+            try (Connection connection = dataSource.getConnection()) {
+                Statement statement = connection.createStatement();
+                ResultSet results = statement.executeQuery(query);
+
+                // for each db row create new custom row
+                while (results.next()) {
+                    var isin = results.getString("wp.isin");
+                    var name = results.getString("wp.name");
+
+                    allRows.add(new StockSelection(isin, name, false));
+                }
+
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                AbandonedConnectionCleanupThread.checkedShutdown();
+            }
+        }
+
+        return allRows;
     }
 }

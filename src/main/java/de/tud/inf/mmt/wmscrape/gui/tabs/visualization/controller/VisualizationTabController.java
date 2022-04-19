@@ -45,6 +45,7 @@ public class VisualizationTabController {
             courseTab.selectedProperty().addListener((o,ov,nv) -> {
                 currentTab = controller;
                 currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
+                normalizeCheckbox.setSelected(true);
             });
             tabPane.getTabs().add(courseTab);
         } catch (IOException e) {
@@ -60,6 +61,7 @@ public class VisualizationTabController {
             stockTab.selectedProperty().addListener((o,ov,nv) -> {
                 currentTab = controller;
                 currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
+                normalizeCheckbox.setSelected(false);
             });
             tabPane.getTabs().add(stockTab);
         } catch (IOException e) {
