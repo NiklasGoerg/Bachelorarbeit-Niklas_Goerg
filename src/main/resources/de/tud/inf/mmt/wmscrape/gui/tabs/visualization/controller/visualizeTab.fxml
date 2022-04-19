@@ -57,7 +57,7 @@
                     <padding>
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
-                    <Button fx:id="openNewWindowButton" onAction="#openNewWindow" alignment="CENTER_RIGHT">&#10697;
+                    <Button onAction="#openNewWindow" alignment="CENTER_RIGHT">&#10697;
                     </Button>
                 </HBox>
             </HBox>
@@ -65,25 +65,7 @@
         </VBox>
     </top>
     <center>
-        <TabPane side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="40.0" tabMinWidth="145.0">
-            <Tab fx:id="courseTab" text="Kursdaten">
-                <SplitPane dividerPositions="0.205">
-                    <TableView fx:id="selectionTable" editable="true"/>
-                    <StackPane>
-                        <LineChart fx:id="lineChart">
-                            <xAxis>
-                                <NumberAxis fx:id="xAxis"/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis/>
-                            </yAxis>
-                        </LineChart>
-                        <Canvas fx:id="canvas" />
-                    </StackPane>
-                </SplitPane>
-            </Tab>
-            <Tab text="Wertpapier-Parameter"></Tab>
-            <Tab text="Depot"></Tab>
+        <TabPane fx:id="tabPane" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMinHeight="40.0" tabMinWidth="145.0">
         </TabPane>
     </center>
 </BorderPane>

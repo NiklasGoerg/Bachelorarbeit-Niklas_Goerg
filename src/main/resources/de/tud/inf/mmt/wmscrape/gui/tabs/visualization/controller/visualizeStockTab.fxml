@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<SplitPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizationStockTabController"
+           prefHeight="400.0" prefWidth="600.0" dividerPositions="0.205">
+    <SplitPane orientation="VERTICAL">
+        <TableView fx:id="stockSelectionTable" editable="true"/>
+        <TableView fx:id="parameterSelectionTable" editable="true"/>
+    </SplitPane>
+    <StackPane fx:id="stackPane">
+        <LineChart fx:id="lineChart">
+            <xAxis>
+                <NumberAxis fx:id="lineXAxis"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis/>
+            </yAxis>
+        </LineChart>
+        <BarChart fx:id="barChart">
+            <xAxis>
+                <CategoryAxis fx:id="barXAxis"/>
+            </xAxis>
+            <yAxis>
+                <NumberAxis />
+            </yAxis>
+        </BarChart>
+        <Canvas fx:id="canvas"/>
+    </StackPane>
+</SplitPane>

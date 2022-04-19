@@ -1,21 +1,12 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 
 import de.tud.inf.mmt.wmscrape.WMScrape;
-import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
-import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.management.VisualizationDataManager;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.chart.*;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -23,12 +14,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.*;
 
 @Controller
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -36,37 +22,62 @@ public class VisualizationTabController {
     @Autowired
     private ApplicationContext applicationContext ;
 
-    @Autowired
-    private VisualizationDataManager visualizationDataManager;
-
     @FXML
     private CheckBox normalizeCheckbox;
     @FXML
     private DatePicker startDatePicker;
     @FXML
     private DatePicker endDatePicker;
-    @FXML
-    private Button openNewWindowButton;
 
     @FXML
-    private TableView<StockSelection> selectionTable;
-    @FXML
-    private LineChart<Number, Number> lineChart;
-    @FXML
-    private Canvas canvas;
-    @FXML
-    private NumberAxis xAxis;
+    private TabPane tabPane;
 
-    private final List<StockSelection> selectedStocks = new ArrayList<>();
+    private VisualizationTabControllerTab currentTab;
 
     @FXML
     public void initialize() {
+        try {
+            var courseLoader = getTabLoader("gui/tabs/visualization/controller/visualizeCourseTab.fxml");
+            Parent courseRoot = courseLoader.load();
+            VisualizationCourseTabController controller =  courseLoader.getController();
+
+            var courseTab = new Tab("Kursdaten", courseRoot);
+            courseTab.selectedProperty().addListener((o,ov,nv) -> {
+                currentTab = controller;
+                currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
+            });
+            tabPane.getTabs().add(courseTab);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            var stockLoader = getTabLoader("gui/tabs/visualization/controller/visualizeStockTab.fxml");
+            Parent stockRoot = stockLoader.load();
+            VisualizationStockTabController controller =  stockLoader.getController();
+
+            var stockTab = new Tab("Wertpapier-Parameter", stockRoot);
+            stockTab.selectedProperty().addListener((o,ov,nv) -> {
+                currentTab = controller;
+                currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
+            });
+            tabPane.getTabs().add(stockTab);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         prepareTools();
+    }
 
-        prepareSelectionTable();
-        fillSelectionTable();
+    public FXMLLoader getTabLoader(String ressourceUri) {
+        var tabRessourceUri = WMScrape.class.getResource(ressourceUri);
 
-        prepareLineChart();
+        if(tabRessourceUri == null) return null;
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setControllerFactory(applicationContext::getBean);
+        loader.setLocation(tabRessourceUri);
+        return loader;
     }
 
     @FXML
@@ -97,130 +108,24 @@ public class VisualizationTabController {
 
     private void prepareTools() {
         normalizeCheckbox.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
-            loadData();
+            currentTab.loadData(startDatePicker.getValue(), endDatePicker.getValue());
         });
 
         startDatePicker.valueProperty().addListener((observableValue, localDate, t1) -> {
-            loadData(startDatePicker.getValue(), endDatePicker.getValue());
+            currentTab.loadData(startDatePicker.getValue(), endDatePicker.getValue());
         });
 
         endDatePicker.valueProperty().addListener((observableValue, localDate, t1) -> {
-            loadData(startDatePicker.getValue(), endDatePicker.getValue());
+            currentTab.loadData(startDatePicker.getValue(), endDatePicker.getValue());
         });
     }
 
-    private void prepareSelectionTable() {
-        var isinCol = new TableColumn<StockSelection, String>("ISIN");
-        var nameCol = new TableColumn<StockSelection, String>("Name");
-        var isSelectedCol = new TableColumn<StockSelection, Boolean>("Selektion");
-
-        isinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIsin()));
-        nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
-        isSelectedCol.setCellValueFactory(param -> param.getValue().isSelected());
-
-        isinCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
-
-        isSelectedCol.setCellFactory(CheckBoxTableCell.forTableColumn(isSelectedCol));
-        isSelectedCol.setCellValueFactory(row -> {
-            var stockSelection = row.getValue();
-            SimpleBooleanProperty sbp = stockSelection.isSelected();
-            sbp.addListener((o, ov, nv) -> {
-                if (nv && !ov) {
-                    if (!selectedStocks.contains(stockSelection)) {
-                        selectedStocks.add(stockSelection);
-                        loadData();
-                    }
-                } else if (!nv && ov) {
-                    if (selectedStocks.contains(stockSelection)) {
-                        selectedStocks.remove(stockSelection);
-                        loadData();
-                    }
-                }
-            });
-
-            return sbp;
-        });
-
-        isinCol.setEditable(false);
-        nameCol.setEditable(false);
-        isSelectedCol.setEditable(true);
-
-        isinCol.setPrefWidth(100);
-        nameCol.setPrefWidth(100);
-        isSelectedCol.setPrefWidth(70);
-
-        selectionTable.getColumns().add(isinCol);
-        selectionTable.getColumns().add(nameCol);
-        selectionTable.getColumns().add(isSelectedCol);
+    public void resetCharts() {
+        currentTab.resetCharts();
     }
 
-    public void fillSelectionTable() {
-        selectionTable.getItems().clear();
-
-        var stocks = visualizationDataManager.getStocksWithCourseData();
-
-        for (var stockSelection : stocks) {
-            selectionTable.getItems().add(stockSelection);
-        }
-    }
-
-    private void prepareLineChart() {
-        lineChart.setAnimated(false);
-
-        final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-
-        xAxis.setForceZeroInRange(false);
-
-        xAxis.setTickLabelFormatter(new StringConverter<>() {
-            @Override
-            public String toString(Number timestamp) {
-                return dateFormat.format(new Date(timestamp.longValue()));
-            }
-
-            @Override
-            public Number fromString(String s) {
-                try {
-                    return dateFormat.parse(s).getTime();
-                } catch (ParseException ignored) {
-
-                }
-
-                return 0.0;
-            }
-        });
-    }
-
-    private void loadData() {
-        loadData(startDatePicker.getValue(), endDatePicker.getValue());
-    }
-
-    private void loadData(LocalDate startDate, LocalDate endDate) {
-        resetChart();
-
-        if (selectedStocks.size() == 0) return;
-
-        var firstSelectedStock = (StockSelection) selectedStocks.get(0);
-
-        for (var tableItem : selectedStocks) {
-            if (!tableItem.isSelected().getValue()) continue;
-
-            var data = visualizationDataManager.getHistoricPricesForIsin(tableItem.getIsin(), startDate, endDate);
-
-            if(data == null) return;
-
-            data.setName(tableItem.getName());
-
-            if (normalizeCheckbox.isSelected() && !tableItem.getIsin().equals(firstSelectedStock.getIsin())) {
-                data = visualizationDataManager.normalizeData(data, firstSelectedStock);
-            }
-
-            lineChart.getData().addAll(data);
-        }
-    }
-
-    public void resetChart() {
-        lineChart.getData().clear();
+    public void fillSelectionTables() {
+        currentTab.fillSelectionTables();
     }
 
     public void setNormalize(boolean normalize) {

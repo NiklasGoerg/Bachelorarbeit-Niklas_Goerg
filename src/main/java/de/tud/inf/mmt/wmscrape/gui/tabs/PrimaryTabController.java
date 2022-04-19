@@ -71,8 +71,8 @@ public class PrimaryTabController {
             if (nv.equals(dataTab)) dataTabController.handleResetButton();
             if (nv.equals(importTab)) importTabController.refreshCorrelationTables();
             if (nv.equals(visualizeTab)) {
-                visualizationTabController.fillSelectionTable();
-                visualizationTabController.resetChart();
+                visualizationTabController.fillSelectionTables();
+                visualizationTabController.resetCharts();
             };
         });
 
