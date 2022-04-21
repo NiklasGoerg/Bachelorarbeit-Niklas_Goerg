@@ -46,6 +46,9 @@ public class VisualizationTabController {
                 currentTab = controller;
                 currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
                 normalizeCheckbox.setSelected(true);
+
+                endDatePicker.setDisable(false);
+                normalizeCheckbox.setDisable(false);
             });
             tabPane.getTabs().add(courseTab);
         } catch (IOException e) {
@@ -62,6 +65,9 @@ public class VisualizationTabController {
                 currentTab = controller;
                 currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
                 normalizeCheckbox.setSelected(false);
+
+                endDatePicker.setDisable(true);
+                normalizeCheckbox.setDisable(true);
             });
             tabPane.getTabs().add(stockTab);
         } catch (IOException e) {
@@ -124,6 +130,10 @@ public class VisualizationTabController {
 
     public void resetCharts() {
         currentTab.resetCharts();
+    }
+
+    public void resetSelections() {
+        currentTab.resetSelections();
     }
 
     public void fillSelectionTables() {

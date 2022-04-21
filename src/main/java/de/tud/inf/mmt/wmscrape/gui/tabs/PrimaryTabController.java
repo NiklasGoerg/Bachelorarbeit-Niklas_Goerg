@@ -73,6 +73,7 @@ public class PrimaryTabController {
             if (nv.equals(visualizeTab)) {
                 visualizationTabController.fillSelectionTables();
                 visualizationTabController.resetCharts();
+                visualizationTabController.resetSelections();
             };
         });
 

@@ -152,12 +152,17 @@ public class VisualizationCourseTabController extends VisualizationTabController
                 data = visualizationDataManager.normalizeData(data, firstSelectedStock);
             }
 
-            lineChart.getData().addAll(data);
+            lineChart.getData().add(data);
         }
     }
 
     @Override
     public void resetCharts() {
         lineChart.getData().clear();
+    }
+
+    @Override
+    public void resetSelections() {
+        selectedStocks.clear();
     }
 }

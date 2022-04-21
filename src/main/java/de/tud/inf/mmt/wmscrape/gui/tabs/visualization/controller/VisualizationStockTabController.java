@@ -1,10 +1,12 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.management.VisualizationDataManager;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.chart.*;
@@ -25,7 +27,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -41,7 +45,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     @FXML
     private NumberAxis lineXAxis;
     @FXML
-    private BarChart<Number, String> barChart;
+    private BarChart<String, Number> barChart;
     @FXML
     private CategoryAxis barXAxis;
     @FXML
@@ -64,6 +68,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
         barChart.setVisible(false);
 
         lineChart.setAnimated(false);
+        barChart.setAnimated(false);
 
         final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -212,23 +217,41 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
         if (selectedStocks.size() == 0 || selectedParameters.size() == 0) return;
 
-        var firstSelectedStock = (StockSelection) selectedStocks.get(0);
+        Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new HashMap<>(selectedStocks.size());
 
         for (var tableItem : selectedStocks) {
             for(var parameter : selectedParameters) {
                 if (!tableItem.isSelected().getValue()) continue;
 
-                var data = visualizationDataManager.getParameterDataForIsin(tableItem.getIsin(), parameter, startDate, endDate);
+                var data = visualizationDataManager.getParameterDataForIsin(tableItem.getIsin(), tableItem.getName(), parameter, startDate, endDate);
 
-                if (data == null || data.getData().size() == 0) return;
+                if (data == null || data.size() == 0) return;
 
-                data.setName(tableItem.getName());
-
-                if (normalizeCheckbox.isSelected() && !tableItem.getIsin().equals(firstSelectedStock.getIsin())) {
-                    data = visualizationDataManager.normalizeData(data, firstSelectedStock);
+                if(!allStocksData.containsKey(tableItem.getIsin())) {
+                    allStocksData.put(tableItem.getIsin(), new ArrayList<>(selectedParameters.size()));
                 }
 
-                lineChart.getData().addAll(data);
+                allStocksData.get(tableItem.getIsin()).add(data);
+            }
+        }
+
+        if(selectedStocks.size() > 1) {
+            lineChart.setVisible(false);
+            barChart.setVisible(true);
+
+            for(var stock : allStocksData.keySet()) {
+                var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock));
+                barChart.getData().add(barChartData);
+            }
+        } else {
+            lineChart.setVisible(true);
+            barChart.setVisible(false);
+
+            for(var stock : allStocksData.keySet()) {
+                for(var parameterData : allStocksData.get(stock)) {
+                    var lineChartData = visualizationDataManager.getLineChartParameterData(parameterData);
+                    lineChart.getData().add(lineChartData);
+                }
             }
         }
     }
@@ -237,5 +260,11 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     public void resetCharts() {
         lineChart.getData().clear();
         barChart.getData().clear();
+    }
+
+    @Override
+    public void resetSelections() {
+        selectedStocks.clear();
+        selectedParameters.clear();
     }
 }

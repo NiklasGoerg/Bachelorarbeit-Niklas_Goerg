@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
 import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListTableManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
 import javafx.collections.FXCollections;
@@ -20,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class VisualizationDataManager {
@@ -166,8 +168,8 @@ public class VisualizationDataManager {
         return allRows;
     }
 
-    public XYChart.Series<Number, Number> getParameterDataForIsin(String isin, ParameterSelection parameter, LocalDate startDate, LocalDate endDate) {
-        ObservableList<XYChart.Data<Number, Number>> allRows = FXCollections.observableArrayList();
+    public ObservableList<ExtractedParameter> getParameterDataForIsin(String isin, String name, ParameterSelection parameter, LocalDate startDate, LocalDate endDate) {
+        ObservableList<ExtractedParameter> allRows = FXCollections.observableArrayList();
 
         var dateSubQueryStringBuilder = new StringBuilder();
 
@@ -198,10 +200,10 @@ public class VisualizationDataManager {
 
                 if(parameter.getDataType() == ColumnDatatype.DOUBLE) {
                     var data = results.getDouble(parameter.getParameter());
-                    allRows.add(new XYChart.Data<>(date.getTime(), data));
+                    allRows.add(new ExtractedParameter(isin, name, date, data, parameter.getParameter()));
                 } else if(parameter.getDataType() == ColumnDatatype.INTEGER) {
                     var data = results.getInt(parameter.getParameter());
-                    allRows.add(new XYChart.Data<>(date.getTime(), data));
+                    allRows.add(new ExtractedParameter(isin, name, date, data, parameter.getParameter()));
                 }
             }
 
@@ -212,35 +214,58 @@ public class VisualizationDataManager {
             AbandonedConnectionCleanupThread.checkedShutdown();
         }
 
-        return new XYChart.Series<>(allRows);
+        return allRows;
+    }
+
+    public XYChart.Series<Number, Number> getLineChartParameterData(ObservableList<ExtractedParameter> allRows) {
+        if(allRows.size() == 0) return null;
+
+        var chartData = new XYChart.Series<Number, Number>();
+        chartData.setName(allRows.get(0).getParameterName());
+
+        for(var row : allRows) {
+            chartData.getData().add(new XYChart.Data<>(row.getDate().getTime(), row.getParameter()));
+        }
+
+        return chartData;
+    }
+
+    public XYChart.Series<String, Number> getBarChartParameterData(List<ObservableList<ExtractedParameter>> allRows) {
+        if(allRows.size() == 0 || allRows.get(0).size() == 0) return null;
+
+        var chartData = new XYChart.Series<String, Number>();
+        chartData.setName(allRows.get(0).get(0).getName());
+
+        for(var row : allRows) {
+            for(var data : row) {
+                chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter()));
+            }
+        }
+
+        return chartData;
     }
 
     public ObservableList<StockSelection> getStocksWithParameterData() {
         ObservableList<StockSelection> allRows = FXCollections.observableArrayList();
 
-        var queryList = Arrays.asList(
-                "SELECT DISTINCT wp.name, wp.isin FROM watch_list wl LEFT JOIN wertpapier wp on wp.isin = wl.isin",
-                "SELECT DISTINCT wp.name, wp.isin FROM wertpapier_stammdaten ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
+        try (Connection connection = dataSource.getConnection()) {
+            Statement statement = connection.createStatement();
+            //ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin FROM wertpapier_stammdaten ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
+            ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin FROM watch_list ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
 
-        for(var query : queryList) {
-            try (Connection connection = dataSource.getConnection()) {
-                Statement statement = connection.createStatement();
-                ResultSet results = statement.executeQuery(query);
+            // for each db row create new custom row
+            while (results.next()) {
+                var isin = results.getString("wp.isin");
+                var name = results.getString("wp.name");
 
-                // for each db row create new custom row
-                while (results.next()) {
-                    var isin = results.getString("wp.isin");
-                    var name = results.getString("wp.name");
-
-                    allRows.add(new StockSelection(isin, name, false));
-                }
-
-                statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                AbandonedConnectionCleanupThread.checkedShutdown();
+                allRows.add(new StockSelection(isin, name, false));
             }
+
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
 
         return allRows;

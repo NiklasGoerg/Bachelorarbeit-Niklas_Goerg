@@ -28,5 +28,7 @@ public abstract class VisualizationTabControllerTab {
 
     public abstract void fillSelectionTables();
     public abstract void loadData(LocalDate startDate, LocalDate endDate);
+
     public abstract void resetCharts();
+    public abstract void resetSelections();
 }
