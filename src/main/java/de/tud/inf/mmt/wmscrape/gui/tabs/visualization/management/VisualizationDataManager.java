@@ -192,7 +192,7 @@ public class VisualizationDataManager {
 
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery("SELECT " + parameter.getParameter() + ", datum FROM "+extractionTable+" WHERE isin = '" + isin + "'" + dateSubQueryStringBuilder);
+            ResultSet results = statement.executeQuery("SELECT " + parameter.getParameter() + ", datum FROM "+extractionTable+" WHERE isin = '" + isin + "'" + dateSubQueryStringBuilder + " ORDER BY datum ASC");
 
             // for each db row create new custom row
             while (results.next()) {
@@ -251,12 +251,12 @@ public class VisualizationDataManager {
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
             //ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin FROM wertpapier_stammdaten ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
-            ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin FROM watch_list ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
+            ResultSet results = statement.executeQuery("SELECT DISTINCT name, isin FROM wertpapier");
 
             // for each db row create new custom row
             while (results.next()) {
-                var isin = results.getString("wp.isin");
-                var name = results.getString("wp.name");
+                var isin = results.getString("isin");
+                var name = results.getString("name");
 
                 allRows.add(new StockSelection(isin, name, false));
             }

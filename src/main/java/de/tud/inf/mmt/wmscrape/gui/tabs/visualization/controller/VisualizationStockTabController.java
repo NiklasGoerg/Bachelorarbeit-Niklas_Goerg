@@ -236,6 +236,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
         }
 
         if(selectedStocks.size() > 1) {
+            // show bar chart
             lineChart.setVisible(false);
             barChart.setVisible(true);
 
@@ -244,6 +245,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                 barChart.getData().add(barChartData);
             }
         } else {
+            // show line chart
             lineChart.setVisible(true);
             barChart.setVisible(false);
 

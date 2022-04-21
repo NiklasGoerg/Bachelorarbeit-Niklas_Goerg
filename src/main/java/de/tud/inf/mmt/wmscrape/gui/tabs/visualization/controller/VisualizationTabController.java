@@ -47,7 +47,6 @@ public class VisualizationTabController {
                 currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
                 normalizeCheckbox.setSelected(true);
 
-                endDatePicker.setDisable(false);
                 normalizeCheckbox.setDisable(false);
             });
             tabPane.getTabs().add(courseTab);
@@ -66,7 +65,6 @@ public class VisualizationTabController {
                 currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
                 normalizeCheckbox.setSelected(false);
 
-                endDatePicker.setDisable(true);
                 normalizeCheckbox.setDisable(true);
             });
             tabPane.getTabs().add(stockTab);
@@ -86,6 +84,13 @@ public class VisualizationTabController {
         loader.setControllerFactory(applicationContext::getBean);
         loader.setLocation(tabRessourceUri);
         return loader;
+    }
+
+
+    @FXML
+    public void resetDatePicker() {
+        startDatePicker.setValue(null);
+        endDatePicker.setValue(null);
     }
 
     @FXML

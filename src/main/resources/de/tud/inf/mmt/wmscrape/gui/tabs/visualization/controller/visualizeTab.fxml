@@ -39,7 +39,6 @@
                     </Label>
                     <DatePicker fx:id="startDatePicker"/>
                 </HBox>
-                <Separator orientation="VERTICAL"/>
                 <HBox alignment="CENTER_LEFT">
                     <padding>
                         <Insets top="5" bottom="5" left="5" right="5"/>
@@ -51,6 +50,12 @@
                         Enddatum:
                     </Label>
                     <DatePicker fx:id="endDatePicker"/>
+                </HBox>
+                <HBox alignment="CENTER_LEFT">
+                    <padding>
+                        <Insets top="5" bottom="5" left="5" right="5"/>
+                    </padding>
+                    <Button onAction="#resetDatePicker">Zurücksetzen</Button>
                 </HBox>
                 <Separator orientation="VERTICAL"/>
                 <HBox alignment="CENTER_LEFT">
