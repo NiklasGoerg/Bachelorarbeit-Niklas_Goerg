@@ -14,7 +14,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -39,15 +38,11 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     @FXML
     private TableView<ParameterSelection> parameterSelectionTable;
     @FXML
-    private StackPane stackPane;
-    @FXML
     private LineChart<Number, Number> lineChart;
     @FXML
     private NumberAxis lineXAxis;
     @FXML
     private BarChart<String, Number> barChart;
-    @FXML
-    private CategoryAxis barXAxis;
     @FXML
     private Canvas canvas;
 
