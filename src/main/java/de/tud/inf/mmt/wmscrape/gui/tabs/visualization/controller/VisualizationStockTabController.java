@@ -231,18 +231,14 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
         }
 
         if(selectedStocks.size() > 1) {
-            // show bar chart
-            lineChart.setVisible(false);
-            barChart.setVisible(true);
+            showBarChart();
 
             for(var stock : allStocksData.keySet()) {
                 var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock));
                 barChart.getData().add(barChartData);
             }
         } else {
-            // show line chart
-            lineChart.setVisible(true);
-            barChart.setVisible(false);
+            showLineChart();
 
             for(var stock : allStocksData.keySet()) {
                 for(var parameterData : allStocksData.get(stock)) {
@@ -251,6 +247,16 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                 }
             }
         }
+    }
+
+    private void showLineChart() {
+        lineChart.setVisible(true);
+        barChart.setVisible(false);
+    }
+
+    private void showBarChart() {
+        lineChart.setVisible(false);
+        barChart.setVisible(true);
     }
 
     @Override

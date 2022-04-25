@@ -599,6 +599,7 @@ public class WebsiteScraper extends WebsiteHandler {
                     var websiteIsin = elementSelection.getElementDescCorrelation().getWsIsin();
 
                     if(!doSearchRoutine(websiteIsin)) continue;
+                    waitLoadEvent();
                     if(!doLoadHistoricData(freshElement)) continue;
 
                     scrollToBottom(freshElement);
