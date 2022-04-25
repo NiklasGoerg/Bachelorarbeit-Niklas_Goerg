@@ -50,6 +50,7 @@ public class VisualizationCourseTabController extends VisualizationTabController
     @Override
     public void prepareCharts() {
         lineChart.setAnimated(false);
+        lineChart.setCreateSymbols(false);
 
         final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
