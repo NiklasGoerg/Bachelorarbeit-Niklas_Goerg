@@ -398,7 +398,11 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
             data = getTextData(row, carrier);
 
             if (data.isBlank()) {
-                log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter '"+carrier.getIdentifier()+"'");
+                if(carrierMap.containsKey("datum") && !getTextData(row, carrierMap.get("datum")).isBlank()) {
+                    log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter '"+carrier.getIdentifier()+"', " + getTextData(row, carrierMap.get("datum")));
+                } else {
+                    log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter '"+carrier.getIdentifier()+"'");
+                }
             }
 
             data = processData(carrier, data);
