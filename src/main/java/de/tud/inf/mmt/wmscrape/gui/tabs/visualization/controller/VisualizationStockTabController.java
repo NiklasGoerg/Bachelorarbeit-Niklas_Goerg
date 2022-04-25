@@ -4,6 +4,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.management.VisualizationDataManager;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -14,6 +15,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -25,10 +27,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -212,7 +211,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
         if (selectedStocks.size() == 0 || selectedParameters.size() == 0) return;
 
-        Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new HashMap<>(selectedStocks.size());
+        Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new LinkedHashMap<>(selectedStocks.size());
 
         for (var tableItem : selectedStocks) {
             for(var parameter : selectedParameters) {
@@ -233,9 +232,18 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
         if(selectedStocks.size() > 1) {
             showBarChart();
 
+            final var i = new int[]{0};
             for(var stock : allStocksData.keySet()) {
                 var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock));
                 barChart.getData().add(barChartData);
+
+                Platform.runLater(() -> {
+                    var nodes = barChart.lookupAll(".series" + Math.round(i[0]++));
+
+                    for (var node : nodes) {
+                        node.setStyle("-fx-bar-fill: " + convertStringToHexColor(barChartData.getName()) + ";");
+                    }
+                });
             }
         } else {
             showLineChart();
@@ -269,5 +277,9 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     public void resetSelections() {
         selectedStocks.clear();
         selectedParameters.clear();
+    }
+
+    private String convertStringToHexColor(String isin) {
+        return String.format("#%06X", (0xFFFFFF & isin.hashCode()));
     }
 }
