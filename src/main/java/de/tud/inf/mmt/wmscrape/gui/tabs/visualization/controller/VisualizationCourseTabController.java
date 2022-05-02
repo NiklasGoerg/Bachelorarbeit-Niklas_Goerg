@@ -77,16 +77,19 @@ public class VisualizationCourseTabController extends VisualizationTabController
 
     @Override
     public void prepareSelectionTables() {
-        var isinCol = new TableColumn<StockSelection, String>("ISIN");
+        var wknCol = new TableColumn<StockSelection, String>("WKN");
         var nameCol = new TableColumn<StockSelection, String>("Name");
+        var isinCol = new TableColumn<StockSelection, String>("ISIN");
         var isSelectedCol = new TableColumn<StockSelection, Boolean>("Selektion");
 
-        isinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIsin()));
+        wknCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getWkn()));
         nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
+        isinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIsin()));
         isSelectedCol.setCellValueFactory(param -> param.getValue().isSelected());
 
-        isinCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        wknCol.setCellFactory(TextFieldTableCell.forTableColumn());
         nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        isinCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
         isSelectedCol.setCellFactory(CheckBoxTableCell.forTableColumn(isSelectedCol));
         isSelectedCol.setCellValueFactory(row -> {
@@ -109,14 +112,17 @@ public class VisualizationCourseTabController extends VisualizationTabController
             return sbp;
         });
 
-        isinCol.setEditable(false);
+        wknCol.setEditable(false);
         nameCol.setEditable(false);
+        isinCol.setEditable(false);
         isSelectedCol.setEditable(true);
 
-        isinCol.setPrefWidth(100);
+        wknCol.setPrefWidth(100);
         nameCol.setPrefWidth(100);
+        isinCol.setPrefWidth(100);
         isSelectedCol.setPrefWidth(70);
 
+        selectionTable.getColumns().add(wknCol);
         selectionTable.getColumns().add(isinCol);
         selectionTable.getColumns().add(nameCol);
         selectionTable.getColumns().add(isSelectedCol);

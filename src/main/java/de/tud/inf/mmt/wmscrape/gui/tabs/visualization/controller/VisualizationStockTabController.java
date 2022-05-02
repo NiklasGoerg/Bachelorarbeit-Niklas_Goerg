@@ -49,6 +49,10 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     private VisualizationDataManager visualizationDataManager;
 
     private final List<StockSelection> selectedStocks = new ArrayList<>();
+
+    private final List<StockSelection> selectedTransactions = new ArrayList<>();
+    private final List<StockSelection> selectedWatchList = new ArrayList<>();
+
     private final List<ParameterSelection> selectedParameters = new ArrayList<>();
 
     @FXML
@@ -94,14 +98,22 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     }
 
     private void setupStockSelectionTable() {
+        var wknCol = new TableColumn<StockSelection, String>("WKN");
         var isinCol = new TableColumn<StockSelection, String>("ISIN");
         var nameCol = new TableColumn<StockSelection, String>("Name");
         var isSelectedCol = new TableColumn<StockSelection, Boolean>("Selektion");
+        var isSelectedTransactionCol = new TableColumn<StockSelection, Boolean>("Transaktionen");
+        var isSelectedWatchListCol = new TableColumn<StockSelection, Boolean>("Watch-Liste");
 
+        wknCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getWkn()));
         isinCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIsin()));
         nameCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
         isSelectedCol.setCellValueFactory(param -> param.getValue().isSelected());
 
+        isSelectedTransactionCol.setCellValueFactory(param -> param.getValue().isTransactionSelectedProperty());
+        isSelectedWatchListCol.setCellValueFactory(param -> param.getValue().isWatchListSelectedProperty());
+
+        wknCol.setCellFactory(TextFieldTableCell.forTableColumn());
         isinCol.setCellFactory(TextFieldTableCell.forTableColumn());
         nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
 
@@ -126,17 +138,68 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             return sbp;
         });
 
-        isinCol.setEditable(false);
+        isSelectedTransactionCol.setCellFactory(CheckBoxTableCell.forTableColumn(isSelectedCol));
+        isSelectedTransactionCol.setCellValueFactory(row -> {
+            var stockSelection = row.getValue();
+            SimpleBooleanProperty sbp = stockSelection.isTransactionSelectedProperty();
+            sbp.addListener((o, ov, nv) -> {
+                if (nv && !ov) {
+                    if (!selectedTransactions.contains(stockSelection)) {
+                        selectedTransactions.add(stockSelection);
+                        loadData(startDatePicker.getValue(), endDatePicker.getValue());
+                    }
+                } else if (!nv && ov) {
+                    if (selectedTransactions.contains(stockSelection)) {
+                        selectedTransactions.remove(stockSelection);
+                        loadData(startDatePicker.getValue(), endDatePicker.getValue());
+                    }
+                }
+            });
+
+            return sbp;
+        });
+
+        isSelectedWatchListCol.setCellFactory(CheckBoxTableCell.forTableColumn(isSelectedCol));
+        isSelectedWatchListCol.setCellValueFactory(row -> {
+            var stockSelection = row.getValue();
+            SimpleBooleanProperty sbp = stockSelection.isWatchListSelectedProperty();
+            sbp.addListener((o, ov, nv) -> {
+                if (nv && !ov) {
+                    if (!selectedWatchList.contains(stockSelection)) {
+                        selectedWatchList.add(stockSelection);
+                        loadData(startDatePicker.getValue(), endDatePicker.getValue());
+                    }
+                } else if (!nv && ov) {
+                    if (selectedWatchList.contains(stockSelection)) {
+                        selectedWatchList.remove(stockSelection);
+                        loadData(startDatePicker.getValue(), endDatePicker.getValue());
+                    }
+                }
+            });
+
+            return sbp;
+        });
+
+        wknCol.setEditable(false);
         nameCol.setEditable(false);
+        isinCol.setEditable(false);
         isSelectedCol.setEditable(true);
+        isSelectedTransactionCol.setEditable(true);
+        isSelectedWatchListCol.setEditable(true);
 
-        isinCol.setPrefWidth(100);
+        wknCol.setPrefWidth(100);
         nameCol.setPrefWidth(100);
+        isinCol.setPrefWidth(100);
         isSelectedCol.setPrefWidth(70);
+        isSelectedTransactionCol.setPrefWidth(70);
+        isSelectedWatchListCol.setPrefWidth(70);
 
+        stockSelectionTable.getColumns().add(wknCol);
         stockSelectionTable.getColumns().add(isinCol);
         stockSelectionTable.getColumns().add(nameCol);
         stockSelectionTable.getColumns().add(isSelectedCol);
+        stockSelectionTable.getColumns().add(isSelectedTransactionCol);
+        stockSelectionTable.getColumns().add(isSelectedWatchListCol);
     }
 
     private void setupParameterSelectionTable() {
@@ -209,11 +272,16 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     public void loadData(LocalDate startDate, LocalDate endDate) {
         resetCharts();
 
-        if (selectedStocks.size() == 0 || selectedParameters.size() == 0) return;
+        var selectedStocksToVisualize = selectedStocks;
+        if(selectedTransactions.size() != 0 || selectedWatchList.size() != 0) {
+            selectedStocksToVisualize = selectedStocks.stream().filter(s -> s.isTransactionSelected() || s.isWatchListSelected()).toList();
+        }
 
-        Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new LinkedHashMap<>(selectedStocks.size());
+        if (selectedStocksToVisualize.size() == 0 || selectedParameters.size() == 0) return;
 
-        for (var tableItem : selectedStocks) {
+        Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new LinkedHashMap<>(selectedStocksToVisualize.size());
+
+        for (var tableItem : selectedStocksToVisualize) {
             for(var parameter : selectedParameters) {
                 if (!tableItem.isSelected().getValue()) continue;
 
@@ -229,20 +297,22 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             }
         }
 
-        if(selectedStocks.size() > 1) {
+        if(selectedStocksToVisualize.size() > 1) {
             showBarChart();
 
             final var i = new int[]{0};
             for(var stock : allStocksData.keySet()) {
-                var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock));
+                var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock), allStocksData, selectedTransactions.size() != 0, selectedWatchList.size() != 0);
                 barChart.getData().add(barChartData);
 
                 Platform.runLater(() -> {
-                    var nodes = barChart.lookupAll(".series" + Math.round(i[0]++));
+                    Platform.runLater(() -> {
+                        var nodes = barChart.lookupAll(".series" + Math.round(i[0]++));
 
-                    for (var node : nodes) {
-                        node.setStyle("-fx-bar-fill: " + convertStringToHexColor(barChartData.getName()) + ";");
-                    }
+                        for (var node : nodes) {
+                            node.setStyle("-fx-bar-fill: " + convertStringToHexColor(barChartData.getName()) + ";");
+                        }
+                    });
                 });
             }
         } else {
@@ -250,7 +320,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
             for(var stock : allStocksData.keySet()) {
                 for(var parameterData : allStocksData.get(stock)) {
-                    var lineChartData = visualizationDataManager.getLineChartParameterData(parameterData);
+                    var lineChartData = visualizationDataManager.getLineChartParameterData(parameterData, selectedTransactions.size() != 0, selectedWatchList.size() != 0);
                     lineChart.getData().add(lineChartData);
                 }
             }

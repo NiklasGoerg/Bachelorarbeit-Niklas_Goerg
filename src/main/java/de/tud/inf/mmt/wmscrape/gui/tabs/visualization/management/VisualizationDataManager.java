@@ -15,13 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class VisualizationDataManager {
@@ -80,14 +79,15 @@ public class VisualizationDataManager {
 
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin FROM " + CourseTableManager.TABLE_NAME + " wk LEFT JOIN wertpapier wp on wp.isin = wk.isin");
+            ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin, wp.wkn FROM " + CourseTableManager.TABLE_NAME + " wk LEFT JOIN wertpapier wp on wp.isin = wk.isin");
 
             // for each db row create new custom row
             while (results.next()) {
+                var wkn = results.getString("wp.wkn");
                 var isin = results.getString("wp.isin");
                 var name = results.getString("wp.name");
 
-                allRows.add(new StockSelection(isin, name, false));
+                allRows.add(new StockSelection(wkn, isin, name, false));
             }
 
             statement.close();
@@ -217,7 +217,7 @@ public class VisualizationDataManager {
         return allRows;
     }
 
-    public XYChart.Series<Number, Number> getLineChartParameterData(ObservableList<ExtractedParameter> allRows) {
+    public XYChart.Series<Number, Number> getLineChartParameterData(ObservableList<ExtractedParameter> allRows, boolean showWeightedTransactions, boolean showWeightedWatchListe) {
         if(allRows.size() == 0) return null;
 
         var chartData = new XYChart.Series<Number, Number>();
@@ -230,19 +230,183 @@ public class VisualizationDataManager {
         return chartData;
     }
 
-    public XYChart.Series<String, Number> getBarChartParameterData(List<ObservableList<ExtractedParameter>> allRows) {
+    public XYChart.Series<String, Number> getBarChartParameterData(List<ObservableList<ExtractedParameter>> allRows, Map<String, List<ObservableList<ExtractedParameter>>> allStocks, boolean showWeightedTransactions, boolean showWeightedWatchListe) {
         if(allRows.size() == 0 || allRows.get(0).size() == 0) return null;
+
+        double depotSum = 0;
+
+        if(showWeightedTransactions) {
+            depotSum += getDepotSumIncludingTransactions(allStocks);
+        }
+
+        if(showWeightedWatchListe) {
+            depotSum += getDepotSumIncludingWatchList(allStocks);
+        }
 
         var chartData = new XYChart.Series<String, Number>();
         chartData.setName(allRows.get(0).get(0).getName());
 
         for(var row : allRows) {
             for(var data : row) {
-                chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter()));
+                double stockSum = 0;
+
+                if(showWeightedTransactions) {
+                    stockSum += searchTransactionForStockSum(data.getIsin());
+                }
+
+                if(showWeightedWatchListe) {
+                    stockSum += searchWatchListForStockSum(data.getIsin());
+                }
+
+                if((showWeightedTransactions || showWeightedWatchListe) && depotSum != 0) {
+                    chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter().doubleValue()*(stockSum/depotSum)));
+                } else {
+                    chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter()));
+                }
             }
         }
 
         return chartData;
+    }
+
+    private double getDepotSumIncludingTransactions(Map<String, List<ObservableList<ExtractedParameter>>> allStocks) {
+        double depotTransactionListSum = 0;
+
+        for (var stock : allStocks.keySet()) {
+            depotTransactionListSum += searchTransactionForStockSum(stock);
+        }
+
+        return depotTransactionListSum;
+    }
+
+    private double getDepotSumIncludingWatchList(Map<String, List<ObservableList<ExtractedParameter>>> allStocks) {
+        double depotWatchListSum = 0;
+
+        for (var stock : allStocks.keySet()) {
+            depotWatchListSum += searchWatchListForStockSum(stock);
+        }
+
+        return depotWatchListSum;
+    }
+
+    private double searchTransactionForStockSum(String isin) {
+        var stockAmountTransactions = 0;
+        var currentStockValue = getLatestStockValue(isin);
+
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream("src/main/resources/user.properties"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            var propertiesTransactionsAmountColumnName = properties.getProperty("TransaktionAnzahlSpaltenName", null);
+
+            if(propertiesTransactionsAmountColumnName == null) {
+                return 0;
+            }
+
+            try (Connection connection = dataSource.getConnection()) {
+                Statement statement = connection.createStatement();
+                ResultSet results = statement.executeQuery("SELECT " + propertiesTransactionsAmountColumnName + ", transaktionstyp FROM depot_transaktion WHERE wertpapier_isin = '" +isin+ "'");
+
+                while (results.next()) {
+                    var transactionType = results.getString("transaktionstyp");
+                    var amount = results.getInt(propertiesTransactionsAmountColumnName);
+
+                    if(transactionType.equals("kauf")) {
+                        stockAmountTransactions += amount;
+                    } else {
+                        stockAmountTransactions -= amount;
+                    }
+                }
+
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                AbandonedConnectionCleanupThread.checkedShutdown();
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return stockAmountTransactions * currentStockValue;
+    }
+
+    private double searchWatchListForStockSum(String isin) {
+        var stockAmountWatchList = 0;
+        var currentStockValue = getLatestStockValue(isin);
+
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream("src/main/resources/user.properties"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            var propertiesWatchListAmountColumnName = properties.getProperty("WatchListeAnzahlSpaltenName", null);
+
+            if(propertiesWatchListAmountColumnName == null) {
+                return 0;
+            }
+
+            try (Connection connection = dataSource.getConnection()) {
+                Statement statement = connection.createStatement();
+                ResultSet results = statement.executeQuery("SELECT " + propertiesWatchListAmountColumnName + " FROM watch_list WHERE wertpapier_isin = '" +isin+ "'");
+
+                while (results.next()) {
+                    stockAmountWatchList += results.getInt(propertiesWatchListAmountColumnName);
+                }
+
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                AbandonedConnectionCleanupThread.checkedShutdown();
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return stockAmountWatchList * currentStockValue;
+    }
+
+    private double getLatestStockValue(String isin) {
+        double stockValue = 0;
+
+        var foundCourseColumn = false;
+        for (var courseColumn : courseColumnRepository.findAll()) {
+            if(courseColumn.getName().equals("kurs")) {
+                foundCourseColumn = true;
+                break;
+            }
+        }
+
+        if(!foundCourseColumn) return stockValue;
+
+        try (Connection connection = dataSource.getConnection()) {
+            Statement statement = connection.createStatement();
+            //ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin FROM wertpapier_stammdaten ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
+            ResultSet results = statement.executeQuery("SELECT DISTINCT kurs FROM wertpapier_kursdaten WHERE isin = '" +isin+ "' ORDER BY datum DESC LIMIT 1");
+
+            // for each db row create new custom row
+            while (results.next()) {
+                stockValue = results.getDouble("kurs");
+            }
+
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
+        }
+
+        return stockValue;
     }
 
     public ObservableList<StockSelection> getStocksWithParameterData() {
@@ -251,14 +415,15 @@ public class VisualizationDataManager {
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
             //ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin FROM wertpapier_stammdaten ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
-            ResultSet results = statement.executeQuery("SELECT DISTINCT name, isin FROM wertpapier");
+            ResultSet results = statement.executeQuery("SELECT DISTINCT name, isin, wkn FROM wertpapier");
 
             // for each db row create new custom row
             while (results.next()) {
+                var wkn = results.getString("wkn");
                 var isin = results.getString("isin");
                 var name = results.getString("name");
 
-                allRows.add(new StockSelection(isin, name, false));
+                allRows.add(new StockSelection(wkn, isin, name, false));
             }
 
             statement.close();
