@@ -376,6 +376,10 @@ public abstract class ExtractionGeneral {
         }
     }
 
+    protected boolean isValid(String data, ColumnDatatype datatype, String colName) {
+        return isValid(data, datatype, colName, null);
+    }
+
     /**
      * validates the text data based on the datatype
      *
@@ -384,7 +388,7 @@ public abstract class ExtractionGeneral {
      * @param colName the column the data will be inserted into
      * @return true if it matches the datatype
      */
-    protected boolean isValid(String data, ColumnDatatype datatype, String colName) {
+    protected boolean isValid(String data, ColumnDatatype datatype, String colName, String date) {
         if(datatype == null) return false;
 
         boolean valid;
@@ -395,7 +399,13 @@ public abstract class ExtractionGeneral {
             default -> valid = true;
         }
 
-        if(!valid) log("ERR:\t\tDie extrahierten Daten '"+data+"' haben einen unpassenden Datentyp "+datatype+" für "+colName);
+        if(!valid) {
+            if(date != null) {
+                log("ERR:\t\tDie extrahierten Daten '"+data+"' haben einen unpassenden Datentyp "+datatype+" für "+colName+", " + date);
+            } else {
+                log("ERR:\t\tDie extrahierten Daten '"+data+"' haben einen unpassenden Datentyp "+datatype+" für "+colName);
+            }
+        }
 
         return valid;
     }

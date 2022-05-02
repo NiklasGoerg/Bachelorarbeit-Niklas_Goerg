@@ -392,14 +392,20 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
     private void searchInsideRow(Map<String, InformationCarrier> carrierMap, WebElementInContext row) {
         String data;
 
+        String date = null;
+
+        if(carrierMap.containsKey("datum") && !getTextData(row, carrierMap.get("datum")).isBlank()) {
+            date = getTextData(row, carrierMap.get("datum"));
+        }
+
         for(InformationCarrier carrier : carrierMap.values()) {
             if(carrier.getIdentType() == IdentType.DEAKTIVIERT) continue;
 
             data = getTextData(row, carrier);
 
             if (data.isBlank()) {
-                if(carrierMap.containsKey("datum") && !getTextData(row, carrierMap.get("datum")).isBlank()) {
-                    log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter '"+carrier.getIdentifier()+"', " + getTextData(row, carrierMap.get("datum")));
+                if(date != null) {
+                    log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter '"+carrier.getIdentifier()+"', " + date);
                 } else {
                     log("ERR:\t\tKeine Daten enthalten für "+carrier.getDbColName()+" unter '"+carrier.getIdentifier()+"'");
                 }
@@ -407,7 +413,7 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
 
             data = processData(carrier, data);
 
-            if (isValid(data, carrier.getDatatype(), carrier.getDbColName())) {
+            if (isValid(data, carrier.getDatatype(), carrier.getDbColName(), date)) {
                 carrier.setExtractedData(data);
             }
         }
