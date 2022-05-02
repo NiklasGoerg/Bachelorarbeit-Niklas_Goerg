@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.scene.canvas.Canvas?>
 <?import javafx.geometry.Insets?>
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizationTabController">
@@ -56,6 +54,33 @@
                         <Insets top="5" bottom="5" left="5" right="5"/>
                     </padding>
                     <Button onAction="#resetDatePicker">Zurücksetzen</Button>
+                </HBox>
+                <Separator orientation="VERTICAL"/>
+                <HBox fx:id="dropDownMenuParent">
+                    <HBox alignment="CENTER_LEFT">
+                        <padding>
+                            <Insets top="5" bottom="5" left="5" right="5"/>
+                        </padding>
+                        <Label>
+                            <padding>
+                                <Insets right="3"/>
+                            </padding>
+                            Transaktion Spalte-Anzahl:
+                        </Label>
+                        <ComboBox fx:id="transactionAmountDropDown" />
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT">
+                        <padding>
+                            <Insets top="5" bottom="5" left="5" right="5"/>
+                        </padding>
+                        <Label>
+                            <padding>
+                                <Insets right="3"/>
+                            </padding>
+                            Watch-Liste Spalte-Anzahl:
+                        </Label>
+                        <ComboBox fx:id="watchListAmountDropDown" />
+                    </HBox>
                 </HBox>
                 <Separator orientation="VERTICAL"/>
                 <HBox alignment="CENTER_LEFT">

@@ -1,5 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
@@ -11,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.chart.*;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -305,15 +308,13 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                 var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock), allStocksData, selectedTransactions.size() != 0, selectedWatchList.size() != 0);
                 barChart.getData().add(barChartData);
 
-                Platform.runLater(() -> {
-                    Platform.runLater(() -> {
-                        var nodes = barChart.lookupAll(".series" + Math.round(i[0]++));
+                Platform.runLater(() -> Platform.runLater(() -> {
+                    var nodes = barChart.lookupAll(".series" + Math.round(i[0]++));
 
-                        for (var node : nodes) {
-                            node.setStyle("-fx-bar-fill: " + convertStringToHexColor(barChartData.getName()) + ";");
-                        }
-                    });
-                });
+                    for (var node : nodes) {
+                        node.setStyle("-fx-bar-fill: " + convertStringToHexColor(barChartData.getName()) + ";");
+                    }
+                }));
             }
         } else {
             showLineChart();
