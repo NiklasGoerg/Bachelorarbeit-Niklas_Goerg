@@ -294,16 +294,11 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     public void loadData(LocalDate startDate, LocalDate endDate) {
         resetCharts();
 
-        var selectedStocksToVisualize = selectedStocks;
-        if(selectedTransactions.size() != 0 || selectedWatchList.size() != 0) {
-            selectedStocksToVisualize = selectedStocks.stream().filter(s -> s.isTransactionSelected() || s.isWatchListSelected()).toList();
-        }
+        if (selectedStocks.size() == 0 || selectedParameters.size() == 0) return;
 
-        if (selectedStocksToVisualize.size() == 0 || selectedParameters.size() == 0) return;
+        Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new LinkedHashMap<>(selectedStocks.size());
 
-        Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new LinkedHashMap<>(selectedStocksToVisualize.size());
-
-        for (var tableItem : selectedStocksToVisualize) {
+        for (var tableItem : selectedStocks) {
             for(var parameter : selectedParameters) {
                 if (!tableItem.isSelected().getValue()) continue;
 
@@ -319,26 +314,37 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             }
         }
 
-        if(selectedStocksToVisualize.size() > 1) {
+        if(selectedStocks.size() > 1 || selectedTransactions.size() > 1 || selectedWatchList.size() > 1) {
             showBarChart();
 
-            final var i = new int[]{0};
-            for(var stock : allStocksData.keySet()) {
-                var barChartData = visualizationDataManager.getBarChartParameterData(
-                        allStocksData.get(stock),
-                        allStocksData,
-                        selectedTransactions.stream().anyMatch(t -> t.getIsin().equals(stock)),
-                        selectedWatchList.stream().anyMatch(w -> w.getIsin().equals(stock)));
-                barChart.getData().add(barChartData);
+            var stockNames = new ArrayList<String>();
 
-                Platform.runLater(() -> Platform.runLater(() -> {
-                    var nodes = barChart.lookupAll(".series" + Math.round(i[0]++));
+            for(var stock : allStocksData.keySet()) {
+                var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock));
+                stockNames.add(barChartData.getName());
+                barChart.getData().add(barChartData);
+            }
+
+            if(selectedTransactions.size() > 0 || selectedWatchList.size() > 0) {
+                var barChartData = visualizationDataManager.getBarChartDepotParameterData(
+                        allStocksData,
+                        selectedTransactions,
+                        selectedWatchList);
+
+                stockNames.add(barChartData.getName());
+                barChart.getData().add(barChartData);
+            }
+
+            Platform.runLater(() -> Platform.runLater(() -> {
+                var i = 0;
+                for(var stockName : stockNames) {
+                    var nodes = barChart.lookupAll(".series" + Math.round(i++));
 
                     for (var node : nodes) {
-                        node.setStyle("-fx-bar-fill: " + convertStringToHexColor(barChartData.getName()) + ";");
+                        node.setStyle("-fx-bar-fill: " + convertStringToHexColor(stockName) + ";");
                     }
-                }));
-            }
+                }
+            }));
         } else {
             showLineChart();
 

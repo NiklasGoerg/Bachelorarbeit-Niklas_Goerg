@@ -4,7 +4,6 @@ import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
-import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
@@ -230,63 +229,80 @@ public class VisualizationDataManager {
         return chartData;
     }
 
-    public XYChart.Series<String, Number> getBarChartParameterData(List<ObservableList<ExtractedParameter>> allRows, Map<String, List<ObservableList<ExtractedParameter>>> allStocks, boolean showWeightedTransactions, boolean showWeightedWatchListe) {
+    public XYChart.Series<String, Number> getBarChartParameterData(List<ObservableList<ExtractedParameter>> allRows) {
         if(allRows.size() == 0 || allRows.get(0).size() == 0) return null;
-
-        double depotSum = 0;
-
-        if(showWeightedTransactions) {
-            depotSum += getDepotSumIncludingTransactions(allStocks);
-        }
-
-        if(showWeightedWatchListe) {
-            depotSum += getDepotSumIncludingWatchList(allStocks);
-        }
 
         var chartData = new XYChart.Series<String, Number>();
         chartData.setName(allRows.get(0).get(0).getName());
 
         for(var row : allRows) {
             var data = row.get(row.size() - 1);
-
-            double stockSum = 0;
-
-            if(showWeightedTransactions) {
-                stockSum += searchTransactionForStockSum(data.getIsin());
-            }
-
-            if(showWeightedWatchListe) {
-                stockSum += searchWatchListForStockSum(data.getIsin());
-            }
-
-            if((showWeightedTransactions || showWeightedWatchListe) && depotSum != 0) {
-                chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter().doubleValue()*(stockSum/depotSum)));
-            } else {
-                chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter()));
-            }
+            chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter()));
         }
 
         return chartData;
     }
 
-    private double getDepotSumIncludingTransactions(Map<String, List<ObservableList<ExtractedParameter>>> allStocks) {
-        double depotTransactionListSum = 0;
+
+    public XYChart.Series<String, Number> getBarChartDepotParameterData(
+            Map<String, List<ObservableList<ExtractedParameter>>> allStocks,
+            List<StockSelection> selectedTransactions,
+            List<StockSelection> selectedWatchList) {
+
+        if (allStocks.size() == 0) return null;
+
+        Map<String, Double> parameterMap = new HashMap<>();
+        double depotSum = 0;
+
+        var chartData = new XYChart.Series<String, Number>();
+        chartData.setName("Alle Wertpapiere gewichtet");
 
         for (var stock : allStocks.keySet()) {
-            depotTransactionListSum += searchTransactionForStockSum(stock);
+            var includeStockTransactions = selectedTransactions.stream().anyMatch(s -> s.getIsin().equals(stock));
+            var includeStockWatchList = selectedWatchList.stream().anyMatch(s -> s.getIsin().equals(stock));
+
+            if (includeStockTransactions) {
+                depotSum += searchTransactionForStockSum(stock);
+            }
+
+            if (includeStockWatchList) {
+                depotSum += searchWatchListForStockSum(stock);
+            }
         }
-
-        return depotTransactionListSum;
-    }
-
-    private double getDepotSumIncludingWatchList(Map<String, List<ObservableList<ExtractedParameter>>> allStocks) {
-        double depotWatchListSum = 0;
 
         for (var stock : allStocks.keySet()) {
-            depotWatchListSum += searchWatchListForStockSum(stock);
+            var includeStockTransactions = selectedTransactions.stream().anyMatch(s -> s.getIsin().equals(stock));
+            var includeStockWatchList = selectedWatchList.stream().anyMatch(s -> s.getIsin().equals(stock));
+
+            for(var parameters : allStocks.get(stock)) {
+                var latestParameter = parameters.get(parameters.size() - 1);
+
+                double stockSum = 0;
+
+                if (includeStockTransactions) {
+                    stockSum += searchTransactionForStockSum(latestParameter.getIsin());
+                }
+
+                if (includeStockWatchList) {
+                    stockSum += searchWatchListForStockSum(latestParameter.getIsin());
+                }
+
+
+                if(!parameterMap.containsKey(latestParameter.getParameterName())) {
+                    parameterMap.put(latestParameter.getParameterName(), latestParameter.getParameter().doubleValue() * stockSum / depotSum);
+                } else {
+                    var oldValue = parameterMap.get(latestParameter.getParameterName());
+
+                    parameterMap.put(latestParameter.getParameterName(), oldValue + latestParameter.getParameter().doubleValue() * stockSum / depotSum);
+                }
+            }
         }
 
-        return depotWatchListSum;
+        for(var parameter : parameterMap.keySet()) {
+            chartData.getData().add(new XYChart.Data<>(parameter, parameterMap.get(parameter)));
+        }
+
+        return chartData;
     }
 
     private double searchTransactionForStockSum(String isin) {
