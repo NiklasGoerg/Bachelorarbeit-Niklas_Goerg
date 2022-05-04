@@ -217,7 +217,7 @@ public class VisualizationDataManager {
         return allRows;
     }
 
-    public XYChart.Series<Number, Number> getLineChartParameterData(ObservableList<ExtractedParameter> allRows, boolean showWeightedTransactions, boolean showWeightedWatchListe) {
+    public XYChart.Series<Number, Number> getLineChartParameterData(ObservableList<ExtractedParameter> allRows) {
         if(allRows.size() == 0) return null;
 
         var chartData = new XYChart.Series<Number, Number>();
@@ -247,22 +247,22 @@ public class VisualizationDataManager {
         chartData.setName(allRows.get(0).get(0).getName());
 
         for(var row : allRows) {
-            for(var data : row) {
-                double stockSum = 0;
+            var data = row.get(row.size() - 1);
 
-                if(showWeightedTransactions) {
-                    stockSum += searchTransactionForStockSum(data.getIsin());
-                }
+            double stockSum = 0;
 
-                if(showWeightedWatchListe) {
-                    stockSum += searchWatchListForStockSum(data.getIsin());
-                }
+            if(showWeightedTransactions) {
+                stockSum += searchTransactionForStockSum(data.getIsin());
+            }
 
-                if((showWeightedTransactions || showWeightedWatchListe) && depotSum != 0) {
-                    chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter().doubleValue()*(stockSum/depotSum)));
-                } else {
-                    chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter()));
-                }
+            if(showWeightedWatchListe) {
+                stockSum += searchWatchListForStockSum(data.getIsin());
+            }
+
+            if((showWeightedTransactions || showWeightedWatchListe) && depotSum != 0) {
+                chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter().doubleValue()*(stockSum/depotSum)));
+            } else {
+                chartData.getData().add(new XYChart.Data<>(data.getParameterName(), data.getParameter()));
             }
         }
 
@@ -356,7 +356,7 @@ public class VisualizationDataManager {
 
             try (Connection connection = dataSource.getConnection()) {
                 Statement statement = connection.createStatement();
-                ResultSet results = statement.executeQuery("SELECT " + propertiesWatchListAmountColumnName + " FROM watch_list WHERE wertpapier_isin = '" +isin+ "'");
+                ResultSet results = statement.executeQuery("SELECT " + propertiesWatchListAmountColumnName + " FROM watch_list WHERE isin = '" +isin+ "'");
 
                 while (results.next()) {
                     stockAmountWatchList += results.getInt(propertiesWatchListAmountColumnName);

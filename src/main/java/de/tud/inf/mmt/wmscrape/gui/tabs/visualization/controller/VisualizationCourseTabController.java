@@ -130,12 +130,12 @@ public class VisualizationCourseTabController extends VisualizationTabController
 
     @Override
     public void fillSelectionTables() {
-        selectionTable.getItems().clear();
-
         var stocks = visualizationDataManager.getStocksWithCourseData();
 
         for (var stockSelection : stocks) {
-            selectionTable.getItems().add(stockSelection);
+            if(selectionTable.getItems().stream().noneMatch(s -> s.getIsin().equals(stockSelection.getIsin()))) {
+                selectionTable.getItems().add(stockSelection);
+            }
         }
     }
 

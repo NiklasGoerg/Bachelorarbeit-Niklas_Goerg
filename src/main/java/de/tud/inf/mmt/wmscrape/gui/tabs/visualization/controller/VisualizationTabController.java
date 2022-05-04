@@ -92,6 +92,8 @@ public class VisualizationTabController {
                 dropDownMenuParent.setManaged(true);
 
                 normalizeCheckbox.setDisable(true);
+
+                fillDropDownMenus();
             });
             tabPane.getTabs().add(stockTab);
         } catch (IOException e) {
@@ -102,21 +104,34 @@ public class VisualizationTabController {
     }
 
     private void prepareDropDownMenus() {
+        transactionAmountDropDown.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            if(newValue != null) {
+                setColumnNameProperty("TransaktionAnzahlSpaltenName", newValue);
+            }
+        });
 
+        watchListAmountDropDown.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            if(newValue != null) {
+                setColumnNameProperty("WatchListeAnzahlSpaltenName", newValue);
+            }
+        });
+    }
 
-        transactionAmountDropDown.getSelectionModel().select(getColumnNameProperty("TransaktionAnzahlSpaltenName"));
-        transactionAmountDropDown.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> setColumnNameProperty("TransaktionAnzahlSpaltenName", newValue));
-
-        watchListAmountDropDown.getSelectionModel().select(getColumnNameProperty("WatchListeAnzahlSpaltenName"));
-        watchListAmountDropDown.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> setColumnNameProperty("WatchListeAnzahlSpaltenName", newValue));
+    public void fillDropDownMenus() {
+        transactionAmountDropDown.getItems().clear();
+        watchListAmountDropDown.getItems().clear();
 
         for(var column : transactionColumnRepository.findAll()) {
             transactionAmountDropDown.getItems().add(column.getName());
         }
 
+        transactionAmountDropDown.getSelectionModel().select(getColumnNameProperty("TransaktionAnzahlSpaltenName"));
+
         for(var column : watchListColumnRepository.findAll()) {
             watchListAmountDropDown.getItems().add(column.getName());
         }
+
+        watchListAmountDropDown.getSelectionModel().select(getColumnNameProperty("WatchListeAnzahlSpaltenName"));
     }
 
     public FXMLLoader getTabLoader(String ressourceUri) {
@@ -197,15 +212,8 @@ public class VisualizationTabController {
 
         endDatePicker.valueProperty().addListener((observableValue, localDate, t1) -> currentTab.loadData(startDatePicker.getValue(), endDatePicker.getValue()));
 
+        fillDropDownMenus();
         prepareDropDownMenus();
-    }
-
-    public void resetCharts() {
-        currentTab.resetCharts();
-    }
-
-    public void resetSelections() {
-        currentTab.resetSelections();
     }
 
     public void fillSelectionTables() {

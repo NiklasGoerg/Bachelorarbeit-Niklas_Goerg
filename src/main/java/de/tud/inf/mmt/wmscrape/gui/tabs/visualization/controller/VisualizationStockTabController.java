@@ -1,7 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 
-import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
-import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumnRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
@@ -13,18 +12,18 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.chart.*;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -57,6 +56,8 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     private final List<StockSelection> selectedWatchList = new ArrayList<>();
 
     private final List<ParameterSelection> selectedParameters = new ArrayList<>();
+
+    private boolean alarmIsOpen = false;
 
     @FXML
     public void initialize() {
@@ -146,6 +147,15 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isTransactionSelectedProperty();
             sbp.addListener((o, ov, nv) -> {
+                if(getColumnNameProperty("TransaktionAnzahlSpaltenName") == null) {
+                    if(nv && !alarmIsOpen) {
+                        sbp.set(false);
+                        createAlert("Zuordnung zur Anzahl-Spalte der Transaktionstabelle fehlt.");
+                    }
+
+                    return;
+                }
+
                 if (nv && !ov) {
                     if (!selectedTransactions.contains(stockSelection)) {
                         selectedTransactions.add(stockSelection);
@@ -167,6 +177,15 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isWatchListSelectedProperty();
             sbp.addListener((o, ov, nv) -> {
+                if(getColumnNameProperty("WatchListeAnzahlSpaltenName") == null) {
+                    if(nv && !alarmIsOpen) {
+                        sbp.set(false);
+                        createAlert("Zuordnung zur Anzahl-Spalte der Watch-List-Tabelle fehlt.");
+                    }
+
+                    return;
+                }
+
                 if (nv && !ov) {
                     if (!selectedWatchList.contains(stockSelection)) {
                         selectedWatchList.add(stockSelection);
@@ -252,22 +271,22 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     }
 
     private void fillStockSelectionTable() {
-        stockSelectionTable.getItems().clear();
-
         var stocks = visualizationDataManager.getStocksWithParameterData();
 
         for (var stockSelection : stocks) {
-            stockSelectionTable.getItems().add(stockSelection);
+            if(stockSelectionTable.getItems().stream().noneMatch(s -> s.getIsin().equals(stockSelection.getIsin()))) {
+                stockSelectionTable.getItems().add(stockSelection);
+            }
         }
     }
 
     private void fillParameterSelectionTable() {
-        parameterSelectionTable.getItems().clear();
+        var parameters = visualizationDataManager.getParameters();
 
-        var stocks = visualizationDataManager.getParameters();
-
-        for (var stockSelection : stocks) {
-            parameterSelectionTable.getItems().add(stockSelection);
+        for (var parameterSelection : parameters) {
+            if(parameterSelectionTable.getItems().stream().noneMatch(s -> s.getParameter().equals(parameterSelection.getParameter()))) {
+                parameterSelectionTable.getItems().add(parameterSelection);
+            }
         }
     }
 
@@ -305,7 +324,11 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
             final var i = new int[]{0};
             for(var stock : allStocksData.keySet()) {
-                var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock), allStocksData, selectedTransactions.size() != 0, selectedWatchList.size() != 0);
+                var barChartData = visualizationDataManager.getBarChartParameterData(
+                        allStocksData.get(stock),
+                        allStocksData,
+                        selectedTransactions.stream().anyMatch(t -> t.getIsin().equals(stock)),
+                        selectedWatchList.stream().anyMatch(w -> w.getIsin().equals(stock)));
                 barChart.getData().add(barChartData);
 
                 Platform.runLater(() -> Platform.runLater(() -> {
@@ -321,11 +344,36 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
             for(var stock : allStocksData.keySet()) {
                 for(var parameterData : allStocksData.get(stock)) {
-                    var lineChartData = visualizationDataManager.getLineChartParameterData(parameterData, selectedTransactions.size() != 0, selectedWatchList.size() != 0);
+                    var lineChartData = visualizationDataManager.getLineChartParameterData(parameterData);
                     lineChart.getData().add(lineChartData);
                 }
             }
         }
+    }
+
+    private String getColumnNameProperty(String propertyName) {
+        Properties properties = new Properties();
+        String property = null;
+
+        try {
+            properties.load(new FileInputStream("src/main/resources/user.properties"));
+            property = properties.getProperty(propertyName, null);
+            properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return property;
+    }
+
+    private void createAlert(String content) {
+        alarmIsOpen = true;
+        Alert alert = new Alert(Alert.AlertType.WARNING, content, ButtonType.OK);
+        alert.setHeaderText("Spalte nicht zugewiesen!");
+        PrimaryTabManager.setAlertPosition(alert, stockSelectionTable);
+
+        alert.setOnCloseRequest(dialogEvent -> alarmIsOpen = false);
+        alert.show();
     }
 
     private void showLineChart() {
