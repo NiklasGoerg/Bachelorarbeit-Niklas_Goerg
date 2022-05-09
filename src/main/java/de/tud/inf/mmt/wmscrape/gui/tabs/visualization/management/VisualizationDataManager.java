@@ -407,8 +407,7 @@ public class VisualizationDataManager {
 
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            //ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin FROM wertpapier_stammdaten ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
-            ResultSet results = statement.executeQuery("SELECT DISTINCT kurs FROM wertpapier_kursdaten WHERE isin = '" +isin+ "' ORDER BY datum DESC LIMIT 1");
+            ResultSet results = statement.executeQuery("SELECT kurs, datum FROM wertpapier_kursdaten WHERE isin = '" +isin+ "' ORDER BY datum DESC LIMIT 1");
 
             // for each db row create new custom row
             while (results.next()) {
@@ -430,7 +429,6 @@ public class VisualizationDataManager {
 
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            //ResultSet results = statement.executeQuery("SELECT DISTINCT wp.name, wp.isin FROM wertpapier_stammdaten ws LEFT JOIN wertpapier wp on wp.isin = ws.isin");
             ResultSet results = statement.executeQuery("SELECT DISTINCT name, isin, wkn FROM wertpapier");
 
             // for each db row create new custom row
