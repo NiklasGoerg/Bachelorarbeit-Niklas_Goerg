@@ -304,7 +304,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
                 var data = visualizationDataManager.getParameterDataForIsin(tableItem.getIsin(), tableItem.getName(), parameter, startDate, endDate);
 
-                if (data == null || data.size() == 0) return;
+                if (data == null || data.size() == 0) continue;
 
                 if(!allStocksData.containsKey(tableItem.getIsin())) {
                     allStocksData.put(tableItem.getIsin(), new ArrayList<>(selectedParameters.size()));
@@ -335,7 +335,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                 barChart.getData().add(barChartData);
             }
 
-            Platform.runLater(() -> Platform.runLater(() -> {
+            Platform.runLater(() -> Platform.runLater(() -> Platform.runLater(() -> {
                 var i = 0;
                 for(var stockName : stockNames) {
                     var nodes = barChart.lookupAll(".series" + Math.round(i++));
@@ -344,7 +344,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                         node.setStyle("-fx-bar-fill: " + convertStringToHexColor(stockName) + ";");
                     }
                 }
-            }));
+            })));
         } else {
             showLineChart();
 
