@@ -15,6 +15,7 @@ import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -26,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -321,8 +323,8 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
             for(var stock : allStocksData.keySet()) {
                 var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock));
-                stockNames.add(barChartData.getName());
-                barChart.getData().add(barChartData);
+
+                addDataToBarChart(barChartData, stockNames);
             }
 
             if(selectedTransactions.size() > 0 || selectedWatchList.size() > 0) {
@@ -331,20 +333,28 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                         selectedTransactions,
                         selectedWatchList);
 
-                stockNames.add(barChartData.getName());
-                barChart.getData().add(barChartData);
+                addDataToBarChart(barChartData, stockNames);
             }
 
-            Platform.runLater(() -> Platform.runLater(() -> Platform.runLater(() -> {
-                var i = 0;
-                for(var stockName : stockNames) {
-                    var nodes = barChart.lookupAll(".series" + Math.round(i++));
-
-                    for (var node : nodes) {
-                        node.setStyle("-fx-bar-fill: " + convertStringToHexColor(stockName) + ";");
-                    }
+            Platform.runLater(() -> {
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            })));
+
+                Platform.runLater(() -> {
+                    var i = 0;
+                    for (var stockName : stockNames) {
+                        var nodes = barChart.lookupAll(".series" + (i++));
+
+                        for (var node : nodes) {
+                            var color = convertStringToHexColor(stockName);
+                            node.setStyle("-fx-bar-fill: " + color + ";");
+                        }
+                    }
+                });
+            });
         } else {
             showLineChart();
 
@@ -354,6 +364,20 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                     lineChart.getData().add(lineChartData);
                 }
             }
+        }
+    }
+
+    private void addDataToBarChart(XYChart.Series<String, Number> barChartData, List<String> stockNames) {
+        final DecimalFormat df = new DecimalFormat(".00");
+
+        stockNames.add(barChartData.getName());
+        barChart.getData().add(barChartData);
+
+        for(var dataEntry : barChartData.getData()) {
+            final Tooltip tooltip = new Tooltip(df.format(dataEntry.getYValue()));
+            tooltip.setStyle("-fx-font-size: 15");
+            tooltip.setShowDelay(Duration.ZERO);
+            Tooltip.install(dataEntry.getNode(), tooltip);
         }
     }
 

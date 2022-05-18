@@ -268,6 +268,10 @@ public class VisualizationDataManager {
             if (includeStockWatchList) {
                 depotSum += searchWatchListForStockSum(stock);
             }
+
+            if(depotSum == 0) {
+                depotSum = 1;
+            }
         }
 
         for (var stock : allStocks.keySet()) {

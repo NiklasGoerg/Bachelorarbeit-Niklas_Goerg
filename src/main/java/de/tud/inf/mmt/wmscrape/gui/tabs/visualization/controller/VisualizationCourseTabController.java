@@ -151,7 +151,7 @@ public class VisualizationCourseTabController extends VisualizationTabController
 
             var data = visualizationDataManager.getHistoricPricesForIsin(tableItem.getIsin(), startDate, endDate);
 
-            if(data == null || data.getData().size() == 0) return;
+            if(data == null || data.getData().size() == 0) continue;
 
             data.setName(tableItem.getName());
 
