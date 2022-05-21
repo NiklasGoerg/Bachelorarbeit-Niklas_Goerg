@@ -326,17 +326,10 @@ public class VisualizationDataManager {
 
             try (Connection connection = dataSource.getConnection()) {
                 Statement statement = connection.createStatement();
-                ResultSet results = statement.executeQuery("SELECT " + propertiesTransactionsAmountColumnName + ", transaktionstyp FROM depot_transaktion WHERE wertpapier_isin = '" +isin+ "'");
+                ResultSet results = statement.executeQuery("SELECT " + propertiesTransactionsAmountColumnName + " FROM depot_transaktion WHERE wertpapier_isin = '" +isin+ "'");
 
                 while (results.next()) {
-                    var transactionType = results.getString("transaktionstyp");
-                    var amount = results.getInt(propertiesTransactionsAmountColumnName);
-
-                    if(transactionType.equals("kauf")) {
-                        stockAmountTransactions += amount;
-                    } else {
-                        stockAmountTransactions -= amount;
-                    }
+                    stockAmountTransactions += results.getInt(propertiesTransactionsAmountColumnName);
                 }
 
                 statement.close();
