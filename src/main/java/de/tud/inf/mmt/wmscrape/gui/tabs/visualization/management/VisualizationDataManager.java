@@ -4,6 +4,7 @@ import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizeStockColumnRelationController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
@@ -28,15 +29,9 @@ public class VisualizationDataManager {
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public XYChart.Series<Number, Number> getHistoricPricesForIsin(String isin, LocalDate startDate, LocalDate endDate) {
-        var foundCourseColumn = false;
-        for (var courseColumn : courseColumnRepository.findAll()) {
-               if(courseColumn.getName().equals("kurs")) {
-                   foundCourseColumn = true;
-                   break;
-               }
-        }
+        var courseColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.stockCourseTableCourseColumn);
 
-        if(!foundCourseColumn) return null;
+        if(courseColumn == null) return null;
 
         ObservableList<XYChart.Data<Number, Number>> allRows = FXCollections.observableArrayList();
 
@@ -52,12 +47,12 @@ public class VisualizationDataManager {
 
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery("SELECT datum, kurs FROM "+CourseTableManager.TABLE_NAME+" WHERE isin = '" + isin + "'" + dateSubQueryStringBuilder);
+            ResultSet results = statement.executeQuery("SELECT datum, " + courseColumn + " FROM "+CourseTableManager.TABLE_NAME+" WHERE isin = '" + isin + "'" + dateSubQueryStringBuilder);
 
             // for each db row create new custom row
             while (results.next()) {
                 var date = results.getDate("datum");
-                var course = results.getDouble("kurs");
+                var course = results.getDouble(courseColumn);
 
                 allRows.add(new XYChart.Data<>(date.getTime(), course));
             }
@@ -102,13 +97,17 @@ public class VisualizationDataManager {
         double minCourse = 0;
         double maxCourse = 0;
 
+        var courseColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.stockCourseTableCourseColumn);
+
+        if(courseColumn == null) return null;
+
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery("SELECT MIN(kurs), MAX(kurs) FROM " + CourseTableManager.TABLE_NAME + " WHERE isin = '" + firstSelectedStock.getIsin() + "'");
+            ResultSet results = statement.executeQuery("SELECT MIN(" + courseColumn + "), MAX(" + courseColumn + ") FROM " + CourseTableManager.TABLE_NAME + " WHERE isin = '" + firstSelectedStock.getIsin() + "'");
 
             while (results.next()) {
-                minCourse = results.getDouble("MIN(kurs)");
-                maxCourse = results.getDouble("MAX(kurs)");
+                minCourse = results.getDouble("MIN(" + courseColumn + ")");
+                maxCourse = results.getDouble("MAX(" + courseColumn + ")");
             }
 
             statement.close();
@@ -251,6 +250,9 @@ public class VisualizationDataManager {
         if (allStocks.size() == 0) return null;
 
         Map<String, Double> parameterMap = new HashMap<>();
+        Map<String, Double> stockCurrentValues = new HashMap<>();
+        Map<String, Double> stockWatchListValues = new HashMap<>();
+
         double depotSum = 0;
 
         var chartData = new XYChart.Series<String, Number>();
@@ -261,11 +263,12 @@ public class VisualizationDataManager {
             var includeStockWatchList = selectedWatchList.stream().anyMatch(s -> s.getIsin().equals(stock));
 
             if (includeStockTransactions) {
-                depotSum += searchTransactionForStockSum(stock);
+                depotSum += searchTransactionForStockSum(stock, stockCurrentValues);
             }
 
             if (includeStockWatchList) {
-                depotSum += searchWatchListForStockSum(stock);
+                var x= searchWatchListForStockSum(stock, stockWatchListValues);
+                depotSum += x;
             }
 
             if(depotSum == 0) {
@@ -283,11 +286,11 @@ public class VisualizationDataManager {
                 double stockSum = 0;
 
                 if (includeStockTransactions) {
-                    stockSum += searchTransactionForStockSum(latestParameter.getIsin());
+                    stockSum += searchTransactionForStockSum(latestParameter.getIsin(), stockCurrentValues);
                 }
 
                 if (includeStockWatchList) {
-                    stockSum += searchWatchListForStockSum(latestParameter.getIsin());
+                    stockSum += searchWatchListForStockSum(latestParameter.getIsin(), stockWatchListValues);
                 }
 
 
@@ -308,12 +311,14 @@ public class VisualizationDataManager {
         return chartData;
     }
 
-    private double searchTransactionForStockSum(String isin) {
+    private double searchTransactionForStockSum(String isin, Map<String, Double> stockValues) {
+        if(stockValues.containsKey(isin)) return stockValues.get(isin);
+
         var stockAmountTransactions = 0;
         var currentStockValue = getLatestStockValue(isin);
 
         try {
-            var propertiesTransactionsAmountColumnName = PropertiesHelper.getProperty("TransaktionAnzahlSpaltenName");
+            var propertiesTransactionsAmountColumnName = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.transactionTableAmountColumn);
 
             if(propertiesTransactionsAmountColumnName == null) {
                 return 0;
@@ -345,15 +350,22 @@ public class VisualizationDataManager {
             System.out.println(e.getMessage());
         }
 
+        stockValues.put(isin, stockAmountTransactions * currentStockValue);
         return stockAmountTransactions * currentStockValue;
     }
 
-    private double searchWatchListForStockSum(String isin) {
+    private double searchWatchListForStockSum(String isin, Map<String, Double> stockValues) {
+        if(stockValues.containsKey(isin)) return stockValues.get(isin);
+
         var stockAmountWatchList = 0;
-        var currentStockValue = getLatestStockValue(isin);
+        var stockValue = 0d;
+
+        var watchListBuyCourseColumnName = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableCourseColumn);
+
+        if(watchListBuyCourseColumnName == null) return 0;
 
         try {
-            var propertiesWatchListAmountColumnName = PropertiesHelper.getProperty("WatchListeAnzahlSpaltenName");
+            var propertiesWatchListAmountColumnName = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableAmountColumn);
 
             if(propertiesWatchListAmountColumnName == null) {
                 return 0;
@@ -361,10 +373,11 @@ public class VisualizationDataManager {
 
             try (Connection connection = dataSource.getConnection()) {
                 Statement statement = connection.createStatement();
-                ResultSet results = statement.executeQuery("SELECT " + propertiesWatchListAmountColumnName + " FROM watch_list WHERE isin = '" +isin+ "'");
+                ResultSet results = statement.executeQuery("SELECT " + propertiesWatchListAmountColumnName + ", " + watchListBuyCourseColumnName + " FROM watch_list WHERE isin = '" +isin+ "'");
 
                 while (results.next()) {
                     stockAmountWatchList += results.getInt(propertiesWatchListAmountColumnName);
+                    stockValue = results.getDouble(watchListBuyCourseColumnName);
                 }
 
                 statement.close();
@@ -378,29 +391,24 @@ public class VisualizationDataManager {
             System.out.println(e.getMessage());
         }
 
-        return stockAmountWatchList * currentStockValue;
+        stockValues.put(isin, stockAmountWatchList * stockValue);
+        return stockAmountWatchList * stockValue;
     }
 
     private double getLatestStockValue(String isin) {
         double stockValue = 0;
 
-        var foundCourseColumn = false;
-        for (var courseColumn : courseColumnRepository.findAll()) {
-            if(courseColumn.getName().equals("kurs")) {
-                foundCourseColumn = true;
-                break;
-            }
-        }
+        var courseColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.stockCourseTableCourseColumn);
 
-        if(!foundCourseColumn) return stockValue;
+        if(courseColumn == null) return stockValue;
 
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery("SELECT kurs, datum FROM wertpapier_kursdaten WHERE isin = '" +isin+ "' ORDER BY datum DESC LIMIT 1");
+            ResultSet results = statement.executeQuery("SELECT " + courseColumn + ", datum FROM wertpapier_kursdaten WHERE isin = '" +isin+ "' ORDER BY datum DESC LIMIT 1");
 
             // for each db row create new custom row
             while (results.next()) {
-                stockValue = results.getDouble("kurs");
+                stockValue = results.getDouble(courseColumn);
             }
 
             statement.close();
