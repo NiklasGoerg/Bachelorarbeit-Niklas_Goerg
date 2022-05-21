@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.dynamicdb;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.TransactionStatus;
@@ -65,15 +66,7 @@ public abstract class DbTableManger {
      * @return the column names in a list
      */
     public List<String> getColumnOrder() {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-
-        String columnOrder = properties.getProperty(getTableName() + "ColumnOrder", null);
+        String columnOrder = PropertiesHelper.getProperty(getTableName() + "ColumnOrder");
 
         if(columnOrder == null) {
             return getDefaultColumnOrder();
@@ -87,16 +80,8 @@ public abstract class DbTableManger {
      * @param columns the column order which should be saved to the .properties file
      */
     public void setColumnOrder(List<String> columns) {
-        Properties properties = new Properties();
         var columnsString = String.join(",", columns);
-
-        try {
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-            properties.setProperty(getTableName() + "ColumnOrder", columnsString);
-            properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+        PropertiesHelper.setProperty(getTableName() + "ColumnOrder", columnsString);
     }
 
     /**
@@ -104,20 +89,11 @@ public abstract class DbTableManger {
      */
     public Map<String, Double> getColumnWidths() {
         Map<String, Double> columnWidths = new HashMap<>();
-        Properties properties = new Properties();
-
-        try {
-
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-
         List<String> columns = getColumnOrder();
 
         for (String column : columns) {
             try {
-                var propertiesWidth = properties.getProperty(getTableName() + column + "Width", null);
+                var propertiesWidth = PropertiesHelper.getProperty(getTableName() + column + "Width");
 
                 if(propertiesWidth != null) {
                     var width = Double.valueOf(propertiesWidth);
@@ -137,15 +113,7 @@ public abstract class DbTableManger {
      * @param width the width the user has set the column to
      */
     public void setColumnWidth(String columnName, Double width) {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-            properties.setProperty(getTableName() + columnName + "Width", String.valueOf(width));
-            properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+        PropertiesHelper.setProperty(getTableName() + columnName + "Width", String.valueOf(width));
     }
 
     /**

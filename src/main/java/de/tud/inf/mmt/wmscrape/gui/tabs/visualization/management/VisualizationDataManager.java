@@ -7,6 +7,7 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
+import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
@@ -14,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -313,15 +312,8 @@ public class VisualizationDataManager {
         var stockAmountTransactions = 0;
         var currentStockValue = getLatestStockValue(isin);
 
-        Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-
-        try {
-            var propertiesTransactionsAmountColumnName = properties.getProperty("TransaktionAnzahlSpaltenName", null);
+            var propertiesTransactionsAmountColumnName = PropertiesHelper.getProperty("TransaktionAnzahlSpaltenName");
 
             if(propertiesTransactionsAmountColumnName == null) {
                 return 0;
@@ -360,15 +352,8 @@ public class VisualizationDataManager {
         var stockAmountWatchList = 0;
         var currentStockValue = getLatestStockValue(isin);
 
-        Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-
-        try {
-            var propertiesWatchListAmountColumnName = properties.getProperty("WatchListeAnzahlSpaltenName", null);
+            var propertiesWatchListAmountColumnName = PropertiesHelper.getProperty("WatchListeAnzahlSpaltenName");
 
             if(propertiesWatchListAmountColumnName == null) {
                 return 0;

@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.management.VisualizationDataManager;
+import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -149,7 +150,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isTransactionSelectedProperty();
             sbp.addListener((o, ov, nv) -> {
-                if(getColumnNameProperty("TransaktionAnzahlSpaltenName") == null) {
+                if(PropertiesHelper.getProperty("TransaktionAnzahlSpaltenName") == null) {
                     if(nv && !alarmIsOpen) {
                         sbp.set(false);
                         createAlert("Zuordnung zur Anzahl-Spalte der Transaktionstabelle fehlt.");
@@ -179,7 +180,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isWatchListSelectedProperty();
             sbp.addListener((o, ov, nv) -> {
-                if(getColumnNameProperty("WatchListeAnzahlSpaltenName") == null) {
+                if(PropertiesHelper.getProperty("WatchListeAnzahlSpaltenName") == null) {
                     if(nv && !alarmIsOpen) {
                         sbp.set(false);
                         createAlert("Zuordnung zur Anzahl-Spalte der Watch-List-Tabelle fehlt.");
@@ -368,7 +369,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     }
 
     private void addDataToBarChart(XYChart.Series<String, Number> barChartData, List<String> stockNames) {
-        final DecimalFormat df = new DecimalFormat(".00");
+        final DecimalFormat df = new DecimalFormat("0.00");
 
         stockNames.add(barChartData.getName());
         barChart.getData().add(barChartData);
@@ -379,21 +380,6 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             tooltip.setShowDelay(Duration.ZERO);
             Tooltip.install(dataEntry.getNode(), tooltip);
         }
-    }
-
-    private String getColumnNameProperty(String propertyName) {
-        Properties properties = new Properties();
-        String property = null;
-
-        try {
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-            property = properties.getProperty(propertyName, null);
-            properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-
-        return property;
     }
 
     private void createAlert(String content) {

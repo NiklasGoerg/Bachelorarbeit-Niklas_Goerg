@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.login.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
+import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -14,32 +15,26 @@ public class ChangeDbPathPopupController {
 
     @FXML private TextField dbPathField;
 
-    private Properties properties;
-
     /**
      * called when loading the fxml file
-     * @throws IOException if the properties can't be read
      */
     @FXML
-    private void initialize() throws IOException {
+    private void initialize() {
         dbPathField.textProperty().addListener(x -> dbPathValidation());
-        properties = new Properties();
-        properties.load(new FileInputStream("src/main/resources/user.properties"));
-        String lastDbPath = properties.getProperty("last.dbPath", "mysql://localhost/");
+        String lastDbPath = PropertiesHelper.getProperty("last.dbPath", "mysql://localhost/");
         dbPathField.setText(lastDbPath);
     }
 
     /**
      * stores the db connection path
-     * @throws IOException if the properties can't be written
      */
     @FXML
-    private void handleConfirmButton() throws IOException {
+    private void handleConfirmButton() {
         if(!dbPathValidation()) return;
 
         String newPath = dbPathField.getText();
-        properties.setProperty("last.dbPath", newPath);
-        properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
+        PropertiesHelper.setProperty("last.dbPath", newPath);
+
         SpringIndependentData.setPropertyConnectionPath(newPath);
         closeWindow();
     }

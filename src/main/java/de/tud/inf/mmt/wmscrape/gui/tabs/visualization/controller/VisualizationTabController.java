@@ -3,6 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumnRepository;
+import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -106,13 +107,13 @@ public class VisualizationTabController {
     private void prepareDropDownMenus() {
         transactionAmountDropDown.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if(newValue != null) {
-                setColumnNameProperty("TransaktionAnzahlSpaltenName", newValue);
+                PropertiesHelper.setProperty("TransaktionAnzahlSpaltenName", newValue);
             }
         });
 
         watchListAmountDropDown.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if(newValue != null) {
-                setColumnNameProperty("WatchListeAnzahlSpaltenName", newValue);
+                PropertiesHelper.setProperty("WatchListeAnzahlSpaltenName", newValue);
             }
         });
     }
@@ -125,13 +126,13 @@ public class VisualizationTabController {
             transactionAmountDropDown.getItems().add(column.getName());
         }
 
-        transactionAmountDropDown.getSelectionModel().select(getColumnNameProperty("TransaktionAnzahlSpaltenName"));
+        transactionAmountDropDown.getSelectionModel().select(PropertiesHelper.getProperty("TransaktionAnzahlSpaltenName"));
 
         for(var column : watchListColumnRepository.findAll()) {
             watchListAmountDropDown.getItems().add(column.getName());
         }
 
-        watchListAmountDropDown.getSelectionModel().select(getColumnNameProperty("WatchListeAnzahlSpaltenName"));
+        watchListAmountDropDown.getSelectionModel().select(PropertiesHelper.getProperty("WatchListeAnzahlSpaltenName"));
     }
 
     public FXMLLoader getTabLoader(String ressourceUri) {
@@ -144,34 +145,6 @@ public class VisualizationTabController {
         loader.setLocation(tabRessourceUri);
         return loader;
     }
-
-    private String getColumnNameProperty(String propertyName) {
-        Properties properties = new Properties();
-        String property = null;
-
-        try {
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-            property = properties.getProperty(propertyName, null);
-            properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-
-        return property;
-    }
-
-    private void setColumnNameProperty(String propertyName, String columnName) {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-            properties.setProperty(propertyName, columnName);
-            properties.store(new FileOutputStream("src/main/resources/user.properties"), null);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
 
     @FXML
     public void resetDatePicker() {

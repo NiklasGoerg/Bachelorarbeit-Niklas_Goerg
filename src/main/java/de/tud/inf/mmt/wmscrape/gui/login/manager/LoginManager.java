@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.login.manager;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.tud.inf.mmt.wmscrape.WMScrape;
+import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
@@ -42,15 +43,7 @@ public class LoginManager {
     }
 
     public static void saveUsernameProperty(String username) {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(new FileInputStream("src/main/resources/user.properties"));
-            properties.setProperty("last.username",username);
-            properties.store( new FileOutputStream("src/main/resources/user.properties"), null);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+        PropertiesHelper.setProperty("last.username",username);
     }
 
     /**
