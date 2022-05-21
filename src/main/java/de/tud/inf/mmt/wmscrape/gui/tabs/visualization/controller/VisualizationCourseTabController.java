@@ -167,9 +167,4 @@ public class VisualizationCourseTabController extends VisualizationTabController
     public void resetCharts() {
         lineChart.getData().clear();
     }
-
-    @Override
-    public void resetSelections() {
-        selectedStocks.clear();
-    }
 }

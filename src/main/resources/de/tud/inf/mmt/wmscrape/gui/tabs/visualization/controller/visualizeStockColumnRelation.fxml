@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizeStockColumnRelationController">
+
+    <VBox alignment="TOP_CENTER" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10" AnchorPane.topAnchor="10">
+        <HBox prefWidth="400">
+            <padding>
+                <Insets bottom="5" left="5" right="5" top="5"/>
+            </padding>
+            <Label>
+                <padding>
+                    <Insets right="3"/>
+                </padding>
+                Wertpapier-Kurs-Spalte:
+            </Label>
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <ComboBox fx:id="courseDropDown"/>
+            </HBox>
+        </HBox>
+        <HBox alignment="CENTER_LEFT">
+            <padding>
+                <Insets bottom="5" left="5" right="5" top="5"/>
+            </padding>
+            <Label>
+                <padding>
+                    <Insets right="3"/>
+                </padding>
+                Transaktion-Spalte Anzahl:
+            </Label>
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <ComboBox fx:id="transactionAmountDropDown"/>
+            </HBox>
+        </HBox>
+        <HBox alignment="CENTER_LEFT">
+            <padding>
+                <Insets bottom="5" left="5" right="5" top="5"/>
+            </padding>
+            <Label>
+                <padding>
+                    <Insets right="3"/>
+                </padding>
+                Watch-Liste-Kurs-Spalte:
+            </Label>
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <ComboBox fx:id="watchListCourseDropDown"/>
+            </HBox>
+        </HBox>
+        <HBox alignment="CENTER_LEFT">
+            <padding>
+                <Insets bottom="5" left="5" right="5" top="5"/>
+            </padding>
+            <Label>
+                <padding>
+                    <Insets right="3"/>
+                </padding>
+                Watch-Liste-Spalte Anzahl:
+            </Label>
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <ComboBox fx:id="watchListAmountDropDown"/>
+            </HBox>
+        </HBox>
+    </VBox>
+    <VBox alignment="CENTER" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <Button defaultButton="true" onAction="#saveConfiguration">Speichern</Button>
+    </VBox>
+</AnchorPane>

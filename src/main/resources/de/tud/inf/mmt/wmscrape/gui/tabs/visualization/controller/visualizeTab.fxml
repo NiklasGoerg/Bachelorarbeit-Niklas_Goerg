@@ -56,31 +56,11 @@
                     <Button onAction="#resetDatePicker">Zurücksetzen</Button>
                 </HBox>
                 <Separator orientation="VERTICAL"/>
-                <HBox fx:id="dropDownMenuParent">
-                    <HBox alignment="CENTER_LEFT">
-                        <padding>
-                            <Insets top="5" bottom="5" left="5" right="5"/>
-                        </padding>
-                        <Label>
-                            <padding>
-                                <Insets right="3"/>
-                            </padding>
-                            Transaktion Spalte-Anzahl:
-                        </Label>
-                        <ComboBox fx:id="transactionAmountDropDown" />
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT">
-                        <padding>
-                            <Insets top="5" bottom="5" left="5" right="5"/>
-                        </padding>
-                        <Label>
-                            <padding>
-                                <Insets right="3"/>
-                            </padding>
-                            Watch-Liste Spalte-Anzahl:
-                        </Label>
-                        <ComboBox fx:id="watchListAmountDropDown" />
-                    </HBox>
+                <HBox alignment="CENTER_LEFT">
+                    <padding>
+                        <Insets top="5" bottom="5" left="5" right="5"/>
+                    </padding>
+                    <Button onAction="#openColumnRelationWindow" alignment="CENTER_RIGHT">Spaltenzuordnung anpassen</Button>
                 </HBox>
                 <Separator orientation="VERTICAL"/>
                 <HBox alignment="CENTER_LEFT">

@@ -150,10 +150,13 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isTransactionSelectedProperty();
             sbp.addListener((o, ov, nv) -> {
-                if(PropertiesHelper.getProperty("TransaktionAnzahlSpaltenName") == null) {
+                if(PropertiesHelper.getProperties(
+                        VisualizeStockColumnRelationController.transactionTableAmountColumn,
+                        VisualizeStockColumnRelationController.stockCourseTableCourseColumn
+                ).containsValue(null)) {
                     if(nv && !alarmIsOpen) {
                         sbp.set(false);
-                        createAlert("Zuordnung zur Anzahl-Spalte der Transaktionstabelle fehlt.");
+                        createAlert("Spaltenzuordnung nicht vollständig konfiguriert.");
                     }
 
                     return;
@@ -180,10 +183,12 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isWatchListSelectedProperty();
             sbp.addListener((o, ov, nv) -> {
-                if(PropertiesHelper.getProperty("WatchListeAnzahlSpaltenName") == null) {
+                if(PropertiesHelper.getProperties(
+                        VisualizeStockColumnRelationController.watchListTableCourseColumn,
+                        VisualizeStockColumnRelationController.watchListTableAmountColumn).containsValue(null)) {
                     if(nv && !alarmIsOpen) {
                         sbp.set(false);
-                        createAlert("Zuordnung zur Anzahl-Spalte der Watch-List-Tabelle fehlt.");
+                        createAlert("Spaltenzuordnung nicht vollständig konfiguriert.");
                     }
 
                     return;
@@ -406,12 +411,6 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     public void resetCharts() {
         lineChart.getData().clear();
         barChart.getData().clear();
-    }
-
-    @Override
-    public void resetSelections() {
-        selectedStocks.clear();
-        selectedParameters.clear();
     }
 
     private String convertStringToHexColor(String isin) {

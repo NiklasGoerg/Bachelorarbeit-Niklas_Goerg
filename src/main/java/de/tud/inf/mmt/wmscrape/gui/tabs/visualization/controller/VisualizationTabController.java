@@ -3,13 +3,12 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 import de.tud.inf.mmt.wmscrape.WMScrape;
 import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumnRepository;
-import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -17,23 +16,16 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Properties;
 
 @Controller
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class VisualizationTabController {
     @Autowired
     private ApplicationContext applicationContext;
-
     @Autowired
-    private WatchListColumnRepository watchListColumnRepository;
-
-    @Autowired
-    private TransactionColumnRepository transactionColumnRepository;
+    private VisualizeStockColumnRelationController stockColumnRelationController;
 
     @FXML
     private CheckBox normalizeCheckbox;
@@ -41,14 +33,6 @@ public class VisualizationTabController {
     private DatePicker startDatePicker;
     @FXML
     private DatePicker endDatePicker;
-
-    @FXML
-    private HBox dropDownMenuParent;
-    @FXML
-    private ComboBox<String> transactionAmountDropDown;
-    @FXML
-    private ComboBox<String> watchListAmountDropDown;
-
     @FXML
     private TabPane tabPane;
 
@@ -64,11 +48,8 @@ public class VisualizationTabController {
             var courseTab = new Tab("Kursdaten", courseRoot);
             courseTab.selectedProperty().addListener((o,ov,nv) -> {
                 currentTab = controller;
-                currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker, transactionAmountDropDown, watchListAmountDropDown);
+                currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
                 normalizeCheckbox.setSelected(true);
-
-                dropDownMenuParent.setVisible(false);
-                dropDownMenuParent.setManaged(false);
 
                 normalizeCheckbox.setDisable(false);
             });
@@ -85,16 +66,10 @@ public class VisualizationTabController {
             var stockTab = new Tab("Wertpapier-Parameter", stockRoot);
             stockTab.selectedProperty().addListener((o,ov,nv) -> {
                 currentTab = controller;
-                currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker, transactionAmountDropDown, watchListAmountDropDown);
+                currentTab.setTools(normalizeCheckbox, startDatePicker, endDatePicker);
 
                 normalizeCheckbox.setSelected(false);
-
-                dropDownMenuParent.setVisible(true);
-                dropDownMenuParent.setManaged(true);
-
                 normalizeCheckbox.setDisable(true);
-
-                fillDropDownMenus();
             });
             tabPane.getTabs().add(stockTab);
         } catch (IOException e) {
@@ -102,37 +77,6 @@ public class VisualizationTabController {
         }
 
         prepareTools();
-    }
-
-    private void prepareDropDownMenus() {
-        transactionAmountDropDown.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            if(newValue != null) {
-                PropertiesHelper.setProperty("TransaktionAnzahlSpaltenName", newValue);
-            }
-        });
-
-        watchListAmountDropDown.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            if(newValue != null) {
-                PropertiesHelper.setProperty("WatchListeAnzahlSpaltenName", newValue);
-            }
-        });
-    }
-
-    public void fillDropDownMenus() {
-        transactionAmountDropDown.getItems().clear();
-        watchListAmountDropDown.getItems().clear();
-
-        for(var column : transactionColumnRepository.findAll()) {
-            transactionAmountDropDown.getItems().add(column.getName());
-        }
-
-        transactionAmountDropDown.getSelectionModel().select(PropertiesHelper.getProperty("TransaktionAnzahlSpaltenName"));
-
-        for(var column : watchListColumnRepository.findAll()) {
-            watchListAmountDropDown.getItems().add(column.getName());
-        }
-
-        watchListAmountDropDown.getSelectionModel().select(PropertiesHelper.getProperty("WatchListeAnzahlSpaltenName"));
     }
 
     public FXMLLoader getTabLoader(String ressourceUri) {
@@ -184,9 +128,6 @@ public class VisualizationTabController {
         startDatePicker.valueProperty().addListener((observableValue, localDate, t1) -> currentTab.loadData(startDatePicker.getValue(), endDatePicker.getValue()));
 
         endDatePicker.valueProperty().addListener((observableValue, localDate, t1) -> currentTab.loadData(startDatePicker.getValue(), endDatePicker.getValue()));
-
-        fillDropDownMenus();
-        prepareDropDownMenus();
     }
 
     public void fillSelectionTables() {
@@ -203,5 +144,14 @@ public class VisualizationTabController {
 
     public void setEndDate(LocalDate endDate) {
         endDatePicker.setValue(endDate);
+    }
+
+    @FXML
+    public void openColumnRelationWindow() {
+        PrimaryTabManager.loadFxml(
+                "gui/tabs/visualization/controller/visualizeStockColumnRelation.fxml",
+                "Spaltenzuordnung anpassen",
+                tabPane,
+                true, stockColumnRelationController);
     }
 }

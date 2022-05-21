@@ -72,7 +72,6 @@ public class PrimaryTabController {
             if (nv.equals(importTab)) importTabController.refreshCorrelationTables();
             if (nv.equals(visualizeTab)) {
                 visualizationTabController.fillSelectionTables();
-                visualizationTabController.fillDropDownMenus();
             }
         });
 
