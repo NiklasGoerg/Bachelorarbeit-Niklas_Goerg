@@ -16,7 +16,7 @@
                 <padding>
                     <Insets right="3"/>
                 </padding>
-                Wertpapier-Kurs-Spalte:
+                Wertpapier-Kursdaten Kurs-Spalte:
             </Label>
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                 <ComboBox fx:id="courseDropDown"/>
@@ -30,7 +30,7 @@
                 <padding>
                     <Insets right="3"/>
                 </padding>
-                Transaktion-Spalte Anzahl:
+                Transaktion Anzahl-Spalte:
             </Label>
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                 <ComboBox fx:id="transactionAmountDropDown"/>
@@ -44,10 +44,10 @@
                 <padding>
                     <Insets right="3"/>
                 </padding>
-                Watch-Liste-Kurs-Spalte:
+                Watch-Liste Kaufkurs-Spalte:
             </Label>
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                <ComboBox fx:id="watchListCourseDropDown"/>
+                <ComboBox fx:id="watchListBuyCourseDropDown"/>
             </HBox>
         </HBox>
         <HBox alignment="CENTER_LEFT">
@@ -58,7 +58,21 @@
                 <padding>
                     <Insets right="3"/>
                 </padding>
-                Watch-Liste-Spalte Anzahl:
+                Watch-Liste Verkaufskurs-Spalte:
+            </Label>
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <ComboBox fx:id="watchListSellCourseDropDown"/>
+            </HBox>
+        </HBox>
+        <HBox alignment="CENTER_LEFT">
+            <padding>
+                <Insets bottom="5" left="5" right="5" top="5"/>
+            </padding>
+            <Label>
+                <padding>
+                    <Insets right="3"/>
+                </padding>
+                Watch-Liste Anzahl-Spalte:
             </Label>
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                 <ComboBox fx:id="watchListAmountDropDown"/>

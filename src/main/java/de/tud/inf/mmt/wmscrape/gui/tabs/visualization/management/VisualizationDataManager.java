@@ -351,11 +351,13 @@ public class VisualizationDataManager {
         if(stockValues.containsKey(isin)) return stockValues.get(isin);
 
         var stockAmountWatchList = 0;
-        var stockValue = 0d;
+        var stockBuyValue = 0d;
+        var stockSellValue = 0d;
 
-        var watchListBuyCourseColumnName = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableCourseColumn);
+        var watchListBuyCourseColumnName = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableBuyCourseColumn);
+        var watchListSellCourseColumnName = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableSellCourseColumn);
 
-        if(watchListBuyCourseColumnName == null) return 0;
+        if(watchListBuyCourseColumnName == null || watchListSellCourseColumnName == null) return 0;
 
         try {
             var propertiesWatchListAmountColumnName = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableAmountColumn);
@@ -366,11 +368,12 @@ public class VisualizationDataManager {
 
             try (Connection connection = dataSource.getConnection()) {
                 Statement statement = connection.createStatement();
-                ResultSet results = statement.executeQuery("SELECT " + propertiesWatchListAmountColumnName + ", " + watchListBuyCourseColumnName + " FROM watch_list WHERE isin = '" +isin+ "'");
+                ResultSet results = statement.executeQuery("SELECT " + propertiesWatchListAmountColumnName + ", " + watchListBuyCourseColumnName + ", " + watchListSellCourseColumnName +  " FROM watch_list WHERE isin = '" +isin+ "'");
 
                 while (results.next()) {
                     stockAmountWatchList += results.getInt(propertiesWatchListAmountColumnName);
-                    stockValue = results.getDouble(watchListBuyCourseColumnName);
+                    stockBuyValue = results.getDouble(watchListBuyCourseColumnName);
+                    stockSellValue = results.getDouble(watchListSellCourseColumnName);
                 }
 
                 statement.close();
@@ -384,8 +387,10 @@ public class VisualizationDataManager {
             System.out.println(e.getMessage());
         }
 
-        stockValues.put(isin, stockAmountWatchList * stockValue);
-        return stockAmountWatchList * stockValue;
+        final double value = stockAmountWatchList > 0 ? stockAmountWatchList * stockBuyValue : stockAmountWatchList * stockSellValue;
+
+        stockValues.put(isin, value);
+        return value;
     }
 
     private double getLatestStockValue(String isin) {

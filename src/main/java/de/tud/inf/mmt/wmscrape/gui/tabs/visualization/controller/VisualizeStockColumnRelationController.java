@@ -11,11 +11,6 @@ import javafx.scene.control.ComboBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
-
 @Controller
 public class VisualizeStockColumnRelationController {
     @Autowired
@@ -30,14 +25,17 @@ public class VisualizeStockColumnRelationController {
     @FXML
     private ComboBox<String> transactionAmountDropDown;
     @FXML
-    private ComboBox<String> watchListCourseDropDown;
+    private ComboBox<String> watchListBuyCourseDropDown;
+    @FXML
+    private ComboBox<String> watchListSellCourseDropDown;
     @FXML
     private ComboBox<String> watchListAmountDropDown;
 
     public static final String stockCourseTableCourseColumn = "WertpapierKursdatenKursSpaltenName";
     public static final String transactionTableAmountColumn = "TransaktionAnzahlSpaltenName";
-    public static final String watchListTableCourseColumn = "WatchListeAnzahlSpaltenName";
-    public static final String watchListTableAmountColumn = "WatchListeKursSpaltenName";
+    public static final String watchListTableAmountColumn = "WatchListeAnzahlSpaltenName";
+    public static final String watchListTableBuyCourseColumn = "WatchListeKaufKursSpaltenName";
+    public static final String watchListTableSellCourseColumn = "WatchListeVerkaufsKursSpaltenName";
 
     @FXML
     public void initialize() {
@@ -47,13 +45,15 @@ public class VisualizeStockColumnRelationController {
     private void fillDropDownMenus() {
         courseDropDown.getItems().clear();
         transactionAmountDropDown.getItems().clear();
-        watchListCourseDropDown.getItems().clear();
+        watchListBuyCourseDropDown.getItems().clear();
+        watchListSellCourseDropDown.getItems().clear();
         watchListAmountDropDown.getItems().clear();
 
         var columnNames = PropertiesHelper.getProperties(
                 stockCourseTableCourseColumn,
                 transactionTableAmountColumn,
-                watchListTableCourseColumn,
+                watchListTableBuyCourseColumn,
+                watchListTableSellCourseColumn,
                 watchListTableAmountColumn
         );
 
@@ -69,17 +69,20 @@ public class VisualizeStockColumnRelationController {
 
         for (var column : watchListColumnRepository.findAll()) {
             watchListAmountDropDown.getItems().add(column.getName());
-            watchListCourseDropDown.getItems().add(column.getName());
+            watchListBuyCourseDropDown.getItems().add(column.getName());
+            watchListSellCourseDropDown.getItems().add(column.getName());
         }
-        watchListAmountDropDown.getSelectionModel().select(columnNames.get(watchListTableCourseColumn));
-        watchListCourseDropDown.getSelectionModel().select(columnNames.get(watchListTableAmountColumn));
+        watchListAmountDropDown.getSelectionModel().select(columnNames.get(watchListTableAmountColumn));
+        watchListBuyCourseDropDown.getSelectionModel().select(columnNames.get(watchListTableBuyCourseColumn));
+        watchListSellCourseDropDown.getSelectionModel().select(columnNames.get(watchListTableSellCourseColumn));
     }
 
     @FXML
     public void saveConfiguration() {
         PropertiesHelper.setProperty(stockCourseTableCourseColumn, courseDropDown.getSelectionModel().selectedItemProperty().getValue());
         PropertiesHelper.setProperty(transactionTableAmountColumn, transactionAmountDropDown.getSelectionModel().selectedItemProperty().getValue());
-        PropertiesHelper.setProperty(watchListTableCourseColumn, watchListCourseDropDown.getSelectionModel().selectedItemProperty().getValue());
+        PropertiesHelper.setProperty(watchListTableBuyCourseColumn, watchListBuyCourseDropDown.getSelectionModel().selectedItemProperty().getValue());
+        PropertiesHelper.setProperty(watchListTableSellCourseColumn, watchListSellCourseDropDown.getSelectionModel().selectedItemProperty().getValue());
         PropertiesHelper.setProperty(watchListTableAmountColumn, watchListAmountDropDown.getSelectionModel().selectedItemProperty().getValue());
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Spaltenzuordnung gespeichert", ButtonType.OK);

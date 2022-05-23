@@ -184,7 +184,8 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             SimpleBooleanProperty sbp = stockSelection.isWatchListSelectedProperty();
             sbp.addListener((o, ov, nv) -> {
                 if(PropertiesHelper.getProperties(
-                        VisualizeStockColumnRelationController.watchListTableCourseColumn,
+                        VisualizeStockColumnRelationController.watchListTableBuyCourseColumn,
+                        VisualizeStockColumnRelationController.watchListTableSellCourseColumn,
                         VisualizeStockColumnRelationController.watchListTableAmountColumn).containsValue(null)) {
                     if(nv && !alarmIsOpen) {
                         sbp.set(false);
