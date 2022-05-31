@@ -267,8 +267,7 @@ public class VisualizationDataManager {
             }
 
             if (includeStockWatchList) {
-                var x= searchWatchListForStockSum(stock, stockWatchListValues);
-                depotSum += x;
+                depotSum += searchWatchListForStockSum(stock, stockWatchListValues);
             }
 
             if(depotSum == 0) {
