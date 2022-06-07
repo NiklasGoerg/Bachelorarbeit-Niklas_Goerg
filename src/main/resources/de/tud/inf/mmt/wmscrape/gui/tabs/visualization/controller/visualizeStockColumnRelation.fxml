@@ -80,6 +80,6 @@
         </HBox>
     </VBox>
     <VBox alignment="CENTER" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-        <Button defaultButton="true" onAction="#saveConfiguration">Speichern</Button>
+        <Button prefWidth="100" defaultButton="true" onAction="#saveConfiguration">Speichern</Button>
     </VBox>
 </AnchorPane>

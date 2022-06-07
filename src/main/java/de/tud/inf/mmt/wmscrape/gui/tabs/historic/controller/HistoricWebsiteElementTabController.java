@@ -76,7 +76,7 @@ public class HistoricWebsiteElementTabController {
                 "gui/tabs/historic/controller/element/newElementPopup.fxml",
                 "Neues Element anlegen",
                 elementList,
-                true, newHistoricElementPopupController);
+                true, newHistoricElementPopupController, false);
     }
 
     @FXML

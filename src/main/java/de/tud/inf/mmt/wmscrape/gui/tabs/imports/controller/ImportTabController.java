@@ -115,7 +115,7 @@ public class ImportTabController {
                 "gui/tabs/imports/controller/newExcelPopup.fxml",
                 "Neue Konfiguration anlegen",
                 excelSheetList,
-                true, newExcelPopupController);
+                true, newExcelPopupController, false);
     }
 
     /**

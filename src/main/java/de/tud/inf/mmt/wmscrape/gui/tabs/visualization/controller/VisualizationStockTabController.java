@@ -23,9 +23,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -52,6 +49,9 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
     @Autowired
     private VisualizationDataManager visualizationDataManager;
+
+    @Autowired
+    private VisualizeStockWatchListSelectController visualizeStockWatchListSelectController;
 
     private final List<StockSelection> selectedStocks = new ArrayList<>();
 
@@ -145,7 +145,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             return sbp;
         });
 
-        isSelectedTransactionCol.setCellFactory(CheckBoxTableCell.forTableColumn(isSelectedCol));
+        isSelectedTransactionCol.setCellFactory(CheckBoxTableCell.forTableColumn(isSelectedTransactionCol));
         isSelectedTransactionCol.setCellValueFactory(row -> {
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isTransactionSelectedProperty();
@@ -178,7 +178,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             return sbp;
         });
 
-        isSelectedWatchListCol.setCellFactory(CheckBoxTableCell.forTableColumn(isSelectedCol));
+        isSelectedWatchListCol.setCellFactory(CheckBoxTableCell.forTableColumn(isSelectedWatchListCol));
         isSelectedWatchListCol.setCellValueFactory(row -> {
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isWatchListSelectedProperty();
@@ -198,11 +198,15 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                 if (nv && !ov) {
                     if (!selectedWatchList.contains(stockSelection)) {
                         selectedWatchList.add(stockSelection);
+
+                        showWatchListStockSelection(stockSelection);
+
                         loadData(startDatePicker.getValue(), endDatePicker.getValue());
                     }
                 } else if (!nv && ov) {
                     if (selectedWatchList.contains(stockSelection)) {
                         selectedWatchList.remove(stockSelection);
+                        visualizeStockWatchListSelectController.clearSelection(stockSelection.getIsin());
                         loadData(startDatePicker.getValue(), endDatePicker.getValue());
                     }
                 }
@@ -303,6 +307,8 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     public void loadData(LocalDate startDate, LocalDate endDate) {
         resetCharts();
 
+        var watchListSelection = visualizeStockWatchListSelectController.getSelection();
+
         if (selectedStocks.size() == 0 || selectedParameters.size() == 0) return;
 
         Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new LinkedHashMap<>(selectedStocks.size());
@@ -338,7 +344,8 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                 var barChartData = visualizationDataManager.getBarChartDepotParameterData(
                         allStocksData,
                         selectedTransactions,
-                        selectedWatchList);
+                        selectedWatchList,
+                        watchListSelection);
 
                 addDataToBarChart(barChartData, stockNames);
             }
@@ -386,6 +393,16 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             tooltip.setShowDelay(Duration.ZERO);
             Tooltip.install(dataEntry.getNode(), tooltip);
         }
+    }
+
+    private void showWatchListStockSelection(StockSelection stockSelection) {
+        visualizeStockWatchListSelectController.setStock(stockSelection);
+
+        PrimaryTabManager.loadFxml(
+                "gui/tabs/visualization/controller/visualizeWatchListSelectStocks.fxml",
+                "Watch-Listen Einträge auswählen",
+                stockSelectionTable,
+                true, visualizeStockWatchListSelectController, true);
     }
 
     private void createAlert(String content) {

@@ -84,7 +84,7 @@ public class ScrapingElementsTabController {
                 "gui/tabs/scraping/controller/element/newElementPopup.fxml",
                 "Neues Element anlegen",
                 elementList,
-                true, newElementPopupController);
+                true, newElementPopupController, false);
     }
 
     @FXML

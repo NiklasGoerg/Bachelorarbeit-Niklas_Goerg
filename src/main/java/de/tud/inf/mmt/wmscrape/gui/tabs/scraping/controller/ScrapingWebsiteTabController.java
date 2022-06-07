@@ -102,7 +102,7 @@ public class ScrapingWebsiteTabController {
                 "gui/tabs/scraping/controller/website/newWebsitePopup.fxml",
                 "Neue Webseite anlegen",
                 websiteList,
-                true, newWebsitePopupController);
+                true, newWebsitePopupController, false);
     }
 
     @FXML
@@ -170,7 +170,7 @@ public class ScrapingWebsiteTabController {
                 "gui/tabs/scraping/controller/website/websiteTestPopup.fxml",
                 "Login Test",
                 websiteList,
-                true, websiteTestPopupController);
+                true, websiteTestPopupController, false);
     }
 
     private boolean noWebsiteSelected() {

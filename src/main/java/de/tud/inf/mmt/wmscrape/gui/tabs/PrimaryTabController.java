@@ -83,7 +83,7 @@ public class PrimaryTabController {
     @FXML
     private void handleLogoutButton() {
         applicationContext.close();
-        PrimaryTabManager.loadFxml("gui/login/controller/existingUserLogin.fxml", "Login", logoutButton, false, null);
+        PrimaryTabManager.loadFxml("gui/login/controller/existingUserLogin.fxml", "Login", logoutButton, false, null, false);
     }
 
     public ConfigurableApplicationContext getApplicationContext() {

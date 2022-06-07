@@ -99,13 +99,13 @@ public class NewUserLoginController {
     @FXML
     private void handleBackButton() {
         PrimaryTabManager.loadFxml("gui/login/controller/existingUserLogin.fxml", "Login",
-                rootPasswordField, false, null);
+                rootPasswordField, false, null, false);
     }
 
     @FXML
     private void handleChangeDbPathButton() {
         PrimaryTabManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml",
-                "Datenbankpfad ändern", rootPasswordField, true, null);
+                "Datenbankpfad ändern", rootPasswordField, true, null, false);
     }
 
     private boolean isValidInput() {

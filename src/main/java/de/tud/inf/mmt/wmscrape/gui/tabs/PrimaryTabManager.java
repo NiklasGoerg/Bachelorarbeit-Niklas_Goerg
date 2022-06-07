@@ -43,7 +43,7 @@ public class PrimaryTabManager {
      * @param isModal if true another window is opened
      * @param controllerClass the controller class spring bean
      */
-    public static void loadFxml(String path, String stageTitle, Control control, boolean isModal, Object controllerClass) {
+    public static void loadFxml(String path, String stageTitle, Control control, boolean isModal, Object controllerClass, boolean wait) {
         Parent parent;
 
         try {
@@ -60,7 +60,7 @@ public class PrimaryTabManager {
             return;
         }
 
-        show(isModal, parent, control, stageTitle);
+        show(isModal, parent, control, stageTitle, wait);
     }
 
     /**
@@ -69,8 +69,9 @@ public class PrimaryTabManager {
      * @param parent the parent object loaded from the fxml loader
      * @param control some element inside the controller class used as a reference to get the stage/scene
      * @param stageTitle the title of the stage (window)
+     * @param wait wait until the window is closed
      */
-    private static void show(boolean isModal, Parent parent, Control control, String stageTitle) {
+    private static void show(boolean isModal, Parent parent, Control control, String stageTitle, boolean wait) {
         Stage stage;
 
         if(isModal) {
@@ -80,7 +81,12 @@ public class PrimaryTabManager {
             stage.initModality(Modality.WINDOW_MODAL);
             stage.getScene().getStylesheets().add("style.css");
             stage.initOwner(control.getScene().getWindow());
-            stage.show();
+
+            if(wait) {
+                stage.showAndWait();
+            } else {
+                stage.show();
+            }
         } else {
             stage = (Stage) control.getScene().getWindow();
             stage.getScene().getStylesheets().add("style.css");

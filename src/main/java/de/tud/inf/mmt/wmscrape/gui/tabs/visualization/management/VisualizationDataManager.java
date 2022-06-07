@@ -4,10 +4,12 @@ import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseTableManager;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListTableManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizeStockColumnRelationController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
+import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.WatchListSelection;
 import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -245,7 +247,8 @@ public class VisualizationDataManager {
     public XYChart.Series<String, Number> getBarChartDepotParameterData(
             Map<String, List<ObservableList<ExtractedParameter>>> allStocks,
             List<StockSelection> selectedTransactions,
-            List<StockSelection> selectedWatchList) {
+            List<StockSelection> selectedWatchList,
+            Map<String, List<WatchListSelection>> watchListSelection) {
 
         if (allStocks.size() == 0) return null;
 
@@ -267,7 +270,7 @@ public class VisualizationDataManager {
             }
 
             if (includeStockWatchList) {
-                depotSum += searchWatchListForStockSum(stock, stockWatchListValues);
+                depotSum += searchWatchListForStockSum(stock, stockWatchListValues, watchListSelection.get(stock));
             }
 
             if(depotSum == 0) {
@@ -285,13 +288,12 @@ public class VisualizationDataManager {
                 double stockSum = 0;
 
                 if (includeStockTransactions) {
-                    stockSum += searchTransactionForStockSum(latestParameter.getIsin(), stockCurrentValues);
+                    stockSum += searchTransactionForStockSum(stock, stockCurrentValues);
                 }
 
                 if (includeStockWatchList) {
-                    stockSum += searchWatchListForStockSum(latestParameter.getIsin(), stockWatchListValues);
+                    stockSum += searchWatchListForStockSum(stock, stockWatchListValues, watchListSelection.get(stock));
                 }
-
 
                 if(!parameterMap.containsKey(latestParameter.getParameterName())) {
                     parameterMap.put(latestParameter.getParameterName(), latestParameter.getParameter().doubleValue() * stockSum / depotSum);
@@ -308,6 +310,49 @@ public class VisualizationDataManager {
         }
 
         return chartData;
+    }
+
+    public List<WatchListSelection> getWatchListData(StockSelection stockSelection) {
+        var isin = stockSelection.getIsin();
+
+        List<WatchListSelection> entries = new ArrayList<>();
+
+        var amountColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableAmountColumn);
+        var buyPriceColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableBuyCourseColumn);
+        var sellPriceColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableSellCourseColumn);
+
+        if(amountColumn == null || buyPriceColumn == null || sellPriceColumn == null) return null;
+
+        try (Connection connection = dataSource.getConnection()) {
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery("SELECT isin, datum, " + amountColumn + ", " + buyPriceColumn + ", " + sellPriceColumn + " FROM " + WatchListTableManager.TABLE_NAME + "  WHERE isin = '" +isin+ "' ORDER BY datum DESC");
+
+            while (results.next()) {
+                var watchListEntry = new WatchListSelection();
+
+                watchListEntry.setWkn(stockSelection.getWkn());
+                watchListEntry.setIsin(results.getString("isin"));
+                watchListEntry.setDate(results.getDate("datum"));
+                watchListEntry.setName(stockSelection.getName());
+                watchListEntry.setAmount(results.getInt(amountColumn));
+
+                if(watchListEntry.getAmount() < 0) {
+                    watchListEntry.setPrice(results.getDouble(sellPriceColumn));
+                } else {
+                    watchListEntry.setPrice(results.getDouble(buyPriceColumn));
+                }
+
+                entries.add(watchListEntry);
+            }
+
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            AbandonedConnectionCleanupThread.checkedShutdown();
+        }
+
+        return entries;
     }
 
     private double searchTransactionForStockSum(String isin, Map<String, Double> stockValues) {
@@ -346,7 +391,7 @@ public class VisualizationDataManager {
         return stockAmountTransactions * currentStockValue;
     }
 
-    private double searchWatchListForStockSum(String isin, Map<String, Double> stockValues) {
+    private double searchWatchListForStockSum(String isin, Map<String, Double> stockValues, List<WatchListSelection> watchListSelection) {
         if(stockValues.containsKey(isin)) return stockValues.get(isin);
 
         var stockAmountWatchList = 0;
@@ -367,9 +412,13 @@ public class VisualizationDataManager {
 
             try (Connection connection = dataSource.getConnection()) {
                 Statement statement = connection.createStatement();
-                ResultSet results = statement.executeQuery("SELECT " + propertiesWatchListAmountColumnName + ", " + watchListBuyCourseColumnName + ", " + watchListSellCourseColumnName +  " FROM watch_list WHERE isin = '" +isin+ "'");
+                ResultSet results = statement.executeQuery("SELECT " + propertiesWatchListAmountColumnName + ", " + watchListBuyCourseColumnName + ", " + watchListSellCourseColumnName +  ", datum FROM watch_list WHERE isin = '" +isin+ "'");
 
                 while (results.next()) {
+                    var date = results.getDate("datum");
+
+                    if(watchListSelection.stream().noneMatch(s -> s.getDate().equals(date))) continue;
+
                     stockAmountWatchList += results.getInt(propertiesWatchListAmountColumnName);
                     stockBuyValue = results.getDouble(watchListBuyCourseColumnName);
                     stockSellValue = results.getDouble(watchListSellCourseColumnName);

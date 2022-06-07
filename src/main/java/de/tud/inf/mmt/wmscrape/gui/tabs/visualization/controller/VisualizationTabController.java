@@ -152,6 +152,6 @@ public class VisualizationTabController {
                 "gui/tabs/visualization/controller/visualizeStockColumnRelation.fxml",
                 "Spaltenzuordnung anpassen",
                 tabPane,
-                true, stockColumnRelationController);
+                true, stockColumnRelationController, false);
     }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizeStockWatchListSelectController">
+
+    <TableView fx:id="selectionTable" AnchorPane.bottomAnchor="45" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" editable="true" />
+
+    <StackPane AnchorPane.bottomAnchor="10" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <Button onAction="#closeModal" prefWidth="100" defaultButton="true" alignment="CENTER" >Ok</Button>
+    </StackPane>
+</AnchorPane>

@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.dynamicdb.DbTableManger;
 import de.tud.inf.mmt.wmscrape.dynamicdb.VisualDatatype;
 import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumn;
 import de.tud.inf.mmt.wmscrape.dynamicdb.stock.StockColumn;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumn;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.element.WebsiteElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentType;
 import javafx.beans.property.SimpleStringProperty;
@@ -30,10 +31,10 @@ public class ElementIdentCorrelation {
     @JoinColumn(name = "stock_column_id", referencedColumnName = "id", updatable = false)
     private StockColumn stockColumn;
 
-    // optional for stock correlations
+    // optional for watch list correlations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "watchlist_column_id", referencedColumnName = "id", updatable = false)
-    private StockColumn watchListColumn;
+    private WatchListColumn watchListColumn;
 
     // optional for course correlations
     @ManyToOne(fetch = FetchType.LAZY)

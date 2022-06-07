@@ -28,7 +28,7 @@ public class ExistingUserLoginController {
 
     @FXML
     private void handleNewUserButton() {
-        PrimaryTabManager.loadFxml("gui/login/controller/newUserLogin.fxml", "Neuen Nutzer anlegen", usernameField, false, null);
+        PrimaryTabManager.loadFxml("gui/login/controller/newUserLogin.fxml", "Neuen Nutzer anlegen", usernameField, false, null, false);
     }
 
     @FXML
@@ -68,7 +68,7 @@ public class ExistingUserLoginController {
     @FXML
     private void handleChangeDbPathButton() {
         PrimaryTabManager.loadFxml("gui/login/controller/changeDbPathPopup.fxml",
-                "Datenbankpfad ändern", usernameField, true, null);
+                "Datenbankpfad ändern", usernameField, true, null, false);
     }
 
 
