@@ -417,7 +417,7 @@ public class VisualizationDataManager {
                 while (results.next()) {
                     var date = results.getDate("datum");
 
-                    if(watchListSelection.stream().noneMatch(s -> s.getDate().equals(date))) continue;
+                    if(watchListSelection != null && watchListSelection.stream().noneMatch(s -> s.getDate().equals(date))) continue;
 
                     stockAmountWatchList += results.getInt(propertiesWatchListAmountColumnName);
                     stockBuyValue = results.getDouble(watchListBuyCourseColumnName);
