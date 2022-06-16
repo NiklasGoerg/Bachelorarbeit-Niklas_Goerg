@@ -1,8 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
+import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
+import javafx.scene.control.*;
 
 import java.time.LocalDate;
 
@@ -10,6 +9,7 @@ public abstract class VisualizationTabControllerTab {
     protected CheckBox normalizeCheckbox;
     protected DatePicker startDatePicker;
     protected DatePicker endDatePicker;
+    protected boolean alarmIsOpen = false;
 
     public void setTools(CheckBox normalizeCheckbox, DatePicker startDatePicker, DatePicker endDatePicker) {
         this.normalizeCheckbox = normalizeCheckbox;
@@ -21,6 +21,16 @@ public abstract class VisualizationTabControllerTab {
         prepareSelectionTables();
         fillSelectionTables();
         prepareCharts();
+    }
+
+    public void createAlert(String content) {
+        alarmIsOpen = true;
+        Alert alert = new Alert(Alert.AlertType.WARNING, content, ButtonType.OK);
+        alert.setHeaderText("Spalte nicht zugewiesen!");
+        PrimaryTabManager.setAlertPosition(alert, normalizeCheckbox);
+
+        alert.setOnCloseRequest(dialogEvent -> alarmIsOpen = false);
+        alert.show();
     }
 
     public abstract void prepareCharts();

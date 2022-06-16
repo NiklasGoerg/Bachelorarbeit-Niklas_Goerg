@@ -60,8 +60,6 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
     private final List<ParameterSelection> selectedParameters = new ArrayList<>();
 
-    private boolean alarmIsOpen = false;
-
     @FXML
     public void initialize() {
         initializeUI();
@@ -403,16 +401,6 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                 "Watch-Listen Einträge auswählen",
                 stockSelectionTable,
                 true, visualizeStockWatchListSelectController, true);
-    }
-
-    private void createAlert(String content) {
-        alarmIsOpen = true;
-        Alert alert = new Alert(Alert.AlertType.WARNING, content, ButtonType.OK);
-        alert.setHeaderText("Spalte nicht zugewiesen!");
-        PrimaryTabManager.setAlertPosition(alert, stockSelectionTable);
-
-        alert.setOnCloseRequest(dialogEvent -> alarmIsOpen = false);
-        alert.show();
     }
 
     private void showLineChart() {

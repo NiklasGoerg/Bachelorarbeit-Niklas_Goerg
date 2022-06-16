@@ -142,7 +142,7 @@ public class VisualizationDataManager {
 
         try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery("SELECT name, col_type, column_datatype FROM datenbank_spalte WHERE col_type = 'S' OR col_type = 'W'");
+            ResultSet results = statement.executeQuery("SELECT name, col_type, column_datatype FROM datenbank_spalte WHERE col_type = 'S'");
 
             // for each db row create new custom row
             while (results.next()) {

@@ -2,6 +2,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.management.VisualizationDataManager;
+import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -96,6 +97,15 @@ public class VisualizationCourseTabController extends VisualizationTabController
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isSelected();
             sbp.addListener((o, ov, nv) -> {
+                if(PropertiesHelper.getProperty(VisualizeStockColumnRelationController.stockCourseTableCourseColumn)  == null) {
+                    if(nv && !alarmIsOpen) {
+                        sbp.set(false);
+                        createAlert("Spaltenzuordnung nicht vollständig konfiguriert.");
+                    }
+
+                    return;
+                }
+
                 if (nv && !ov) {
                     if (!selectedStocks.contains(stockSelection)) {
                         selectedStocks.add(stockSelection);
