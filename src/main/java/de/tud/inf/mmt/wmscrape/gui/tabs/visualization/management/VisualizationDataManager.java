@@ -320,10 +320,10 @@ public class VisualizationDataManager {
             if (includeStockWatchList) {
                 depotSum += searchWatchListForStockSum(stock, stockWatchListValues, watchListSelection.get(stock));
             }
+        }
 
-            if(depotSum == 0) {
-                depotSum = 1;
-            }
+        if(depotSum == 0) {
+            depotSum = 1;
         }
 
         for (var stock : allStocks.keySet()) {
