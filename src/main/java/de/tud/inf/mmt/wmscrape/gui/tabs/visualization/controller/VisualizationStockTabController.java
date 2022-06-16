@@ -308,8 +308,6 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
     public void loadData(LocalDate startDate, LocalDate endDate) {
         resetCharts();
 
-        var watchListSelection = visualizeStockWatchListSelectController.getSelection();
-
         if (selectedStocks.size() == 0 || selectedParameters.size() == 0) return;
 
         Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new LinkedHashMap<>(selectedStocks.size());
@@ -346,7 +344,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
                         allStocksData,
                         selectedTransactions,
                         selectedWatchList,
-                        watchListSelection);
+                        visualizeStockWatchListSelectController.getSelection());
 
                 addDataToBarChart(barChartData, stockNames);
             }
