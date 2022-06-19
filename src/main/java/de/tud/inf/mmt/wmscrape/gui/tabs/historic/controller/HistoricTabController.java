@@ -10,6 +10,9 @@ import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 
+/**
+ * initializes scraping menu
+ */
 @Controller
 public class HistoricTabController {
     @FXML private TabPane historicSubTabPane;

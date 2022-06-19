@@ -31,6 +31,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
+/**
+ * handles the user interaction with the stock parameter visualization tab
+ */
 @Controller
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class VisualizationStockTabController extends VisualizationTabControllerTab {

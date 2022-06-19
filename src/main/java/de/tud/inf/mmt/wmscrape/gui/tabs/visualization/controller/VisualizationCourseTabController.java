@@ -26,6 +26,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * handles the user interaction with the course visualization tab
+ */
 @Controller
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class VisualizationCourseTabController extends VisualizationTabControllerTab {
@@ -149,6 +152,7 @@ public class VisualizationCourseTabController extends VisualizationTabController
         }
     }
 
+    @Override
     public void loadData(LocalDate startDate, LocalDate endDate) {
         resetCharts();
 

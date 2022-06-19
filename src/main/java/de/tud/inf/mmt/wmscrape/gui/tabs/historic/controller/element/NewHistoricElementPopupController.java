@@ -14,6 +14,9 @@ import javafx.scene.control.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+/**
+ * handles the creation of a new website element
+ */
 @Controller
 public class NewHistoricElementPopupController {
     @FXML
@@ -35,6 +38,9 @@ public class NewHistoricElementPopupController {
         descriptionField.textProperty().addListener((o,ov,nv) -> { if (nv != null) isValidDescription();});
     }
 
+    /**
+     * saves the new historic element with the name of the content of {@link #descriptionField}
+     */
     @FXML
     private void handleSaveButton() {
         if(!isValidDescription()) {
@@ -61,6 +67,11 @@ public class NewHistoricElementPopupController {
         descriptionField.getScene().getWindow().hide();
     }
 
+    /**
+     * validates the content of {@link #descriptionField}
+     *
+     * @return boolean with validation result
+     */
     private boolean isValidDescription() {
         descriptionField.getStyleClass().remove("bad-input");
         descriptionField.setTooltip(null);

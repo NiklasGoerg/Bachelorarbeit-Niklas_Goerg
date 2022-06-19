@@ -127,8 +127,22 @@ public abstract class DataManager {
      */
     protected abstract String getSelectionStatement(LocalDate startDate, LocalDate endDate);
 
+    /**
+     * moves the creation of the "select latest" statement to the implementations to allow joining tables
+     *
+     * @return the sql statement used to fetch the latest data per isin for the data table. uses {@link DbTableColumn}s to extract the
+     * data from the sql results.
+     */
     protected abstract String getSelectionStatementOnlyLatestRows();
 
+    /**
+     * builds part of a sql statement which includes only data in the time span between startDate and endDates
+     *
+     * @param startDate represents the lower bound of the time span
+     * @param endDate represents the upper bound of the time span
+     * @param dateColumnName name of the date column
+     * @return the statement part
+     */
     protected String getStartAndEndDateQueryPart(LocalDate startDate, LocalDate endDate, String dateColumnName) {
         if(startDate != null && endDate != null) {
             return String.format(" WHERE '%s' <= %s AND %s <= '%s'", startDate, dateColumnName, dateColumnName, endDate);
@@ -303,10 +317,19 @@ public abstract class DataManager {
         }
     }
 
+    /**
+     * persists the configured column order
+     *
+     * @param columns column order for current table
+     */
     public void setColumnOrder(List<String> columns) {
         dbTableManger.setColumnOrder(columns);
     }
 
+    /**
+     * persists the configured column width
+     *
+     */
     public void setColumnWidth(String columnName, Double width) { dbTableManger.setColumnWidth(columnName, width); }
 
     /**

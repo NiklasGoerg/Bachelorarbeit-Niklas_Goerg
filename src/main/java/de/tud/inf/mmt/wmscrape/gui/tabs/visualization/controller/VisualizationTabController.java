@@ -19,6 +19,9 @@ import org.springframework.stereotype.Controller;
 import java.io.IOException;
 import java.time.LocalDate;
 
+/**
+ * initializes the visualization tab
+ */
 @Controller
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class VisualizationTabController {
@@ -90,12 +93,18 @@ public class VisualizationTabController {
         return loader;
     }
 
+    /**
+     * resets the user configured time span, can only be done programmatically
+     */
     @FXML
     public void resetDatePicker() {
         startDatePicker.setValue(null);
         endDatePicker.setValue(null);
     }
 
+    /**
+     * opens new visualization tab as pop-up window
+     */
     @FXML
     public void openNewWindow() {
 

@@ -19,7 +19,9 @@ import java.util.Optional;
 
 import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.*;
 
-
+/**
+ * handles the user interaction with the website tab
+ */
 @Controller
 @Lazy
 public class HistoricWebsiteTabController {

@@ -18,6 +18,10 @@ import org.springframework.stereotype.Controller;
 
 import static de.tud.inf.mmt.wmscrape.gui.tabs.scraping.data.enums.IdentTypes.IDENT_TYPE_SIMPLE;
 
+/**
+ * controller which handles the configuration of the identifier correlation of
+ * database columns and website table columns
+ */
 @Controller
 public class HistoricTableSubController extends SingleCourseOrStockSubController {
     @FXML

@@ -11,6 +11,9 @@ import javafx.scene.control.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+/**
+ * handles the creation of a new website configuration
+ */
 @Controller
 public class NewHistoricWebsitePopupController {
     @FXML private TextField descriptionField;
@@ -31,6 +34,9 @@ public class NewHistoricWebsitePopupController {
         descriptionField.getScene().getWindow().hide();
     }
 
+    /**
+     * saves the new website configuration with the name of the content of {@link #descriptionField}
+     */
     @FXML
     private void handleConfirmButton() {
         if(!isValidDescription()) {

@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * handles the user interaction with the watch list entries pop-up
+ */
 @Controller
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class VisualizeStockWatchListSelectController {
@@ -55,10 +58,17 @@ public class VisualizeStockWatchListSelectController {
         return watchListSelectionList;
     }
 
+    /**
+     * deletes the saved watch list configuration for specific stock
+     * @param isin of the stock
+     */
     public void clearSelection(String isin) {
         watchListSelectionList.get(isin).clear();
     }
 
+    /**
+     * sets up the columns of the selection table
+     */
     private void setupColumns() {
         var wknCol = new TableColumn<WatchListSelection, String>("WKN");
         var isinCol = new TableColumn<WatchListSelection, String>("ISIN");
@@ -127,6 +137,10 @@ public class VisualizeStockWatchListSelectController {
         selectionTable.getColumns().add(amountCol);
     }
 
+    /**
+     * closes the pop-up window
+     * @param event
+     */
     @FXML
     public void closeModal(ActionEvent event) {
         Stage stage = (Stage)((Node) event.getSource()).getScene().getWindow();

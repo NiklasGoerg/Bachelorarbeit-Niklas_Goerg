@@ -20,6 +20,9 @@ import org.springframework.stereotype.Controller;
 
 import java.util.Optional;
 
+/**
+ * handles the user interaction with the element tab
+ */
 @Controller
 public class HistoricWebsiteElementTabController {
 

@@ -4,6 +4,10 @@ import javafx.beans.property.SimpleBooleanProperty;
 
 import java.sql.Date;
 
+/**
+ * class which represents the rows of the watch list selection table
+ * in the watch list pop-up stock parameter sub-tab
+ */
 public class WatchListSelection {
     private String wkn;
     private String isin;

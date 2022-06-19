@@ -2,6 +2,9 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data;
 
 import java.sql.Date;
 
+/**
+ * class to store the contents of a extracted parameter read from the database
+ */
 public class ExtractedParameter {
     private String isin;
     private String name;

@@ -21,6 +21,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * handles the user interaction with the scraping tab
+ */
 @Controller
 public class HistoricScrapeTabController {
 

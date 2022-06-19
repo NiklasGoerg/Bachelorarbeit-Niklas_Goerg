@@ -30,6 +30,14 @@ public class VisualizationDataManager {
 
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * loads the price history for specific stock
+     *
+     * @param isin of the stock
+     * @param startDate lower bound of time span
+     * @param endDate upper bound of time span
+     * @return course data which can be passed to and visualized by JavaFX
+     */
     public XYChart.Series<Number, Number> getHistoricPricesForIsin(String isin, LocalDate startDate, LocalDate endDate) {
         var courseColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.stockCourseTableCourseColumn);
 
@@ -69,6 +77,10 @@ public class VisualizationDataManager {
         return new XYChart.Series<>(allRows);
     }
 
+    /**
+     *
+     * @return list of all stocks for which course data is stored in the database
+     */
     public ObservableList<StockSelection> getStocksWithCourseData() {
         ObservableList<StockSelection> allRows = FXCollections.observableArrayList();
 
@@ -95,6 +107,12 @@ public class VisualizationDataManager {
         return allRows;
     }
 
+    /**
+     *
+     * @param data course data for all selected stocks
+     * @param firstSelectedStock stock which was selected by the user first, this is the reference for all other stocks
+     * @return normalized data
+     */
     public XYChart.Series<Number, Number> normalizeData(XYChart.Series<Number, Number> data, StockSelection firstSelectedStock) {
         double minCourse = 0;
         double maxCourse = 0;
@@ -137,6 +155,10 @@ public class VisualizationDataManager {
         return normalizedDataSet;
     }
 
+    /**
+     *
+     * @return all columns of database table "wertpapier_stammdaten" which can be visualized
+     */
     public ObservableList<ParameterSelection> getParameters() {
         ObservableList<ParameterSelection> allRows = FXCollections.observableArrayList();
 
@@ -167,6 +189,15 @@ public class VisualizationDataManager {
         return allRows;
     }
 
+    /**
+     *
+     * @param isin of the stock
+     * @param name of the stock
+     * @param parameter parameters which should be extracted by the program
+     * @param startDate lower bound of time span
+     * @param endDate upper bound of time span
+     * @return list of all parameters read from the database for current stock
+     */
     public ObservableList<ExtractedParameter> getParameterDataForIsin(String isin, String name, ParameterSelection parameter, LocalDate startDate, LocalDate endDate) {
         ObservableList<ExtractedParameter> allRows = FXCollections.observableArrayList();
 
@@ -216,6 +247,11 @@ public class VisualizationDataManager {
         return allRows;
     }
 
+    /**
+     *
+     * @param allRows data previously read from the database
+     * @return allRows converted into a format which can be displayed by a line chart
+     */
     public XYChart.Series<Number, Number> getLineChartParameterData(ObservableList<ExtractedParameter> allRows) {
         if(allRows.size() == 0) return null;
 
@@ -229,6 +265,11 @@ public class VisualizationDataManager {
         return chartData;
     }
 
+    /**
+     *
+     * @param allRows data previously read from the database
+     * @return allRows converted into a format which can be displayed by a bar chart
+     */
     public XYChart.Series<String, Number> getBarChartParameterData(List<ObservableList<ExtractedParameter>> allRows) {
         if(allRows.size() == 0 || allRows.get(0).size() == 0) return null;
 
@@ -243,7 +284,14 @@ public class VisualizationDataManager {
         return chartData;
     }
 
-
+    /**
+     *
+     * @param allStocks all user selected stocks
+     * @param selectedTransactions stocks which transaction data should be taken into account for weighted calculation
+     * @param selectedWatchList stocks which watch list data should be taken into account for weighted calculation
+     * @param watchListSelection specific watch list entries which should be taken into account for weighted calculation
+     * @return weighted parameters in a format which can be displayed by JavaFX
+     */
     public XYChart.Series<String, Number> getBarChartDepotParameterData(
             Map<String, List<ObservableList<ExtractedParameter>>> allStocks,
             List<StockSelection> selectedTransactions,
@@ -312,6 +360,11 @@ public class VisualizationDataManager {
         return chartData;
     }
 
+    /**
+     *
+     * @param stockSelection stocks which watch list data should be read from the database
+     * @return list of watch list data entries
+     */
     public List<WatchListSelection> getWatchListData(StockSelection stockSelection) {
         var isin = stockSelection.getIsin();
 
@@ -355,6 +408,12 @@ public class VisualizationDataManager {
         return entries;
     }
 
+    /**
+     *
+     * @param isin of the stock
+     * @param stockValues cached transaction sum
+     * @return sum of all transaction entries for stock with specified isin
+     */
     private double searchTransactionForStockSum(String isin, Map<String, Double> stockValues) {
         if(stockValues.containsKey(isin)) return stockValues.get(isin);
 
@@ -391,6 +450,13 @@ public class VisualizationDataManager {
         return stockAmountTransactions * currentStockValue;
     }
 
+    /**
+     *
+     * @param isin of the stock
+     * @param stockValues cached watch list sum
+     * @param watchListSelection watch list entries which should be included in the calculation
+     * @return sum of specified watch list entries for specified isin
+     */
     private double searchWatchListForStockSum(String isin, Map<String, Double> stockValues, List<WatchListSelection> watchListSelection) {
         if(stockValues.containsKey(isin)) return stockValues.get(isin);
 
@@ -441,6 +507,11 @@ public class VisualizationDataManager {
         return value;
     }
 
+    /**
+     *
+     * @param isin of the stock
+     * @return latest course of stock with specific isin
+     */
     private double getLatestStockValue(String isin) {
         double stockValue = 0;
 
@@ -467,6 +538,10 @@ public class VisualizationDataManager {
         return stockValue;
     }
 
+    /**
+     *
+     * @return all stocks including wkn, isin, name
+     */
     public ObservableList<StockSelection> getStocksWithParameterData() {
         ObservableList<StockSelection> allRows = FXCollections.observableArrayList();
 

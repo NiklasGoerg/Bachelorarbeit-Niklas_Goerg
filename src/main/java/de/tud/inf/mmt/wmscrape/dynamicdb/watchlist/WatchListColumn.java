@@ -10,6 +10,10 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * column entity for watch list entries (planned transactions)
+ */
+
 @Entity
 @DiscriminatorValue("W")
 public class WatchListColumn extends DbTableColumn {

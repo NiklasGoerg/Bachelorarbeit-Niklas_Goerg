@@ -11,6 +11,10 @@ import javafx.scene.control.ComboBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+/**
+ * handles the configuration of the column correlations between
+ * database columns and necessary fields used fot the visualization
+ */
 @Controller
 public class VisualizeStockColumnRelationController {
     @Autowired
@@ -42,6 +46,9 @@ public class VisualizeStockColumnRelationController {
         fillDropDownMenus();
     }
 
+    /**
+     * fills the drop down menus with the database columns the user can choose
+     */
     private void fillDropDownMenus() {
         courseDropDown.getItems().clear();
         transactionAmountDropDown.getItems().clear();
@@ -77,6 +84,9 @@ public class VisualizeStockColumnRelationController {
         watchListSellCourseDropDown.getSelectionModel().select(columnNames.get(watchListTableSellCourseColumn));
     }
 
+    /**
+     * saves the configured correlations into the user.properties file
+     */
     @FXML
     public void saveConfiguration() {
         PropertiesHelper.setProperty(stockCourseTableCourseColumn, courseDropDown.getSelectionModel().selectedItemProperty().getValue());

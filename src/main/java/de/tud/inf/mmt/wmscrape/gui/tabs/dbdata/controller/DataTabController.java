@@ -80,6 +80,9 @@ public class DataTabController {
 
     private DataManager tabManager;
 
+    /**
+     * listener for column order changes
+     */
     private final ListChangeListener<? super TableColumn<CustomRow, ?>> reorderColumnsListener = (ListChangeListener.Change<? extends TableColumn<CustomRow,?>> change) -> {
         var columnOrder = customRowTableView.getColumns().stream().map(TableColumnBase::getText).toList();
 
@@ -210,7 +213,7 @@ public class DataTabController {
     }
 
     /**
-     * starts the save process for modified rows
+     * starts the save process for modified rows, also saves configured column widths
      */
     @FXML
     private void handleSaveButton() {

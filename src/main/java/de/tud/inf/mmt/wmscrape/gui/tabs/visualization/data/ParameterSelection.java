@@ -3,6 +3,10 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data;
 import de.tud.inf.mmt.wmscrape.dynamicdb.ColumnDatatype;
 import javafx.beans.property.SimpleBooleanProperty;
 
+/**
+ * class which represents the rows of the parameter selection table
+ * in the stock parameter sub-tab
+ */
 public class ParameterSelection {
     private String parameter;
     private String colType;

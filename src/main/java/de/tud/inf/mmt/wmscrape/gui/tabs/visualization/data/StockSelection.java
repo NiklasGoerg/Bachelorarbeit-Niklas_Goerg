@@ -2,6 +2,10 @@ package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data;
 
 import javafx.beans.property.SimpleBooleanProperty;
 
+/**
+ * class which represents the rows of the stock selection table
+ * in the stock parameter sub-tab
+ */
 public class StockSelection {
     private String wkn;
     private String isin;
