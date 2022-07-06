@@ -36,16 +36,6 @@ public class WatchListTableManager extends DbTableManger {
 
         if (tableDoesNotExist(TABLE_NAME)) {
             executeStatement("CREATE TABLE IF NOT EXISTS `"+TABLE_NAME+"` (isin VARCHAR(50), datum DATE, PRIMARY KEY (isin, datum));");
-
-            executeStatement("CREATE UNIQUE INDEX i_isin_wl ON "+TABLE_NAME+" (isin)");
-
-            // set the foreign keys to the newly created table
-            // do not constrain non hibernate tables. the creation oder is not known for them (if not set -> @Order)
-            executeStatement("ALTER TABLE "+TABLE_NAME+
-                    // constraint name doesn't matter. watch_list_isin
-                    " ADD CONSTRAINT fk_watch_list_isin FOREIGN KEY (isin)"+
-                    // watch_list = table name of stock entity
-                    " REFERENCES "+TABLE_NAME+" (isin)"+" ON DELETE CASCADE"+" ON UPDATE CASCADE");
         }
 
         initTableColumns(watchListColumnRepository, TABLE_NAME);
