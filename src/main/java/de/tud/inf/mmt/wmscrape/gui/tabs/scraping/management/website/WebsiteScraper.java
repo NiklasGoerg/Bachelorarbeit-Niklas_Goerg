@@ -52,7 +52,7 @@ public class WebsiteScraper extends WebsiteHandler {
     private final TableHistoricExtraction tableHistoricExtraction;
     private final Extraction tableCourseOrStockExtraction;
 
-    private static final int MAX_LOAD_HISTORIC_DATA_RETRY_COUNT = 20;
+    private static final int MAX_LOAD_HISTORIC_DATA_RETRY_COUNT = 5;
 
     private volatile Map<Website, Set<WebsiteElement>> selectedFromMenuTree;
     private Map<Website, Double> progressElementMax;
