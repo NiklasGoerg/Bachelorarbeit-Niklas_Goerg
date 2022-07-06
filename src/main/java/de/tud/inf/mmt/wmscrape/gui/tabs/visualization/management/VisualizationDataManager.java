@@ -460,9 +460,7 @@ public class VisualizationDataManager {
     private double searchWatchListForStockSum(String isin, Map<String, Double> stockValues, List<WatchListSelection> watchListSelection) {
         if(stockValues.containsKey(isin)) return stockValues.get(isin);
 
-        var stockAmountWatchList = 0;
-        var stockBuyValue = 0d;
-        var stockSellValue = 0d;
+        var stockSum = 0d;
 
         var watchListBuyCourseColumnName = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableBuyCourseColumn);
         var watchListSellCourseColumnName = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableSellCourseColumn);
@@ -485,9 +483,15 @@ public class VisualizationDataManager {
 
                     if(watchListSelection != null && watchListSelection.stream().noneMatch(s -> s.getDate().equals(date))) continue;
 
-                    stockAmountWatchList += results.getInt(propertiesWatchListAmountColumnName);
-                    stockBuyValue = results.getDouble(watchListBuyCourseColumnName);
-                    stockSellValue = results.getDouble(watchListSellCourseColumnName);
+                    var stockAmountWatchList = results.getInt(propertiesWatchListAmountColumnName);
+                    var stockBuyValue = results.getDouble(watchListBuyCourseColumnName);
+                    var stockSellValue = results.getDouble(watchListSellCourseColumnName);
+
+                    if(stockAmountWatchList < 0) {
+                        stockSum += stockAmountWatchList * stockSellValue;
+                    } else {
+                        stockSum += stockAmountWatchList * stockBuyValue;
+                    }
                 }
 
                 statement.close();
@@ -501,10 +505,8 @@ public class VisualizationDataManager {
             System.out.println(e.getMessage());
         }
 
-        final double value = stockAmountWatchList > 0 ? stockAmountWatchList * stockBuyValue : stockAmountWatchList * stockSellValue;
-
-        stockValues.put(isin, value);
-        return value;
+        stockValues.put(isin, stockSum);
+        return stockSum;
     }
 
     /**
