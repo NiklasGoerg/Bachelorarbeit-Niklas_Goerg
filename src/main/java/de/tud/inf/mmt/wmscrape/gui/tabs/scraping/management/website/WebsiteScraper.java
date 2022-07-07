@@ -161,7 +161,7 @@ public class WebsiteScraper extends WebsiteHandler {
         var retryCount = 0;
         while(extractElementFromRoot(element.getTableIdenType(), element.getTableIdent(), false) == null) {
             if(retryCount == MAX_LOAD_HISTORIC_DATA_RETRY_COUNT - 1) {
-                addToLog("ERR:\t\tHistorische Kursdaten konnten nicht geladen werden. ");
+                addToLog("ERR:\t\tFür dieses Wertpapier sind keine historischen Kursdaten auf der Webseite \""+website.getDescription()+"\" vorhanden.");
                 return false;
             }
 
