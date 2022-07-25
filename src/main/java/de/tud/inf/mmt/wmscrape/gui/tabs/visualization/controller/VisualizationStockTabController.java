@@ -1,6 +1,10 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.transaction.TransactionColumnRepository;
+import de.tud.inf.mmt.wmscrape.dynamicdb.watchlist.WatchListColumnRepository;
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.CorrelationType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ExtractedParameter;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.ParameterSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
@@ -55,6 +59,15 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
     @Autowired
     private VisualizeStockWatchListSelectController visualizeStockWatchListSelectController;
+
+    @Autowired
+    private CourseColumnRepository courseColumnRepository;
+
+    @Autowired
+    private WatchListColumnRepository watchListColumnRepository;
+
+    @Autowired
+    private TransactionColumnRepository transactionColumnRepository;
 
     private final List<StockSelection> selectedStocks = new ArrayList<>();
 
@@ -151,11 +164,14 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isTransactionSelectedProperty();
             sbp.addListener((o, ov, nv) -> {
-                if(PropertiesHelper.getProperties(
-                        VisualizeStockColumnRelationController.transactionTableAmountColumn,
-                        VisualizeStockColumnRelationController.stockCourseTableCourseColumn
-                ).containsValue(null)) {
-                    if(nv && !alarmIsOpen) {
+                var transactionTableAmountColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.transactionTableAmountColumn);
+                var stockCourseTableCourseColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.stockCourseTableCourseColumn);
+
+                if (transactionTableAmountColumn == null ||
+                        stockCourseTableCourseColumn == null ||
+                        !doesColumnExist(transactionTableAmountColumn, CorrelationType.TRANSACTION) ||
+                        !doesColumnExist(stockCourseTableCourseColumn, CorrelationType.STOCKDATA)) {
+                    if (nv && !alarmIsOpen) {
                         sbp.set(false);
                         createAlert("Spaltenzuordnung nicht vollständig konfiguriert.");
                     }
@@ -184,11 +200,17 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isWatchListSelectedProperty();
             sbp.addListener((o, ov, nv) -> {
-                if(PropertiesHelper.getProperties(
-                        VisualizeStockColumnRelationController.watchListTableBuyCourseColumn,
-                        VisualizeStockColumnRelationController.watchListTableSellCourseColumn,
-                        VisualizeStockColumnRelationController.watchListTableAmountColumn).containsValue(null)) {
-                    if(nv && !alarmIsOpen) {
+                var watchListTableBuyCourseColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableBuyCourseColumn);
+                var watchListTableSellCourseColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableSellCourseColumn);
+                var watchListTableAmountColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.watchListTableAmountColumn);
+
+                if (watchListTableBuyCourseColumn == null ||
+                        watchListTableSellCourseColumn == null ||
+                        watchListTableAmountColumn == null ||
+                        !doesColumnExist(watchListTableBuyCourseColumn, CorrelationType.WATCH_LIST) ||
+                        !doesColumnExist(watchListTableSellCourseColumn, CorrelationType.WATCH_LIST) ||
+                        !doesColumnExist(watchListTableAmountColumn, CorrelationType.WATCH_LIST)) {
+                    if (nv && !alarmIsOpen) {
                         sbp.set(false);
                         createAlert("Spaltenzuordnung nicht vollständig konfiguriert.");
                     }
@@ -288,7 +310,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
         var stocks = visualizationDataManager.getStocksWithParameterData();
 
         for (var stockSelection : stocks) {
-            if(stockSelectionTable.getItems().stream().noneMatch(s -> s.getIsin().equals(stockSelection.getIsin()))) {
+            if (stockSelectionTable.getItems().stream().noneMatch(s -> s.getIsin().equals(stockSelection.getIsin()))) {
                 stockSelectionTable.getItems().add(stockSelection);
             }
         }
@@ -298,7 +320,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
         var parameters = visualizationDataManager.getParameters();
 
         for (var parameterSelection : parameters) {
-            if(parameterSelectionTable.getItems().stream().noneMatch(s -> s.getParameter().equals(parameterSelection.getParameter()))) {
+            if (parameterSelectionTable.getItems().stream().noneMatch(s -> s.getParameter().equals(parameterSelection.getParameter()))) {
                 parameterSelectionTable.getItems().add(parameterSelection);
             }
         }
@@ -313,14 +335,14 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
         Map<String, List<ObservableList<ExtractedParameter>>> allStocksData = new LinkedHashMap<>(selectedStocks.size());
 
         for (var tableItem : selectedStocks) {
-            for(var parameter : selectedParameters) {
+            for (var parameter : selectedParameters) {
                 if (!tableItem.isSelected().getValue()) continue;
 
                 var data = visualizationDataManager.getParameterDataForIsin(tableItem.getIsin(), tableItem.getName(), parameter, startDate, endDate);
 
                 if (data == null || data.size() == 0) continue;
 
-                if(!allStocksData.containsKey(tableItem.getIsin())) {
+                if (!allStocksData.containsKey(tableItem.getIsin())) {
                     allStocksData.put(tableItem.getIsin(), new ArrayList<>(selectedParameters.size()));
                 }
 
@@ -328,18 +350,18 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
             }
         }
 
-        if(selectedStocks.size() > 1 || selectedTransactions.size() > 1 || selectedWatchList.size() > 1) {
+        if (selectedStocks.size() > 1 || selectedTransactions.size() > 1 || selectedWatchList.size() > 1) {
             showBarChart();
 
             var stockNames = new ArrayList<String>();
 
-            for(var stock : allStocksData.keySet()) {
+            for (var stock : allStocksData.keySet()) {
                 var barChartData = visualizationDataManager.getBarChartParameterData(allStocksData.get(stock));
 
                 addDataToBarChart(barChartData, stockNames);
             }
 
-            if(selectedTransactions.size() > 0 || selectedWatchList.size() > 0) {
+            if (selectedTransactions.size() > 0 || selectedWatchList.size() > 0) {
                 var barChartData = visualizationDataManager.getBarChartDepotParameterData(
                         allStocksData,
                         selectedTransactions,
@@ -371,8 +393,8 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
         } else {
             showLineChart();
 
-            for(var stock : allStocksData.keySet()) {
-                for(var parameterData : allStocksData.get(stock)) {
+            for (var stock : allStocksData.keySet()) {
+                for (var parameterData : allStocksData.get(stock)) {
                     var lineChartData = visualizationDataManager.getLineChartParameterData(parameterData);
                     lineChart.getData().add(lineChartData);
                 }
@@ -386,7 +408,7 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
         stockNames.add(barChartData.getName());
         barChart.getData().add(barChartData);
 
-        for(var dataEntry : barChartData.getData()) {
+        for (var dataEntry : barChartData.getData()) {
             final Tooltip tooltip = new Tooltip(df.format(dataEntry.getYValue()));
             tooltip.setStyle("-fx-font-size: 15");
             tooltip.setShowDelay(Duration.ZERO);
@@ -422,5 +444,16 @@ public class VisualizationStockTabController extends VisualizationTabControllerT
 
     private String convertStringToHexColor(String isin) {
         return String.format("#%06X", (0xFFFFFF & isin.hashCode()));
+    }
+
+    @Override
+    protected boolean doesColumnExist(String column, CorrelationType type) {
+        var columns = switch (type) {
+            case STOCKDATA -> courseColumnRepository.findAll();
+            case WATCH_LIST -> watchListColumnRepository.findAll();
+            case TRANSACTION -> transactionColumnRepository.findAll();
+        };
+
+        return columns.stream().anyMatch(c -> c.getName().equals(column));
     }
 }

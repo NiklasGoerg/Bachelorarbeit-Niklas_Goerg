@@ -63,7 +63,9 @@ public class VisualizeStockWatchListSelectController {
      * @param isin of the stock
      */
     public void clearSelection(String isin) {
-        watchListSelectionList.get(isin).clear();
+        if(watchListSelectionList.get(isin) != null) {
+            watchListSelectionList.get(isin).clear();
+        }
     }
 
     /**
@@ -139,7 +141,7 @@ public class VisualizeStockWatchListSelectController {
 
     /**
      * closes the pop-up window
-     * @param event
+     * @param event event that was triggered by the button click
      */
     @FXML
     public void closeModal(ActionEvent event) {

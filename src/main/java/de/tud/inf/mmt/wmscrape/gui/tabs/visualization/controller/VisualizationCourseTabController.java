@@ -1,5 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller;
 
+import de.tud.inf.mmt.wmscrape.dynamicdb.course.CourseColumnRepository;
+import de.tud.inf.mmt.wmscrape.gui.tabs.imports.data.CorrelationType;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.data.StockSelection;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.management.VisualizationDataManager;
 import de.tud.inf.mmt.wmscrape.helper.PropertiesHelper;
@@ -43,6 +45,9 @@ public class VisualizationCourseTabController extends VisualizationTabController
 
     @Autowired
     private VisualizationDataManager visualizationDataManager;
+
+    @Autowired
+    private CourseColumnRepository courseColumnRepository;
 
     private final List<StockSelection> selectedStocks = new ArrayList<>();
 
@@ -100,8 +105,9 @@ public class VisualizationCourseTabController extends VisualizationTabController
             var stockSelection = row.getValue();
             SimpleBooleanProperty sbp = stockSelection.isSelected();
             sbp.addListener((o, ov, nv) -> {
-                if(PropertiesHelper.getProperty(VisualizeStockColumnRelationController.stockCourseTableCourseColumn)  == null) {
-                    if(nv && !alarmIsOpen) {
+                var courseColumn = PropertiesHelper.getProperty(VisualizeStockColumnRelationController.stockCourseTableCourseColumn);
+                if (courseColumn == null || !doesColumnExist(courseColumn, CorrelationType.STOCKDATA)) {
+                    if (nv && !alarmIsOpen) {
                         sbp.set(false);
                         createAlert("Spaltenzuordnung nicht vollständig konfiguriert.");
                     }
@@ -146,7 +152,7 @@ public class VisualizationCourseTabController extends VisualizationTabController
         var stocks = visualizationDataManager.getStocksWithCourseData();
 
         for (var stockSelection : stocks) {
-            if(selectionTable.getItems().stream().noneMatch(s -> s.getIsin().equals(stockSelection.getIsin()))) {
+            if (selectionTable.getItems().stream().noneMatch(s -> s.getIsin().equals(stockSelection.getIsin()))) {
                 selectionTable.getItems().add(stockSelection);
             }
         }
@@ -165,7 +171,7 @@ public class VisualizationCourseTabController extends VisualizationTabController
 
             var data = visualizationDataManager.getHistoricPricesForIsin(tableItem.getIsin(), startDate, endDate);
 
-            if(data == null || data.getData().size() == 0) continue;
+            if (data == null || data.getData().size() == 0) continue;
 
             data.setName(tableItem.getName());
 
@@ -180,5 +186,10 @@ public class VisualizationCourseTabController extends VisualizationTabController
     @Override
     public void resetCharts() {
         lineChart.getData().clear();
+    }
+
+    @Override
+    protected boolean doesColumnExist(String column, CorrelationType type) {
+        return courseColumnRepository.findAll().stream().anyMatch(c -> c.getName().equals(column));
     }
 }
