@@ -5,3 +5,5 @@ target/
 .idea/
 .attach_pid*
 *.iml
+out/
+src/main/resources/META-INF
