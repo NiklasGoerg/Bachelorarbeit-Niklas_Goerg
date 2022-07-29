@@ -103,9 +103,8 @@ public abstract class StockAndCourseManager extends DataManager {
         dataTable.getColumns().forEach(c ->  {
             if(c.getText().equals("datum") ) {
                 c.setSortType(TableColumn.SortType.DESCENDING);
-                dataTable.getSortOrder().add(c);
-            } else if (c.getText().equals("r_par")) dataTable.getSortOrder().add(0, c);
+                dataTable.getSortOrder().add(0, c);
+            } else if (c.getText().equals("r_par")) dataTable.getSortOrder().add(c);
         });
     }
-
 }
