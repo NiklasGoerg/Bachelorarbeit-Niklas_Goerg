@@ -664,11 +664,11 @@ public abstract class WebsiteHandler extends Service<Void> {
         var dateUntilDayElement = extractElementFromRoot(website.getDateUntilDayIdentType(), website.getDateUntilDayIdent());
 
         if(dateFromDayElement != null &&
-            dateFromMonthElement != null &&
-            dateFromYearElement != null &&
-            dateUntilDayElement != null &&
-            dateUntilMonthElement != null &&
-            dateUntilYearElement != null) {
+                dateFromMonthElement != null &&
+                dateFromYearElement != null &&
+                dateUntilDayElement != null &&
+                dateUntilMonthElement != null &&
+                dateUntilYearElement != null) {
 
             if (website.getDateFrom() != null && !website.getDateFrom().equals("")) {
                 var dateFrom = website.getDateFrom().split("#");
@@ -779,4 +779,63 @@ public abstract class WebsiteHandler extends Service<Void> {
 
         return true;
     }
+
+    protected Integer readPageCount() {
+        IdentType type = website.getPageCountIdentType();
+        if (type == IdentType.DEAKTIVIERT) return 1;
+
+        WebElement element = extractElementFromRoot(website.getPageCountIdentType(), website.getPageCountIdent());
+        var pageCountString = element.getText();
+        addToLog("INFO:\tPage Count: " + pageCountString);
+        return Integer.parseInt(pageCountString);
+    }
+    protected boolean readPageCountTest() {
+        IdentType type = website.getPageCountIdentType();
+        if (type == IdentType.DEAKTIVIERT) return true;
+
+        WebElement element = extractElementFromRoot(website.getPageCountIdentType(), website.getPageCountIdent());
+        addToLog("INFO:\tPage Count: " + element.getText());
+        return true;
+    }
+
+    protected boolean nextTablePage() {
+        IdentType type = website.getNextPageButtonIdentType();
+        if (type == IdentType.DEAKTIVIERT) return true;
+
+        var buttonIdent = website.getNextPageButtonIdent();
+
+        if(!buttonIdent.contains(";")) {
+
+            WebElement element = extractElementFromRoot(website.getNextPageButtonIdentType(), website.getNextPageButtonIdent());
+
+            if (element == null) return false;
+
+            clickElement(element);
+
+            addToLog("INFO:\tNächste Tabellenseite geladen");
+        } else {
+            var buttonIdents = buttonIdent.split(";");
+
+            for(String ident : buttonIdents) {
+                WebElement element = extractElementFromRoot(website.getNextPageButtonIdentType(), ident);
+
+                if (element == null) return false;
+
+                clickElement(element);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                waitLoadEvent();
+            }
+
+            addToLog("INFO:\tNächste Tabellenseite geladen");
+        }
+
+        return true;
+    }
 }
+
