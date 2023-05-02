@@ -333,16 +333,19 @@ public abstract class ExtractionGeneral {
      */
     private Date getDateFromString(String date) {
 
+        boolean wrongformat = false;
+
         // last option with try/error. date should be prepared to be accepted with the first/second format
         for (String format : DATE_FORMATS) {
             try {
                 LocalDate dataToDate = LocalDate.from(DateTimeFormatter.ofPattern(format).parse(date));
 
-                if(!scraper.getWebsite().isHistoric()) {
+                if(!scraper.getWebsite().isHistoric() || wrongformat) {
                     log("INFO:\tDatum "+date+" mit Format "+format+" geparsed.");
                 }
                 return Date.valueOf(dataToDate);
             } catch (DateTimeParseException e) {
+                wrongformat = true;
                 log("ERR:\t\tDatum "+date+" parsen mit Format "+format+ " nicht möglich.");
             }
         }
