@@ -149,27 +149,37 @@ public class WebsiteScraper extends WebsiteHandler {
         if(!loadHistoricPage()) return false;
         delayRandom();
         declineNotifications();
-        if(!setDate()) return false;
+        //if(!setDate()) return false;
         delayRandom();
 
-        if(!loadHistoricData()) return false;
-        delayRandom();
-        declineNotifications();
-
-        waitLoadEvent();
-
-        var retryCount = 0;
-        while(extractElementFromRoot(element.getTableIdenType(), element.getTableIdent(), false) == null) {
-            if(retryCount == MAX_LOAD_HISTORIC_DATA_RETRY_COUNT - 1) {
-                addToLog("ERR:\t\tFür dieses Wertpapier sind keine historischen Kursdaten auf der Webseite \""+website.getDescription()+"\" vorhanden.");
-                return false;
-            }
+        var currentPageCount = 1;
+        while(currentPageCount < readPageCount()) {
 
             if(!loadHistoricData()) return false;
             delayRandom();
             declineNotifications();
+
             waitLoadEvent();
-            retryCount++;
+
+            var retryCount = 0;
+            while(extractElementFromRoot(element.getTableIdenType(), element.getTableIdent(), false) == null) {
+                if(retryCount == MAX_LOAD_HISTORIC_DATA_RETRY_COUNT - 1) {
+                    addToLog("ERR:\t\tFür dieses Wertpapier sind keine historischen Kursdaten auf der Webseite \""+website.getDescription()+"\" vorhanden.");
+                    return false;
+                }
+
+                if(!loadHistoricData()) return false;
+                delayRandom();
+                declineNotifications();
+                waitLoadEvent();
+                retryCount++;
+            }
+
+            if(!nextTablePage()) return false;
+            delayRandom();
+            declineNotifications();
+            waitLoadEvent();
+            currentPageCount++;
         }
 
         return true;

@@ -76,6 +76,12 @@ public class HistoricWebsiteTabController {
     @FXML private ChoiceBox<IdentType> loadButtonIdentChoiceBox;
     @FXML private TextField loadButtonIdentField;
 
+    @FXML private ChoiceBox<IdentType> nextPageButtonIdentChoiceBox;
+    @FXML private TextField nextPageButtonIdentField;
+
+    @FXML private ChoiceBox<IdentType> pageCountIdentChoiceBox;
+    @FXML private TextField pageCountIdentField;
+
 
     private ObservableList<Website> websiteObservableList;
     private boolean inlineValidation = false;
@@ -88,6 +94,9 @@ public class HistoricWebsiteTabController {
     private NewHistoricWebsitePopupController newHistoricWebsitePopupController;
     @Autowired
     private HistoricWebsiteTestPopupController historicWebsiteTestPopupController;
+
+    public HistoricWebsiteTabController() {
+    }
 
     /**
      * called when loading the fxml file
@@ -126,6 +135,9 @@ public class HistoricWebsiteTabController {
 
         loadButtonIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(loadButtonIdentField, false));
 
+        nextPageButtonIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(nextPageButtonIdentField, true));
+        pageCountIdentField.textProperty().addListener((o, ov, nv) -> validIdentField(pageCountIdentField, true));
+
         // set choicebox options
         addTypeToChoiceBox(usernameIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
         addTypeToChoiceBox(passwordIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
@@ -146,6 +158,9 @@ public class HistoricWebsiteTabController {
         addTypeToChoiceBox(dateUntilYearIdentChoiceBox, IDENT_TYPE_SIMPLE);
 
         addTypeToChoiceBox(loadButtonIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
+
+        addTypeToChoiceBox(nextPageButtonIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
+        addTypeToChoiceBox(pageCountIdentChoiceBox, IDENT_TYPE_DEACTIVATED);
 
         addDeselectListener(usernameIdentChoiceBox);
         addDeselectListener(passwordIdentChoiceBox);
@@ -296,6 +311,11 @@ public class HistoricWebsiteTabController {
 
         loadButtonIdentField.clear();
         loadButtonIdentChoiceBox.setValue(null);
+
+        nextPageButtonIdentField.clear();
+        pageCountIdentField.clear();
+        nextPageButtonIdentChoiceBox.setValue(null);
+        pageCountIdentChoiceBox.setValue(null);
     }
 
     private void clearTopFields() {
@@ -352,6 +372,11 @@ public class HistoricWebsiteTabController {
         website.setDateUntilYearIdent(dateUntilYearIdentField.getText());
         website.setLoadButtonIdentType(loadButtonIdentChoiceBox.getValue());
         website.setLoadButtonIdent(loadButtonIdentField.getText());
+
+        website.setNextPageButtonIdentType(nextPageButtonIdentChoiceBox.getValue());
+        website.setNextPageButtonIdent(nextPageButtonIdentField.getText());
+        website.setPageCountIdentType(pageCountIdentChoiceBox.getValue());
+        website.setPageCountIdent(pageCountIdentField.getText());
     }
 
     public void selectWebsite(Website website) {
@@ -419,6 +444,11 @@ public class HistoricWebsiteTabController {
         loadButtonIdentChoiceBox.setValue(website.getLoadButtonIdentType());
         loadButtonIdentField.setText(website.getLoadButtonIdent());
 
+        nextPageButtonIdentChoiceBox.setValue(website.getNextPageButtonIdentType());
+        nextPageButtonIdentField.setText(website.getNextPageButtonIdent());
+        pageCountIdentChoiceBox.setValue(website.getPageCountIdentType());
+        pageCountIdentField.setText(website.getPageCountIdent());
+
         // just here to remove eventually existing error style attributes
         isValidInput();
     }
@@ -450,6 +480,9 @@ public class HistoricWebsiteTabController {
         valid &= validIdentField(dateUntilMonthIdentField, true);
         valid &= validIdentField(dateUntilYearIdentField, true);
         valid &= validIdentField(loadButtonIdentField, false);
+
+        valid &= validIdentField(nextPageButtonIdentField, true);
+        valid &= validIdentField(pageCountIdentField, true);
 
         return valid;
     }
@@ -518,6 +551,11 @@ public class HistoricWebsiteTabController {
             usernameIdentField.setText("-");
             passwordIdentField.setText("-");
             loginIdentField.setText("-");
+
+            nextPageButtonIdentChoiceBox.setValue(IdentType.DEAKTIVIERT);
+            nextPageButtonIdentField.setText("-");
+            pageCountIdentChoiceBox.setValue(IdentType.DEAKTIVIERT);
+            pageCountIdentField.setText("-");
 
             setEditable(false);
         } else if (oldIdentType == IdentType.DEAKTIVIERT) {

@@ -159,6 +159,23 @@ public class Website extends WebRepresentation<WebsiteElement>{
     @Column(columnDefinition = "TEXT", name = "load_button_ident")
     private String loadButtonIdent;
 
+    @Column(columnDefinition = "TEXT", name = "next_page_button_ident")
+    private String nextPageButtonIdent;
+
+    //@Enumerated(value = EnumType.STRING)
+    @Column(name = "next_page_button_ident_type", nullable = false)
+    private IdentType nextPageButtonIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT", name = "page_count_ident")
+    private String pageCountIdent;
+
+    //@Enumerated(value = EnumType.STRING)
+    @Column(name = "page_count_ident_type", nullable = false)
+    private IdentType pageCountIdentType = IdentType.ID;
+
+    @Column(columnDefinition = "TEXT")
+    private String pageCount;
+
     /**
      * only used by hibernate. do not save an instance without setting the necessary fields
      */
@@ -397,6 +414,40 @@ public class Website extends WebRepresentation<WebsiteElement>{
     public void setLoadButtonIdent(String loadButtonIdent) {
         this.loadButtonIdent = loadButtonIdent;
     }
+
+    public IdentType getNextPageButtonIdentType() {
+        return nextPageButtonIdentType;
+    }
+
+    public void setNextPageButtonIdentType(IdentType nextPageButtonIdentType) {
+        this.nextPageButtonIdentType = nextPageButtonIdentType;
+    }
+
+    public String getNextPageButtonIdent() {
+        return nextPageButtonIdent;
+    }
+
+    public void setNextPageButtonIdent(String nextPageButtonIdent) {
+        this.nextPageButtonIdent = nextPageButtonIdent;
+    }
+
+    public IdentType getPageCountIdentType() {
+        return pageCountIdentType;
+    }
+
+    public void setPageCountIdentType(IdentType pageCountIdentType) {
+        this.pageCountIdentType = pageCountIdentType;
+    }
+
+    public String getPageCountIdent() {
+        return pageCountIdent;
+    }
+
+    public void setPageCountIdent(String pageCountIdent) {
+        this.pageCountIdent = pageCountIdent;
+    }
+
+
 
     public IdentType getDeclineNotificationIdentType() {
         return declineNotificationIdentType;

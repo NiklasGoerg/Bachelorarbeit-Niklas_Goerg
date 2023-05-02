@@ -65,6 +65,7 @@ public class HistoricWebsiteTester extends WebsiteHandler {
             case 7 -> {
                 declineNotifications();
                 if(!loadHistoricPage()) {step=11; return false;}
+                if(!readPageCountTest()) {step=11; return false;}
             }
             case 8 -> {
                 declineNotifications();
@@ -73,6 +74,7 @@ public class HistoricWebsiteTester extends WebsiteHandler {
             case 9 -> {
                 declineNotifications();
                 if(!loadHistoricData()) {step=11; return false;}
+                if(!nextTablePage()) {step=11; return false;}
                 if(isNotUsingLogin()) {step = 11; return false;}
             }
             case 10 -> {
