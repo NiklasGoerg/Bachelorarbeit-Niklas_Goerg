@@ -333,6 +333,7 @@ public abstract class ExtractionGeneral {
      */
     private Date getDateFromString(String date) {
 
+        //to print out message if the given format didn't match the first format
         boolean wrongformat = false;
 
         // last option with try/error. date should be prepared to be accepted with the first/second format
