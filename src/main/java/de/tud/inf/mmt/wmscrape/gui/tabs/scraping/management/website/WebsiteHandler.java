@@ -714,9 +714,11 @@ public abstract class WebsiteHandler extends Service<Void> {
             var dateFrom = website.getDateFrom();
             var dateUntil = website.getDateUntil();
 
+            dateFromDayElement.clear();
             clickElement(dateFromDayElement);
             setText(dateFromDayElement, dateFrom);
             driver.executeScript("arguments[0].blur()", dateFromDayElement);
+            dateUntilDayElement.clear();
             clickElement(dateUntilDayElement);
             setText(dateUntilDayElement, dateUntil);
             driver.executeScript("arguments[0].blur()", dateUntilDayElement);
@@ -838,4 +840,3 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 }
-

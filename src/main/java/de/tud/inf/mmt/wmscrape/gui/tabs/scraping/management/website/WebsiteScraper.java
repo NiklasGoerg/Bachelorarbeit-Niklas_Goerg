@@ -149,39 +149,28 @@ public class WebsiteScraper extends WebsiteHandler {
         if(!loadHistoricPage()) return false;
         delayRandom();
         declineNotifications();
-        //if(!setDate()) return false;
+        if(!setDate()) return false;
         delayRandom();
 
-        var currentPageCount = 1;
-        while(currentPageCount < readPageCount()) {
+        if(!loadHistoricData()) return false;
+        delayRandom();
+        declineNotifications();
+
+        waitLoadEvent();
+
+        var retryCount = 0;
+        while(extractElementFromRoot(element.getTableIdenType(), element.getTableIdent(), false) == null) {
+            if(retryCount == MAX_LOAD_HISTORIC_DATA_RETRY_COUNT - 1) {
+                addToLog("ERR:\t\tFür dieses Wertpapier sind keine historischen Kursdaten auf der Webseite \""+website.getDescription()+"\" vorhanden.");
+                return false;
+            }
 
             if(!loadHistoricData()) return false;
             delayRandom();
             declineNotifications();
-
             waitLoadEvent();
-
-            var retryCount = 0;
-            while(extractElementFromRoot(element.getTableIdenType(), element.getTableIdent(), false) == null) {
-                if(retryCount == MAX_LOAD_HISTORIC_DATA_RETRY_COUNT - 1) {
-                    addToLog("ERR:\t\tFür dieses Wertpapier sind keine historischen Kursdaten auf der Webseite \""+website.getDescription()+"\" vorhanden.");
-                    return false;
-                }
-
-                if(!loadHistoricData()) return false;
-                delayRandom();
-                declineNotifications();
-                waitLoadEvent();
-                retryCount++;
-            }
-
-            if(!nextTablePage()) return false;
-            delayRandom();
-            declineNotifications();
-            waitLoadEvent();
-            currentPageCount++;
+            retryCount++;
         }
-
         return true;
     }
 
@@ -616,7 +605,17 @@ public class WebsiteScraper extends WebsiteHandler {
 
                     tableHistoricExtraction.setIsin(elementSelection.getIsin());
                     addToLog("INFO:\tExtrahiere Daten für " + elementSelection.getIsin());
-                    tableHistoricExtraction.extract(freshElement, task, elementSelectionProgress);
+
+                    var currentPageCount = 1;
+                    while(currentPageCount < readPageCount()) {
+                        tableHistoricExtraction.extract(freshElement, task, elementSelectionProgress);
+
+                        nextTablePage();
+                        delayRandom();
+                        declineNotifications();
+                        waitLoadEvent();
+                        currentPageCount++;
+                    }
                 }
 
                 tableHistoricExtraction.logMatches(elementSelections, element.getDescription());
