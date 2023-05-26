@@ -564,6 +564,18 @@ public abstract class WebsiteHandler extends Service<Void> {
         }
     }
 
+    protected WebElement replaceXPATHFB(IdentType identType, String ident) {
+        WebElement element = extractElementFromRoot(identType, XPathReplacer(ident, "app-equity","app-etp"));
+        if (element != null) return element;
+        element = extractElementFromRoot(identType, XPathReplacer(ident, "app-equity","app-fund"));
+        if (element != null) return element;
+        return extractElementFromRoot(identType, XPathReplacer(ident, "app-equity","ng-component"));
+    }
+
+    protected String XPathReplacer(String originalString, String termToReplace, String replacement) {
+        return originalString.replaceAll(termToReplace, replacement);
+    }
+
     protected void quit() {
         try {
             if (driver != null) {
@@ -611,14 +623,24 @@ public abstract class WebsiteHandler extends Service<Void> {
         return true;
     }
 
+    protected boolean boerseFrankfunkfurtLoadHP() {
+        WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), "/html/body/app-root/app-wrapper/div/div[2]/app-etp/app-data-menue/div/div/div/drag-scroll/div/div/button[3]");
+        if (element == null) return false;
+        clickElement(element);
+        waitLoadEvent();
+        addToLog("INFO:\tZu historischen Daten navigiert");
+        return true;
+    }
+
     protected boolean loadHistoricPage() {
         var linkIdent = website.getHistoricLinkIdent();
-
         if(!linkIdent.contains(";")) {
 
             WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), website.getHistoricLinkIdent());
 
-            if (element == null) return false;
+            if (element == null)  {
+                return boerseFrankfunkfurtLoadHP();
+            }
 
             clickElement(element);
             waitLoadEvent();
@@ -629,7 +651,9 @@ public abstract class WebsiteHandler extends Service<Void> {
             for(String ident : linkIdents) {
                 WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), ident);
 
-                if (element == null) return false;
+                if (element == null)  {
+                    return boerseFrankfunkfurtLoadHP();
+                }
 
                 clickElement(element);
                 try {
@@ -644,9 +668,9 @@ public abstract class WebsiteHandler extends Service<Void> {
 
         return true;
     }
-
     protected boolean setDate() {
         var dateFromDayElement = extractElementFromRoot(website.getDateFromDayIdentType(), website.getDateFromDayIdent());
+        if (dateFromDayElement == null) dateFromDayElement = replaceXPATHFB(website.getDateFromDayIdentType(), website.getDateFromDayIdent());
 
         WebElement dateFromMonthElement = null;
         WebElement dateFromYearElement = null;
@@ -662,6 +686,7 @@ public abstract class WebsiteHandler extends Service<Void> {
         }
 
         var dateUntilDayElement = extractElementFromRoot(website.getDateUntilDayIdentType(), website.getDateUntilDayIdent());
+        if (dateUntilDayElement == null) dateUntilDayElement = replaceXPATHFB(website.getDateUntilDayIdentType(), website.getDateUntilDayIdent());
 
         if(dateFromDayElement != null &&
                 dateFromMonthElement != null &&
@@ -750,12 +775,14 @@ public abstract class WebsiteHandler extends Service<Void> {
         if(!buttonIdent.contains(";")) {
 
             WebElement element = extractElementFromRoot(website.getLoadButtonIdentType(), website.getLoadButtonIdent());
+            if (element == null) element = replaceXPATHFB(website.getLoadButtonIdentType(), website.getLoadButtonIdent());
 
             if (element == null) return false;
 
             clickElement(element);
 
-            addToLog("INFO:\tHistorische Daten geladen");
+            addToLog("INFO:\tHistorische Daten geladen 1");
+            return true;
         } else {
             var buttonIdents = buttonIdent.split(";");
 
@@ -775,7 +802,7 @@ public abstract class WebsiteHandler extends Service<Void> {
                 waitLoadEvent();
             }
 
-            addToLog("INFO:\tHistorische Daten geladen");
+            addToLog("INFO:\tHistorische Daten geladen 2");
         }
 
 
@@ -787,6 +814,7 @@ public abstract class WebsiteHandler extends Service<Void> {
         if (type == IdentType.DEAKTIVIERT) return 1;
 
         WebElement element = extractElementFromRoot(website.getPageCountIdentType(), website.getPageCountIdent());
+        if (element == null) element = replaceXPATHFB(website.getPageCountIdentType(), website.getPageCountIdent());
         var pageCountString = element.getText();
         addToLog("INFO:\tPage Count: " + pageCountString);
         return Integer.parseInt(pageCountString);
@@ -796,6 +824,7 @@ public abstract class WebsiteHandler extends Service<Void> {
         if (type == IdentType.DEAKTIVIERT) return true;
 
         WebElement element = extractElementFromRoot(website.getPageCountIdentType(), website.getPageCountIdent());
+        if (element == null) element = replaceXPATHFB(website.getPageCountIdentType(), website.getPageCountIdent());
         addToLog("INFO:\tPage Count: " + element.getText());
         return true;
     }
@@ -809,6 +838,7 @@ public abstract class WebsiteHandler extends Service<Void> {
         if(!buttonIdent.contains(";")) {
 
             WebElement element = extractElementFromRoot(website.getNextPageButtonIdentType(), website.getNextPageButtonIdent());
+            if (element == null) element = replaceXPATHFB(website.getNextPageButtonIdentType(), website.getNextPageButtonIdent());
 
             if (element == null) return false;
 
@@ -820,6 +850,7 @@ public abstract class WebsiteHandler extends Service<Void> {
 
             for(String ident : buttonIdents) {
                 WebElement element = extractElementFromRoot(website.getNextPageButtonIdentType(), ident);
+                if (element == null) element = replaceXPATHFB(website.getNextPageButtonIdentType(), website.getNextPageButtonIdent());
 
                 if (element == null) return false;
 

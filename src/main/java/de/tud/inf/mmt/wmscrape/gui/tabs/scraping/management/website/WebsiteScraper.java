@@ -159,7 +159,10 @@ public class WebsiteScraper extends WebsiteHandler {
         waitLoadEvent();
 
         var retryCount = 0;
-        while(extractElementFromRoot(element.getTableIdenType(), element.getTableIdent(), false) == null) {
+        WebElement table = extractElementFromRoot(element.getTableIdenType(), element.getTableIdent());
+        if (table == null) table = replaceXPATHFB(element.getTableIdenType(), element.getTableIdent());
+        while(table == null) {
+
             if(retryCount == MAX_LOAD_HISTORIC_DATA_RETRY_COUNT - 1) {
                 addToLog("ERR:\t\tFür dieses Wertpapier sind keine historischen Kursdaten auf der Webseite \""+website.getDescription()+"\" vorhanden.");
                 return false;
@@ -600,7 +603,6 @@ public class WebsiteScraper extends WebsiteHandler {
                     if(!doSearchRoutine(websiteIsin)) continue;
                     waitLoadEvent();
                     if(!doLoadHistoricData(freshElement)) continue;
-
                     scrollToBottom(freshElement);
 
                     tableHistoricExtraction.setIsin(elementSelection.getIsin());
@@ -625,6 +627,7 @@ public class WebsiteScraper extends WebsiteHandler {
 
     private void scrollToBottom(WebsiteElement element) {
         var table = extractElementFromRoot(element.getTableIdenType(), element.getTableIdent());
+        if (table == null) table = replaceXPATHFB(element.getTableIdenType(), element.getTableIdent());
 
         var tableHeight = 0L;
 
