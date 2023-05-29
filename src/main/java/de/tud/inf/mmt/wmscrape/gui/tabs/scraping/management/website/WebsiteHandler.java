@@ -781,7 +781,7 @@ public abstract class WebsiteHandler extends Service<Void> {
 
             clickElement(element);
 
-            addToLog("INFO:\tHistorische Daten geladen 1");
+            addToLog("INFO:\tHistorische Daten geladen");
             return true;
         } else {
             var buttonIdents = buttonIdent.split(";");
@@ -802,7 +802,7 @@ public abstract class WebsiteHandler extends Service<Void> {
                 waitLoadEvent();
             }
 
-            addToLog("INFO:\tHistorische Daten geladen 2");
+            addToLog("INFO:\tHistorische Daten geladen");
         }
 
 

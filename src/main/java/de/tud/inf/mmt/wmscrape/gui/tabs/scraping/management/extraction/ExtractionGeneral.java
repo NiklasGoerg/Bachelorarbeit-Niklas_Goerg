@@ -343,7 +343,7 @@ public abstract class ExtractionGeneral {
                 }
                 return Date.valueOf(dataToDate);
             } catch (DateTimeParseException e) {
-                log("ERR:\t\tDatum "+date+" parsen mit Format "+format+ " nicht möglich.");
+               // log("ERR:\t\tDatum "+date+" parsen mit Format "+format+ " nicht möglich.");
             }
         }
         log("FEHLER :\tKein passendes Datumsformat gefunden für "+date);

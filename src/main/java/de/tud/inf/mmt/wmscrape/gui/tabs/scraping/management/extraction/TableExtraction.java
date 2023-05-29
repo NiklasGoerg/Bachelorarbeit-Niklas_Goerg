@@ -11,6 +11,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.management.website.WebsiteScrap
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
+import org.openqa.selenium.WebElement;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -347,15 +348,32 @@ public abstract class TableExtraction extends ExtractionGeneral implements Extra
         }
     }
 
+
+
+
+    protected WebElementInContext replaceXPATHFB(IdentType identType, String ident) {
+        WebElementInContext element = scraper.extractFrameElementFromContext(identType, XPathReplacer(ident, "app-equity","app-etp"), null);
+        if (element != null) return element;
+        element = scraper.extractFrameElementFromContext(identType, XPathReplacer(ident, "app-equity","app-fund"), null);
+        if (element != null) return element;
+        return scraper.extractFrameElementFromContext(identType, XPathReplacer(ident, "app-equity","ng-component"), null);
+    }
+
+    protected String XPathReplacer(String originalString, String termToReplace, String replacement) {
+        return originalString.replaceAll(termToReplace, replacement);
+    }
+
     /**
      * searches for the html table
      *
      * @param websiteElement the website element configuration holding the reference (xpath/css) to the table
      * @return the table object inside a context object containing references to iframes
      */
+
     private WebElementInContext getTable(WebsiteElement websiteElement) {
         WebElementInContext element = scraper.extractFrameElementFromContext(websiteElement.getTableIdenType(), websiteElement.getTableIdent(), null);
 
+        if(element == null) element = replaceXPATHFB(websiteElement.getTableIdenType(), websiteElement.getTableIdent());
         if(element == null) return null;
 
         scraper.highlightElement(element.get(), "Tabelle");
