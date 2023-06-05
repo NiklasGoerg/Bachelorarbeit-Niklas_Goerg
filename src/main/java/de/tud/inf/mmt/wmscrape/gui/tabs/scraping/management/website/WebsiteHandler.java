@@ -14,10 +14,7 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public abstract class WebsiteHandler extends Service<Void> {
 
@@ -624,22 +621,59 @@ public abstract class WebsiteHandler extends Service<Void> {
     }
 
     protected boolean boerseFrankfunkfurtLoadHP() {
-        WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), "/html/body/app-root/app-wrapper/div/div[2]/app-etp/app-data-menue/div/div/div/drag-scroll/div/div/button[3]");
-        if (element == null) return false;
-        clickElement(element);
-        waitLoadEvent();
-        addToLog("INFO:\tZu historischen Daten navigiert");
+
+        var linkIdent = website.getHistoricLinkIdent();
+        if(!linkIdent.contains(";")) {
+
+            WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), website.getHistoricLinkIdent());
+            if (element == null) element = extractElementFromRoot(website.getHistoricLinkIdentType(), "/html/body/app-root/app-wrapper/div/div[2]/app-equity/app-data-menue/div/div/div/drag-scroll/div/div/button[3]");
+            if (element == null) element = replaceXPATHFB(website.getHistoricLinkIdentType(), "/html/body/app-root/app-wrapper/div/div[2]/app-equity/app-data-menue/div/div/div/drag-scroll/div/div/button[3]");
+            if (!Objects.equals(element.getText(), "Kurshistorie")) {
+                element = extractElementFromRoot(website.getHistoricLinkIdentType(), "/html/body/app-root/app-wrapper/div/div[2]/app-equity/app-data-menue/div/div/div/drag-scroll/div/div/button[5]");
+            }
+            if (element == null)  {
+                return false;
+            }
+
+            clickElement(element);
+            waitLoadEvent();
+            addToLog("INFO:\tZu historischen Daten navigiert");
+        } else {
+            var linkIdents = linkIdent.split(";");
+
+            for(String ident : linkIdents) {
+                WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), website.getHistoricLinkIdent());
+                if (element == null) element = extractElementFromRoot(website.getHistoricLinkIdentType(), "/html/body/app-root/app-wrapper/div/div[2]/app-equity/app-data-menue/div/div/div/drag-scroll/div/div/button[3]");
+                if (element == null) element = replaceXPATHFB(website.getHistoricLinkIdentType(), "/html/body/app-root/app-wrapper/div/div[2]/app-equity/app-data-menue/div/div/div/drag-scroll/div/div/button[3]");
+                if (!Objects.equals(element.getText(), "Kurshistorie")) {
+                    element = extractElementFromRoot(website.getHistoricLinkIdentType(), "/html/body/app-root/app-wrapper/div/div[2]/app-equity/app-data-menue/div/div/div/drag-scroll/div/div/button[5]");
+                }
+                if (element == null)  {
+                    return false;
+                }
+
+                clickElement(element);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                waitLoadEvent();
+            }
+        }
+
         return true;
     }
 
     protected boolean loadHistoricPage() {
+        if (website.getSearchUrl().contains("boerse-frankfurt")) return boerseFrankfunkfurtLoadHP();
         var linkIdent = website.getHistoricLinkIdent();
         if(!linkIdent.contains(";")) {
 
             WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), website.getHistoricLinkIdent());
 
             if (element == null)  {
-                return boerseFrankfunkfurtLoadHP();
+                return false;
             }
 
             clickElement(element);
@@ -652,7 +686,7 @@ public abstract class WebsiteHandler extends Service<Void> {
                 WebElement element = extractElementFromRoot(website.getHistoricLinkIdentType(), ident);
 
                 if (element == null)  {
-                    return boerseFrankfunkfurtLoadHP();
+                    return false;
                 }
 
                 clickElement(element);
@@ -816,7 +850,6 @@ public abstract class WebsiteHandler extends Service<Void> {
         WebElement element = extractElementFromRoot(website.getPageCountIdentType(), website.getPageCountIdent());
         if (element == null) element = replaceXPATHFB(website.getPageCountIdentType(), website.getPageCountIdent());
         var pageCountString = element.getText();
-        addToLog("INFO:\tPage Count: " + pageCountString);
         return Integer.parseInt(pageCountString);
     }
     protected boolean readPageCountTest() {

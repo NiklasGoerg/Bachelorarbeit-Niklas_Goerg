@@ -609,14 +609,19 @@ public class WebsiteScraper extends WebsiteHandler {
                     addToLog("INFO:\tExtrahiere Daten für " + elementSelection.getIsin());
 
                     var currentPageCount = 1;
-                    while(currentPageCount < readPageCount()) {
+                    var pageCount = readPageCount();
+                    addToLog("INFO:\tEs wurden " + pageCount + " Seiten gelesen");
+                    while(currentPageCount <= pageCount) {
                         tableHistoricExtraction.extract(freshElement, task, elementSelectionProgress);
-
-                        nextTablePage();
-                        delayRandom();
-                        declineNotifications();
-                        waitLoadEvent();
+                        addToLog("INFO:\tSeite " + currentPageCount + " von " + pageCount + " Seiten gelesen");
+                        if (currentPageCount <= pageCount) {
+                            nextTablePage();
+                            delayRandom();
+                            declineNotifications();
+                            waitLoadEvent();
+                        }
                         currentPageCount++;
+
                     }
                 }
 
