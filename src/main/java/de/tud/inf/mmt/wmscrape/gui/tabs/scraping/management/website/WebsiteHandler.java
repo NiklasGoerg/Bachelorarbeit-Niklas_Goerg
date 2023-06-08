@@ -846,11 +846,38 @@ public abstract class WebsiteHandler extends Service<Void> {
     protected Integer readPageCount() {
         IdentType type = website.getPageCountIdentType();
         if (type == IdentType.DEAKTIVIERT) return 1;
-
-        WebElement element = extractElementFromRoot(website.getPageCountIdentType(), website.getPageCountIdent());
-        if (element == null) element = replaceXPATHFB(website.getPageCountIdentType(), website.getPageCountIdent());
-        var pageCountString = element.getText();
-        return Integer.parseInt(pageCountString);
+        var xpath = website.getPageCountIdent();
+        WebElement element = extractElementFromRoot(type, xpath);
+        if (element == null) {
+            element = extractElementFromRoot(type, XPathReplacer(xpath, "app-equity","app-etp"));
+            if (element != null) xpath = XPathReplacer(xpath, "app-equity","app-etp");
+            element = extractElementFromRoot(type, XPathReplacer(xpath, "app-equity","app-fund"));
+            if (element != null) xpath = XPathReplacer(xpath, "app-equity","app-fund");
+            element = extractElementFromRoot(type, XPathReplacer(xpath, "app-equity","app-etp"));
+            if (element != null) xpath = XPathReplacer(xpath, "app-equity","app-component");
+        }
+        if (element == null) {
+            addToLog("INFO:\tSeitenzahl konnte nicht gelesen werden");
+            return 1;
+        }
+        int pageCount = 1;
+        try {
+            pageCount = Integer.parseInt(element.getText());
+        } catch (NumberFormatException nfe) {
+            return 1;
+        }
+        int buttonCount = 4;
+        while (true) {
+            try {
+                WebElement tempElement = extractElementFromRoot(type, XPathReplacer(xpath, "3", String.valueOf(buttonCount)) );
+                if (tempElement == null) return pageCount;
+                pageCount = Integer.parseInt(element.getText());
+                element = tempElement;
+                buttonCount++;
+            } catch (NumberFormatException nfe) {
+                return pageCount;
+            }
+        }
     }
     protected boolean readPageCountTest() {
         IdentType type = website.getPageCountIdentType();

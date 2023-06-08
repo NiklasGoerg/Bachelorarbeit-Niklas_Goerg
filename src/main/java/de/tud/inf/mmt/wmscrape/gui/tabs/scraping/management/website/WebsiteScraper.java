@@ -614,7 +614,7 @@ public class WebsiteScraper extends WebsiteHandler {
                     while(currentPageCount <= pageCount) {
                         tableHistoricExtraction.extract(freshElement, task, elementSelectionProgress);
                         addToLog("INFO:\tSeite " + currentPageCount + " von " + pageCount + " Seiten gelesen");
-                        if (currentPageCount <= pageCount) {
+                        if (currentPageCount < pageCount) {
                             nextTablePage();
                             delayRandom();
                             declineNotifications();
