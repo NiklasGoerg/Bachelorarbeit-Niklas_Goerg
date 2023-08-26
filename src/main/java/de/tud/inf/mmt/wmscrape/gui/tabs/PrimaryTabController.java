@@ -5,6 +5,7 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricTabControlle
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizationTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -21,9 +22,12 @@ import java.io.IOException;
 @Controller
 public class PrimaryTabController {
 
-    @FXML private Button logoutButton;
-    @FXML private TabPane primaryTabPane;
-    @FXML private Label currentUserLabel;
+    @FXML
+    private Button logoutButton;
+    @FXML
+    private TabPane primaryTabPane;
+    @FXML
+    private Label currentUserLabel;
 
     @Autowired
     ConfigurableApplicationContext applicationContext;
@@ -38,6 +42,8 @@ public class PrimaryTabController {
     private HistoricTabController historicTabController;
     @Autowired
     private VisualizationTabController visualizationTabController;
+    @Autowired
+    private PortfolioManagementTabController portfolioManagementTabController;
 
     /**
      * called when loading the fxml file
@@ -47,26 +53,31 @@ public class PrimaryTabController {
         currentUserLabel.setText("Aktueller Nutzer: " + SpringIndependentData.getUsername());
 
         Parent parent = PrimaryTabManager.loadTabFxml("gui/tabs/dbdata/controller/dataTab.fxml", dataTabController);
-        Tab dataTab = new Tab("Daten" , parent);
+        Tab dataTab = createStyledTab("Daten", parent);
         primaryTabPane.getTabs().add(dataTab);
 
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/imports/controller/importTab.fxml", importTabController);
-        Tab importTab = new Tab("Import" , parent);
+        Tab importTab = createStyledTab("Import", parent);
         primaryTabPane.getTabs().add(importTab);
 
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);
-        Tab tab = new Tab("Scraping" , parent);
+        Tab tab = createStyledTab("Scraping", parent);
         primaryTabPane.getTabs().add(tab);
 
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/historic/controller/historicTab.fxml", historicTabController);
-        Tab historicTab = new Tab("Historisch" , parent);
+        Tab historicTab = createStyledTab("Historisch", parent);
         primaryTabPane.getTabs().add(historicTab);
 
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/visualization/controller/visualizeTab.fxml", visualizationTabController);
-        Tab visualizeTab = new Tab("Darstellung" , parent);
+        Tab visualizeTab = createStyledTab("Darstellung", parent);
         primaryTabPane.getTabs().add(visualizeTab);
 
-        primaryTabPane.getSelectionModel().selectedItemProperty().addListener((o,ov,nv) -> {
+        //parent = PrimaryTabManager.loadTabFxml("gui/tabs/visualization/controller/visualizeTab.fxml", visualizationTabController);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/portfolioManagement.fxml", portfolioManagementTabController);
+        Tab managementTab = createStyledTab("Portfoliomanagement", parent);
+        primaryTabPane.getTabs().add(managementTab);
+
+        primaryTabPane.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
             // can't know when the scraping service finished so refresh on select
             if (nv.equals(dataTab)) dataTabController.handleResetButton();
             if (nv.equals(importTab)) importTabController.refreshCorrelationTables();
@@ -74,7 +85,23 @@ public class PrimaryTabController {
                 visualizationTabController.fillSelectionTables();
             }
         });
+        primaryTabPane.setStyle("-fx-tab-min-height: 30px;" + "-fx-tab-max-height: 30px;" + "-fx-tab-min-width: 150px;" + "-fx-tab-max-width: 150px;" + "-fx-alignment: CENTER;");
+    }
 
+    // Hilfsmethode zur Erstellung von Tabs mit angepasstem Stil
+    private Tab createStyledTab(String title, Parent parent) {
+        Tab tab = new Tab(title, parent);
+        tab.setStyle("-fx-background-color: #0064C7;" + "-fx-background-insets: 0, 1;" + "-fx-background-radius: 0, 0 0 0 0;");
+        tab.setOnSelectionChanged(event -> {
+            if (tab.isSelected()) {
+                tab.setStyle("-fx-background-color: #014180;" + "-fx-background-insets: 0, 1;" + "-fx-background-radius: 0, 0 0 0 0;");
+            } else {
+                tab.setStyle("-fx-background-color: #0064C7;" + "-fx-background-insets: 0, 1;" + "-fx-background-radius: 0, 0 0 0 0;");
+            }
+        });
+
+
+        return tab;
     }
 
     /**

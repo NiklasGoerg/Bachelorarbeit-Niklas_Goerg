@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/20.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController">
+    <children>
+        <Label layoutX="127.0" layoutY="40.0" prefHeight="52.0" prefWidth="240.0" text="DepotListe">
+            <font>
+                <Font size="49.0"/>
+            </font>
+        </Label>
+        <Button layoutX="420.0" layoutY="51.0" mnemonicParsing="false" text="zum Depot" fx:id="switchSceneButton">
+            <font>
+                <Font size="32.0"/>
+            </font>
+        </Button>
+    </children>
+</AnchorPane>

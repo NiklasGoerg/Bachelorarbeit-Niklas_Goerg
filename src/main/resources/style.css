@@ -48,3 +48,18 @@ tooltip.bad-input {
 .progress-bar > .bar, .progress-bar > .track {
     -fx-background-radius: 0;
 }
+
+.blue-tab-pane .tab .tab-label {
+    -fx-text-fill: white;
+}
+.blue-tab-pane .tab-header-area .tab-header-background {
+    -fx-effect: null;
+}
+
+
+.white-tab-pane .tab .tab-label {
+    -fx-text-fill: black;
+}
+.white-tab-pane .tab-header-area .tab-header-background {
+    -fx-effect: null;
+}
