@@ -8,7 +8,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.kontos.konto.Konto"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.depots.depot.DepotPlanungController"
             prefHeight="400.0" prefWidth="600.0">
 
 </AnchorPane>

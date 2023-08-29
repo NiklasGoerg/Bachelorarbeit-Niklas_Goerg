@@ -17,5 +17,10 @@
                 <Font size="38.0" />
             </font>
         </Label>
+        <Button layoutX="420.0" layoutY="51.0" mnemonicParsing="false" text="zum 'Konto'" fx:id="switchSceneButton">
+            <font>
+                <Font size="32.0"/>
+            </font>
+        </Button>
     </children>
 </AnchorPane>

@@ -10,12 +10,18 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            prefHeight="400.0" prefWidth="600.0">
+            prefHeight="400.0" prefWidth="600.0"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.PortfolioListController">
     <children>
-        <Label layoutX="170.0" layoutY="165.0" text="Portfolio übersicht">
+        <Label layoutX="127.0" layoutY="40.0" prefHeight="52.0" prefWidth="240.0" text="PortfolioListe">
             <font>
-                <Font size="38.0" />
+                <Font size="49.0"/>
             </font>
         </Label>
+        <Button layoutX="420.0" layoutY="51.0" mnemonicParsing="false" text="zum 'Portfolio'" fx:id="switchSceneButton">
+            <font>
+                <Font size="32.0"/>
+            </font>
+        </Button>
     </children>
 </AnchorPane>

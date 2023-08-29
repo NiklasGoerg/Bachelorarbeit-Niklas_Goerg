@@ -9,7 +9,7 @@
 
 <AnchorPane prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/20.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController">
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.depots.DepotListController">
     <children>
         <Label layoutX="127.0" layoutY="40.0" prefHeight="52.0" prefWidth="240.0" text="DepotListe">
             <font>
