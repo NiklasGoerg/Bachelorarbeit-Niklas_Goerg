@@ -3,7 +3,9 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController">
-    <TabPane fx:id="scrapingTabPane" prefHeight="800.0" prefWidth="1342.0" style="-fx-background-color: #FFF;" styleClass="white-tab-pane" tabClosingPolicy="UNAVAILABLE">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.scraping.ScrapingTabsController">
+    <TabPane fx:id="scrapingTabPane" style="-fx-background-color: #FFF;"
+             styleClass="white-tab-pane" prefHeight="655.0" prefWidth="1337.0" tabClosingPolicy="UNAVAILABLE"
+             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
     </TabPane>
 </AnchorPane>
