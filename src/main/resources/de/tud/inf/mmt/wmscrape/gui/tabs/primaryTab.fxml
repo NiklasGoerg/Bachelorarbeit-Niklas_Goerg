@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabController">
-    <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefWidth="1340.0" style="-fx-background-color: #0064C7;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="0.0">
+    <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefWidth="200.0" style="-fx-background-color: #0064C7;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-3.0" AnchorPane.topAnchor="0.0">
         <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogoutButton" text="Logout" />
     </ToolBar>
     <VBox alignment="CENTER_LEFT" prefHeight="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="0.0">
@@ -18,5 +18,7 @@
         </padding>
         <Label fx:id="currentUserLabel" text="Label" />
     </VBox>
-    <TabPane fx:id="primaryTabPane" layoutY="36.0" prefHeight="721.0" prefWidth="1337.0" style="-fx-background-color: #0064C7;" styleClass="blue-tab-pane" tabClosingPolicy="UNAVAILABLE" />
+    <TabPane fx:id="primaryTabPane" style="-fx-background-color: #0064C7;" styleClass="blue-tab-pane" prefHeight="655.0" prefWidth="1337.0" tabClosingPolicy="UNAVAILABLE"
+             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+             AnchorPane.topAnchor="34.0"/>
 </AnchorPane>

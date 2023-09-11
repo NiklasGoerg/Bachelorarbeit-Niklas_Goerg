@@ -13,7 +13,10 @@ public class KontoListController {
     PortfolioManagementTabManager portfolioManagementTabManager;
 
     @FXML
-    Button switchSceneButton;
+    Button switchToKonto1Button;
+    @FXML
+    Button switchToKonto2Button;
+
     @Autowired
     public KontoListController(PortfolioManagementTabManager portfolioManagementTabManager) {
         this.portfolioManagementTabManager = portfolioManagementTabManager;
@@ -21,8 +24,15 @@ public class KontoListController {
 
     @FXML
     private void initialize() {
-        switchSceneButton.setOnAction(actionEvent -> {
+        switchToKonto1Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showKontoTabs();
+            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("konto");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement("Konto 1");
+        });
+        switchToKonto2Button.setOnAction(actionEvent -> {
+            portfolioManagementTabManager.showKontoTabs();
+            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("konto");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement("Konto 2");
         });
     }
 

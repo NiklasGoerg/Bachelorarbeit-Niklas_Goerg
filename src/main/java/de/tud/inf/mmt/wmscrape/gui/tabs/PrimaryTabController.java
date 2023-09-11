@@ -3,7 +3,7 @@ package de.tud.inf.mmt.wmscrape.gui.tabs;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.controller.ScrapingTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.ScrapingTabsController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizationTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
@@ -35,7 +35,7 @@ public class PrimaryTabController {
     @Autowired
     private ImportTabController importTabController;
     @Autowired
-    private ScrapingTabController scrapingTabController;
+    private ScrapingTabsController scrapingTabsController;
     @Autowired
     private DataTabController dataTabController;
     @Autowired
@@ -60,19 +60,14 @@ public class PrimaryTabController {
         Tab importTab = createStyledTab("Import", parent);
         primaryTabPane.getTabs().add(importTab);
 
-        parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingTab.fxml", scrapingTabController);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/scraping/controller/scrapingTabs.fxml", scrapingTabsController);
         Tab tab = createStyledTab("Scraping", parent);
         primaryTabPane.getTabs().add(tab);
-
-        parent = PrimaryTabManager.loadTabFxml("gui/tabs/historic/controller/historicTab.fxml", historicTabController);
-        Tab historicTab = createStyledTab("Historisch", parent);
-        primaryTabPane.getTabs().add(historicTab);
 
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/visualization/controller/visualizeTab.fxml", visualizationTabController);
         Tab visualizeTab = createStyledTab("Darstellung", parent);
         primaryTabPane.getTabs().add(visualizeTab);
 
-        //parent = PrimaryTabManager.loadTabFxml("gui/tabs/visualization/controller/visualizeTab.fxml", visualizationTabController);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/portfolioManagement.fxml", portfolioManagementTabController);
         Tab managementTab = createStyledTab("Portfoliomanagement", parent);
         primaryTabPane.getTabs().add(managementTab);

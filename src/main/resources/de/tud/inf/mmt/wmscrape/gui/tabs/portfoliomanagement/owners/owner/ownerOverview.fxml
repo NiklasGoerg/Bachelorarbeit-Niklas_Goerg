@@ -13,7 +13,7 @@
             fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.owners.owner.OwnerOverviewController"
             prefHeight="756.0" prefWidth="1337.0">
     <children>
-        <Label layoutX="539.0" layoutY="273.0" text="Inhaber Übersich">
+        <Label layoutX="539.0" layoutY="273.0" text="Inhaber Übersicht">
             <font>
                 <Font name="System Bold" size="38.0"/>
             </font>

@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController">
-    <TabPane fx:id="portfolioManagementTabPane" prefHeight="757.0" prefWidth="1337.0" style="-fx-background-color: #FFF;" styleClass="white-tab-pane" tabClosingPolicy="UNAVAILABLE" />
-   <Button mnemonicParsing="false" onAction="#showPortfolioManagementTabs" text="Zurück" />
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController">
+    <ToolBar layoutX="4.0" layoutY="7.0" nodeOrientation="LEFT_TO_RIGHT" prefWidth="1340.0" fx:id="breadcrumbContainer">
+    </ToolBar>
+    <TabPane fx:id="portfolioManagementTabPane" style="-fx-background-color: #FFF;"
+             styleClass="white-tab-pane" prefHeight="655.0" prefWidth="1337.0" tabClosingPolicy="UNAVAILABLE"
+             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="43.0">
+    </TabPane>
 </AnchorPane>

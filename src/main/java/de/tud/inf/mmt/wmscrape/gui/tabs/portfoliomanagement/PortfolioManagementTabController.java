@@ -9,30 +9,25 @@ import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.kontos.KontoListCont
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.kontos.konto.KontoOverviewController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.kontos.konto.KontoTransactionsController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.owners.OwnerListController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.owners.owner.OwnerOverviewController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.owners.owner.OwnerVermögenController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.owners.owner.*;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.PortfolioListController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.portfolio.PortfolioAnalyseController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.portfolio.PortfolioBenchmarkController;
-import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.portfolio.PortfolioStrukturController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.portfolio.*;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.stage.Stage;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Controller
 public class PortfolioManagementTabController {
-    private Stage stage;
-    private Scene scene;
-    private Parent root;
+    public ToolBar breadcrumbContainer;
 
     @FXML
     private Button switchSceneButton;
@@ -59,6 +54,10 @@ public class PortfolioManagementTabController {
     private PortfolioAnalyseController portfolioAnalyseController;
     @Autowired
     private PortfolioBenchmarkController portfolioBenchmarkController;
+    @Autowired
+    private PortfolioDepotsController portfolioDepotsController;
+    @Autowired
+    private PortfolioKontosController portfolioKontosController;
 
     @Autowired
     private DepotPlanungController depotPlanungController;
@@ -84,12 +83,22 @@ public class PortfolioManagementTabController {
     private OwnerOverviewController ownerOverviewController;
     @Autowired
     private OwnerVermögenController ownerVermögenController;
+    @Autowired
+    private OwnerDepotsController ownerDepotsController;
+    @Autowired
+    private OwnerKontosController ownerKontosController;
+    @Autowired
+    private OwnerPortfoliosController ownerPortfoliosController;
+
 
 
     private Tab portfoliosTab;
     private Tab portfolioAnalyseTab;
     private Tab portfolioBenchmarkTab;
     private Tab portfolioStrukturTab;
+    private Tab portfolioDepotsTab;
+    private Tab portfolioKontosTab;
+
     private Tab depotTab;
     private Tab depotWertpapierTab;
     private Tab depotStrukturTab;
@@ -98,13 +107,46 @@ public class PortfolioManagementTabController {
     private Tab depotPlanungOrdersTab;
     private Tab depotTransaktionenTab;
     private Tab depotAnlageStrategieTab;
+
     private Tab kontoTab;
     private Tab kontoÜbersichtTab;
     private Tab kontoTransaktionenTab;
+
     private Tab inhaberTab;
     private Tab inhaberÜbersichtTab;
     private Tab inhaberVermögenTab;
+    private Tab inhaberDepotsTab;
+    private Tab inhaberPortfoliosTab;
+    private Tab inhaberKontosTab;
 
+    private Set<Tab> depotTabs;
+    private Set<Tab> portfolioTabs;
+    private Set<Tab> kontoTabs;
+    private Set<Tab> ownerTabs;
+
+    public class ContexMenuItem {
+        private String label;
+        private Runnable action;
+
+        public ContexMenuItem(String label, Runnable action) {
+            this.label = label;
+            this.action = action;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public Runnable getAction() {
+            return action;
+        }
+
+        public void performAction() {
+            if (action != null) {
+                action.run();
+            }
+        }
+    }
 
     /**
      * called when loading the fxml file
@@ -119,27 +161,43 @@ public class PortfolioManagementTabController {
         portfoliosTab = createStyledTab("Portfolios", parent);
         portfolioManagementTabPane.getTabs().add(portfoliosTab);
 
+        portfolioAnalyseController = new PortfolioAnalyseController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/portfolios/portfolio/portfolioAnalyse.fxml", portfolioAnalyseController);
         portfolioAnalyseTab = createStyledTab("Analyse", parent);
         portfolioManagementTabPane.getTabs().add(portfolioAnalyseTab);
 
+        portfolioBenchmarkController = new PortfolioBenchmarkController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/portfolios/portfolio/portfolioBenchmarks.fxml", portfolioBenchmarkController);
         portfolioBenchmarkTab = createStyledTab("Benchmarks", parent);
         portfolioManagementTabPane.getTabs().add(portfolioBenchmarkTab);
 
+        portfolioStrukturController = new PortfolioStrukturController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/portfolios/portfolio/portfolioStruktur.fxml", portfolioStrukturController);
         portfolioStrukturTab = createStyledTab("Struktur", parent);
         portfolioManagementTabPane.getTabs().add(portfolioStrukturTab);
+
+        portfolioDepotsController = new PortfolioDepotsController(portfolioManagementTabManager);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/portfolios/portfolio/portfolioDepots.fxml", portfolioDepotsController);
+        portfolioDepotsTab = createStyledTab("Depots", parent);
+        portfolioManagementTabPane.getTabs().add(portfolioDepotsTab);
+
+        portfolioKontosController = new PortfolioKontosController(portfolioManagementTabManager);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/portfolios/portfolio/portfolioKontos.fxml", portfolioKontosController);
+        portfolioKontosTab = createStyledTab("Kontos", parent);
+        portfolioManagementTabPane.getTabs().add(portfolioKontosTab);
+
 
         depotListController = new DepotListController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/depots/depots.fxml", depotListController);
         depotTab = createStyledTab("Depots", parent);
         portfolioManagementTabPane.getTabs().add(depotTab);
 
+        depotWertpapierController = new DepotWertpapierController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/depots/depot/depotWertpapier.fxml", depotWertpapierController);
         depotWertpapierTab = createStyledTab("Wertpapiere", parent);
         portfolioManagementTabPane.getTabs().add(depotWertpapierTab);
 
+        depotStrukturController = new DepotStrukturController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/depots/depot/depotStruktur.fxml", depotStrukturController);
         depotStrukturTab = createStyledTab("Struktur", parent);
         portfolioManagementTabPane.getTabs().add(depotStrukturTab);
@@ -149,18 +207,22 @@ public class PortfolioManagementTabController {
         depotPlanungTab = createStyledTab("Planung", parent);
         portfolioManagementTabPane.getTabs().add(depotPlanungTab);
 
+        depotPlanungWertpapiervergleichController = new DepotPlanungWertpapiervergleichController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/depots/depot/planung/depotPlanungWertpapierVergleich.fxml", depotPlanungWertpapiervergleichController);
         depotPlanungVergleichTab = createStyledTab("Wertpapiervergleich", parent);
         portfolioManagementTabPane.getTabs().add(depotPlanungVergleichTab);
 
+        depotPlanungOrderController = new DepotPlanungOrderController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/depots/depot/planung/depotPlanungOrders.fxml", depotPlanungOrderController);
         depotPlanungOrdersTab = createStyledTab("Orders", parent);
         portfolioManagementTabPane.getTabs().add(depotPlanungOrdersTab);
 
+        depotTransaktionenController = new DepotTransaktionenController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/depots/depot/depotTransaktionen.fxml", depotTransaktionenController);
         depotTransaktionenTab = createStyledTab("Transaktionen", parent);
         portfolioManagementTabPane.getTabs().add(depotTransaktionenTab);
 
+        depotAnlagestrategieController = new DepotAnlagestrategieController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/depots/depot/depotAnlagestrategie.fxml", depotAnlagestrategieController);
         depotAnlageStrategieTab = createStyledTab("Anlagestrategie", parent);
         portfolioManagementTabPane.getTabs().add(depotAnlageStrategieTab);
@@ -171,10 +233,12 @@ public class PortfolioManagementTabController {
         kontoTab = createStyledTab("Konten", parent);
         portfolioManagementTabPane.getTabs().add(kontoTab);
 
+        kontoOverviewController = new KontoOverviewController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/kontos/konto/kontoOverview.fxml", kontoOverviewController);
         kontoÜbersichtTab = createStyledTab("Übersicht", parent);
         portfolioManagementTabPane.getTabs().add(kontoÜbersichtTab);
 
+        kontoTransactionsController = new KontoTransactionsController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/kontos/konto/kontoTransactions.fxml", kontoTransactionsController);
         kontoTransaktionenTab = createStyledTab("Transaktionen", parent);
         portfolioManagementTabPane.getTabs().add(kontoTransaktionenTab);
@@ -185,17 +249,46 @@ public class PortfolioManagementTabController {
         inhaberTab = createStyledTab("Inhaber", parent);
         portfolioManagementTabPane.getTabs().add(inhaberTab);
 
+        ownerOverviewController = new OwnerOverviewController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/owners/owner/ownerOverview.fxml", ownerOverviewController);
-        inhaberÜbersichtTab = createStyledTab("Inhaber", parent);
+        inhaberÜbersichtTab = createStyledTab("Übersicht", parent);
         portfolioManagementTabPane.getTabs().add(inhaberÜbersichtTab);
 
+        ownerVermögenController = new OwnerVermögenController(portfolioManagementTabManager);
         parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/owners/owner/ownerVermögen.fxml", ownerVermögenController);
-        inhaberVermögenTab = createStyledTab("Inhaber", parent);
+        inhaberVermögenTab = createStyledTab("Vermögen", parent);
         portfolioManagementTabPane.getTabs().add(inhaberVermögenTab);
+
+        ownerPortfoliosController = new OwnerPortfoliosController(portfolioManagementTabManager);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/owners/owner/ownerVermögen.fxml", ownerPortfoliosController);
+        inhaberPortfoliosTab = createStyledTab("Portfolios", parent);
+        portfolioManagementTabPane.getTabs().add(inhaberPortfoliosTab);
+
+        ownerKontosController = new OwnerKontosController(portfolioManagementTabManager);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/owners/owner/ownerVermögen.fxml", ownerKontosController);
+        inhaberKontosTab = createStyledTab("Kontos", parent);
+        portfolioManagementTabPane.getTabs().add(inhaberKontosTab);
+
+        ownerDepotsController = new OwnerDepotsController(portfolioManagementTabManager);
+        parent = PrimaryTabManager.loadTabFxml("gui/tabs/portfoliomanagement/owners/owner/ownerVermögen.fxml", ownerDepotsController);
+        inhaberDepotsTab = createStyledTab("Depots", parent);
+        portfolioManagementTabPane.getTabs().add(inhaberDepotsTab);
 
 
         portfolioManagementTabPane.setStyle("-fx-tab-min-height: 30px;" + "-fx-tab-max-height: 30px;" + "-fx-tab-min-width: 150px;" + "-fx-tab-max-width: 150px;" + "-fx-alignment: CENTER;");
 
+
+        depotTabs = Set.of(depotWertpapierTab, depotStrukturTab, depotTransaktionenTab, depotAnlageStrategieTab, depotPlanungTab);
+        portfolioTabs = Set.of(portfolioStrukturTab, portfolioAnalyseTab, portfolioBenchmarkTab);
+        kontoTabs = Set.of(kontoÜbersichtTab, kontoTransaktionenTab);
+        ownerTabs = Set.of(inhaberVermögenTab, inhaberÜbersichtTab);
+
+        portfolioManagementTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
+            if (newTab == depotPlanungTab) {
+                showDepotPlanungTabs();
+                addDepotPlanungBreadcrumbs(portfolioManagementTabManager.getCurrentlyDisplayedElement(), portfolioManagementTabManager.depotList);
+            }
+        });
         showPortfolioManagementTabs();
     }
 
@@ -215,19 +308,30 @@ public class PortfolioManagementTabController {
         return tab;
     }
 
-    private void hideAllTabs() {
-        portfolioManagementTabPane.getTabs().clear();
-    }
-
     private void hideTab(Tab tab) {
         portfolioManagementTabPane.getTabs().remove(tab);
+    }
+
+    private void hideAllTabs() {
+        portfolioManagementTabPane.getTabs().clear();
     }
 
     private void addTab(Tab tab) {
         portfolioManagementTabPane.getTabs().add(tab);
     }
 
+    public void showDepotTabs() {
+        removeBreadcrumbs();
+        hideAllTabs();
+        addTab(depotWertpapierTab);
+        addTab(depotStrukturTab);
+        addTab(depotPlanungTab);
+        addTab(depotTransaktionenTab);
+        addTab(depotAnlageStrategieTab);
+        portfolioManagementTabPane.getSelectionModel().select(depotWertpapierTab);
+    }
     public void showPortfolioManagementTabs() {
+        removeBreadcrumbs();
         hideAllTabs();
         addTab(portfoliosTab);
         addTab(depotTab);
@@ -237,26 +341,19 @@ public class PortfolioManagementTabController {
     }
 
     public void showPortfolioTabs() {
+        removeBreadcrumbs();
         hideAllTabs();
-        addTab(depotTab);
+        addTab(portfolioDepotsTab);
         addTab(portfolioStrukturTab);
-        addTab(kontoTab);
+        addTab(portfolioKontosTab);
         addTab(portfolioAnalyseTab);
         addTab(portfolioBenchmarkTab);
         portfolioManagementTabPane.getSelectionModel().select(depotTab);
     }
 
-    public void showDepotTabs() {
-        hideAllTabs();
-        addTab(depotWertpapierTab);
-        addTab(depotStrukturTab);
-        addTab(depotPlanungTab);
-        addTab(depotTransaktionenTab);
-        addTab(depotAnlageStrategieTab);
-        portfolioManagementTabPane.getSelectionModel().select(depotWertpapierTab);
-    }
 
     public void showDepotPlanungTabs() {
+        removeBreadcrumbs();
         hideAllTabs();
         addTab(depotPlanungVergleichTab);
         addTab(depotPlanungOrdersTab);
@@ -264,6 +361,7 @@ public class PortfolioManagementTabController {
     }
 
     public void showKontoTabs() {
+        removeBreadcrumbs();
         hideAllTabs();
         addTab(kontoÜbersichtTab);
         addTab(kontoTransaktionenTab);
@@ -271,12 +369,112 @@ public class PortfolioManagementTabController {
     }
 
     public void showInhaberTabs() {
+        removeBreadcrumbs();
         hideAllTabs();
         addTab(inhaberÜbersichtTab);
         addTab(inhaberVermögenTab);
-        addTab(portfoliosTab);
-        addTab(depotTab);
-        addTab(kontoTab);
+        addTab(inhaberPortfoliosTab);
+        addTab(inhaberDepotsTab);
+        addTab(inhaberKontosTab);
         portfolioManagementTabPane.getSelectionModel().select(inhaberÜbersichtTab);
+    }
+
+    public void createBreadcrumbInstance(String label, String[] captions, Runnable onLabelClick) {
+        Label label1 = new Label(label);
+
+        ContextMenu contextMenu = new ContextMenu();
+
+        for (String caption : captions) {
+            MenuItem menuItem = new MenuItem(caption);
+            contextMenu.getItems().add(menuItem);
+        }
+
+        // setContextMenu to label
+        label1.setContextMenu(contextMenu);
+        label1.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                onLabelClick.run();
+            }});
+        breadcrumbContainer.getItems().add(label1);
+    }
+    public void removeBreadcrumbs() {
+        breadcrumbContainer.getItems().removeIf(item -> item instanceof Label);
+    }
+
+    public void changeBreadcrumbs(Tab oldTab, Tab newTab) {
+        removeBreadcrumbs();
+        if (depotTabs.contains(newTab)) {
+            createBreadcrumbInstance("/ Depots", new String[]{"Depot 1", "Depot 2"},this::showPortfolioManagementTabs);
+            createBreadcrumbInstance("/ Depot 1", new String[]{},this::showDepotTabs);
+        } else if (portfolioTabs.contains(newTab)) {
+            createBreadcrumbInstance("/ Portfolios", new String[]{"Portfolio 1", "Portfolio 2"}, this::showPortfolioManagementTabs);
+            createBreadcrumbInstance("/ Portfolio 1", new String[]{},this::showPortfolioTabs);
+        } else if (kontoTabs.contains(newTab)) {
+            createBreadcrumbInstance("/ Kontos", new String[]{"Konto 1", "Konto 2"}, this::showPortfolioManagementTabs);
+            createBreadcrumbInstance("/ Konto 1", new String[]{},this::showKontoTabs);
+        } else if (ownerTabs.contains(newTab)) {
+            createBreadcrumbInstance("/ Inhaber", new String[]{"Inhaber 1", "Inhaber 2"}, this::showPortfolioManagementTabs);
+            createBreadcrumbInstance("/ Inhaber 1", new String[]{},this::showInhaberTabs);
+        }
+    }
+
+    public void changeBreadcrumbsTest(String type, String element) {
+        switch(type) {
+            case "depot":
+                addDepotBreadcrumbs(element, portfolioManagementTabManager.depotList);
+                break;
+            case "portfolio":
+                addPortfolioBreadcrumbs(element, portfolioManagementTabManager.portfolioList);
+                break;
+            case "owner":
+                addOwnerBreadcrumbs(element, portfolioManagementTabManager.ownerList);
+                break;
+            case "konto":
+                addKontoBreadcrumbs(element, portfolioManagementTabManager.kontoList);
+                break;
+        }
+    }
+
+    public void addDepotBreadcrumbs(String chosenDepot, String[] otherDepots) {
+        List<ContexMenuItem> contextMenuList = new ArrayList<>();
+        for (String depotName : otherDepots) {
+            ContexMenuItem newItem = new ContexMenuItem(depotName, () -> portfolioManagementTabManager.setCurrentlyDisplayedElement(depotName));
+            contextMenuList.add(newItem);
+        }
+        createBreadcrumbInstance("Depots / ", new String[]{""}, this::showPortfolioManagementTabs);
+        createBreadcrumbInstance(chosenDepot, otherDepots, () -> {});
+    }
+    public void addPortfolioBreadcrumbs(String chosenPortfolio, String[] otherPortfolios) {
+        List<ContexMenuItem> contextMenuList = new ArrayList<>();
+        for (String portfolioName : otherPortfolios) {
+            ContexMenuItem newItem = new ContexMenuItem(portfolioName, () -> portfolioManagementTabManager.setCurrentlyDisplayedElement(portfolioName));
+            contextMenuList.add(newItem);
+        }
+        createBreadcrumbInstance("Portfolios / ", new String[]{""}, this::showPortfolioManagementTabs);
+        createBreadcrumbInstance(chosenPortfolio, otherPortfolios, () -> {});
+    }
+    public void addOwnerBreadcrumbs(String chosenOwner, String[] otherOwners) {
+        List<ContexMenuItem> contextMenuList = new ArrayList<>();
+        for (String ownerName : otherOwners) {
+            ContexMenuItem newItem = new ContexMenuItem(ownerName, () -> portfolioManagementTabManager.setCurrentlyDisplayedElement(ownerName));
+            contextMenuList.add(newItem);
+        }
+        createBreadcrumbInstance("Inhaber / ", new String[]{""}, this::showPortfolioManagementTabs);
+        createBreadcrumbInstance(chosenOwner, otherOwners, () -> {});
+    }
+    public void addKontoBreadcrumbs(String chosenKonto, String[] otherKontos) {
+        List<ContexMenuItem> contextMenuList = new ArrayList<>();
+        for (String kontoName : otherKontos) {
+            ContexMenuItem newItem = new ContexMenuItem(kontoName, () -> portfolioManagementTabManager.setCurrentlyDisplayedElement(kontoName));
+            contextMenuList.add(newItem);
+        }
+        createBreadcrumbInstance("Konten / ", new String[]{""}, this::showPortfolioManagementTabs);
+        createBreadcrumbInstance(chosenKonto, otherKontos, () -> {});
+
+
+    }
+    public void addDepotPlanungBreadcrumbs(String chosenDepot, String[] otherDepots) {
+        addDepotBreadcrumbs(chosenDepot, otherDepots);
+        createBreadcrumbInstance(" / Planung", new String[]{""}, () -> {showDepotTabs(); addDepotBreadcrumbs(chosenDepot, otherDepots); });
     }
 }

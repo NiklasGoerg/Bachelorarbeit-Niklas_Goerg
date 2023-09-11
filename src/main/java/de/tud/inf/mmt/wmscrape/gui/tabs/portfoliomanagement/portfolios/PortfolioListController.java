@@ -13,7 +13,9 @@ public class PortfolioListController {
     PortfolioManagementTabManager portfolioManagementTabManager;
 
     @FXML
-    Button switchSceneButton;
+    Button switchToPortfolio1Button;
+    @FXML
+    Button switchToPortfolio2Button;
     @Autowired
     public PortfolioListController(PortfolioManagementTabManager portfolioManagementTabManager) {
         this.portfolioManagementTabManager = portfolioManagementTabManager;
@@ -21,8 +23,15 @@ public class PortfolioListController {
 
     @FXML
     private void initialize() {
-        switchSceneButton.setOnAction(actionEvent -> {
+        switchToPortfolio1Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showPortfolioTabs();
+            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("portfolio");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement("Portfolio 1");
+        });
+        switchToPortfolio2Button.setOnAction(actionEvent -> {
+            portfolioManagementTabManager.showPortfolioTabs();
+            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("portfolio");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement("Portfolio 2");
         });
     }
 

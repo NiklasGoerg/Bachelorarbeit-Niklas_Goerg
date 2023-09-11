@@ -2,23 +2,24 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/20.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.depots.DepotListController">
+<AnchorPane prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.depots.DepotListController">
     <children>
-        <Label layoutX="127.0" layoutY="40.0" prefHeight="52.0" prefWidth="240.0" text="DepotListe">
+        <Label layoutX="131.0" layoutY="49.0" prefHeight="52.0" prefWidth="240.0" text="DepotListe">
             <font>
-                <Font size="49.0"/>
+                <Font size="49.0" />
             </font>
         </Label>
-        <Button layoutX="420.0" layoutY="51.0" mnemonicParsing="false" text="zum Depot" fx:id="switchSceneButton">
+        <Button fx:id="switchToDepot1Button" layoutX="570.0" layoutY="290.0" mnemonicParsing="false" text="zu Depot 1">
             <font>
-                <Font size="32.0"/>
+                <Font size="32.0" />
+            </font>
+        </Button>
+        <Button fx:id="switchToDepot2Button" layoutX="570.0" layoutY="413.0" mnemonicParsing="false" text="zu Depot 2">
+            <font>
+                <Font size="32.0" />
             </font>
         </Button>
     </children>

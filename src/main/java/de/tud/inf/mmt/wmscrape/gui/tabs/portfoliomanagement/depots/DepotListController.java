@@ -17,7 +17,9 @@ import java.net.URL;
 @Controller
 public class DepotListController {
     @FXML
-    private Button switchSceneButton;
+    private Button switchToDepot1Button;
+    @FXML
+    private Button switchToDepot2Button;
     @FXML
     private PortfolioManagementTabManager portfolioManagementTabManager;
 
@@ -28,8 +30,15 @@ public class DepotListController {
 
     @FXML
     private void initialize() {
-        switchSceneButton.setOnAction(actionEvent -> {
+        switchToDepot1Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showDepotTabs();
+            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("depot");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement("Depot 1");
+        });
+        switchToDepot2Button.setOnAction(actionEvent -> {
+            portfolioManagementTabManager.showDepotTabs();
+            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("depot");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement("Depot 2");
         });
     }
 

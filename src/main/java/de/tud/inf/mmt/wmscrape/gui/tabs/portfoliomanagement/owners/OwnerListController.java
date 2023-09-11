@@ -13,7 +13,9 @@ public class OwnerListController {
     PortfolioManagementTabManager portfolioManagementTabManager;
 
     @FXML
-    Button switchSceneButton;
+    Button switchToOwner1Button;
+    @FXML
+    Button switchToOwner2Button;
 
     @Autowired
     public OwnerListController(PortfolioManagementTabManager portfolioManagementTabManager) {
@@ -22,8 +24,15 @@ public class OwnerListController {
 
     @FXML
     private void initialize() {
-        switchSceneButton.setOnAction(actionEvent -> {
+        switchToOwner1Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showInhaberTabs();
+            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("owner");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement("Inhaber 1");
+        });
+        switchToOwner2Button.setOnAction(actionEvent -> {
+            portfolioManagementTabManager.showInhaberTabs();
+            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("owner");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement("Inhaber 2");
         });
     }
 

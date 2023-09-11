@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            prefHeight="400.0" prefWidth="600.0"
-            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.PortfolioListController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.PortfolioListController">
     <children>
-        <Label layoutX="127.0" layoutY="40.0" prefHeight="52.0" prefWidth="240.0" text="PortfolioListe">
+        <Label layoutX="62.0" layoutY="49.0" prefHeight="71.0" prefWidth="298.0" text="PortfolioListe">
             <font>
-                <Font size="49.0"/>
+                <Font size="49.0" />
             </font>
         </Label>
-        <Button layoutX="420.0" layoutY="51.0" mnemonicParsing="false" text="zum 'Portfolio'" fx:id="switchSceneButton">
+        <Button fx:id="switchToPortfolio1Button" layoutX="570.0" layoutY="290.0" mnemonicParsing="false" text="zu Portfolio 1">
             <font>
-                <Font size="32.0"/>
+                <Font size="32.0" />
+            </font>
+        </Button>
+        <Button fx:id="switchToPortfolio2Button" layoutX="570.0" layoutY="413.0" mnemonicParsing="false" text="zu Portfolio 2">
+            <font>
+                <Font size="32.0" />
             </font>
         </Button>
     </children>
