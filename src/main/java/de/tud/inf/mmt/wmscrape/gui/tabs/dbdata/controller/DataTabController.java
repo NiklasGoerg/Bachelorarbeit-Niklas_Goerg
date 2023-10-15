@@ -130,6 +130,8 @@ public class DataTabController {
         // when changing the columns inside the data table new listeners are added that register column sort changes
         customRowTableView.getColumns().addListener((ListChangeListener<TableColumn<CustomRow, ?>>) c -> tabManager.addColumnSortSync(customRowTableView, stockSelectionTable));
 
+        sectionTabPane.setStyle("-fx-tab-min-height: 30px;" + "-fx-tab-max-height: 30px;" + "-fx-tab-min-width: 150px;" + "-fx-tab-max-width: 150px;" + "-fx-alignment: CENTER;");
+
         viewEverything = true;
         reloadSelectionTable();
         registerTabChangeListener();

@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 
 <AnchorPane prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabController">
-    <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefWidth="200.0" style="-fx-background-color: #0064C7;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-3.0" AnchorPane.topAnchor="0.0">
-        <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogoutButton" text="Logout" />
-    </ToolBar>
-    <VBox alignment="CENTER_LEFT" prefHeight="34.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="0.0">
-        <padding>
-            <Insets left="5.0" />
-        </padding>
-        <Label fx:id="currentUserLabel" text="Label" />
-    </VBox>
-    <TabPane fx:id="primaryTabPane" style="-fx-background-color: #0064C7;" styleClass="blue-tab-pane" prefHeight="655.0" prefWidth="1337.0" tabClosingPolicy="UNAVAILABLE"
-             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-             AnchorPane.topAnchor="34.0"/>
+    <children>
+        <TabPane fx:id="primaryTabPane" prefHeight="655.0" prefWidth="1337.0" style="-fx-background-color: #0064C7;" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <styleClass>
+            <String fx:value="blue-tab-pane" />
+            <String fx:value="floating" />
+         </styleClass></TabPane>
+        <HBox alignment="CENTER" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="1.0">
+            <children>
+                <Label fx:id="currentUserLabel" prefHeight="17.0" text="Label">
+               <HBox.margin>
+                  <Insets right="16.0" />
+               </HBox.margin></Label>
+                <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogoutButton" style="-fx-background-color: #0064C7;" text="Logout" textFill="WHITE" />
+            </children>
+        </HBox>
+    </children>
 </AnchorPane>

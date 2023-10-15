@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
@@ -23,258 +24,241 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.text.Text?>
 
-<GridPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController">
-    <columnConstraints>
-        <ColumnConstraints hgrow="NEVER" maxWidth="40.0" minWidth="40.0" prefWidth="40.0"/>
-        <ColumnConstraints hgrow="SOMETIMES" prefWidth="1337.0"/>
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints minHeight="10.0" prefHeight="653.0" vgrow="SOMETIMES"/>
-    </rowConstraints>
-    <BorderPane GridPane.columnIndex="1">
-        <top>
-            <ToolBar minHeight="34.0" nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
-                <BorderPane.margin>
-                    <Insets right="-3.0"/>
-                </BorderPane.margin>
-                <MenuButton alignment="CENTER" mnemonicParsing="false" text="Inhalte entfernen">
-                    <items>
-                        <MenuItem mnemonicParsing="false" onAction="#handleDeleteRowsButton" text="Zeilen löschen"/>
-                        <MenuItem mnemonicParsing="false" onAction="#handleDeleteAllInTableButton"
-                                  text="Alle Zeilen löschen"/>
-                        <MenuItem fx:id="deleteDepotMenuItem" mnemonicParsing="false"
-                                  onAction="#handleDeleteDepotButton" text="Depot entfernen"/>
-                        <MenuItem fx:id="deleteStockMenuItem" mnemonicParsing="false"
-                                  onAction="#handleDeleteStockButton" text="Wertpapier löschen"/>
-                    </items>
-                </MenuButton>
-                <MenuButton alignment="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false"
-                            text="Inhalte anpassen">
-                    <items>
-                        <MenuItem mnemonicParsing="false" onAction="#handleSaveButton" text="Änderungen speichern">
-                            <accelerator>
-                                <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP"
-                                                    shortcut="UP"/>
-                            </accelerator>
-                        </MenuItem>
-                        <MenuItem mnemonicParsing="false" onAction="#handleColumnModificationButton"
-                                  text="Spalten anpassen"/>
-                        <MenuItem fx:id="createStockMenuItem" mnemonicParsing="false"
-                                  onAction="#handleStockCreateSubMenuButton" text="Werpapiere hinzufügen"/>
-                        <MenuItem fx:id="addEmptyRowMenuItem" mnemonicParsing="false" onAction="#handleAddEmptyRow"
-                                  text="Heutige Zeile hinzufügen"/>
-                    </items>
-                </MenuButton>
-                <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen"/>
-                <Button mnemonicParsing="false" onAction="#handleViewEverythingButton" text="Alles anzeigen"/>
-                <DatePicker fx:id="endDate" nodeOrientation="LEFT_TO_RIGHT" />
-                <Text nodeOrientation="LEFT_TO_RIGHT">Enddatum:</Text>
-                <DatePicker fx:id="startDate" nodeOrientation="LEFT_TO_RIGHT" />
-                <Text nodeOrientation="LEFT_TO_RIGHT">Startdatum:</Text>
-            </ToolBar>
-        </top>
-        <center>
-            <GridPane BorderPane.alignment="CENTER">
-                <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                </columnConstraints>
-                <rowConstraints>
-                    <RowConstraints fillHeight="false" vgrow="SOMETIMES"/>
-                    <RowConstraints fillHeight="false" vgrow="SOMETIMES"/>
-                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                </rowConstraints>
-                <padding>
-                    <Insets bottom="3.0"/>
-                </padding>
-                <SplitPane fx:id="splitPane" dividerPositions="0.22" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
-                    <GridPane.margin>
-                        <Insets bottom="-4.0" left="-1.0" top="2.0"/>
-                    </GridPane.margin>
-                    <padding>
-                        <Insets top="-2.0"/>
-                    </padding>
-                    <BorderPane fx:id="selectionPane" layoutX="10.0" layoutY="10.0" minWidth="0.0" prefWidth="200.0">
-                        <padding>
-                            <Insets left="1.0"/>
-                        </padding>
-                    </BorderPane>
-                    <AnchorPane>
-                        <TableView fx:id="customRowTableView" editable="true" tableMenuButtonVisible="true"
-                                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                            <contextMenu>
-                                <ContextMenu>
-                                    <items>
-                                        <MenuItem mnemonicParsing="false" onAction="#handleDeleteRowsButton"
-                                                  text="Zeilen löschen"/>
-                                    </items>
-                                </ContextMenu>
-                            </contextMenu>
-                        </TableView>
-                    </AnchorPane>
-                </SplitPane>
-                <GridPane fx:id="columnSubmenuPane" alignment="CENTER" prefHeight="50.0" GridPane.vgrow="SOMETIMES">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="NEVER"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="30.0" valignment="CENTER"
-                                        vgrow="NEVER"/>
-                    </rowConstraints>
-                    <GridPane.margin>
-                        <Insets/>
-                    </GridPane.margin>
-                    <HBox alignment="CENTER" GridPane.vgrow="SOMETIMES">
-                        <GridPane.margin>
-                            <Insets left="3.0"/>
-                        </GridPane.margin>
-                        <ComboBox fx:id="columnDeletionComboBox" prefWidth="250.0"/>
-                        <Button minWidth="80.0" mnemonicParsing="false" onAction="#handleRemoveColumnButton"
-                                text="Entfernen">
-                            <HBox.margin>
-                                <Insets left="10.0"/>
-                            </HBox.margin>
-                        </Button>
-                    </HBox>
-                    <HBox alignment="CENTER" GridPane.columnIndex="2" GridPane.vgrow="SOMETIMES">
-                        <TextField fx:id="newColumnNameField" minWidth="70.0" prefWidth="250.0"
-                                   promptText="Spaltenname"/>
-                        <ChoiceBox fx:id="columnDatatypeChoiceBox" minWidth="50.0" prefWidth="150.0">
-                            <HBox.margin>
-                                <Insets left="10.0"/>
-                            </HBox.margin>
-                        </ChoiceBox>
-                        <Button minWidth="80.0" mnemonicParsing="false" onAction="#handleAddColumnButton"
-                                prefWidth="100.0" text="Hinzufügen">
-                            <HBox.margin>
-                                <Insets left="10.0"/>
-                            </HBox.margin>
-                        </Button>
-                    </HBox>
-                    <Separator orientation="VERTICAL" GridPane.columnIndex="1"/>
-                </GridPane>
-                <GridPane fx:id="stockCreateSubmenuPane" prefHeight="50.0" GridPane.rowIndex="1">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="NEVER" minWidth="50.0"/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
-                    </rowConstraints>
-                    <GridPane alignment="CENTER">
-                        <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                            <ColumnConstraints hgrow="NEVER"/>
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints minHeight="50.0"/>
-                            <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="30.0" valignment="CENTER"
-                                            vgrow="NEVER"/>
-                        </rowConstraints>
-                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
-                            <padding>
-                                <Insets left="5.0"/>
-                            </padding>
-                            <Label text="ISIN"/>
-                            <TextField fx:id="newIsinField">
-                                <VBox.margin>
-                                    <Insets bottom="4.0" top="2.0"/>
-                                </VBox.margin>
-                            </TextField>
-                        </VBox>
-                        <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="200.0"
-                              prefWidth="100.0" GridPane.columnIndex="1">
-                            <padding>
-                                <Insets left="5.0"/>
-                            </padding>
-                            <Label text="WKN"/>
-                            <TextField fx:id="newWknField">
-                                <VBox.margin>
-                                    <Insets bottom="4.0" top="2.0"/>
-                                </VBox.margin>
-                            </TextField>
-                        </VBox>
-                        <VBox alignment="CENTER" layoutX="278.0" layoutY="10.0" prefHeight="200.0"
-                              prefWidth="100.0" GridPane.columnIndex="2">
-                            <padding>
-                                <Insets left="5.0"/>
-                            </padding>
-                            <Label text="Name"/>
-                            <TextField fx:id="newNameField">
-                                <VBox.margin>
-                                    <Insets bottom="4.0" top="2.0"/>
-                                </VBox.margin>
-                            </TextField>
-                        </VBox>
-                        <VBox alignment="CENTER" layoutX="546.0" layoutY="10.0" prefHeight="200.0"
-                              prefWidth="100.0" GridPane.columnIndex="3">
-                            <padding>
-                                <Insets left="5.0" right="5.0"/>
-                            </padding>
-                            <Label text="Typ"/>
-                            <TextField fx:id="newTypeField">
-                                <VBox.margin>
-                                    <Insets bottom="4.0" top="2.0"/>
-                                </VBox.margin>
-                            </TextField>
-                        </VBox>
-                        <VBox alignment="CENTER" layoutX="748.0" layoutY="10.0" prefHeight="200.0"
-                              prefWidth="100.0" GridPane.columnIndex="4">
-                            <padding>
-                                <Insets left="5.0" right="5.0"/>
-                            </padding>
-                            <Label text="R-Par"/>
-                            <TextField fx:id="newSortOrderField">
-                                <VBox.margin>
-                                    <Insets bottom="4.0" top="2.0"/>
-                                </VBox.margin>
-                            </TextField>
-                        </VBox>
-                    </GridPane>
-                    <VBox alignment="CENTER" GridPane.columnIndex="1" GridPane.hgrow="NEVER">
-                        <Label/>
-                        <Button mnemonicParsing="false" onAction="#handleNewStockButton" text="Hinzufügen">
-                            <VBox.margin>
-                                <Insets bottom="4.0" left="5.0" right="10.0"/>
-                            </VBox.margin>
-                        </Button>
-                    </VBox>
-                </GridPane>
-            </GridPane>
-        </center>
-    </BorderPane>
-    <TabPane id="#verticalTabPane" fx:id="sectionTabPane" side="LEFT" tabClosingPolicy="UNAVAILABLE"
-             tabMinHeight="40.0" tabMinWidth="145.0">
+<?import java.lang.String?>
+<AnchorPane prefHeight="756.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController">
+<BorderPane prefHeight="756.0" prefWidth="1337.0">
+    <top>
+        <TabPane id="#verticalTabPane" fx:id="sectionTabPane" tabClosingPolicy="UNAVAILABLE" tabMinHeight="40.0" tabMinWidth="145.0" styleClass="white-tab-pane">
+            <styleClass>
+                <String fx:value="white-tab-pane" />
+                <String fx:value="floating" />
+            </styleClass>
         <padding>
-            <Insets left="-5.0"/>
+            <Insets left="-5.0" />
         </padding>
         <GridPane.margin>
-            <Insets top="-7.0"/>
+            <Insets top="-7.0" />
         </GridPane.margin>
         <Tab fx:id="stockTab" text="Stammdaten">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="200.0"/>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" />
         </Tab>
         <Tab fx:id="courseTab" text="Wertpapier-Kurs">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="200.0"/>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" />
         </Tab>
         <Tab fx:id="exchangeTab" text="Wechselkurs">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="200.0"/>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" />
         </Tab>
         <Tab fx:id="transactionTab" text="Depot-Transaktionen">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="200.0"/>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" />
         </Tab>
         <Tab fx:id="watchListTab" text="Watch-Liste">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="200.0"/>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" />
         </Tab>
     </TabPane>
-</GridPane>
+    </top>
+    <center>
+        <BorderPane GridPane.columnIndex="1">
+            <top>
+                <ToolBar minHeight="34.0" nodeOrientation="RIGHT_TO_LEFT" BorderPane.alignment="CENTER">
+                    <BorderPane.margin>
+                        <Insets right="-3.0" />
+                    </BorderPane.margin>
+                    <MenuButton alignment="CENTER" mnemonicParsing="false" text="Inhalte entfernen">
+                        <items>
+                            <MenuItem mnemonicParsing="false" onAction="#handleDeleteRowsButton" text="Zeilen löschen" />
+                            <MenuItem mnemonicParsing="false" onAction="#handleDeleteAllInTableButton" text="Alle Zeilen löschen" />
+                            <MenuItem fx:id="deleteDepotMenuItem" mnemonicParsing="false" onAction="#handleDeleteDepotButton" text="Depot entfernen" />
+                            <MenuItem fx:id="deleteStockMenuItem" mnemonicParsing="false" onAction="#handleDeleteStockButton" text="Wertpapier löschen" />
+                        </items>
+                    </MenuButton>
+                    <MenuButton alignment="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Inhalte anpassen">
+                        <items>
+                            <MenuItem mnemonicParsing="false" onAction="#handleSaveButton" text="Änderungen speichern">
+                                <accelerator>
+                                    <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                </accelerator>
+                            </MenuItem>
+                            <MenuItem mnemonicParsing="false" onAction="#handleColumnModificationButton" text="Spalten anpassen" />
+                            <MenuItem fx:id="createStockMenuItem" mnemonicParsing="false" onAction="#handleStockCreateSubMenuButton" text="Werpapiere hinzufügen" />
+                            <MenuItem fx:id="addEmptyRowMenuItem" mnemonicParsing="false" onAction="#handleAddEmptyRow" text="Heutige Zeile hinzufügen" />
+                        </items>
+                    </MenuButton>
+                    <Button mnemonicParsing="false" onAction="#handleResetButton" text="Zurücksetzen" />
+                    <Button mnemonicParsing="false" onAction="#handleViewEverythingButton" text="Alles anzeigen" />
+                    <DatePicker fx:id="endDate" nodeOrientation="LEFT_TO_RIGHT" />
+                    <Text nodeOrientation="LEFT_TO_RIGHT">Enddatum:</Text>
+                    <DatePicker fx:id="startDate" nodeOrientation="LEFT_TO_RIGHT" />
+                    <Text nodeOrientation="LEFT_TO_RIGHT">Startdatum:</Text>
+                </ToolBar>
+            </top>
+            <center>
+                <GridPane BorderPane.alignment="CENTER">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints fillHeight="false" vgrow="SOMETIMES" />
+                        <RowConstraints fillHeight="false" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <padding>
+                        <Insets bottom="3.0" />
+                    </padding>
+                    <SplitPane fx:id="splitPane" dividerPositions="0.22" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
+                        <GridPane.margin>
+                            <Insets bottom="-4.0" left="-1.0" top="2.0" />
+                        </GridPane.margin>
+                        <padding>
+                            <Insets top="-2.0" />
+                        </padding>
+                        <BorderPane fx:id="selectionPane" layoutX="10.0" layoutY="10.0" minWidth="0.0" prefWidth="200.0">
+                            <padding>
+                                <Insets left="1.0" />
+                            </padding>
+                        </BorderPane>
+                        <AnchorPane>
+                            <TableView fx:id="customRowTableView" editable="true" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <contextMenu>
+                                    <ContextMenu>
+                                        <items>
+                                            <MenuItem mnemonicParsing="false" onAction="#handleDeleteRowsButton" text="Zeilen löschen" />
+                                        </items>
+                                    </ContextMenu>
+                                </contextMenu>
+                            </TableView>
+                        </AnchorPane>
+                    </SplitPane>
+                    <GridPane fx:id="columnSubmenuPane" alignment="CENTER" prefHeight="50.0" GridPane.vgrow="SOMETIMES">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="NEVER" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
+                        </rowConstraints>
+                        <GridPane.margin>
+                            <Insets />
+                        </GridPane.margin>
+                        <HBox alignment="CENTER" GridPane.vgrow="SOMETIMES">
+                            <GridPane.margin>
+                                <Insets left="3.0" />
+                            </GridPane.margin>
+                            <ComboBox fx:id="columnDeletionComboBox" prefWidth="250.0" />
+                            <Button minWidth="80.0" mnemonicParsing="false" onAction="#handleRemoveColumnButton" text="Entfernen">
+                                <HBox.margin>
+                                    <Insets left="10.0" />
+                                </HBox.margin>
+                            </Button>
+                        </HBox>
+                        <HBox alignment="CENTER" GridPane.columnIndex="2" GridPane.vgrow="SOMETIMES">
+                            <TextField fx:id="newColumnNameField" minWidth="70.0" prefWidth="250.0" promptText="Spaltenname" />
+                            <ChoiceBox fx:id="columnDatatypeChoiceBox" minWidth="50.0" prefWidth="150.0">
+                                <HBox.margin>
+                                    <Insets left="10.0" />
+                                </HBox.margin>
+                            </ChoiceBox>
+                            <Button minWidth="80.0" mnemonicParsing="false" onAction="#handleAddColumnButton" prefWidth="100.0" text="Hinzufügen">
+                                <HBox.margin>
+                                    <Insets left="10.0" />
+                                </HBox.margin>
+                            </Button>
+                        </HBox>
+                        <Separator orientation="VERTICAL" GridPane.columnIndex="1" />
+                    </GridPane>
+                    <GridPane fx:id="stockCreateSubmenuPane" prefHeight="50.0" GridPane.rowIndex="1">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="NEVER" minWidth="50.0" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+                        </rowConstraints>
+                        <GridPane alignment="CENTER">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="NEVER" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="50.0" />
+                                <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
+                            </rowConstraints>
+                            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                <padding>
+                                    <Insets left="5.0" />
+                                </padding>
+                                <Label text="ISIN" />
+                                <TextField fx:id="newIsinField">
+                                    <VBox.margin>
+                                        <Insets bottom="4.0" top="2.0" />
+                                    </VBox.margin>
+                                </TextField>
+                            </VBox>
+                            <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1">
+                                <padding>
+                                    <Insets left="5.0" />
+                                </padding>
+                                <Label text="WKN" />
+                                <TextField fx:id="newWknField">
+                                    <VBox.margin>
+                                        <Insets bottom="4.0" top="2.0" />
+                                    </VBox.margin>
+                                </TextField>
+                            </VBox>
+                            <VBox alignment="CENTER" layoutX="278.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2">
+                                <padding>
+                                    <Insets left="5.0" />
+                                </padding>
+                                <Label text="Name" />
+                                <TextField fx:id="newNameField">
+                                    <VBox.margin>
+                                        <Insets bottom="4.0" top="2.0" />
+                                    </VBox.margin>
+                                </TextField>
+                            </VBox>
+                            <VBox alignment="CENTER" layoutX="546.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="3">
+                                <padding>
+                                    <Insets left="5.0" right="5.0" />
+                                </padding>
+                                <Label text="Typ" />
+                                <TextField fx:id="newTypeField">
+                                    <VBox.margin>
+                                        <Insets bottom="4.0" top="2.0" />
+                                    </VBox.margin>
+                                </TextField>
+                            </VBox>
+                            <VBox alignment="CENTER" layoutX="748.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="4">
+                                <padding>
+                                    <Insets left="5.0" right="5.0" />
+                                </padding>
+                                <Label text="R-Par" />
+                                <TextField fx:id="newSortOrderField">
+                                    <VBox.margin>
+                                        <Insets bottom="4.0" top="2.0" />
+                                    </VBox.margin>
+                                </TextField>
+                            </VBox>
+                        </GridPane>
+                        <VBox alignment="CENTER" GridPane.columnIndex="1" GridPane.hgrow="NEVER">
+                            <Label />
+                            <Button mnemonicParsing="false" onAction="#handleNewStockButton" text="Hinzufügen">
+                                <VBox.margin>
+                                    <Insets bottom="4.0" left="5.0" right="10.0" />
+                                </VBox.margin>
+                            </Button>
+                        </VBox>
+                    </GridPane>
+                </GridPane>
+            </center>
+        </BorderPane>
+    </center>
+
+</BorderPane>
+
+</AnchorPane>
