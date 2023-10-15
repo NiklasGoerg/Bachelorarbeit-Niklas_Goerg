@@ -13,12 +13,15 @@ public class PortfolioManagementTabManager {
 
     private PortfolioManagementTabController portfolioController;
 
+    // static data to simulate Portfolios, etc.
     public  String[] depotList = {"Depot 1", "Depot 2", "Depot 3"};
     public  String[] portfolioList = {"Portfolio 1", "Portfolio 2"};
     public  String[] kontoList = {"Konto 1", "Konto 2"};
     public  String[] ownerList = {"Inhaber 1", "Inhaber 2"};
     public  String[] depotsOfPortfolio1List = {"Depot 1", "Depot 2"};
+    public  String[] kontosOfPortfolio1List = {"Konto 1", "Konto 2"};
 
+    //
     private String currentlyDisplayedElement = "";
     private String typeOfCurrentlyDisplayedElement = "depot";
 
@@ -76,12 +79,6 @@ public class PortfolioManagementTabManager {
     public void showInhaberTabs() {
         if (portfolioController != null) {
             portfolioController.showInhaberTabs();
-        }
-    }
-
-    public void createBreadcrumbInstance(String label, String[] captions, Runnable onLabelClick) {
-        if (portfolioController != null) {
-            portfolioController.createBreadcrumbInstance(label, captions, onLabelClick);
         }
     }
     public void removeBreadcrumbs() {
