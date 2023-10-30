@@ -91,7 +91,6 @@ public class PortfolioManagementTabController {
     private OwnerPortfoliosController ownerPortfoliosController;
 
 
-
     private Tab portfoliosTab;
     private Tab portfolioAnalyseTab;
     private Tab portfolioBenchmarkTab;
@@ -147,6 +146,7 @@ public class PortfolioManagementTabController {
             }
         }
     }
+
     public ContexMenuItem emptyContexMenuItem = new ContexMenuItem("", null);
     public List<ContexMenuItem> emptyContextMenuItemList = new ArrayList<>();
 
@@ -332,6 +332,7 @@ public class PortfolioManagementTabController {
         addTab(depotAnlageStrategieTab);
         portfolioManagementTabPane.getSelectionModel().select(depotWertpapierTab);
     }
+
     public void showPortfolioManagementTabs() {
         removeBreadcrumbs();
         hideAllTabs();
@@ -400,34 +401,17 @@ public class PortfolioManagementTabController {
         label1.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
                 onLabelClick.run();
-            }});
+            }
+        });
         breadcrumbContainer.getItems().add(label1);
     }
+
     public void removeBreadcrumbs() {
         breadcrumbContainer.getItems().removeIf(item -> item instanceof Label);
     }
-/*
-    public void changeBreadcrumbs(Tab oldTab, Tab newTab) {
-        removeBreadcrumbs();
-        if (depotTabs.contains(newTab)) {
-            createBreadcrumbInstance("/ Depots", new String[]{"Depot 1", "Depot 2"},this::showPortfolioManagementTabs);
-            createBreadcrumbInstance("/ Depot 1", new String[]{},this::showDepotTabs);
-        } else if (portfolioTabs.contains(newTab)) {
-            createBreadcrumbInstance("/ Portfolios", new String[]{"Portfolio 1", "Portfolio 2"}, this::showPortfolioManagementTabs);
-            createBreadcrumbInstance("/ Portfolio 1", new String[]{},this::showPortfolioTabs);
-        } else if (kontoTabs.contains(newTab)) {
-            createBreadcrumbInstance("/ Kontos", new String[]{"Konto 1", "Konto 2"}, this::showPortfolioManagementTabs);
-            createBreadcrumbInstance("/ Konto 1", new String[]{},this::showKontoTabs);
-        } else if (ownerTabs.contains(newTab)) {
-            createBreadcrumbInstance("/ Inhaber", new String[]{"Inhaber 1", "Inhaber 2"}, this::showPortfolioManagementTabs);
-            createBreadcrumbInstance("/ Inhaber 1", new String[]{},this::showInhaberTabs);
-        }
-    }
-
- */
 
     public void changeBreadcrumbsTest(String type, String element) {
-        switch(type) {
+        switch (type) {
             case "depot":
                 addDepotBreadcrumbs(element, portfolioManagementTabManager.depotList);
                 break;
@@ -450,17 +434,25 @@ public class PortfolioManagementTabController {
             contextMenuList.add(newItem);
         }
         createBreadcrumbInstance("Depots / ", emptyContextMenuItemList, this::showPortfolioManagementTabs, "depot");
-        createBreadcrumbInstance(chosenDepot, contextMenuList, () -> {showDepotTabs(); addDepotBreadcrumbs(chosenDepot, otherDepots);}, "depot");
+        createBreadcrumbInstance(chosenDepot, contextMenuList, () -> {
+            showDepotTabs();
+            addDepotBreadcrumbs(chosenDepot, otherDepots);
+        }, "depot");
     }
+
     public void addPortfolioBreadcrumbs(String chosenPortfolio, String[] otherPortfolios) {
         List<ContexMenuItem> contextMenuList = new ArrayList<>();
         for (String portfolioName : otherPortfolios) {
             ContexMenuItem newItem = new ContexMenuItem(portfolioName, () -> portfolioManagementTabManager.setCurrentlyDisplayedElement(portfolioName));
             contextMenuList.add(newItem);
         }
-        createBreadcrumbInstance("Portfolios / ",emptyContextMenuItemList, this::showPortfolioManagementTabs, "portfolio");
-        createBreadcrumbInstance(chosenPortfolio, contextMenuList, () -> {showPortfolioTabs(); addPortfolioBreadcrumbs(chosenPortfolio, otherPortfolios);}, "portfolio");
+        createBreadcrumbInstance("Portfolios / ", emptyContextMenuItemList, this::showPortfolioManagementTabs, "portfolio");
+        createBreadcrumbInstance(chosenPortfolio, contextMenuList, () -> {
+            showPortfolioTabs();
+            addPortfolioBreadcrumbs(chosenPortfolio, otherPortfolios);
+        }, "portfolio");
     }
+
     public void addOwnerBreadcrumbs(String chosenOwner, String[] otherOwners) {
         List<ContexMenuItem> contextMenuList = new ArrayList<>();
         for (String ownerName : otherOwners) {
@@ -468,8 +460,12 @@ public class PortfolioManagementTabController {
             contextMenuList.add(newItem);
         }
         createBreadcrumbInstance("Inhaber / ", emptyContextMenuItemList, this::showPortfolioManagementTabs, "owner");
-        createBreadcrumbInstance(chosenOwner, contextMenuList, () -> {showInhaberTabs(); addOwnerBreadcrumbs(chosenOwner, otherOwners);}, "owner");
+        createBreadcrumbInstance(chosenOwner, contextMenuList, () -> {
+            showInhaberTabs();
+            addOwnerBreadcrumbs(chosenOwner, otherOwners);
+        }, "owner");
     }
+
     public void addKontoBreadcrumbs(String chosenKonto, String[] otherKontos) {
         List<ContexMenuItem> contextMenuList = new ArrayList<>();
         for (String kontoName : otherKontos) {
@@ -477,12 +473,19 @@ public class PortfolioManagementTabController {
             contextMenuList.add(newItem);
         }
         createBreadcrumbInstance("Konten / ", emptyContextMenuItemList, this::showPortfolioManagementTabs, "konto");
-        createBreadcrumbInstance(chosenKonto, contextMenuList, () -> {showKontoTabs(); addKontoBreadcrumbs(chosenKonto, otherKontos);}, "konto");
+        createBreadcrumbInstance(chosenKonto, contextMenuList, () -> {
+            showKontoTabs();
+            addKontoBreadcrumbs(chosenKonto, otherKontos);
+        }, "konto");
 
 
     }
+
     public void addDepotPlanungBreadcrumbs(String chosenDepot, String[] otherDepots) {
         addDepotBreadcrumbs(chosenDepot, otherDepots);
-        createBreadcrumbInstance(" / Planung", emptyContextMenuItemList, () -> {showDepotTabs(); addDepotBreadcrumbs(chosenDepot, otherDepots); }, "");
+        createBreadcrumbInstance(" / Planung", emptyContextMenuItemList, () -> {
+            showDepotTabs();
+            addDepotBreadcrumbs(chosenDepot, otherDepots);
+        }, "");
     }
 }

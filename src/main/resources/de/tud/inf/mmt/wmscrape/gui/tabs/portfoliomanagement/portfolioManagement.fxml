@@ -6,16 +6,22 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
-<AnchorPane prefHeight="655.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController">
+<AnchorPane prefHeight="655.0" prefWidth="1337.0" xmlns="http://javafx.com/javafx/20.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController">
     <children>
-        <TabPane fx:id="portfolioManagementTabPane" prefHeight="655.0" prefWidth="1337.0" style="-fx-background-color: #FFF;" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <styleClass>
-            <String fx:value="white-tab-pane" />
-            <String fx:value="portfolio-management-tab-pane" />
-            <String fx:value="floating" />
-         </styleClass></TabPane>
+        <TabPane fx:id="portfolioManagementTabPane" prefHeight="655.0" prefWidth="1337.0"
+                 style="-fx-background-color: #FFF;" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0"
+                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <styleClass>
+                <String fx:value="white-tab-pane"/>
+                <String fx:value="portfolio-management-tab-pane"/>
+                <String fx:value="floating"/>
+            </styleClass>
+        </TabPane>
         <HBox>
-            <ToolBar fx:id="breadcrumbContainer" layoutX="4.0" layoutY="7.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="32.0" prefWidth="250.0" style="-fx-background-color: white;">
+            <ToolBar fx:id="breadcrumbContainer" layoutX="4.0" layoutY="7.0" nodeOrientation="LEFT_TO_RIGHT"
+                     prefHeight="32.0" prefWidth="250.0" style="-fx-background-color: white;">
             </ToolBar>
         </HBox>
     </children>
