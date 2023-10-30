@@ -22,5 +22,10 @@
                 <Font size="32.0" />
             </font>
         </Button>
+        <Button fx:id="switchToDepot3Button" layoutX="570.0" layoutY="413.0" mnemonicParsing="false" text="zu Depot 2">
+            <font>
+                <Font size="32.0" />
+            </font>
+        </Button>
     </children>
 </AnchorPane>

@@ -284,13 +284,6 @@ public class PortfolioManagementTabController {
         portfolioTabs = Set.of(portfolioStrukturTab, portfolioAnalyseTab, portfolioBenchmarkTab);
         kontoTabs = Set.of(kontoÜbersichtTab, kontoTransaktionenTab);
         ownerTabs = Set.of(inhaberVermögenTab, inhaberÜbersichtTab);
-
-        portfolioManagementTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
-            if (newTab == depotPlanungTab) {
-                showDepotPlanungTabs();
-                addDepotPlanungBreadcrumbs(portfolioManagementTabManager.getCurrentlyDisplayedElement(), portfolioManagementTabManager.depotList);
-            }
-        });
         showPortfolioManagementTabs();
     }
 
@@ -410,20 +403,15 @@ public class PortfolioManagementTabController {
         breadcrumbContainer.getItems().removeIf(item -> item instanceof Label);
     }
 
-    public void changeBreadcrumbsTest(String type, String element) {
-        switch (type) {
-            case "depot":
-                addDepotBreadcrumbs(element, portfolioManagementTabManager.depotList);
-                break;
-            case "portfolio":
-                addPortfolioBreadcrumbs(element, portfolioManagementTabManager.portfolioList);
-                break;
-            case "owner":
-                addOwnerBreadcrumbs(element, portfolioManagementTabManager.ownerList);
-                break;
-            case "konto":
-                addKontoBreadcrumbs(element, portfolioManagementTabManager.kontoList);
-                break;
+    public void changeBreadcrumbs(List<String> types, List<String> elements) {
+        for (int i = 0; i < types.size(); i++) {
+            switch (types.get(i)) {
+                case "depot" -> addDepotBreadcrumbs(elements.get(i), portfolioManagementTabManager.depotList);
+                case "portfolio" ->
+                        addPortfolioBreadcrumbs(elements.get(i), portfolioManagementTabManager.portfolioList);
+                case "owner" -> addOwnerBreadcrumbs(elements.get(i), portfolioManagementTabManager.ownerList);
+                case "konto" -> addKontoBreadcrumbs(elements.get(i), portfolioManagementTabManager.kontoList);
+            }
         }
     }
 

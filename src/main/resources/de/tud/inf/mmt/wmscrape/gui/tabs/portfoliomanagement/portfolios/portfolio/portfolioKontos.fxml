@@ -12,17 +12,19 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.portfolio.PortfolioKontosController"
             prefHeight="756.0" prefWidth="1337.0">
-    <children>
-        <Label layoutX="539.0" layoutY="273.0" text="Portfolio Kontenliste">
-            <font>
-                <Font name="System Bold" size="38.0" />
-            </font>
-        </Label>
-        <Text layoutX="168.0" layoutY="408.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hier sollen alle im Portfolio zusammengefassten Konten dargestellt werden" wrappingWidth="1000">
-            <font>
-                <Font size="32.0" />
-            </font>
-        </Text>
-    </children>
-
+    <VBox alignment="CENTER" prefHeight="756.0" prefWidth="1337.0" fx:id="kontoListContainer">
+        <children>
+            <Label layoutX="539.0" layoutY="273.0" text="Portfolio Kontenliste">
+                <font>
+                    <Font name="System Bold" size="38.0"/>
+                </font>
+            </Label>
+            <Text layoutX="168.0" layoutY="408.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                  text="Hier sollen alle im Portfolio zusammengefassten Konten dargestellt werden" wrappingWidth="1000">
+                <font>
+                    <Font size="32.0"/>
+                </font>
+            </Text>
+        </children>
+    </VBox>
 </AnchorPane>

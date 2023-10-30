@@ -21,6 +21,8 @@ public class DepotListController {
     @FXML
     private Button switchToDepot2Button;
     @FXML
+    private Button switchToDepot3Button;
+    @FXML
     private PortfolioManagementTabManager portfolioManagementTabManager;
 
     @Autowired
@@ -39,6 +41,11 @@ public class DepotListController {
             portfolioManagementTabManager.showDepotTabs();
             portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("depot");
             portfolioManagementTabManager.setCurrentlyDisplayedElement("Depot 2");
+        });
+        switchToDepot3Button.setOnAction(actionEvent -> {
+            portfolioManagementTabManager.showDepotTabs();
+            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("depot");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement("Depot 3");
         });
     }
 
