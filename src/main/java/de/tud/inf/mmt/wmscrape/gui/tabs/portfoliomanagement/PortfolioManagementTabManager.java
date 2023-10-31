@@ -1,16 +1,13 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement;
 
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
 public class PortfolioManagementTabManager {
-    public TabPane portfolioManagementTabpane;
 
     private PortfolioManagementTabController portfolioController;
 
@@ -23,37 +20,28 @@ public class PortfolioManagementTabManager {
     public  String[] kontosOfPortfolio1List = {"Konto 1", "Konto 2"};
 
     //
-    private List<String> currentlyDisplayedElements = new ArrayList<>();
-    private List<String> typesOfCurrentlyDisplayedElements = new ArrayList<>();
+    private List<BreadcrumbElement> currentlyDisplayedElements = new ArrayList<>();
 
     public void setPortfolioController(PortfolioManagementTabController controller) {
         this.portfolioController = controller;
     }
 
-    public List<String> getCurrentlyDisplayedElement() {
+    public List<BreadcrumbElement> getCurrentlyDisplayedElements() {
         return  currentlyDisplayedElements;
     }
 
-    public void setCurrentlyDisplayedElement(String newElement) {
+    public void setCurrentlyDisplayedElement(BreadcrumbElement newElement) {
         currentlyDisplayedElements.clear();
         currentlyDisplayedElements.add(newElement);
         changeBreadcrumbs();
     }
-    public void addCurrentlyDisplayedElement(String newElement) {
+    public void addCurrentlyDisplayedElement(BreadcrumbElement newElement) {
         currentlyDisplayedElements.add(newElement);
         changeBreadcrumbs();
     }
-
-    public List<String> getTypeOfCurrentlyDisplayedElement() {
-        return  typesOfCurrentlyDisplayedElements;
-    }
-
-    public void setTypeOfCurrentlyDisplayedElement(String newType) {
-        typesOfCurrentlyDisplayedElements.clear();
-        typesOfCurrentlyDisplayedElements.add(newType);
-    }
-    public void addTypeOfCurrentlyDisplayedElement(String newType) {
-        typesOfCurrentlyDisplayedElements.add(newType);
+    public void removeLastCurrentlyDisplayedElement() {
+        currentlyDisplayedElements.remove(currentlyDisplayedElements.size() - 1);
+        changeBreadcrumbs();
     }
 
     public void showPortfolioManagementTabs() {
@@ -99,7 +87,7 @@ public class PortfolioManagementTabManager {
 
     public void changeBreadcrumbs() {
         if (portfolioController != null) {
-            portfolioController.changeBreadcrumbs(typesOfCurrentlyDisplayedElements, currentlyDisplayedElements);
+            portfolioController.changeBreadcrumbs(currentlyDisplayedElements);
         }
     }
 }

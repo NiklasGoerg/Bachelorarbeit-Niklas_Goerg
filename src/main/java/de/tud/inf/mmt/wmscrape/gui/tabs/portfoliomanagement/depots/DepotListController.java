@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.depots;
 
 import de.tud.inf.mmt.wmscrape.WMScrape;
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.BreadcrumbElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabManager;
 import javafx.fxml.FXML;
@@ -34,18 +35,15 @@ public class DepotListController {
     private void initialize() {
         switchToDepot1Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showDepotTabs();
-            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("depot");
-            portfolioManagementTabManager.setCurrentlyDisplayedElement("Depot 1");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement(new BreadcrumbElement("Depot 1", "depot"));
         });
         switchToDepot2Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showDepotTabs();
-            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("depot");
-            portfolioManagementTabManager.setCurrentlyDisplayedElement("Depot 2");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement(new BreadcrumbElement("Depot 2", "depot"));
         });
         switchToDepot3Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showDepotTabs();
-            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("depot");
-            portfolioManagementTabManager.setCurrentlyDisplayedElement("Depot 3");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement(new BreadcrumbElement("Depot 3", "depot"));
         });
     }
 

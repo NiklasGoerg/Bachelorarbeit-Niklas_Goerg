@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.portfolio;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.BreadcrumbElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -26,9 +27,8 @@ public class PortfolioKontosController {
             String konto = portfolioManagementTabManager.kontosOfPortfolio1List[i];
             Button button = new Button(konto);
             button.setOnAction(actionEvent -> {
-                portfolioManagementTabManager.showDepotTabs();
-                portfolioManagementTabManager.addTypeOfCurrentlyDisplayedElement("konto");
-                portfolioManagementTabManager.addCurrentlyDisplayedElement(konto);
+                portfolioManagementTabManager.showKontoTabs();
+                portfolioManagementTabManager.addCurrentlyDisplayedElement(new BreadcrumbElement(konto, "konto"));
             });
 
             kontoListContainer.getChildren().add(button);

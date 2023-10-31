@@ -1,6 +1,7 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.portfolio;
 
 import de.tud.inf.mmt.wmscrape.gui.tabs.PrimaryTabManager;
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.BreadcrumbElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios.PortfolioListController;
 import javafx.fxml.FXML;
@@ -33,8 +34,7 @@ public class PortfolioDepotsController {
             Button button = new Button(depot);
             button.setOnAction(actionEvent -> {
                 portfolioManagementTabManager.showDepotTabs();
-                portfolioManagementTabManager.addTypeOfCurrentlyDisplayedElement("depot");
-                portfolioManagementTabManager.addCurrentlyDisplayedElement(depot);
+                portfolioManagementTabManager.addCurrentlyDisplayedElement(new BreadcrumbElement(depot, "depot"));
             });
 
             depotListContainer.getChildren().add(button);

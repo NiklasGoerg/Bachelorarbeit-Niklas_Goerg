@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.owners;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.BreadcrumbElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -26,13 +27,11 @@ public class OwnerListController {
     private void initialize() {
         switchToOwner1Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showInhaberTabs();
-            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("owner");
-            portfolioManagementTabManager.setCurrentlyDisplayedElement("Inhaber 1");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement(new BreadcrumbElement("Inhaber 1", "owner"));
         });
         switchToOwner2Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showInhaberTabs();
-            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("owner");
-            portfolioManagementTabManager.setCurrentlyDisplayedElement("Inhaber 2");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement(new BreadcrumbElement("Inhaber 2", "konto"));
         });
     }
 

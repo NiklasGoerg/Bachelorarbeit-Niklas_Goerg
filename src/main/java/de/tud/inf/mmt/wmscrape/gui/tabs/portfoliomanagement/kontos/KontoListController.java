@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.kontos;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.BreadcrumbElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -26,13 +27,11 @@ public class KontoListController {
     private void initialize() {
         switchToKonto1Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showKontoTabs();
-            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("konto");
-            portfolioManagementTabManager.setCurrentlyDisplayedElement("Konto 1");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement(new BreadcrumbElement("Konto 1", "konto"));
         });
         switchToKonto2Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showKontoTabs();
-            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("konto");
-            portfolioManagementTabManager.setCurrentlyDisplayedElement("Konto 2");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement(new BreadcrumbElement("Konto 2", "konto"));
         });
     }
 

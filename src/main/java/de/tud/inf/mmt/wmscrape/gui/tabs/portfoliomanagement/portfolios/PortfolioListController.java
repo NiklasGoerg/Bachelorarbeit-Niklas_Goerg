@@ -1,5 +1,6 @@
 package de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.portfolios;
 
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.BreadcrumbElement;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -25,13 +26,11 @@ public class PortfolioListController {
     private void initialize() {
         switchToPortfolio1Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showPortfolioTabs();
-            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("portfolio");
-            portfolioManagementTabManager.setCurrentlyDisplayedElement("Portfolio 1");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement(new BreadcrumbElement("Portfolio 1", "portfolio"));
         });
         switchToPortfolio2Button.setOnAction(actionEvent -> {
             portfolioManagementTabManager.showPortfolioTabs();
-            portfolioManagementTabManager.setTypeOfCurrentlyDisplayedElement("portfolio");
-            portfolioManagementTabManager.setCurrentlyDisplayedElement("Portfolio 2");
+            portfolioManagementTabManager.setCurrentlyDisplayedElement(new BreadcrumbElement("Portfolio 2", "portfolio"));
         });
     }
 
