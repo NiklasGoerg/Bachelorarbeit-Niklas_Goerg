@@ -3,16 +3,20 @@ package de.tud.inf.mmt.wmscrape.gui.tabs;
 import de.tud.inf.mmt.wmscrape.gui.tabs.dbdata.controller.DataTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.historic.controller.HistoricTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.imports.controller.ImportTabController;
+import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabManager;
 import de.tud.inf.mmt.wmscrape.gui.tabs.scraping.ScrapingTabsController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.visualization.controller.VisualizationTabController;
 import de.tud.inf.mmt.wmscrape.gui.tabs.portfoliomanagement.PortfolioManagementTabController;
 import de.tud.inf.mmt.wmscrape.springdata.SpringIndependentData;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.MouseButton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -42,8 +46,10 @@ public class PrimaryTabController {
     private HistoricTabController historicTabController;
     @Autowired
     private VisualizationTabController visualizationTabController;
+
+    PortfolioManagementTabManager portfolioManagementTabManager = new PortfolioManagementTabManager();
     @Autowired
-    private PortfolioManagementTabController portfolioManagementTabController;
+    private PortfolioManagementTabController portfolioManagementTabController = new PortfolioManagementTabController(portfolioManagementTabManager);
 
     /**
      * called when loading the fxml file
@@ -79,7 +85,12 @@ public class PrimaryTabController {
             if (nv.equals(visualizeTab)) {
                 visualizationTabController.fillSelectionTables();
             }
+            if (nv.equals(managementTab)) {
+                portfolioManagementTabController.showPortfolioManagementTabs();
+                System.out.println("onManagementTab");
+            }
         });
+
         primaryTabPane.setStyle("-fx-tab-min-height: 30px;" + "-fx-tab-max-height: 30px;" + "-fx-tab-min-width: 150px;" + "-fx-tab-max-width: 150px;" + "-fx-alignment: CENTER;");
     }
 

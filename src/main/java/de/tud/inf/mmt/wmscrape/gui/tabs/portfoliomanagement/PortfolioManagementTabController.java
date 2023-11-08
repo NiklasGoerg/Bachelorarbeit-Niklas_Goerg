@@ -27,6 +27,11 @@ import java.util.Set;
 
 @Controller
 public class PortfolioManagementTabController {
+
+    public PortfolioManagementTabController(PortfolioManagementTabManager portfolioManagementTabManager) {
+        this.portfolioManagementTabManager = portfolioManagementTabManager;
+    }
+
     public ToolBar breadcrumbContainer;
 
     @FXML
@@ -155,7 +160,6 @@ public class PortfolioManagementTabController {
      */
     @FXML
     private void initialize() throws IOException {
-        portfolioManagementTabManager = new PortfolioManagementTabManager();
         portfolioManagementTabManager.setPortfolioController(this);
 
         portfolioListController = new PortfolioListController(portfolioManagementTabManager);
@@ -293,6 +297,7 @@ public class PortfolioManagementTabController {
                 changeBreadcrumbs(portfolioManagementTabManager.getCurrentlyDisplayedElements());
                 addDepotPlanungBreadcrumbs();
             }
+
         });
     }
 
